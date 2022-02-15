@@ -1,0 +1,12 @@
+overwrite: true
+schema: "../api/schema.gql"
+documents: "src/**/*.ts"
+hooks:
+  afterOneFileWrite:
+    - eslint --fix
+generates:
+  src/generated/graphql.ts:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-graphql-request"

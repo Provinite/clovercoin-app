@@ -1,0 +1,23 @@
+query getCritters {
+  critters {
+    id
+    name
+    traits {
+      ... on CritterTrait {
+        trait {
+          id
+        }
+        displayValue
+      }
+    }
+    species {
+      id
+      name
+      traits {
+        id
+        name
+        valueType
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@apollo/client": "^3.5.8",
+    "@emotion/react": "^11",
+    "@emotion/styled": "^11",
+    "framer-motion": "^6",
+    "graphql-request": "^4.0.0",
+    "graphql-tag": "^2.12.6",
+    "parcel": "^2.3.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-icons": "^4.3.1",
+    "react-query": "^3.34.15",
+    "react-router-dom": "^6.2.1",
+    "sass": "^1.49.7",
+    "typescript": "^4.5.5"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^2.6.1",
+    "@graphql-codegen/introspection": "2.1.1",
+    "@graphql-codegen/typescript": "^2.4.3",
+    "@graphql-codegen/typescript-graphql-request": "^4.3.5",
+    "@graphql-codegen/typescript-operations": "^2.3.0",
+    "@types/node": "^17.0.17",
+    "@types/react": "^17.0.39",
+    "@types/react-dom": "^17.0.11"
+  },
+  "scripts": {
+    "start": "parcel src/index.html",
+    "codegen": "graphql-codegen --config codegen.yml"
+  },
+  "alias": {
+    "process": {
+      "global": "process"
+    }
+  }
+}

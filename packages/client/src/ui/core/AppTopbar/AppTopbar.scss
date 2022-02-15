@@ -1,0 +1,40 @@
+@use "../scss/colors.scss";
+.app--topbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  height: 115px;
+  background-color: colors.$primary;
+  color: colors.$textOnPrimary;
+  margin-bottom: 2px;
+
+  .topbar--breadcrumbs {
+    display: flex;
+    align-self: flex-end;
+  }
+
+  .topbar--user {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 100;
+    font-size: 32px;
+
+    .topbar--user-icon {
+      display: flex;
+    }
+
+    .topbar--username {
+      display: flex;
+      margin-right: 24px;
+    }
+  }
+
+  .topbar--breadcrumbs,
+  .topbar--user {
+    padding: 16px;
+  }
+}
