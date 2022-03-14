@@ -13,6 +13,7 @@
   .topbar--breadcrumbs {
     display: flex;
     align-self: flex-end;
+    color: colors.$emphasisOnSecondary;
   }
 
   .topbar--user {
@@ -25,6 +26,9 @@
 
     .topbar--user-icon {
       display: flex;
+      font-size: 40px;
+      background-color: colors.$background;
+      border-radius: 50%;
     }
 
     .topbar--username {

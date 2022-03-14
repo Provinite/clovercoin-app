@@ -1,7 +1,7 @@
 import * as React from "react";
 import { FunctionComponent } from "react";
 import "./AppTopbar.scss";
-import { FaUser } from "react-icons/fa";
+import { VscAccount } from "react-icons/vsc";
 export const AppTopbar: FunctionComponent = () => {
   return (
     <div className="app--topbar">
@@ -10,7 +10,7 @@ export const AppTopbar: FunctionComponent = () => {
       </div>
       <div className="topbar--user">
         <span className="topbar--username">Prov</span>
-        <FaUser className="topbar--user-icon" />
+        <VscAccount className="topbar--user-icon" />
       </div>
     </div>
   );

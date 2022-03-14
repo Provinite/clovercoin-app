@@ -216,6 +216,13 @@ export type GetCrittersQuery = {
   }>;
 };
 
+export type GetSpeciesListViewQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetSpeciesListViewQuery = {
+  __typename?: "Query";
+  species: Array<{ __typename?: "Species"; id: string; name: string }>;
+};
+
 export const GetCrittersDocument = gql`
   query getCritters {
     critters {
@@ -238,6 +245,14 @@ export const GetCrittersDocument = gql`
           valueType
         }
       }
+    }
+  }
+`;
+export const GetSpeciesListViewDocument = gql`
+  query getSpeciesListView {
+    species {
+      id
+      name
     }
   }
 `;
@@ -265,6 +280,20 @@ export function getSdk(
             ...wrappedRequestHeaders,
           }),
         "getCritters"
+      );
+    },
+    getSpeciesListView(
+      variables?: GetSpeciesListViewQueryVariables,
+      requestHeaders?: Dom.RequestInit["headers"]
+    ): Promise<GetSpeciesListViewQuery> {
+      return withWrapper(
+        (wrappedRequestHeaders) =>
+          client.request<GetSpeciesListViewQuery>(
+            GetSpeciesListViewDocument,
+            variables,
+            { ...requestHeaders, ...wrappedRequestHeaders }
+          ),
+        "getSpeciesListView"
       );
     },
   };

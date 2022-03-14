@@ -1,0 +1,6 @@
+query getSpeciesListView {
+  species {
+    id
+    name
+  }
+}

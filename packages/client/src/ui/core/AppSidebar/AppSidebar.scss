@@ -8,15 +8,14 @@
   display: flex;
   flex-direction: column;
 
-  .sidebar--icon {
+  & > .sidebar--icon {
     display: flex;
     align-self: center;
-    background-image: url("https://i.imgur.com/ySqjejwh.jpg");
+    background-image: url("./cc-logo-dark.png");
     background-size: contain;
     height: 150px;
     width: 150px;
     background-repeat: no-repeat;
-    border-radius: 100%;
     margin-top: 25px;
   }
   .sidebar--header {
@@ -33,13 +32,32 @@
     font-family: "Roboto";
     display: flex;
     flex-direction: column;
-    align-items: center;
     a {
-      font-size: 18px;
-      margin-top: 20px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      font-size: 24px;
       color: colors.$textOnPrimary;
       text-decoration: none;
       font-weight: 300;
+      padding-top: 16px;
+      padding-bottom: 16px;
+      padding-left: 30px;
+
+      border-bottom: 2px solid colors.$background;
+
+      &:hover {
+        background-color: colors.$background;
+      }
+
+      transition: 0.3s ease-in;
+
+      .sidebar--icon {
+        display: flex;
+        margin-right: 20px;
+        font-size: 40px;
+      }
     }
   }
 }

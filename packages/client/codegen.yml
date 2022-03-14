@@ -1,6 +1,6 @@
 overwrite: true
 schema: "../api/schema.gql"
-documents: "src/**/*.ts"
+documents: "src/**/*.graphql"
 hooks:
   afterOneFileWrite:
     - eslint --fix

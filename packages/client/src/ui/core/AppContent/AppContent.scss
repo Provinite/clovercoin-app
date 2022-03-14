@@ -1,7 +1,7 @@
 @use "../scss/colors.scss";
 .app--content {
   color: colors.$textOnPrimary;
-  background-color: colors.$primary;
+  background-color: #ececec;
   display: flex;
   flex-direction: column;
   flex-grow: 1;

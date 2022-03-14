@@ -16,6 +16,7 @@ import { CritterTrait } from "./models/CritterTrait/CritterTrait";
 import { CritterTraitResolver } from "./models/CritterTrait/CritterTraitResolver";
 import { TraitResolver } from "./models/Trait/TraitResolver";
 import { SpeciesTraitResolver } from "./models/SpeciesTrait/SpeciesTraitResolver";
+import cors from "@koa/cors";
 
 (async function () {
   const db = await createDbConnection();
@@ -39,7 +40,7 @@ import { SpeciesTraitResolver } from "./models/SpeciesTrait/SpeciesTraitResolver
     emitSchemaFile: "./schema.gql",
   });
 
-  koa.use(
+  koa.use(cors()).use(
     mount(
       "/",
       graphqlHTTP(

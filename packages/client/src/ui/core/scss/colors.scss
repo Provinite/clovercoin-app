@@ -1,14 +1,9 @@
 @use "sass:color";
-// $primary: #d9cb9e;
-// $textOnPrimary: #333333;
-// $secondary: #543816;
-// $textOnSecondary: #ddd;
 $offset: -30%;
 
 $primary: #171923;
 $textOnPrimary: rgba(255, 255, 255, 0.92);
 
-$background: rgb(45, 55, 72);
+$background: #e8e8e8;
 $textOnSecondary: white;
-
-$border: #d9cb9e;
+$emphasisOnSecondary: color.scale($textOnSecondary, $lightness: -30%);
