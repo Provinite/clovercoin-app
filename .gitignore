@@ -2,3 +2,5 @@ node_modules
 yarn-error.log
 .parcel-cache
 dist
+.vscode/settings.json
+.vscode/react.code-snippets
