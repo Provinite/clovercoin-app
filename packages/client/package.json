@@ -8,6 +8,7 @@
     "aphrodite": "^2.4.0",
     "classnames": "^2.3.1",
     "framer-motion": "^6",
+    "generate-template-files": "^3.2.0",
     "graphql-request": "^4.0.0",
     "graphql-tag": "^2.12.6",
     "parcel": "^2.3.1",
@@ -36,14 +37,17 @@
     "@storybook/preset-scss": "^1.0.3",
     "@storybook/react": "^6.5.0-alpha.55",
     "@storybook/testing-library": "^0.0.9",
+    "@types/flat": "^5.0.2",
     "@types/node": "^17.0.17",
     "@types/react": "^17.0.39",
     "@types/react-dom": "^17.0.11",
     "babel-loader": "^8.2.3",
     "css-loader": "^6.7.1",
+    "flat": "^5.0.2",
     "sass-loader": "12.6.0",
     "storybook-addon-theme-playground": "^2.1.0",
     "style-loader": "^3.3.1",
+    "ts-node": "^10.7.0",
     "uuid": "^8.3.2",
     "webpack": "5"
   },
@@ -51,7 +55,8 @@
     "start": "parcel src/index.html",
     "codegen": "graphql-codegen --config codegen.yml",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook -o built-storybook/"
+    "build-storybook": "build-storybook -o built-storybook/",
+    "gen": "ts-node ./tools/generate.ts"
   },
   "alias": {
     "process": {
