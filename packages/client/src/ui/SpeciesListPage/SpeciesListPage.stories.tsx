@@ -7,7 +7,6 @@ import { flatten, unflatten } from "flat";
 import { Flatten } from "../../typing/types";
 import { SpeciesListProps } from "../SpeciesList/SpeciesList";
 import * as SpeciesListStories from "../SpeciesList/SpeciesList.stories";
-import * as HeaderBarStories from "../HeaderBar/HeaderBar.stories";
 const delimiter = ".";
 
 type FlatProps = Flatten<SpeciesListPageProps, ".">;
@@ -35,7 +34,8 @@ export const Usage = Template.bind({});
 Usage.args = flatten<SpeciesListPageProps, FlatProps>(
   {
     headerBarProps: {
-      ...HeaderBarStories.Usage.args,
+      userIconUrl: "http://placekitten.com/90/90",
+      userName: "Mr. Snuggles",
     },
     speciesListProps: {
       ...SpeciesListStories.Usage.args,
