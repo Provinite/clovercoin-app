@@ -1,12 +1,11 @@
 import { ComponentMeta, ComponentStory } from "@storybook/react";
+import { unflatten } from "flat";
 import * as React from "react";
 import { FC } from "react";
-import { SpeciesListPage, SpeciesListPageProps } from "./SpeciesListPage";
-
-import { flatten, unflatten } from "flat";
-import { Flatten } from "../../typing/types";
-import { SpeciesListProps } from "../SpeciesList/SpeciesList";
+import { flatArgTypes, flattenArgs } from "../../../tools/storybook-utils";
+import type { Flatten } from "../../typing/types";
 import * as SpeciesListStories from "../SpeciesList/SpeciesList.stories";
+import { SpeciesListPage, SpeciesListPageProps } from "./SpeciesListPage";
 const delimiter = ".";
 
 type FlatProps = Flatten<SpeciesListPageProps, ".">;
@@ -18,29 +17,26 @@ const Template: ComponentStory<FC<FlatProps>> = (args) => (
 const meta: ComponentMeta<FC<FlatProps>> = {
   title: "CloverCoin/Pages/SpeciesListPage",
   component: Template,
-  argTypes: {
-    "speciesListProps.onEditClick": {},
-    "speciesListProps.onRemoveClick": {},
-    "speciesListProps.onSearchTextChange": {},
-  },
   parameters: {
     layout: "fullscreen",
     actions: { argTypesRegex: ".*?\\.on[A-Z].*" },
   },
+  argTypes: flatArgTypes<SpeciesListPageProps>({
+    "speciesListProps.onEditClick": {},
+    "speciesListProps.onRemoveClick": {},
+    "speciesListProps.onSearchTextChange": {},
+  }),
 };
 export default meta;
 
 export const Usage = Template.bind({});
-Usage.args = flatten<SpeciesListPageProps, FlatProps>(
-  {
-    headerBarProps: {
-      userIconUrl: "http://placekitten.com/90/90",
-      userName: "Mr. Snuggles",
-    },
-    speciesListProps: {
-      ...SpeciesListStories.Usage.args,
-      searchText: "",
-    } as SpeciesListProps,
+Usage.args = flattenArgs<SpeciesListPageProps>({
+  headerBarProps: {
+    userIconUrl: "http://placekitten.com/90/90",
+    userName: "Mr. Snuggles",
   },
-  { delimiter, safe: true }
-);
+  speciesListProps: {
+    ...SpeciesListStories.Usage.args,
+    searchText: "",
+  },
+});

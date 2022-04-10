@@ -1,17 +1,15 @@
-import { GraphQLClient } from "graphql-request";
-import * as Dom from "graphql-request/dist/types.dom";
-import gql from "graphql-tag";
+import { gql } from "@apollo/client";
+import * as Apollo from "@apollo/client";
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = {
   [K in keyof T]: T[K];
 };
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]?: Maybe<T[SubKey]>;
-};
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]: Maybe<T[SubKey]>;
-};
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> &
+  { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> &
+  { [SubKey in K]: Maybe<T[SubKey]> };
+const defaultOptions = {} as const;
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -248,6 +246,54 @@ export const GetCrittersDocument = gql`
     }
   }
 `;
+
+/**
+ * __useGetCrittersQuery__
+ *
+ * To run a query within a React component, call `useGetCrittersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCrittersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCrittersQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetCrittersQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetCrittersQuery,
+    GetCrittersQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetCrittersQuery, GetCrittersQueryVariables>(
+    GetCrittersDocument,
+    options
+  );
+}
+export function useGetCrittersLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCrittersQuery,
+    GetCrittersQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetCrittersQuery, GetCrittersQueryVariables>(
+    GetCrittersDocument,
+    options
+  );
+}
+export type GetCrittersQueryHookResult = ReturnType<typeof useGetCrittersQuery>;
+export type GetCrittersLazyQueryHookResult = ReturnType<
+  typeof useGetCrittersLazyQuery
+>;
+export type GetCrittersQueryResult = Apollo.QueryResult<
+  GetCrittersQuery,
+  GetCrittersQueryVariables
+>;
 export const GetSpeciesListViewDocument = gql`
   query getSpeciesListView {
     species {
@@ -257,45 +303,52 @@ export const GetSpeciesListViewDocument = gql`
   }
 `;
 
-export type SdkFunctionWrapper = <T>(
-  action: (requestHeaders?: Record<string, string>) => Promise<T>,
-  operationName: string
-) => Promise<T>;
-
-const defaultWrapper: SdkFunctionWrapper = (action, _operationName) => action();
-
-export function getSdk(
-  client: GraphQLClient,
-  withWrapper: SdkFunctionWrapper = defaultWrapper
+/**
+ * __useGetSpeciesListViewQuery__
+ *
+ * To run a query within a React component, call `useGetSpeciesListViewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSpeciesListViewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSpeciesListViewQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetSpeciesListViewQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetSpeciesListViewQuery,
+    GetSpeciesListViewQueryVariables
+  >
 ) {
-  return {
-    getCritters(
-      variables?: GetCrittersQueryVariables,
-      requestHeaders?: Dom.RequestInit["headers"]
-    ): Promise<GetCrittersQuery> {
-      return withWrapper(
-        (wrappedRequestHeaders) =>
-          client.request<GetCrittersQuery>(GetCrittersDocument, variables, {
-            ...requestHeaders,
-            ...wrappedRequestHeaders,
-          }),
-        "getCritters"
-      );
-    },
-    getSpeciesListView(
-      variables?: GetSpeciesListViewQueryVariables,
-      requestHeaders?: Dom.RequestInit["headers"]
-    ): Promise<GetSpeciesListViewQuery> {
-      return withWrapper(
-        (wrappedRequestHeaders) =>
-          client.request<GetSpeciesListViewQuery>(
-            GetSpeciesListViewDocument,
-            variables,
-            { ...requestHeaders, ...wrappedRequestHeaders }
-          ),
-        "getSpeciesListView"
-      );
-    },
-  };
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetSpeciesListViewQuery,
+    GetSpeciesListViewQueryVariables
+  >(GetSpeciesListViewDocument, options);
 }
-export type Sdk = ReturnType<typeof getSdk>;
+export function useGetSpeciesListViewLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetSpeciesListViewQuery,
+    GetSpeciesListViewQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetSpeciesListViewQuery,
+    GetSpeciesListViewQueryVariables
+  >(GetSpeciesListViewDocument, options);
+}
+export type GetSpeciesListViewQueryHookResult = ReturnType<
+  typeof useGetSpeciesListViewQuery
+>;
+export type GetSpeciesListViewLazyQueryHookResult = ReturnType<
+  typeof useGetSpeciesListViewLazyQuery
+>;
+export type GetSpeciesListViewQueryResult = Apollo.QueryResult<
+  GetSpeciesListViewQuery,
+  GetSpeciesListViewQueryVariables
+>;
