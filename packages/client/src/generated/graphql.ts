@@ -214,7 +214,9 @@ export type GetCrittersQuery = {
   }>;
 };
 
-export type GetSpeciesListViewQueryVariables = Exact<{ [key: string]: never }>;
+export type GetSpeciesListViewQueryVariables = Exact<{
+  name?: InputMaybe<Scalars["String"]>;
+}>;
 
 export type GetSpeciesListViewQuery = {
   __typename?: "Query";
@@ -295,8 +297,8 @@ export type GetCrittersQueryResult = Apollo.QueryResult<
   GetCrittersQueryVariables
 >;
 export const GetSpeciesListViewDocument = gql`
-  query getSpeciesListView {
-    species {
+  query getSpeciesListView($name: String) {
+    species(filters: { name: $name }) {
       id
       name
     }
@@ -315,6 +317,7 @@ export const GetSpeciesListViewDocument = gql`
  * @example
  * const { data, loading, error } = useGetSpeciesListViewQuery({
  *   variables: {
+ *      name: // value for 'name'
  *   },
  * });
  */

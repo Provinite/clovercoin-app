@@ -5,8 +5,10 @@ import { SpeciesEventHandler } from "../SpeciesList/SpeciesList";
 import { SpeciesListPage } from "./SpeciesListPage";
 
 export interface SpeciesListProviderProps {}
-
-export const SpeciesListProvider: FC<SpeciesListProviderProps> = (args) => {
+/**
+ * Component that renders a species list with data from the graphql API.
+ */
+export const SpeciesListProvider: FC<SpeciesListProviderProps> = () => {
   const [searchText, setSearchText] = useState("");
 
   const onEditClick: SpeciesEventHandler = useCallback((e) => {
@@ -22,7 +24,15 @@ export const SpeciesListProvider: FC<SpeciesListProviderProps> = (args) => {
     [setSearchText]
   );
 
-  const result = useGetSpeciesListViewQuery();
+  const { data, loading } = useGetSpeciesListViewQuery({
+    variables: {
+      name: searchText,
+    },
+  });
+
+  if (!loading && !data) {
+    throw new Error("Error fetching data for species list view");
+  }
 
   return (
     <SpeciesListPage
@@ -34,7 +44,8 @@ export const SpeciesListProvider: FC<SpeciesListProviderProps> = (args) => {
         onEditClick,
         onRemoveClick,
         onSearchTextChange,
-        species: result.loading ? [] : result.data!.species,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        species: loading ? [] : data!.species,
         searchText,
       }}
     />

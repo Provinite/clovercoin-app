@@ -10,6 +10,7 @@ export interface ColumnDefinition<T> {
 }
 
 export interface DataTableProps<T> {
+  loading?: boolean;
   data: T[];
   columns: ColumnDefinition<T>[];
   classes?: {
@@ -25,7 +26,12 @@ export interface DataTableProps<T> {
 }
 
 type PropTypes<T> = Parameters<FunctionComponent<DataTableProps<T>>>[0];
-export const DataTable = <T,>({ classes, columns, data }: PropTypes<T>) => {
+export const DataTable = <T,>({
+  classes,
+  columns,
+  data,
+  loading,
+}: PropTypes<T>) => {
   return (
     <div className={classNames("data-table", classes?.root)}>
       <div
@@ -53,28 +59,30 @@ export const DataTable = <T,>({ classes, columns, data }: PropTypes<T>) => {
         })}
       </div>
       <div className={classNames("data-table--body", classes?.body)}>
-        {data.map((data) => (
-          <div
-            className={classNames(
-              "data-table--row",
-              classes?.bodyRow,
-              classes?.row
-            )}
-          >
-            {columns.map(({ selector, width }) => (
-              <div
-                className={classNames(
-                  "data-table--cell",
-                  classes?.bodyCell,
-                  classes?.cell
-                )}
-                style={{ width: `${(width / 12) * 100}%` }}
-              >
-                {selector(data)}
-              </div>
-            ))}
-          </div>
-        ))}
+        {}
+        {!loading &&
+          data.map((data) => (
+            <div
+              className={classNames(
+                "data-table--row",
+                classes?.bodyRow,
+                classes?.row
+              )}
+            >
+              {columns.map(({ selector, width }) => (
+                <div
+                  className={classNames(
+                    "data-table--cell",
+                    classes?.bodyCell,
+                    classes?.cell
+                  )}
+                  style={{ width: `${(width / 12) * 100}%` }}
+                >
+                  {selector(data)}
+                </div>
+              ))}
+            </div>
+          ))}
       </div>
     </div>
   );

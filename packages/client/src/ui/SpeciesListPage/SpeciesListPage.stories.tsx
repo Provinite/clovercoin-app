@@ -14,18 +14,30 @@ const Template: ComponentStory<FC<FlatProps>> = (args) => (
     {...unflatten<FlatProps, SpeciesListPageProps>(args, { delimiter })}
   />
 );
-const meta: ComponentMeta<FC<FlatProps>> = {
+const meta: ComponentMeta<FC<FlatProps & SpeciesListPageProps>> = {
   title: "CloverCoin/Pages/SpeciesListPage",
-  component: Template,
+  component: SpeciesListPage,
   parameters: {
     layout: "fullscreen",
     actions: { argTypesRegex: ".*?\\.on[A-Z].*" },
   },
-  argTypes: flatArgTypes<SpeciesListPageProps>({
-    "speciesListProps.onEditClick": {},
-    "speciesListProps.onRemoveClick": {},
-    "speciesListProps.onSearchTextChange": {},
-  }),
+  argTypes: {
+    speciesListProps: {
+      control: {
+        type: null,
+      },
+    },
+    headerBarProps: {
+      control: {
+        type: null,
+      },
+    },
+    ...flatArgTypes<SpeciesListPageProps>({
+      "speciesListProps.onEditClick": {},
+      "speciesListProps.onRemoveClick": {},
+      "speciesListProps.onSearchTextChange": {},
+    }),
+  },
 };
 export default meta;
 

@@ -45,6 +45,38 @@ Usage.args = {
       id: v4(),
       name: "Mundi Felidae",
     },
+    {
+      id: v4(),
+      name: "Swunny",
+    },
+    {
+      id: v4(),
+      name: "Swamp Swine",
+    },
+    {
+      id: v4(),
+      name: "Slickers",
+    },
+    {
+      id: v4(),
+      name: "Birdeer",
+    },
+    {
+      id: v4(),
+      name: "Domestic Cocktraice",
+    },
+    {
+      id: v4(),
+      name: "Flutter Foxes",
+    },
+    {
+      id: v4(),
+      name: "Ceriflumes",
+    },
+    {
+      id: v4(),
+      name: "Clawed Jackalope",
+    },
   ],
 };
 
@@ -55,8 +87,12 @@ const StandardUsageTemplate: ComponentStory<typeof SpeciesList> = () => {
   }, []);
   return (
     <SpeciesList
-      onEditClick={() => {}}
-      onRemoveClick={() => {}}
+      onEditClick={() => {
+        // noop
+      }}
+      onRemoveClick={() => {
+        // noop
+      }}
       onSearchTextChange={handler}
       searchText={searchText}
       species={[
