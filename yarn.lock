@@ -2589,20 +2589,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@parcel/cache@npm:2.3.1":
-  version: 2.3.1
-  resolution: "@parcel/cache@npm:2.3.1"
-  dependencies:
-    "@parcel/fs": 2.3.1
-    "@parcel/logger": 2.3.1
-    "@parcel/utils": 2.3.1
-    lmdb: ^2.0.2
-  peerDependencies:
-    "@parcel/core": ^2.3.1
-  checksum: d8388907d72ad441937cdfbdb2fa66d114fdd1d3f3d4a8567fe10e45f7ef636bb38b7f7ab204f748590e135526492cb052f4b18a350e9d780375cddd30c2c217
-  languageName: node
-  linkType: hard
-
 "@parcel/cache@npm:2.4.1":
   version: 2.4.1
   resolution: "@parcel/cache@npm:2.4.1"
@@ -2614,15 +2600,6 @@ __metadata:
   peerDependencies:
     "@parcel/core": ^2.4.1
   checksum: c366b46f75489feb943d9b54d783a3df4123e83a6a9b65d6fa14922ee70f75527403728a04d156e4880b071b3f8311f0da65e48327207a29e4c6d48862d33b1d
-  languageName: node
-  linkType: hard
-
-"@parcel/codeframe@npm:2.3.1":
-  version: 2.3.1
-  resolution: "@parcel/codeframe@npm:2.3.1"
-  dependencies:
-    chalk: ^4.1.0
-  checksum: d8ea782b51dfee323fd3efaf40152f26b6069ccd4bcf689c730b8eb9925e3e33e1da6b9dc79f0579d98e5c31493d5a82692a562f6a154050b1088cdacd0987b5
   languageName: node
   linkType: hard
 
@@ -2806,16 +2783,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@parcel/diagnostic@npm:2.3.1":
-  version: 2.3.1
-  resolution: "@parcel/diagnostic@npm:2.3.1"
-  dependencies:
-    json-source-map: ^0.6.1
-    nullthrows: ^1.1.1
-  checksum: 6fd44df7d444c9c4464f0c82a746883c186fd593cae0b6f3d2c6e3814169e001f96a19b86b618026349012c81eed90c3ba4b6e5d33fe088a8e870ee7394834fc
-  languageName: node
-  linkType: hard
-
 "@parcel/diagnostic@npm:2.4.1":
   version: 2.4.1
   resolution: "@parcel/diagnostic@npm:2.4.1"
@@ -2826,26 +2793,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@parcel/events@npm:2.3.1":
-  version: 2.3.1
-  resolution: "@parcel/events@npm:2.3.1"
-  checksum: d48c0f67666ad0293d943576f2ef68a47b8f8a8b35ff34e2c45eb797b9c958c8cb29271561e476205b2ee017cc30f7d49af38fbb280cf8f1aee4c51560638674
-  languageName: node
-  linkType: hard
-
 "@parcel/events@npm:2.4.1":
   version: 2.4.1
   resolution: "@parcel/events@npm:2.4.1"
   checksum: 62df254abae8cff86ffe9f4172bda60be1fbfb8a019eab4ff1c94df0c35b0054915db19d9cb5beed812d95875c9c9582349d6b90d13fb2cc661ad9bc36944aff
-  languageName: node
-  linkType: hard
-
-"@parcel/fs-search@npm:2.3.1":
-  version: 2.3.1
-  resolution: "@parcel/fs-search@npm:2.3.1"
-  dependencies:
-    detect-libc: ^1.0.3
-  checksum: 313d0f55e5d0071eeed0cc19e75db5531156a3db9c33c6862d30eab727639def3b6311d5d66487af6aa3d2564f4a48b1510a4d94282d9d94ffa822bda78c7efb
   languageName: node
   linkType: hard
 
@@ -2855,21 +2806,6 @@ __metadata:
   dependencies:
     detect-libc: ^1.0.3
   checksum: fd6f19bc1b04292227893b0cdf50c9419501ee53e4b3a24c70e33f5edea93475f94a90514b3f47d8046ce3f76ebcf1e8b8331a339cfa7e75ff6528282620b923
-  languageName: node
-  linkType: hard
-
-"@parcel/fs@npm:2.3.1":
-  version: 2.3.1
-  resolution: "@parcel/fs@npm:2.3.1"
-  dependencies:
-    "@parcel/fs-search": 2.3.1
-    "@parcel/types": 2.3.1
-    "@parcel/utils": 2.3.1
-    "@parcel/watcher": ^2.0.0
-    "@parcel/workers": 2.3.1
-  peerDependencies:
-    "@parcel/core": ^2.3.1
-  checksum: da5f45efa38ea6821ec13956221b903f6411303699b395d0aa5e4603f8663c8672a183ec095f7d04f4c08ce4825ecd76fe29ee41dffc0c887581094b9d4a7890
   languageName: node
   linkType: hard
 
@@ -2898,16 +2834,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@parcel/hash@npm:2.3.1":
-  version: 2.3.1
-  resolution: "@parcel/hash@npm:2.3.1"
-  dependencies:
-    detect-libc: ^1.0.3
-    xxhash-wasm: ^0.4.2
-  checksum: 728e46496496344041620bac9953ab5bcd0243a2f4de567d37a1d02d25d9dac38a355b1d4b8b4f8d849bb7ec0ecdc9dbc7b96edd2ad17de348cd5c91911471ca
-  languageName: node
-  linkType: hard
-
 "@parcel/hash@npm:2.4.1":
   version: 2.4.1
   resolution: "@parcel/hash@npm:2.4.1"
@@ -2918,16 +2844,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@parcel/logger@npm:2.3.1":
-  version: 2.3.1
-  resolution: "@parcel/logger@npm:2.3.1"
-  dependencies:
-    "@parcel/diagnostic": 2.3.1
-    "@parcel/events": 2.3.1
-  checksum: 1807d4165c5a17c5a5417410a074c6f61a08626c7cc641673640f32c478991c284b353092d12b659ea3b17d31ee04b7519d3cfe450be72292150c4eae9f39751
-  languageName: node
-  linkType: hard
-
 "@parcel/logger@npm:2.4.1":
   version: 2.4.1
   resolution: "@parcel/logger@npm:2.4.1"
@@ -2935,15 +2851,6 @@ __metadata:
     "@parcel/diagnostic": 2.4.1
     "@parcel/events": 2.4.1
   checksum: f399bef2ec833e588151378b95e2c9ddc95b2202aa4537d6b9195010eab46dc0eaf4f1db08ec185b2342ba523afb1e2f0817493eaafb2239c2e824daf041800d
-  languageName: node
-  linkType: hard
-
-"@parcel/markdown-ansi@npm:2.3.1":
-  version: 2.3.1
-  resolution: "@parcel/markdown-ansi@npm:2.3.1"
-  dependencies:
-    chalk: ^4.1.0
-  checksum: da54cd05f160e0ce35959bbd755519cf78d07cf2a87f1b2a4cb5ca7670dbb2d0c7adce78f311025742c31e82ab826b49221a15f30bb1f217ad8d59a94cf47cc1
   languageName: node
   linkType: hard
 
@@ -3045,23 +2952,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@parcel/package-manager@npm:2.3.1":
-  version: 2.3.1
-  resolution: "@parcel/package-manager@npm:2.3.1"
-  dependencies:
-    "@parcel/diagnostic": 2.3.1
-    "@parcel/fs": 2.3.1
-    "@parcel/logger": 2.3.1
-    "@parcel/types": 2.3.1
-    "@parcel/utils": 2.3.1
-    "@parcel/workers": 2.3.1
-    semver: ^5.7.1
-  peerDependencies:
-    "@parcel/core": ^2.3.1
-  checksum: 865334546c89f8f69c3d75d18eea42be3b2cb2940db7551b8e019ffc3c19681bbb3f6eff7a5f6bfdbde2d332e505fe5f7b357f33b5815eddbaaa888e75da6528
-  languageName: node
-  linkType: hard
-
 "@parcel/package-manager@npm:2.4.1":
   version: 2.4.1
   resolution: "@parcel/package-manager@npm:2.4.1"
@@ -3137,15 +3027,6 @@ __metadata:
     "@parcel/utils": 2.4.1
     posthtml: ^0.16.4
   checksum: c56bce51f2184b64051a5ab6feb4416af829bbf2def0fa0a0aeb043052166c56514cb182c09f87fa6263d8f616de2c8baf6bc5f518a707595f7ab02c5f1a6261
-  languageName: node
-  linkType: hard
-
-"@parcel/plugin@npm:2.3.1":
-  version: 2.3.1
-  resolution: "@parcel/plugin@npm:2.3.1"
-  dependencies:
-    "@parcel/types": 2.3.1
-  checksum: b2edf3299293a5781884a7feea1d96ee58b64b8bd6a55d35f230e93aa31f35485d7c474fa8db14a20c3b8181a93d8a2a2443a4ffd06035751f1ec73c5fc1157a
   languageName: node
   linkType: hard
 
@@ -3381,14 +3262,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@parcel/transformer-sass@npm:2.3.1":
-  version: 2.3.1
-  resolution: "@parcel/transformer-sass@npm:2.3.1"
+"@parcel/transformer-sass@npm:2.4.1":
+  version: 2.4.1
+  resolution: "@parcel/transformer-sass@npm:2.4.1"
   dependencies:
-    "@parcel/plugin": 2.3.1
+    "@parcel/plugin": 2.4.1
     "@parcel/source-map": ^2.0.0
     sass: ^1.38.0
-  checksum: 25d4ca625b6ad585d38cda09c99d58a55d615b4269122b9657a5651c28f871665894868c603e2b6a2eb8c0952785ef69bb701ae284fe404877741f121307c9ff
+  checksum: 9282ed915269701d513c1d4ebc1485b5c01520df9c21b6b2dcb3a86c196333132008cc3f18406088a8cf5cd35647d27099b45551a4e3c89f7568693a788154e7
   languageName: node
   linkType: hard
 
@@ -3408,21 +3289,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@parcel/types@npm:2.3.1":
-  version: 2.3.1
-  resolution: "@parcel/types@npm:2.3.1"
-  dependencies:
-    "@parcel/cache": 2.3.1
-    "@parcel/diagnostic": 2.3.1
-    "@parcel/fs": 2.3.1
-    "@parcel/package-manager": 2.3.1
-    "@parcel/source-map": ^2.0.0
-    "@parcel/workers": 2.3.1
-    utility-types: ^3.10.0
-  checksum: 099686f0a56c8fa207c5bd2ed818be0d7e6bd163de32dcb67bcc67aa6159905ad574d0e49c37ce13dd5cb2a5889852d4230f0b0d352fdbc61ba0d34e77f6d969
-  languageName: node
-  linkType: hard
-
 "@parcel/types@npm:2.4.1":
   version: 2.4.1
   resolution: "@parcel/types@npm:2.4.1"
@@ -3435,21 +3301,6 @@ __metadata:
     "@parcel/workers": 2.4.1
     utility-types: ^3.10.0
   checksum: e893ede1f6123bf6b4ca898f7d269b4fe8af75a6b8505a00c8f81fe91ac5d3cf5f14f227b0d377387cb38843c40b079639949f23860dd5fbd30daea8edd0c133
-  languageName: node
-  linkType: hard
-
-"@parcel/utils@npm:2.3.1":
-  version: 2.3.1
-  resolution: "@parcel/utils@npm:2.3.1"
-  dependencies:
-    "@parcel/codeframe": 2.3.1
-    "@parcel/diagnostic": 2.3.1
-    "@parcel/hash": 2.3.1
-    "@parcel/logger": 2.3.1
-    "@parcel/markdown-ansi": 2.3.1
-    "@parcel/source-map": ^2.0.0
-    chalk: ^4.1.0
-  checksum: f33c99a5cb449bfe6d40ebb58fa5b4b2095f82ca569bc99ec5d6673dc4200515da645e831050f89c15eff8c78e997f639a438592a09fa4ddb900462633612e3f
   languageName: node
   linkType: hard
 
@@ -3476,22 +3327,6 @@ __metadata:
     node-gyp: latest
     node-gyp-build: ^4.3.0
   checksum: ddc5b073e82cfadbc3bca3c1c0d5e64f445550f77a073fa3f7b1ac4547ec545fd6474ba5cd7e37aa0121d1ea37e70535172be74f9b081a17e7458849cedffdb0
-  languageName: node
-  linkType: hard
-
-"@parcel/workers@npm:2.3.1":
-  version: 2.3.1
-  resolution: "@parcel/workers@npm:2.3.1"
-  dependencies:
-    "@parcel/diagnostic": 2.3.1
-    "@parcel/logger": 2.3.1
-    "@parcel/types": 2.3.1
-    "@parcel/utils": 2.3.1
-    chrome-trace-event: ^1.0.2
-    nullthrows: ^1.1.1
-  peerDependencies:
-    "@parcel/core": ^2.3.1
-  checksum: 46c718ab487e6bdf7ccb8f50057cc41cba3ba5635ebab9680e371754c02715e3bea9add83eb248591287ca7116be7e1940985b7cd2dc025c92791e3d099b3fa4
   languageName: node
   linkType: hard
 
@@ -8582,6 +8417,7 @@ __metadata:
     "@graphql-codegen/typescript-graphql-request": ^4.3.5
     "@graphql-codegen/typescript-operations": ^2.3.0
     "@graphql-codegen/typescript-react-apollo": ^3.2.11
+    "@parcel/transformer-sass": 2.4.1
     "@storybook/addon-actions": ^6.5.0-alpha.55
     "@storybook/addon-essentials": ^6.5.0-alpha.55
     "@storybook/addon-interactions": ^6.5.0-alpha.55
@@ -8685,7 +8521,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "clovercoin-app@workspace:."
   dependencies:
-    "@parcel/transformer-sass": 2.3.1
     eslint-plugin-prettier: ^4.0.0
   languageName: unknown
   linkType: soft
@@ -14023,20 +13858,6 @@ __metadata:
     ordered-binary: ^1.2.4
     weak-lru-cache: ^1.2.2
   checksum: df75e8ae266fb0676320366ba8847fe1e6c3c43af1c28c08eba35a35cb68c8f0be06ae305a9fecd6e2db2504dc92462da442272778facc6a8a0d953fbf0267ff
-  languageName: node
-  linkType: hard
-
-"lmdb@npm:^2.0.2":
-  version: 2.2.6
-  resolution: "lmdb@npm:2.2.6"
-  dependencies:
-    msgpackr: ^1.5.4
-    nan: ^2.14.2
-    node-gyp: latest
-    node-gyp-build: ^4.2.3
-    ordered-binary: ^1.2.4
-    weak-lru-cache: ^1.2.2
-  checksum: 8df512625293e82472e93b9c092b05a736b128c5fdb1798a5ef15f1a271c53be410bb113f3dd07a991d9605f9e452fb04fa1efe5d6e8dce3ffca178dbb88a980
   languageName: node
   linkType: hard
 

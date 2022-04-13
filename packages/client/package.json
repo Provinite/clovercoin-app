@@ -30,6 +30,7 @@
     "@graphql-codegen/typescript-graphql-request": "^4.3.5",
     "@graphql-codegen/typescript-operations": "^2.3.0",
     "@graphql-codegen/typescript-react-apollo": "^3.2.11",
+    "@parcel/transformer-sass": "2.4.1",
     "@storybook/addon-actions": "^6.5.0-alpha.55",
     "@storybook/addon-essentials": "^6.5.0-alpha.55",
     "@storybook/addon-interactions": "^6.5.0-alpha.55",
