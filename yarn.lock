@@ -9008,6 +9008,7 @@ __metadata:
     "@types/node": ^17.0.23
     "@types/react": ^17.0.44
     "@types/react-dom": ^17.0.15
+    "@types/uuid": ^8.3.4
     aphrodite: ^2.4.0
     babel-loader: ^8.2.4
     classnames: ^2.3.1
@@ -9102,6 +9103,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "clovercoin-app@workspace:."
   dependencies:
+    "@parcel/transformer-sass": 2.4.1
     eslint: ^8.13.0
     eslint-plugin-prettier: 4.0.0
     prettier: ^2.6.2

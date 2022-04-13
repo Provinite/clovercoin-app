@@ -7,6 +7,7 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
+import { ILike } from "typeorm";
 import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
 import { insertAndReturn } from "../util/insertAndReturn";
 import { Species } from "./Species";
@@ -34,7 +35,9 @@ export class SpeciesResolver {
     return await speciesRepository.find(
       speciesFilters
         ? {
-            where: speciesFilters,
+            where: {
+              name: ILike(`%${speciesFilters.name}%`),
+            },
           }
         : undefined
     );
