@@ -87,6 +87,9 @@ const StandardUsageTemplate: ComponentStory<typeof SpeciesList> = () => {
   }, []);
   return (
     <SpeciesList
+      onRowClick={() => {
+        // noop
+      }}
       onEditClick={() => {
         // noop
       }}

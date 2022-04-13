@@ -36,6 +36,7 @@ const meta: ComponentMeta<FC<FlatProps & SpeciesListPageProps>> = {
       "speciesListProps.onEditClick": {},
       "speciesListProps.onRemoveClick": {},
       "speciesListProps.onSearchTextChange": {},
+      "speciesListProps.onRowClick": {},
     }),
   },
 };

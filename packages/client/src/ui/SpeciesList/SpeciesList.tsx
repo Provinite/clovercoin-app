@@ -1,129 +1,67 @@
-import { css, StyleSheet } from "aphrodite";
+import { css } from "aphrodite";
 import * as React from "react";
-import {
-  ChangeEventHandler,
-  FC,
-  MouseEventHandler,
-  useCallback,
-  useMemo,
-  useState,
-} from "react";
-import { FaPencilAlt, FaRegMinusSquare } from "react-icons/fa";
+import { ChangeEventHandler, FC, useCallback } from "react";
 import { GetSpeciesListViewQuery } from "../../generated/graphql";
-import { ListViewSpecies } from "../../models/Species";
-import { ColumnDefinition, DataTable } from "../lib/DataTable/DataTable";
+import { GridStateRow } from "./GridStateRow";
+import { SpeciesActionCell } from "./SpeciesActionCell";
+import { SpeciesEventHandler } from "./SpeciesEventHandler";
+import { stylesheet } from "./SpeciesList.stylesheet";
 
-export type SpeciesEventHandler = (species: ListViewSpecies) => void;
 export interface SpeciesListProps {
   species: GetSpeciesListViewQuery["species"];
+  onRowClick: SpeciesEventHandler;
   onRemoveClick: SpeciesEventHandler;
   onEditClick: SpeciesEventHandler;
   onSearchTextChange: ChangeEventHandler<HTMLInputElement>;
   searchText: string;
 }
-
-const stylesheet = StyleSheet.create({
-  actionColumn: {
-    flexGrow: 1,
-    display: "flex",
-    justifyContent: "flex-start",
-    flexDirection: "row",
-  },
-  actionEdit: {
-    cursor: "pointer",
-    display: "block",
-    minWidth: 0,
-  },
-  actionRemove: {
-    cursor: "pointer",
-    display: "block",
-    marginLeft: "16px",
-    color: "red",
-  },
-});
-
-const SpeciesActionRow: FC<{
-  species: ListViewSpecies;
-  onEditClick: SpeciesEventHandler;
-  onRemoveClick: SpeciesEventHandler;
-}> = ({ species, onEditClick, onRemoveClick }) => {
-  const [isHovered, setIsHovered] = useState(false);
-  const onMouseOver = useCallback(() => {
-    setIsHovered(true);
-  }, [setIsHovered]);
-
-  const onMouseOut = useCallback<MouseEventHandler>(() => {
-    setIsHovered(false);
-  }, [setIsHovered]);
-
-  const invokeOnEditClick = useCallback(
-    () => onEditClick(species),
-    [species, onEditClick]
-  );
-
-  const invokeOnRemoveClick = useCallback(
-    () => onRemoveClick(species),
-    [species, onRemoveClick]
-  );
-
-  return (
-    <div
-      className={css(stylesheet.actionColumn)}
-      onMouseEnter={onMouseOver}
-      onMouseLeave={onMouseOut}
-    >
-      <FaPencilAlt
-        size="24px"
-        className={css(stylesheet.actionEdit)}
-        onClick={invokeOnEditClick}
-      />
-      {isHovered && (
-        <FaRegMinusSquare
-          size="24px"
-          className={css(stylesheet.actionRemove)}
-          onClick={invokeOnRemoveClick}
-        />
-      )}
-    </div>
-  );
-};
-
+/**
+ * Presentational component for rendering an interactive list of species.
+ */
 export const SpeciesList: FC<SpeciesListProps> = ({
   species,
   onEditClick,
   onRemoveClick,
   onSearchTextChange,
+  onRowClick,
   searchText,
 }) => {
-  const columnDefinitions = useMemo<ColumnDefinition<ListViewSpecies>[]>(() => {
-    return [
-      {
-        name: "Name",
-        selector: (s) => s.name,
-        width: 9,
-      },
-      {
-        name: "Actions",
-        selector: (s) => (
-          <SpeciesActionRow
-            species={s}
-            onEditClick={onEditClick}
-            onRemoveClick={onRemoveClick}
-          />
-        ),
-        width: 3,
-      },
-    ];
-  }, []);
-
   return (
     <div>
-      <input
-        type="text"
-        onChange={onSearchTextChange}
-        value={searchText || ""}
-      />
-      <DataTable data={species} columns={columnDefinitions} />
+      <input type="text" onChange={onSearchTextChange} value={searchText} />
+      <div className={css(stylesheet.gridContainer)}>
+        <div className={css(stylesheet.headerRow)}>
+          <div>Name</div>
+          <div>Actions</div>
+        </div>
+        {species.map((species) => (
+          <GridStateRow onClick={useCallback(() => onRowClick(species), [])}>
+            {({ isHovering }) => {
+              return (
+                <>
+                  <div
+                    className={css(
+                      stylesheet.tableCell,
+                      isHovering && stylesheet.cellInHoverRow
+                    )}
+                  >
+                    {species.name}
+                  </div>
+                  <SpeciesActionCell
+                    className={css(
+                      stylesheet.tableCell,
+                      isHovering && stylesheet.cellInHoverRow
+                    )}
+                    species={species}
+                    onEditClick={onEditClick}
+                    onRemoveClick={onRemoveClick}
+                  />
+                </>
+              );
+            }}
+          </GridStateRow>
+        ))}
+      </div>
     </div>
   );
 };

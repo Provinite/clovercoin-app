@@ -1,7 +1,7 @@
 import * as React from "react";
 import { FC, useCallback, ChangeEventHandler, useState } from "react";
 import { useGetSpeciesListViewQuery } from "../../generated/graphql";
-import { SpeciesEventHandler } from "../SpeciesList/SpeciesList";
+import { SpeciesEventHandler } from "../SpeciesList/SpeciesEventHandler";
 import { SpeciesListPage } from "./SpeciesListPage";
 
 export interface SpeciesListProviderProps {}
@@ -14,15 +14,21 @@ export const SpeciesListProvider: FC<SpeciesListProviderProps> = () => {
   const onEditClick: SpeciesEventHandler = useCallback((e) => {
     console.log(e);
   }, []);
+
   const onRemoveClick: SpeciesEventHandler = useCallback((e) => {
     console.log(e);
   }, []);
+
   const onSearchTextChange: ChangeEventHandler<HTMLInputElement> = useCallback(
     (e) => {
       setSearchText(e.target.value);
     },
     [setSearchText]
   );
+
+  const onRowClick: SpeciesEventHandler = useCallback((e) => {
+    console.log(e);
+  }, []);
 
   const { data, loading } = useGetSpeciesListViewQuery({
     variables: {
@@ -41,6 +47,7 @@ export const SpeciesListProvider: FC<SpeciesListProviderProps> = () => {
         userName: "",
       }}
       speciesListProps={{
+        onRowClick,
         onEditClick,
         onRemoveClick,
         onSearchTextChange,
