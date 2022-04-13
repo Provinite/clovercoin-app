@@ -52,12 +52,9 @@ const SpeciesActionRow: FC<{
     setIsHovered(true);
   }, [setIsHovered]);
 
-  const onMouseOut = useCallback<MouseEventHandler>(
-    (e) => {
-      setIsHovered(false);
-    },
-    [setIsHovered]
-  );
+  const onMouseOut = useCallback<MouseEventHandler>(() => {
+    setIsHovered(false);
+  }, [setIsHovered]);
 
   const invokeOnEditClick = useCallback(
     () => onEditClick(species),
