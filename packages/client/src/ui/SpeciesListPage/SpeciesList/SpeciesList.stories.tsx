@@ -4,7 +4,7 @@ import * as React from "react";
 import { v4 } from "uuid";
 import { useCallback, useState } from "react";
 const meta: ComponentMeta<typeof SpeciesList> = {
-  title: "CloverCoin/SpeciesList",
+  title: "CloverCoin/Pages/Species List/SpeciesList",
   component: SpeciesList,
   argTypes: {
     onEditClick: {

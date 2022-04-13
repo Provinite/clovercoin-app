@@ -1,4 +1,3 @@
-@use "./ui/core/scss/colors.scss";
 @use "./ui/core/scss/fonts.scss";
 
 #app {
@@ -15,20 +14,4 @@ body {
   margin: 0;
   padding: 0;
   height: 100vh;
-}
-
-$phi: 1.618;
-$phi-1: 0.618;
-
-.app {
-  background-color: colors.$background;
-  display: flex;
-  flex-direction: row;
-  min-height: 100vh;
-
-  &--right {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-  }
 }

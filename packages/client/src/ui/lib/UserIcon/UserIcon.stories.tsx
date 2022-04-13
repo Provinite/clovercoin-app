@@ -1,10 +1,10 @@
 import { ComponentMeta, ComponentStory } from "@storybook/react";
-import { UserIcon, UserIconSize } from "../../ui/UserIcon/UserIcon";
+import { UserIcon, UserIconSize } from "./UserIcon";
 import * as React from "react";
-import { Circle } from "../../ui/Circle/Circle";
+import { Circle } from "../../Circle/Circle";
 
 const meta: ComponentMeta<typeof UserIcon> = {
-  title: "CloverCoin/UserIcon",
+  title: "CloverCoin/lib/UserIcon",
   component: UserIcon,
   subcomponents: { Circle },
   argTypes: {

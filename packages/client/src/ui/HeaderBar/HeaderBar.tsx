@@ -1,9 +1,9 @@
 import { FC } from "react";
 import * as React from "react";
 import { css, StyleSheet } from "aphrodite";
-import { UserNameDisplay } from "../UserNameDisplay/UserNameDisplay";
+import { UserNameDisplay } from "../lib/UserNameDisplay/UserNameDisplay";
 import { MediaQueries } from "../lib/MediaQueries";
-import { UserIcon, UserIconSize } from "../UserIcon/UserIcon";
+import { UserIcon, UserIconSize } from "../lib/UserIcon/UserIcon";
 export interface HeaderBarProps {
   title?: string;
   userName?: string;
@@ -19,7 +19,7 @@ export const HeaderBar: FC<HeaderBarProps> = ({
       display: "flex",
       borderBottom: "1px solid rgba(0,0,0,0.1)",
       padding: "8px",
-      flexGrow: 1,
+      flexGrow: 0,
       [MediaQueries.xs]: {
         flexDirection: "column",
         alignItems: "flex-start",

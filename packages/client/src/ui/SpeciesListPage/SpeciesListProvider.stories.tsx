@@ -6,14 +6,14 @@ import {
   GetSpeciesListViewQuery,
   GetSpeciesListViewQueryVariables,
 } from "../../generated/graphql";
-import * as SpeciesListStories from "../SpeciesList/SpeciesList.stories";
+import * as SpeciesListStories from "./SpeciesList/SpeciesList.stories";
 import { SpeciesListProvider } from "./SpeciesListProvider";
 const Template: ComponentStory<typeof SpeciesListProvider> = (args) => (
   <SpeciesListProvider {...args} />
 );
 
 const meta: ComponentMeta<typeof SpeciesListProvider> = {
-  title: "CloverCoin/Pages/Connected/SpeciesListProvider",
+  title: "CloverCoin/Pages/Species List/SpeciesListProvider",
   component: SpeciesListProvider,
   parameters: {
     layout: "fullscreen",

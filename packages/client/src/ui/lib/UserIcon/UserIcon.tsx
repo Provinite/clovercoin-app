@@ -1,7 +1,7 @@
 import { FC } from "react";
 import * as React from "react";
 import { css, StyleSheet } from "aphrodite";
-import { Circle } from "../Circle/Circle";
+import { Circle } from "../../Circle/Circle";
 import { MouseEventHandler } from "react";
 
 export enum UserIconSize {

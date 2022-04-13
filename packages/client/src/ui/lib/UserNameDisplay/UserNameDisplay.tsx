@@ -1,7 +1,7 @@
 import { FC } from "react";
 import * as React from "react";
 import { css, StyleDeclarationValue, StyleSheet } from "aphrodite";
-import { MediaQueries } from "../lib/MediaQueries";
+import { MediaQueries } from "../MediaQueries";
 
 export interface UserNameDisplayProps {
   name: string;

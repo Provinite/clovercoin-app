@@ -1,7 +1,7 @@
 import * as React from "react";
 import { FC, useCallback, ChangeEventHandler, useState } from "react";
 import { useGetSpeciesListViewQuery } from "../../generated/graphql";
-import { SpeciesEventHandler } from "../SpeciesList/SpeciesEventHandler";
+import { SpeciesEventHandler } from "./SpeciesList/SpeciesEventHandler";
 import { SpeciesListPage } from "./SpeciesListPage";
 
 export interface SpeciesListProviderProps {}

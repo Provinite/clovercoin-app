@@ -1,10 +1,9 @@
 import { css } from "aphrodite";
-import classNames from "classnames";
 import * as React from "react";
 import { useCallback, FC, MouseEvent, HTMLAttributes } from "react";
 import { FaPencilAlt, FaRegMinusSquare } from "react-icons/fa";
-import { useHover } from "../../hooks/useHover";
-import { ListViewSpecies } from "../../models/Species";
+import { useHover } from "../../../hooks/useHover";
+import { ListViewSpecies } from "../../../models/Species";
 import { SpeciesEventHandler } from "./SpeciesEventHandler";
 import { stylesheet } from "./SpeciesList.stylesheet";
 
@@ -12,13 +11,14 @@ export interface SpeciesActionCellProps extends HTMLAttributes<HTMLDivElement> {
   species: ListViewSpecies;
   onEditClick: SpeciesEventHandler;
   onRemoveClick: SpeciesEventHandler;
+  styles?: (object | false | undefined | null)[];
 }
 
 export const SpeciesActionCell: FC<SpeciesActionCellProps> = ({
   species,
   onEditClick,
   onRemoveClick,
-  className,
+  styles = [],
   ...rest
 }) => {
   const [isHovered, hoverProps] = useHover();
@@ -40,10 +40,7 @@ export const SpeciesActionCell: FC<SpeciesActionCellProps> = ({
   );
 
   return (
-    <div
-      className={classNames(css(stylesheet.actionColumn), className)}
-      {...rest}
-    >
+    <div className={css(stylesheet.actionColumn, ...styles)} {...rest}>
       <FaPencilAlt
         size="24px"
         className={css(stylesheet.actionEdit)}

@@ -1,7 +1,7 @@
 import { css } from "aphrodite";
 import * as React from "react";
 import { FC } from "react";
-import { useHover } from "../../hooks/useHover";
+import { useHover } from "../../../hooks/useHover";
 import { stylesheet } from "./SpeciesList.stylesheet";
 
 export interface GridStateRowProps extends React.HTMLProps<HTMLDivElement> {

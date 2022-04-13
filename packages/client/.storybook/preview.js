@@ -1,4 +1,3 @@
-import { ThemeContextDumbProvider } from "../src/ui/hooks/ThemeContext";
 import { INITIAL_VIEWPORTS } from "@storybook/addon-viewport";
 import { MediaBreakPoints } from "../src/ui/lib/MediaQueries";
 import { MockedProvider } from "@apollo/client/testing";
@@ -20,7 +19,7 @@ export const parameters = {
         secondary: "#0f0",
       },
     },
-    provider: ThemeContextDumbProvider,
+    // provider: ThemeContextDumbProvider,
   },
   viewport: {
     viewports: {

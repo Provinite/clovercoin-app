@@ -1,7 +1,7 @@
 import { css } from "aphrodite";
 import * as React from "react";
 import { ChangeEventHandler, FC, useCallback } from "react";
-import { GetSpeciesListViewQuery } from "../../generated/graphql";
+import { GetSpeciesListViewQuery } from "../../../generated/graphql";
 import { GridStateRow } from "./GridStateRow";
 import { SpeciesActionCell } from "./SpeciesActionCell";
 import { SpeciesEventHandler } from "./SpeciesEventHandler";
@@ -48,10 +48,10 @@ export const SpeciesList: FC<SpeciesListProps> = ({
                     {species.name}
                   </div>
                   <SpeciesActionCell
-                    className={css(
+                    styles={[
                       stylesheet.tableCell,
-                      isHovering && stylesheet.cellInHoverRow
-                    )}
+                      isHovering && stylesheet.cellInHoverRow,
+                    ]}
                     species={species}
                     onEditClick={onEditClick}
                     onRemoveClick={onRemoveClick}

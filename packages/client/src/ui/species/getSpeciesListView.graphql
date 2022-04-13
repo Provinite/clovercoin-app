@@ -1,6 +1,0 @@
-query getSpeciesListView($name: String) {
-  species(filters: { name: $name }) {
-    id
-    name
-  }
-}

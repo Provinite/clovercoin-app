@@ -4,7 +4,7 @@ import * as React from "react";
 import { FC } from "react";
 import { flatArgTypes, flattenArgs } from "../../../tools/storybook-utils";
 import type { Flatten } from "../../typing/types";
-import * as SpeciesListStories from "../SpeciesList/SpeciesList.stories";
+import * as SpeciesListStories from "./SpeciesList/SpeciesList.stories";
 import { SpeciesListPage, SpeciesListPageProps } from "./SpeciesListPage";
 const delimiter = ".";
 
@@ -15,7 +15,7 @@ const Template: ComponentStory<FC<FlatProps>> = (args) => (
   />
 );
 const meta: ComponentMeta<FC<FlatProps & SpeciesListPageProps>> = {
-  title: "CloverCoin/Pages/SpeciesListPage",
+  title: "CloverCoin/Pages/Species List/SpeciesListPage",
   component: SpeciesListPage,
   parameters: {
     layout: "fullscreen",

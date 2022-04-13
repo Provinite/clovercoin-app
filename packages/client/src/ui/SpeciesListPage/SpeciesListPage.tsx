@@ -2,7 +2,7 @@ import { css, StyleSheet } from "aphrodite";
 import * as React from "react";
 import { FC } from "react";
 import { HeaderBar, HeaderBarProps } from "../HeaderBar/HeaderBar";
-import { SpeciesList, SpeciesListProps } from "../SpeciesList/SpeciesList";
+import { SpeciesList, SpeciesListProps } from "./SpeciesList/SpeciesList";
 
 export interface SpeciesListPageProps {
   speciesListProps: SpeciesListProps;
