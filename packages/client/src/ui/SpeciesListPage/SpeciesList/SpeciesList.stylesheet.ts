@@ -48,6 +48,7 @@ export const stylesheet = StyleSheet.create({
     fontWeight: 300,
     fontSize: "16px",
     outline: 0,
+
     ":focus": {
       border: "2px solid rgba(0,0,0,0.2)",
     },
