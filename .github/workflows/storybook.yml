@@ -14,7 +14,12 @@ jobs:
         run: | # Install npm packages and build the Storybook files
           yarn install
           yarn workspace client build-storybook
-      - name: Deploy 🚀
+      - name: Test
+        run: |
+          yarn workspace client tsc --noEmit
+          yarn workspace @clovercoin/api tsc --noEmit
+      - name: Deploy Storybook 🚀
+        if: ${{ github.ref == 'refs/heads/main' }}
         uses: JamesIves/github-pages-deploy-action@3.6.2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
