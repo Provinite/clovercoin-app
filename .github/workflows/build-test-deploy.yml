@@ -21,11 +21,11 @@ jobs:
           yarn workspace client tsc --noEmit
       # Build & deploy storybook if client has changed (main only)
       - name: Build Storybook
-        if: &shouldBuildStorybook ${{ github.ref == 'refs/heads/main' && contains(steps.files.outputs.all, 'packages/client/') }}
+        if: ${{ github.ref == 'refs/heads/main' && contains(steps.files.outputs.all, 'packages/client/') }}
         run: |
           yarn workspace client build-storybook
       - name: Deploy Storybook 🚀
-        if: *shouldBuildStorybook
+        if: ${{ github.ref == 'refs/heads/main' && contains(steps.files.outputs.all, 'packages/client/') }}
         uses: JamesIves/github-pages-deploy-action@3.6.2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
