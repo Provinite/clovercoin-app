@@ -40,4 +40,19 @@ export const stylesheet = StyleSheet.create({
     display: "contents",
     gridArea: "header",
   },
+  searchInput: {
+    margin: "16px",
+    borderRadius: "12px",
+    padding: "4px 8px",
+    border: "2px solid rgba(0,0,0,0.1)",
+    fontWeight: 300,
+    fontSize: "16px",
+    outline: 0,
+    ":focus": {
+      border: "2px solid rgba(0,0,0,0.2)",
+    },
+    ":placeholder-shown": {
+      fontStyle: "italic",
+    },
+  },
 });

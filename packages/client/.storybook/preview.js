@@ -2,7 +2,8 @@ import { INITIAL_VIEWPORTS } from "@storybook/addon-viewport";
 import { MediaBreakPoints } from "../src/ui/lib/MediaQueries";
 import { MockedProvider } from "@apollo/client/testing";
 
-import "../src/ui/core/scss/fonts.scss";
+import "../src/fonts.scss";
+import "./style.scss";
 
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },
@@ -11,6 +12,9 @@ export const parameters = {
       color: /(background|color)$/i,
       date: /Date$/,
     },
+  },
+  darkMode: {
+    stylePreview: false,
   },
   themePlayground: {
     theme: {

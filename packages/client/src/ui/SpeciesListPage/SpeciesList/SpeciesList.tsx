@@ -28,14 +28,20 @@ export const SpeciesList: FC<SpeciesListProps> = ({
 }) => {
   return (
     <div>
-      <input type="text" onChange={onSearchTextChange} value={searchText} />
+      <input
+        type="text"
+        onChange={onSearchTextChange}
+        value={searchText}
+        className={css(stylesheet.searchInput)}
+        placeholder="Search. . ."
+      />
       <div className={css(stylesheet.gridContainer)}>
         <div className={css(stylesheet.headerRow)}>
           <div>Name</div>
           <div>Actions</div>
         </div>
         {species.map((species) => (
-          <GridStateRow onClick={useCallback(() => onRowClick(species), [])}>
+          <GridStateRow onClick={() => onRowClick(species)}>
             {({ isHovering }) => {
               return (
                 <>

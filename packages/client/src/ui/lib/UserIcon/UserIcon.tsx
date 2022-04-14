@@ -56,10 +56,6 @@ export const UserIcon: FC<UserIconProps> = ({
       onClick={onClick}
     />
   ) : (
-    <Circle
-      color="primary"
-      radius={parseInt(width[size]) / 2}
-      styles={stylesheet.outline}
-    />
+    <Circle radius={parseInt(width[size]) / 2} styles={[stylesheet.outline]} />
   );
 };

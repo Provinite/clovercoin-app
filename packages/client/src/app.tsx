@@ -16,9 +16,9 @@ export const App: FunctionComponent = () => {
     <BrowserRouter>
       <ApolloProvider client={client}>
         <Routes>
-          <Route path="/species" element={<SpeciesListProvider />}></Route>
+          <Route path="/species" element={<SpeciesListProvider />} />
         </Routes>
-      </ApolloProvider>
+      </ApolloProvider>``
     </BrowserRouter>
   );
 };

@@ -9034,6 +9034,7 @@ __metadata:
     sb: ^6.4.21
     storybook-addon-apollo-client: ^4.0.11
     storybook-addon-theme-playground: ^2.1.0
+    storybook-dark-mode: ^1.0.9
     style-loader: ^3.3.1
     ts-node: ^10.7.0
     type-fest: ^2.12.2
@@ -11219,7 +11220,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-deep-equal@npm:^3.1.1, fast-deep-equal@npm:^3.1.3":
+"fast-deep-equal@npm:^3.0.0, fast-deep-equal@npm:^3.1.1, fast-deep-equal@npm:^3.1.3":
   version: 3.1.3
   resolution: "fast-deep-equal@npm:3.1.3"
   checksum: e21a9d8d84f53493b6aa15efc9cfd53dd5b714a1f23f67fb5dc8f574af80df889b3bce25dc081887c6d25457cce704e636395333abad896ccdec03abaf1f3f9d
@@ -20120,6 +20121,22 @@ __metadata:
     react: ^17.0.1
     react-dom: ^17.0.1
   checksum: 7b09a41b41712a8fbdb13e5efb88162e7dd71f5f6b598fb34b59503280d12ab9ba5d3e28b2e6d3bbe124b93c05ae57d17416ed854008cfb77e961d8f8b582e69
+  languageName: node
+  linkType: hard
+
+"storybook-dark-mode@npm:^1.0.9":
+  version: 1.0.9
+  resolution: "storybook-dark-mode@npm:1.0.9"
+  dependencies:
+    fast-deep-equal: ^3.0.0
+    memoizerific: ^1.11.3
+  peerDependencies:
+    "@storybook/addons": ^6.0.0
+    "@storybook/api": ^6.0.0
+    "@storybook/components": ^6.0.0
+    "@storybook/core-events": ^6.0.0
+    "@storybook/theming": ^6.0.0
+  checksum: e73d2cff9bbdd83f574142ad44446938d543efe5dbecac17e2d90e8b3a3a7c3841ac72d382bbe73d2e2c6059d85b488570d21db3a2356bae235aa95f74b65e91
   languageName: node
   linkType: hard
 
