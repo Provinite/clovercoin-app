@@ -1,3 +1,5 @@
+# This job builds, tests, and deploys the packages in the monorepo
+# https://github.com/github/docs/blob/main/content/actions/learn-github-actions/expressions.md
 name: Build, Test, Deploy Everything
 on: push
 jobs:
@@ -10,15 +12,15 @@ jobs:
         with:
           persist-credentials: false
       # Collect list of changed files for conditionals later
+      # use ${{ steps.files.outputs.all }} for a space-separated list of modified files
       - id: files
         uses: jitterbit/get-changed-files@v1
       - name: Install
-        run: |
-          yarn install
+        run: yarn install
       # Run tests, all the time
       - name: Test
-        run: |
-          yarn workspace client tsc --noEmit
+        id: test
+        run: yarn workspace client tsc --noEmit
       # Build & deploy storybook if client has changed (main only)
       - name: Build Storybook
         if: ${{ github.ref == 'refs/heads/main' && contains(steps.files.outputs.all, 'packages/client/') }}

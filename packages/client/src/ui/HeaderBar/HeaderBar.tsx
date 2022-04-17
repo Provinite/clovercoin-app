@@ -18,6 +18,7 @@ export const HeaderBar: FC<HeaderBarProps> = ({
     container: {
       display: "flex",
       borderBottom: "1px solid rgba(0,0,0,0.1)",
+      backgroundColor: "white",
       padding: "8px",
       flexGrow: 0,
       [MediaQueries.xs]: {

@@ -2,22 +2,15 @@ import { ComponentMeta, ComponentStory } from "@storybook/react";
 import { SpeciesList } from "./SpeciesList";
 import * as React from "react";
 import { v4 } from "uuid";
-import { useCallback, useState } from "react";
+import { useState } from "react";
+import { ListViewSpecies } from "../../../models/Species";
 const meta: ComponentMeta<typeof SpeciesList> = {
   title: "CloverCoin/Pages/Species List/SpeciesList",
   component: SpeciesList,
   argTypes: {
-    onEditClick: {
-      description: "Event handler fired when user clicks to edit a species.",
-      type: "function",
-    },
-    onRemoveClick: {
-      description: "Event handler fired when user deletes a species.",
-      type: "function",
-    },
-    onSearchTextChange: {
+    onRowClick: {
       description:
-        "Event handler for changes to the search text. Standard keyboard event handler for an <code>&lt;input&gt;</code> element.",
+        "Event handler for clicks on list rows. Invoked with the species.",
     },
     species: {
       description: "Array of species to display in the table",
@@ -81,37 +74,30 @@ Usage.args = {
 };
 
 const StandardUsageTemplate: ComponentStory<typeof SpeciesList> = () => {
-  const [searchText, setSearchText] = useState("");
-  const handler = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchText(e.target.value);
-  }, []);
+  const [selectedSpecies, setSelectedSpecies] = useState<
+    ListViewSpecies | undefined
+  >(undefined);
+
+  const [species] = useState<ListViewSpecies[]>([
+    {
+      id: v4(),
+      name: "Pillowings",
+    },
+    {
+      id: v4(),
+      name: "Lintlings",
+    },
+    {
+      id: v4(),
+      name: "Mundi Felidae",
+    },
+  ]);
+
   return (
     <SpeciesList
-      onRowClick={() => {
-        // noop
-      }}
-      onEditClick={() => {
-        // noop
-      }}
-      onRemoveClick={() => {
-        // noop
-      }}
-      onSearchTextChange={handler}
-      searchText={searchText}
-      species={[
-        {
-          id: v4(),
-          name: "Pillowings",
-        },
-        {
-          id: v4(),
-          name: "Lintlings",
-        },
-        {
-          id: v4(),
-          name: "Mundi Felidae",
-        },
-      ]}
+      onRowClick={setSelectedSpecies}
+      selectedSpecies={selectedSpecies}
+      species={species}
     />
   );
 };

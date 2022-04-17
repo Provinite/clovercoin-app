@@ -8,7 +8,8 @@ import * as SpeciesListStories from "./SpeciesList/SpeciesList.stories";
 import { SpeciesListPage, SpeciesListPageProps } from "./SpeciesListPage";
 const delimiter = ".";
 
-type FlatProps = Flatten<SpeciesListPageProps, ".">;
+type FlatProps = Flatten<SpeciesListPageProps>;
+
 const Template: ComponentStory<FC<FlatProps>> = (args) => (
   <SpeciesListPage
     {...unflatten<FlatProps, SpeciesListPageProps>(args, { delimiter })}
@@ -33,13 +34,11 @@ const meta: ComponentMeta<FC<FlatProps & SpeciesListPageProps>> = {
       },
     },
     ...flatArgTypes<SpeciesListPageProps>({
-      "speciesListProps.onEditClick": {},
-      "speciesListProps.onRemoveClick": {},
-      "speciesListProps.onSearchTextChange": {},
       "speciesListProps.onRowClick": {},
     }),
   },
 };
+
 export default meta;
 
 export const Usage = Template.bind({});
@@ -50,6 +49,6 @@ Usage.args = flattenArgs<SpeciesListPageProps>({
   },
   speciesListProps: {
     ...SpeciesListStories.Usage.args,
-    searchText: "",
   },
+  speciesDetailProps: {},
 });

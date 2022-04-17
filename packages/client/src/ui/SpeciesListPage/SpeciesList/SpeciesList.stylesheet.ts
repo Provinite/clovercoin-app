@@ -1,11 +1,24 @@
 import { StyleSheet } from "aphrodite";
+import { Color } from "../../lib/styles/colors";
+import { borderRadius } from "../../lib/styles/misc";
+
+export const listBorderStyle = `1px solid ${Color.List.cellBorder}`;
+
 export const stylesheet = StyleSheet.create({
   actionColumn: {
     flexGrow: 1,
     display: "flex",
     justifyContent: "flex-start",
     flexDirection: "row",
-    borderLeft: "2px solid rgba(0, 0, 0, 0.1)",
+    borderLeft: `2px solid ${Color.List.cellBorder}`,
+  },
+  flareBeforeHoverRow: {
+    borderRadius: `0 0 ${borderRadius} 0`,
+    borderRight: listBorderStyle,
+  },
+  flareAfterHoverRow: {
+    borderRadius: `0 ${borderRadius} 0 0`,
+    borderRight: listBorderStyle,
   },
   actionEdit: {
     cursor: "pointer",
@@ -22,38 +35,48 @@ export const stylesheet = StyleSheet.create({
   gridContainer: {
     display: "grid",
     gridAutoRows: "1fr",
-    gridTemplateColumns: "3fr 1fr",
-    gridTemplateAreas: "header header",
+    gridTemplateColumns: "1fr",
+    backgroundColor: Color.List.activeRow,
   },
   gridRow: {
     display: "contents",
   },
   tableCell: {
-    padding: "16px",
-    borderBottom: "2px solid rgba(0, 0, 0, 0.1)",
+    padding: "32px",
+    borderBottom: listBorderStyle,
+    borderTop: listBorderStyle,
+    borderRight: listBorderStyle,
     cursor: "pointer",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    backgroundColor: Color.List.background,
   },
   cellInHoverRow: {
-    backgroundColor: "rgba(0, 0, 128, 0.1)",
+    backgroundColor: Color.List.activeRow,
+  },
+  cellInSelectedRow: {
+    backgroundColor: Color.List.activeRow,
+    borderColor: "transparent",
   },
   headerRow: {
     display: "contents",
-    gridArea: "header",
   },
-  searchInput: {
-    margin: "16px",
-    borderRadius: "12px",
-    padding: "4px 8px",
-    border: "2px solid rgba(0,0,0,0.1)",
+  headerCell: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "flex-end",
     fontWeight: 300,
-    fontSize: "16px",
-    outline: 0,
-
-    ":focus": {
-      border: "2px solid rgba(0,0,0,0.2)",
-    },
-    ":placeholder-shown": {
-      fontStyle: "italic",
-    },
+    backgroundColor: Color.List.background,
+    padding: "32px",
+    borderBottom: listBorderStyle,
+    borderRight: listBorderStyle,
+  },
+  transparent: {
+    visibility: "hidden",
+  },
+  dummyCell: {
+    borderBottom: 0,
+    borderBottomRightRadius: borderRadius,
   },
 });

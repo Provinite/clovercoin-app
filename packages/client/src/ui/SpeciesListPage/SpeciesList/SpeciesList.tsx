@@ -1,72 +1,89 @@
 import { css } from "aphrodite";
 import * as React from "react";
-import { ChangeEventHandler, FC, useCallback } from "react";
-import { GetSpeciesListViewQuery } from "../../../generated/graphql";
+import { FC, HTMLAttributes, useMemo } from "react";
+import { ListViewSpecies } from "../../../models/Species";
+import { StyleDeclaration } from "../../aphrodite/StyleDeclaration";
 import { GridStateRow } from "./GridStateRow";
-import { SpeciesActionCell } from "./SpeciesActionCell";
 import { SpeciesEventHandler } from "./SpeciesEventHandler";
-import { stylesheet } from "./SpeciesList.stylesheet";
-
-export interface SpeciesListProps {
-  species: GetSpeciesListViewQuery["species"];
+import { stylesheet as ss } from "./SpeciesList.stylesheet";
+import { stylish } from "../../lib/styles/stylish";
+export interface SpeciesListProps extends HTMLAttributes<HTMLDivElement> {
+  species: ListViewSpecies[];
+  selectedSpecies?: ListViewSpecies;
   onRowClick: SpeciesEventHandler;
-  onRemoveClick: SpeciesEventHandler;
-  onEditClick: SpeciesEventHandler;
-  onSearchTextChange: ChangeEventHandler<HTMLInputElement>;
-  searchText: string;
+  cellStyles?: {
+    name?: StyleDeclaration[];
+    action?: StyleDeclaration[];
+  };
+  styles?: (object | undefined)[];
 }
 /**
  * Presentational component for rendering an interactive list of species.
  */
 export const SpeciesList: FC<SpeciesListProps> = ({
   species,
-  onEditClick,
-  onRemoveClick,
-  onSearchTextChange,
   onRowClick,
-  searchText,
+  selectedSpecies,
+  styles = [],
+  cellStyles = {},
+  ...rest
 }) => {
+  const activeIndex = useMemo(() => {
+    if (!selectedSpecies) {
+      return -2;
+    }
+    const idx = species.findIndex((s) => s.id === selectedSpecies?.id);
+    return idx === -1 ? -2 : idx;
+  }, [species, selectedSpecies]);
+
   return (
-    <div>
-      <input
-        type="text"
-        onChange={onSearchTextChange}
-        value={searchText}
-        className={css(stylesheet.searchInput)}
-        placeholder="Search. . ."
-      />
-      <div className={css(stylesheet.gridContainer)}>
-        <div className={css(stylesheet.headerRow)}>
-          <div>Name</div>
-          <div>Actions</div>
+    <div {...rest} className={css(ss.gridContainer, ...styles)}>
+      <div className={css(ss.headerRow)}>
+        <div
+          className={css(
+            ss.headerCell,
+            ...stylish(ss, {
+              flareBeforeHoverRow: activeIndex === 0,
+            })
+          )}
+        >
+          Name
         </div>
-        {species.map((species) => (
-          <GridStateRow onClick={() => onRowClick(species)}>
-            {({ isHovering }) => {
-              return (
-                <>
-                  <div
-                    className={css(
-                      stylesheet.tableCell,
-                      isHovering && stylesheet.cellInHoverRow
-                    )}
-                  >
-                    {species.name}
-                  </div>
-                  <SpeciesActionCell
-                    styles={[
-                      stylesheet.tableCell,
-                      isHovering && stylesheet.cellInHoverRow,
-                    ]}
-                    species={species}
-                    onEditClick={onEditClick}
-                    onRemoveClick={onRemoveClick}
-                  />
-                </>
-              );
-            }}
-          </GridStateRow>
-        ))}
+      </div>
+      {species.map((species, i) => (
+        <GridStateRow onClick={() => onRowClick(species)} key={species.id}>
+          {({ isHovering }) => {
+            return (
+              <>
+                <div
+                  className={css(
+                    ...stylish(ss, {
+                      tableCell: true,
+                      cellInHoverRow: isHovering,
+                      cellInSelectedRow: activeIndex === i,
+                      flareBeforeHoverRow: activeIndex - 1 === i,
+                      flareAfterHoverRow: activeIndex + 1 === i,
+                    }),
+                    ...(cellStyles.name || [])
+                  )}
+                >
+                  {species.name}
+                </div>
+              </>
+            );
+          }}
+        </GridStateRow>
+      ))}
+      <div
+        className={css(
+          ...stylish(ss, {
+            tableCell: true,
+            dummyCell: true,
+            flareAfterHoverRow: activeIndex === species.length - 1,
+          })
+        )}
+      >
+        {" "}
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { ComponentMeta, ComponentStory } from "@storybook/react";
 import * as React from "react";
+import { v4 } from "uuid";
 import { link, MockDefinition } from "../../../tools/storybook-utils";
 import {
   GetSpeciesListViewDocument,
@@ -40,11 +41,15 @@ const mocks: MockDefinition<
     },
     result: ({ variables: { name } }) => ({
       data: {
-        species: name
-          ? species.filter((s) =>
-              s.name.toLowerCase().includes(name.toLowerCase())
-            )
-          : [...species],
+        species: [
+          ...(species || []),
+          {
+            id: v4(),
+            name: "Some Very Long Species Name Here",
+          },
+        ].filter(
+          (s) => !name || s.name.toLowerCase().includes(name.toLowerCase())
+        ),
       },
     }),
   },
