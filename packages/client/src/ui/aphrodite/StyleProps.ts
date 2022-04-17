@@ -1,4 +1,4 @@
-import { StyleDeclaration } from "../../aphrodite/StyleDeclaration";
+import { StyleDeclaration } from "./StyleDeclaration";
 
 export interface StyleProps {
   styles?: StyleDeclaration[];
