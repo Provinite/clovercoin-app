@@ -2,7 +2,7 @@ import { FC } from "react";
 import * as React from "react";
 import { css, StyleSheet } from "aphrodite";
 import { UserNameDisplay } from "../lib/UserNameDisplay/UserNameDisplay";
-import { MediaQueries } from "../lib/MediaQueries";
+import { MediaQuery } from "../lib/MediaQueries";
 import { UserIcon, UserIconSize } from "../lib/UserIcon/UserIcon";
 export interface HeaderBarProps {
   title?: string;
@@ -21,14 +21,14 @@ export const HeaderBar: FC<HeaderBarProps> = ({
       backgroundColor: "white",
       padding: "8px",
       flexGrow: 0,
-      [MediaQueries.xs]: {
+      [MediaQuery.xs]: {
         flexDirection: "column",
         alignItems: "flex-start",
         whiteSpace: "nowrap",
         alignContent: "stretch",
         width: "100%",
       },
-      [MediaQueries.m]: {
+      [MediaQuery.m]: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
@@ -46,11 +46,11 @@ export const HeaderBar: FC<HeaderBarProps> = ({
       flexDirection: "row",
       minWidth: 0,
       alignItems: "center",
-      [MediaQueries.xs]: {
+      [MediaQuery.xs]: {
         flexGrow: 1,
         maxWidth: "100%",
       },
-      [MediaQueries.m]: {
+      [MediaQuery.m]: {
         maxWidth: "50%",
         textAlign: "right",
       },

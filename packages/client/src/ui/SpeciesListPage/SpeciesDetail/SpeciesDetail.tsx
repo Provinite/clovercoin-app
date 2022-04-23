@@ -5,7 +5,7 @@ import { StyleDeclaration } from "../../aphrodite/StyleDeclaration";
 import { StyleSheet, css } from "aphrodite";
 import { Color } from "../../lib/styles/colors";
 import { Card } from "../../Card/Card";
-import { LoremIpsum } from "lorem-ipsum";
+import { useLipsum } from "../../../hooks/useLipsum";
 
 export interface SpeciesDetailProps extends HTMLAttributes<HTMLDivElement> {
   species?: ListViewSpecies;
@@ -25,26 +25,22 @@ const ss = StyleSheet.create({
   },
 });
 
-const lipsum = new LoremIpsum({
-  seed: "seed",
-});
-
 export const SpeciesDetail: FC<SpeciesDetailProps> = ({
   species,
   styles = [],
   ...rest
 }) => {
-  const [[p1, p2], setParagraphs] = useState(["", ""]);
+  const { paragraphs } = useLipsum({ seed: species?.name, paragraphs: 2 }, [
+    species,
+  ]);
 
-  useEffect(() => {
-    setParagraphs([lipsum.generateParagraphs(1), lipsum.generateParagraphs(1)]);
-  }, [species]);
   return (
     <div {...rest} className={css(ss.root, ...styles)}>
       <Card styles={[ss.nameCard]}>
         <h1>{species && species.name}</h1>
-        <p>{p1}</p>
-        <p>{p2}</p>
+        {paragraphs.map((p) => (
+          <p>{p}</p>
+        ))}
       </Card>
     </div>
   );

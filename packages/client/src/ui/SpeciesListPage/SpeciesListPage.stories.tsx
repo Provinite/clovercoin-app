@@ -15,6 +15,13 @@ const Template: ComponentStory<FC<FlatProps>> = (args) => (
     {...unflatten<FlatProps, SpeciesListPageProps>(args, { delimiter })}
   />
 );
+
+const noControls = {
+  control: {
+    type: null,
+  },
+};
+
 const meta: ComponentMeta<FC<FlatProps & SpeciesListPageProps>> = {
   title: "CloverCoin/Pages/Species List/SpeciesListPage",
   component: SpeciesListPage,
@@ -23,18 +30,14 @@ const meta: ComponentMeta<FC<FlatProps & SpeciesListPageProps>> = {
     actions: { argTypesRegex: ".*?\\.on[A-Z].*" },
   },
   argTypes: {
-    speciesListProps: {
-      control: {
-        type: null,
-      },
-    },
-    headerBarProps: {
-      control: {
-        type: null,
-      },
-    },
+    speciesListProps: noControls,
+    headerBarProps: noControls,
+    searchInputProps: noControls,
+    speciesDetailProps: noControls,
+    listContainerProps: noControls,
     ...flatArgTypes<SpeciesListPageProps>({
       "speciesListProps.onRowClick": {},
+      "searchInputProps.onChange": {},
     }),
   },
 };
@@ -50,5 +53,10 @@ Usage.args = flattenArgs<SpeciesListPageProps>({
   speciesListProps: {
     ...SpeciesListStories.Usage.args,
   },
-  speciesDetailProps: {},
+  detailViewTransition: false,
+  onDetailViewTransitionEnd: () => {},
+  speciesDetailProps: {
+    species: SpeciesListStories.Usage.args!.species![0],
+  },
 });
+console.log(Usage.args);

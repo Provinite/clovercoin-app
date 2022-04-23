@@ -1,7 +1,7 @@
 import { FC } from "react";
 import * as React from "react";
 import { css, StyleDeclarationValue, StyleSheet } from "aphrodite";
-import { MediaQueries } from "../MediaQueries";
+import { MediaQuery } from "../MediaQueries";
 
 export interface UserNameDisplayProps {
   name: string;
@@ -13,7 +13,7 @@ export const UserNameDisplay: FC<UserNameDisplayProps> = ({ name, styles }) => {
       flexGrow: 1,
       fontSize: "24px",
       fontFamily: "Roboto",
-      [MediaQueries.xs]: {
+      [MediaQuery.xs]: {
         whiteSpace: "nowrap",
         textOverflow: "ellipsis",
         overflow: "hidden",
