@@ -5,16 +5,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "pwa-node",
+      "type": "node-terminal",
       "request": "launch",
-      "name": "Launch Program",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
-      "program": "${workspaceFolder}/packages/api/src/models/CritterTrait/CritterTrait.ts",
-      "outFiles": [
-        "${workspaceFolder}/**/*.js"
-      ]
+      "name": "API (yarn start)",
+      "command": "yarn start",
+      "cwd": "${workspaceFolder}/packages/api"
     }
   ]
 }

@@ -1,18 +1,17 @@
-import { Field, ID, ObjectType } from "type-graphql";
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Field, ObjectType } from "type-graphql";
+import { Column, Entity } from "typeorm";
 import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes";
-import { Species } from "../Species/Species";
+import { IdField } from "../relationFieldDecorators";
 
 @Entity()
 @ObjectType()
 export class Trait {
-  @Field(() => ID)
-  @PrimaryGeneratedColumn("uuid")
+  @IdField
   id!: string;
 
   @Field(() => String)
   @Column({ nullable: false })
-  name: string = "";
+  name!: string;
 
   @Field(() => CritterTraitValueTypes)
   @Column({
@@ -21,7 +20,4 @@ export class Trait {
     nullable: false,
   })
   valueType!: CritterTraitValueTypes;
-
-  @ManyToMany(() => Species, (species) => species.traits)
-  species: Species[] | null = null;
 }

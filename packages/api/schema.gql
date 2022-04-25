@@ -3,11 +3,31 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
+type Account {
+  id: ID!
+  identity: Identity!
+  identityId: ID!
+  username: String!
+}
+
+type Community {
+  id: ID!
+  name: String!
+}
+
+input CommunityCreateInput {
+  name: String!
+}
+
 type Critter {
   id: ID!
   name: String!
+  owner: Identity!
+  ownerId: ID!
   species: Species!
   speciesId: ID!
+  traitList: TraitList!
+  traitListId: ID!
   traits: [CritterTraitUnion!]!
 }
 
@@ -67,6 +87,7 @@ input CritterTraitCreateInput {
 union CritterTraitUnion = CritterIntTrait | CritterStringTrait | CritterTimestampTrait
 
 enum CritterTraitValueType {
+  Enum
   Integer
   String
   Timestamp
@@ -77,12 +98,36 @@ The javascript `Date` as string. Type represents date and time as the ISO Date s
 """
 scalar DateTime
 
+type Identity {
+  displayName: String!
+  email: String!
+  id: ID!
+}
+
+input LoginArgs {
+  password: String = ""
+  username: String = ""
+}
+
+type LoginResponse {
+  account: Account!
+  identity: Identity!
+  token: String!
+}
+
 type Mutation {
+  createCommunity(input: CommunityCreateInput!): Community!
   createCritter(input: CritterCreateInput!): Critter!
   createCritterTrait(input: CritterTraitCreateInput!): CritterTraitUnion!
   createSpecies(input: SpeciesCreateInput!): Species!
-  createSpeciesTrait(input: SpeciesTraitCreateInput!): SpeciesTrait!
   createTrait(input: TraitCreateInput!): Trait!
+  createTraitList(input: TraitListCreateInput!): TraitList!
+
+  """Log in using local credentials and receive an auth token"""
+  login(input: LoginArgs!): LoginResponse!
+
+  """Create a new account and receive an auth token"""
+  register(input: RegisterArgs!): LoginResponse!
 }
 
 type Query {
@@ -90,29 +135,36 @@ type Query {
   species(filters: SpeciesFilters): [Species!]!
 }
 
+input RegisterArgs {
+  email: String = ""
+  password: String = ""
+  username: String = ""
+}
+
+"""
+Model representing an arbitrarily broad class of charcters that use common trait lists, and administration.
+"""
 type Species {
+  """Community that owns this species"""
+  community: Community!
+
+  """ID of the community that owns this species"""
+  communityId: ID!
+  critters: [Critter!]!
   id: ID!
+
+  """Name of the species"""
   name: String!
-  traits: [Trait!]!
+  traitLists: [TraitList!]!
 }
 
 input SpeciesCreateInput {
+  communityId: ID!
   name: String!
 }
 
 input SpeciesFilters {
   name: String = null
-}
-
-type SpeciesTrait {
-  id: ID!
-  speciesId: ID!
-  traitId: ID!
-}
-
-input SpeciesTraitCreateInput {
-  speciesId: ID!
-  traitId: ID!
 }
 
 type Trait {
@@ -121,7 +173,24 @@ type Trait {
   valueType: CritterTraitValueType!
 }
 
-input TraitCreateInput {
+input TraitCreateEnumValueInput {
   name: String!
-  valueType: String!
+}
+
+input TraitCreateInput {
+  enumValues: [TraitCreateEnumValueInput!]!
+  name: String!
+  valueType: CritterTraitValueType!
+}
+
+type TraitList {
+  id: ID!
+  name: String!
+  species: Species!
+  speciesId: ID!
+}
+
+input TraitListCreateInput {
+  name: String!
+  speciesId: ID!
 }

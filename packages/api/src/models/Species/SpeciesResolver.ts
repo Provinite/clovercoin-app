@@ -2,6 +2,7 @@ import {
   Arg,
   Ctx,
   Field,
+  ID,
   InputType,
   Mutation,
   Query,
@@ -9,13 +10,15 @@ import {
 } from "type-graphql";
 import { ILike } from "typeorm";
 import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { insertAndReturn } from "../util/insertAndReturn";
 import { Species } from "./Species";
 
 @InputType()
 export class SpeciesCreateInput {
   @Field()
   name!: string;
+
+  @Field(() => ID)
+  communityId!: string;
 }
 
 @InputType()
@@ -46,8 +49,8 @@ export class SpeciesResolver {
   @Mutation(() => Species)
   async createSpecies(
     @Arg("input") input: SpeciesCreateInput,
-    @Ctx() { speciesRepository }: AppGraphqlContext
+    @Ctx() { speciesController }: AppGraphqlContext
   ): Promise<Species> {
-    return await insertAndReturn(speciesRepository, input);
+    return await speciesController.create(input);
   }
 }

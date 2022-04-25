@@ -1,43 +1,51 @@
-import { Field, ID, ObjectType } from "type-graphql";
+import { Field, ObjectType } from "type-graphql";
 import { TypeormLoader } from "type-graphql-dataloader";
-import {
-  Column,
-  Entity,
-  JoinTable,
-  ManyToMany,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Community } from "../Community/Community";
 import { Critter } from "../Critter/Critter";
-import { Trait } from "../Trait/Trait";
+import {
+  IdField,
+  ManyToOneField,
+  RelationIdField,
+} from "../relationFieldDecorators";
+import { TraitList } from "../TraitList/TraitList";
 
 @Entity()
-@ObjectType()
+@ObjectType({
+  description:
+    "Model representing an arbitrarily broad class of charcters that use common trait lists, and administration.",
+})
 export class Species {
-  @Field(() => ID)
-  @PrimaryGeneratedColumn("uuid")
+  @IdField
   id!: string;
 
-  @Field(() => String)
+  @Field(() => String, { description: "Name of the species" })
   @Column({ nullable: false, unique: true })
   name: string = "";
 
-  @OneToMany(() => Critter, (critter) => critter.species)
-  critters: Critter[] | null = null;
-
-  @ManyToMany(() => Trait, (trait) => trait.species)
-  @JoinTable({
-    name: "species_trait",
-    joinColumn: {
-      name: "speciesId",
-      referencedColumnName: "id",
-    },
-    inverseJoinColumn: {
-      name: "traitId",
-      referencedColumnName: "id",
-    },
+  @ManyToOneField({
+    columnName: "communityId",
+    foreignColumnName: "id",
+    nullable: false,
+    type: () => Community,
+    description: "Community that owns this species",
   })
+  community!: Community;
+
+  @RelationIdField<Species>({
+    nullable: false,
+    relation: (species) => species.community,
+    description: "ID of the community that owns this species",
+  })
+  communityId!: string;
+
+  @OneToMany(() => Critter, (critter) => critter.species)
+  @Field(() => [Critter], { nullable: false })
   @TypeormLoader()
-  @Field(() => [Trait])
-  traits: Trait[] | null = null;
+  critters!: Critter[];
+
+  @OneToMany(() => TraitList, (traitList) => traitList.species)
+  @Field(() => [TraitList], { nullable: false })
+  @TypeormLoader()
+  traitLists!: TraitList[];
 }

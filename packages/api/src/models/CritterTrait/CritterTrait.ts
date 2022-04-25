@@ -60,6 +60,8 @@ export class CritterTrait {
       return this.valueInt === null ? "" : String(this.valueInt);
     } else if (this.valueType === CritterTraitValueTypes.Timestamp) {
       return this.valueTimestamp ? this.valueTimestamp.toDateString() : "";
+    } else if (this.valueType === CritterTraitValueTypes.Enum) {
+      return "[Enum Value]";
     } else {
       return "";
     }

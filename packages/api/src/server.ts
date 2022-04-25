@@ -2,43 +2,43 @@ import "reflect-metadata";
 import Koa, { Context, Request, Response } from "koa";
 import mount from "koa-mount";
 import { graphqlHTTP, OptionsResult } from "koa-graphql";
-import { buildSchema } from "type-graphql";
-import { Critter } from "./models/Critter/Critter";
-import { Species } from "./models/Species/Species";
+import { buildSchema, NonEmptyArray } from "type-graphql";
 import { createDbConnection } from "./db/dbConnection";
 import { GraphQLParams } from "express-graphql";
 import { v4 } from "uuid";
-import { Trait } from "./models/Trait/Trait";
-import { SpeciesTrait } from "./models/SpeciesTrait/SpeciesTrait";
-import { CritterResolver } from "./models/Critter/CritterResolver";
-import { SpeciesResolver } from "./models/Species/SpeciesResolver";
-import { CritterTrait } from "./models/CritterTrait/CritterTrait";
-import { CritterTraitResolver } from "./models/CritterTrait/CritterTraitResolver";
-import { TraitResolver } from "./models/Trait/TraitResolver";
-import { SpeciesTraitResolver } from "./models/SpeciesTrait/SpeciesTraitResolver";
 import cors from "@koa/cors";
+import { AppGraphqlContext } from "./graphql/AppGraphqlContext";
+import { asFunction, asValue, Lifetime } from "awilix";
+import { register } from "./awilix/register";
+import { registerRepositories } from "./models/registerRepositories";
+import { createContainer } from "./awilix/createContainer";
+import { registerControllers } from "./business/registerControllers";
+import { ResolversArray } from "./business/Resolvers";
 
 (async function () {
   const db = await createDbConnection();
 
-  const critterRepository = db.getRepository(Critter);
-  const speciesRepository = db.getRepository(Species);
-  const traitRepository = db.getRepository(Trait);
-  const speciesTraitRepository = db.getRepository(SpeciesTrait);
-  const critterTraitRepository = db.getRepository(CritterTrait);
-
   const koa = new Koa();
 
   const schema = await buildSchema({
-    resolvers: [
-      CritterResolver,
-      SpeciesResolver,
-      CritterTraitResolver,
-      TraitResolver,
-      SpeciesTraitResolver,
-    ],
+    resolvers: [...ResolversArray] as unknown as NonEmptyArray<Function>,
     emitSchemaFile: "./schema.gql",
   });
+
+  const rootContainer = createContainer<AppGraphqlContext>();
+  register(rootContainer, "db", asValue(db));
+  register(
+    rootContainer,
+    "entityManager",
+    asFunction(
+      ({ db }: AppGraphqlContext) => {
+        return db.createEntityManager();
+      },
+      { lifetime: Lifetime.SINGLETON }
+    )
+  );
+  registerRepositories(rootContainer);
+  registerControllers(rootContainer);
 
   koa.use(cors()).use(
     mount(
@@ -49,22 +49,22 @@ import cors from "@koa/cors";
           _response: Response,
           _ctx: Context,
           _params?: GraphQLParams
-        ): OptionsResult => ({
-          schema,
-          graphiql: true,
-          context: {
-            db,
-            critterRepository,
-            speciesRepository,
-            traitRepository,
-            speciesTraitRepository,
-            critterTraitRepository,
-            _tgdContext: {
+        ): OptionsResult => {
+          const requestContainer = rootContainer.createScope();
+          register(
+            requestContainer,
+            "_tgdContext",
+            asValue({
               requestId: v4(),
-              typeormGetConnection: () => db,
-            },
-          },
-        })
+              typeormGetConnection: () => requestContainer.cradle.db,
+            })
+          );
+          return {
+            schema,
+            graphiql: true,
+            context: requestContainer.cradle,
+          };
+        }
       )
     )
   );
