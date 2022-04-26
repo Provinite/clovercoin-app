@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Clovercoin App Postgres",
+      "Group": "CloverCoin App",
+      "Port": 5432,
+      "Username": "postgres",
+      "Host": "db",
+      "MaintenanceDB": "postgres",
+      "SSLMode": "disable"
+    }
+  }
+}

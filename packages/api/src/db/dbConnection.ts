@@ -1,5 +1,5 @@
 import { Connection, createConnection } from "typeorm";
-import { entities } from "../models/entities";
+import { ModelsArray } from "../models";
 
 export function createDbConnection(): Promise<Connection> {
   return createConnection({
@@ -10,7 +10,7 @@ export function createDbConnection(): Promise<Connection> {
     username: "postgres",
     password: "password",
     synchronize: true,
-    entities: [...entities],
+    entities: [...ModelsArray],
     logging: "all",
   });
 }

@@ -1,15 +1,18 @@
-import { Connection, Repository } from "typeorm";
-import { Critter } from "../models/Critter/Critter";
-import { CritterTrait } from "../models/CritterTrait/CritterTrait";
-import { Species } from "../models/Species/Species";
-import { SpeciesTrait } from "../models/SpeciesTrait/SpeciesTrait";
-import { Trait } from "../models/Trait/Trait";
+import type { AwilixContainer } from "awilix";
+import type { Connection, EntityManager } from "typeorm";
+import type { ControllerContext } from "../business/registerControllers";
+import type { TransactionProvider } from "../db/TransactionProvider";
+import type { RepositoryContext } from "../models/registerRepositories";
 
-export type AppGraphqlContext = {
+export interface AppGraphqlContext
+  extends RepositoryContext,
+    ControllerContext {
   db: Connection;
-  critterRepository: Repository<Critter>;
-  speciesRepository: Repository<Species>;
-  critterTraitRepository: Repository<CritterTrait>;
-  traitRepository: Repository<Trait>;
-  speciesTraitRepository: Repository<SpeciesTrait>;
-};
+  entityManager: EntityManager;
+  _tgdContext: {
+    requestId: string;
+    typeormGetConnection: () => Connection;
+  };
+  container: AwilixContainer<AppGraphqlContext>;
+  transactionProvider: TransactionProvider;
+}
