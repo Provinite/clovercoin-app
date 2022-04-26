@@ -2,6 +2,7 @@ import { Field, ID } from "type-graphql";
 import { TypeormLoader } from "type-graphql-dataloader";
 import {
   JoinColumn,
+  JoinColumnOptions,
   ManyToOne,
   ObjectType,
   PrimaryGeneratedColumn,
@@ -9,37 +10,40 @@ import {
   RelationOptions,
 } from "typeorm";
 
-export interface ManyToOneFieldOptions {
+export type ManyToOneFieldOptions = {
   type: () => ObjectType<any>;
   fieldType?: () => ObjectType<any> | [ObjectType<any>];
-  columnName: string;
-  foreignColumnName: string;
   relationOptions?: Omit<RelationOptions, "nullable">;
   nullable: boolean;
   description?: string;
-}
+  columnName?: string;
+  foreignColumnName?: string;
+  joinColumnOptions?: JoinColumnOptions | JoinColumnOptions[];
+};
 
 export const ManyToOneField: (
   options: ManyToOneFieldOptions
-) => PropertyDecorator =
-  ({
-    type,
-    columnName,
-    description,
-    fieldType = type,
-    foreignColumnName,
-    nullable,
-    relationOptions = {},
-  }) =>
-  (...args) => {
+) => PropertyDecorator = ({
+  type,
+  fieldType = type,
+  relationOptions,
+  nullable,
+  joinColumnOptions,
+  description,
+  columnName,
+  foreignColumnName,
+}) => {
+  return (...args) => {
     ManyToOne(type, { ...relationOptions, nullable })(...args);
-    JoinColumn({
-      name: columnName,
-      referencedColumnName: foreignColumnName,
-    });
+    JoinColumn(
+      joinColumnOptions
+        ? (joinColumnOptions as JoinColumnOptions)
+        : { name: columnName, referencedColumnName: foreignColumnName }
+    )(...args);
     Field(fieldType, { description })(...args);
     TypeormLoader()(...args);
   };
+};
 
 export interface RelationIdFieldOptions<T> {
   relation: (model: T) => any;

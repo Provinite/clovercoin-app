@@ -67,7 +67,11 @@ export class LoginController {
 
         if (result.success) {
           const { account } = result;
-          const identity = await identityRepository.findOne(account.identityId);
+          const identity = await identityRepository.findOne({
+            where: {
+              id: account.identityId,
+            },
+          });
           if (!identity) {
             throw new Error("Identity not found");
           }

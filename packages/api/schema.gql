@@ -170,6 +170,7 @@ input SpeciesFilters {
 type Trait {
   id: ID!
   name: String!
+  species: Species!
   valueType: CritterTraitValueType!
 }
 

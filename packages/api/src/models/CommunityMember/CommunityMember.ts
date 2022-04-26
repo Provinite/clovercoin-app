@@ -26,7 +26,7 @@ export class CommunityMember {
     columnName: "identityId",
     foreignColumnName: "id",
   })
-  identity: Identity | null = null;
+  identity!: Identity;
 
   @RelationIdField<CommunityMember>({
     relation: (cm) => cm.identity,
