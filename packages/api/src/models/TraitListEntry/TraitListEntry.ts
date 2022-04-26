@@ -16,6 +16,13 @@ export class TraitListEntry {
   id!: string;
 
   /**
+   * @TODO Add `valueType` constraint here.
+   * This is blocked by setting up migrations properly. synchronize breaks if we
+   * try to share enums between types.
+   *
+   * That's the real @TODO anyway
+   */
+  /**
    * The associated trait
    */
   @ManyToOneField({
@@ -23,10 +30,6 @@ export class TraitListEntry {
       {
         name: "traitId",
         referencedColumnName: "id",
-      },
-      {
-        name: "valueType",
-        referencedColumnName: "valueType",
       },
       {
         name: "speciesId",

@@ -1,3 +1,5 @@
+import { Repository } from "typeorm";
+import { EntityController } from "../../business/EntityController";
 import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
 import { canHashPassword } from "../../util/crypto/canHashPassword";
 import { compareHash } from "../../util/crypto/compareHash";
@@ -6,6 +8,11 @@ import { Account } from "./Account";
 
 const mockHashedPassword = secureHashSync("password");
 const wrongMockPassword = "p";
+
+export type AccountCreate = Pick<
+  Account,
+  "identityId" | "username" | "password"
+>;
 
 export type VerifyResponse =
   | {
@@ -16,25 +23,31 @@ export type VerifyResponse =
       success: false;
     };
 
-export class AccountController {
-  #repository: AppGraphqlContext["accountRepository"];
+export class AccountController extends EntityController<
+  Account,
+  Repository<Account>,
+  AccountCreate
+> {
   constructor({ accountRepository }: AppGraphqlContext) {
-    this.#repository = accountRepository;
+    super(accountRepository);
   }
 
-  async createAccount(username: string, password: string, identityId: string) {
+  /**
+   * @override
+   */
+  async createBodyToModel({
+    username,
+    password,
+    identityId,
+  }: AccountCreate): Promise<Account> {
     if (!canHashPassword(password)) {
       throw new Error("Invalid password");
     }
-    const account = this.#repository.create({
+    return this.repository.create({
       username,
-      identity: { id: identityId },
+      identityId,
+      password: await secureHash(password),
     });
-    account.password = await secureHash(password);
-
-    console.log(account);
-
-    return this.#repository.save(account);
   }
 
   /**
@@ -46,7 +59,7 @@ export class AccountController {
     username: string,
     password: string
   ): Promise<VerifyResponse> {
-    const account = await this.#repository.findOne({
+    const account = await this.repository.findOne({
       where: {
         username,
       },

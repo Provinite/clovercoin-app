@@ -1,4 +1,4 @@
-import { Field, ObjectType } from "type-graphql";
+import { Field, ID, ObjectType } from "type-graphql";
 import { TypeormLoader } from "type-graphql-dataloader";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Community } from "../Community/Community";
@@ -32,9 +32,8 @@ export class Species {
   })
   community!: Community;
 
-  @RelationIdField<Species>({
-    nullable: false,
-    relation: (species) => species.community,
+  @Column("uuid", { nullable: false })
+  @Field(() => ID, {
     description: "ID of the community that owns this species",
   })
   communityId!: string;

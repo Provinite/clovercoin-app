@@ -1,5 +1,5 @@
 import { Field, ID, ObjectType } from "type-graphql";
-import { Column, Entity } from "typeorm";
+import { Column, Entity, Unique } from "typeorm";
 import { IdField, ManyToOneField } from "../relationFieldDecorators";
 import { Species } from "../Species/Species";
 
@@ -9,6 +9,7 @@ import { Species } from "../Species/Species";
  */
 @Entity()
 @ObjectType()
+@Unique(["id", "speciesId"])
 export class TraitList {
   @IdField
   id!: string;

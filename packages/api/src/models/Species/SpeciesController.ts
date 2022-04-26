@@ -1,23 +1,16 @@
 import { Repository } from "typeorm";
+import { EntityController } from "../../business/EntityController";
 import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
 import { Species } from "./Species";
 
 export type SpeciesCreate = Pick<Species, "name" | "communityId">;
 
-export class SpeciesController {
-  #repository: Repository<Species>;
+export class SpeciesController extends EntityController<
+  Species,
+  Repository<Species>,
+  SpeciesCreate
+> {
   constructor({ speciesRepository }: AppGraphqlContext) {
-    this.#repository = speciesRepository;
-  }
-
-  async create(createBody: SpeciesCreate) {
-    return this.#repository.save(
-      this.#repository.create({
-        ...createBody,
-        community: {
-          id: createBody.communityId,
-        },
-      })
-    );
+    super(speciesRepository);
   }
 }

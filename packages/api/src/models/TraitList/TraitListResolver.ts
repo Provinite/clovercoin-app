@@ -26,7 +26,6 @@ export class TraitListResolver {
     @Arg("input") input: TraitListCreateInput,
     @Ctx() { traitListController }: AppGraphqlContext
   ) {
-    const [result] = await traitListController.create(input);
-    return result;
+    return await traitListController.create(input);
   }
 }

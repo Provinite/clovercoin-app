@@ -17,15 +17,21 @@ import { TraitListEntry } from "./TraitListEntry/TraitListEntry";
  */
 const modelsByName = {
   Account,
+
   Community,
   CommunityMember,
+
   Critter,
-  CritterTrait,
   CritterOwnershipChange,
+  CritterTrait,
+
   EnumValue,
   EnumValueSetting,
+
   Identity,
+
   Species,
+
   Trait,
   TraitList,
   TraitListEntry,

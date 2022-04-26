@@ -1,4 +1,4 @@
-import { Field, ObjectType } from "type-graphql";
+import { Field, ID, ObjectType } from "type-graphql";
 import { Column, Entity } from "typeorm";
 import { Identity } from "../Identity/Identity";
 import {
@@ -33,9 +33,7 @@ export class Account {
   })
   identity!: Identity;
 
-  @RelationIdField<Account>({
-    nullable: false,
-    relation: (account) => account.identity,
-  })
+  @Column("uuid", { nullable: false })
+  @Field(() => ID)
   identityId!: string;
 }

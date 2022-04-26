@@ -1,11 +1,7 @@
-import { ObjectType } from "type-graphql";
-import { Entity } from "typeorm";
+import { Field, ID, ObjectType } from "type-graphql";
+import { Column, Entity } from "typeorm";
 import { Identity } from "../Identity/Identity";
-import {
-  IdField,
-  ManyToOneField,
-  RelationIdField,
-} from "../relationFieldDecorators";
+import { IdField, ManyToOneField } from "../relationFieldDecorators";
 
 @Entity()
 @ObjectType()
@@ -21,10 +17,8 @@ export class CritterOwnershipChange {
   })
   fromIdentity?: Identity;
 
-  @RelationIdField<CritterOwnershipChange>({
-    nullable: true,
-    relation: (change) => change.fromIdentity,
-  })
+  @Column("uuid", { nullable: true })
+  @Field(() => ID)
   fromIdentityId?: string;
 
   @ManyToOneField({
@@ -35,9 +29,7 @@ export class CritterOwnershipChange {
   })
   toIdentity!: Identity;
 
-  @RelationIdField<CritterOwnershipChange>({
-    nullable: false,
-    relation: (change) => change.toIdentity,
-  })
+  @Column("uuid", { nullable: false })
+  @Field(() => ID)
   toIdentityId?: string;
 }

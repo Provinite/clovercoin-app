@@ -6,7 +6,7 @@ import { Species } from "../Species/Species";
 
 @Entity()
 @ObjectType()
-@Unique(["id", "valueType", "speciesId"])
+@Unique(["id", "speciesId"])
 export class Trait {
   @IdField
   id!: string;

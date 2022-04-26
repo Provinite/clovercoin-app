@@ -29,17 +29,17 @@ export class LoginController {
   ): Promise<LoggedInResult> {
     return this.#transactionProvider.runTransaction(
       async ({ identityController, accountController }) => {
-        const identity = await identityController.createIdentity({
+        const identity = await identityController.create({
           displayName: username,
           email,
         });
         console.log(identity);
         const [account, token] = await Promise.all([
-          accountController.createAccount(
+          accountController.create({
             username,
-            plaintextPassword,
-            identity.id
-          ),
+            password: plaintextPassword,
+            identityId: identity.id,
+          }),
           this.#createToken(identity),
         ]);
         return { success: true, identity, account, token };

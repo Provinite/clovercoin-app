@@ -14,7 +14,7 @@ export class CommunityResolver {
   async createCommunity(
     @Arg("input") input: CommunityCreateInput,
     @Ctx() { communityController }: AppGraphqlContext
-  ) {
+  ): Promise<Community> {
     return await communityController.create(input);
   }
 }

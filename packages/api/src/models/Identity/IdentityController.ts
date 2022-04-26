@@ -1,18 +1,16 @@
+import { Repository } from "typeorm";
+import { EntityController } from "../../business/EntityController";
 import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
 import { Identity } from "./Identity";
 
-export class IdentityController {
-  #repository: AppGraphqlContext["identityRepository"];
-  constructor({ identityRepository }: AppGraphqlContext) {
-    this.#repository = identityRepository;
-  }
+export type IdentityCreate = Pick<Identity, "displayName" | "email">;
 
-  async createIdentity({
-    displayName,
-    email,
-  }: Pick<Identity, "displayName" | "email">) {
-    return this.#repository.save(
-      this.#repository.create({ displayName, email })
-    );
+export class IdentityController extends EntityController<
+  Identity,
+  Repository<Identity>,
+  IdentityCreate
+> {
+  constructor({ identityRepository }: AppGraphqlContext) {
+    super(identityRepository);
   }
 }

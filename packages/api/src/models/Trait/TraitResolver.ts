@@ -1,7 +1,6 @@
 import { Arg, Ctx, Field, InputType, Mutation, Resolver } from "type-graphql";
 import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
 import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes";
-import { EnumValue } from "../EnumValue/EnumValue";
 import { EnumValueCreate } from "../EnumValue/EnumValueController";
 import { Trait } from "./Trait";
 import { TraitCreate } from "./TraitController";
