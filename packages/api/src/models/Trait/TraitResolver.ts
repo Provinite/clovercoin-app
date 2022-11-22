@@ -1,4 +1,13 @@
-import { Arg, Ctx, Field, InputType, Mutation, Resolver } from "type-graphql";
+import {
+  Arg,
+  Ctx,
+  Field,
+  ID,
+  InputType,
+  Mutation,
+  Query,
+  Resolver,
+} from "type-graphql";
 import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
 import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes";
 import { EnumValueCreate } from "../EnumValue/EnumValueController";
@@ -15,12 +24,23 @@ export class TraitCreateInput {
 
   @Field(() => [TraitCreateEnumValueInput])
   enumValues!: TraitCreateEnumValueInput[];
+
+  @Field(() => ID)
+  speciesId!: string;
 }
 
 @InputType()
 export class TraitCreateEnumValueInput {
   @Field()
   name!: string;
+}
+
+@InputType()
+export class TraitFilters {
+  @Field(() => ID, {
+    nullable: false,
+  })
+  speciesId!: string;
 }
 
 @Resolver(() => Trait)
@@ -35,6 +55,7 @@ export class TraitResolver {
         const traitCreateBody: TraitCreate = {
           name: input.name,
           valueType: input.valueType,
+          speciesId: input.speciesId,
         };
         const trait = await traitController.create(traitCreateBody);
 
@@ -60,5 +81,17 @@ export class TraitResolver {
         return trait;
       }
     );
+  }
+
+  @Query(() => [Trait])
+  async traits(
+    @Arg("filters", () => TraitFilters) filters: TraitFilters,
+    @Ctx() { traitRepository }: AppGraphqlContext
+  ): Promise<Trait[]> {
+    return traitRepository.find({
+      where: {
+        speciesId: filters.speciesId,
+      },
+    });
   }
 }

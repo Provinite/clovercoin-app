@@ -1,7 +1,11 @@
-import { DeepPartial, Repository } from "typeorm";
+import { DeepPartial, ObjectLiteral, Repository } from "typeorm";
 import { ensureArray } from "../util/ensureArray";
 
-export class EntityController<Model, R extends Repository<Model>, CreateBody> {
+export class EntityController<
+  Model extends ObjectLiteral,
+  R extends Repository<Model>,
+  CreateBody
+> {
   constructor(protected repository: R) {}
 
   create(createBody: CreateBody): Promise<Model>;
@@ -27,5 +31,11 @@ export class EntityController<Model, R extends Repository<Model>, CreateBody> {
    */
   async createBodyToModel(createBody: CreateBody): Promise<Model> {
     return this.repository.create(createBody as unknown as DeepPartial<Model>);
+  }
+
+  async findOneById(id: Model["id"]) {
+    return this.repository.findOneBy({
+      id,
+    });
   }
 }

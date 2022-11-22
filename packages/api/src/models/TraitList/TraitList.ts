@@ -1,7 +1,9 @@
 import { Field, ID, ObjectType } from "type-graphql";
-import { Column, Entity, Unique } from "typeorm";
+import { TypeormLoader } from "type-graphql-dataloader";
+import { Column, Entity, OneToMany, Unique } from "typeorm";
 import { IdField, ManyToOneField } from "../relationFieldDecorators";
 import { Species } from "../Species/Species";
+import { TraitListEntry } from "../TraitListEntry/TraitListEntry";
 
 /**
  * Model representing a specific configuration, selection, and order
@@ -32,4 +34,9 @@ export class TraitList {
   @Column("uuid", { nullable: false })
   @Field(() => ID)
   speciesId!: string;
+
+  @OneToMany(() => TraitListEntry, (traitListEntry) => traitListEntry.traitList)
+  @Field(() => [TraitListEntry])
+  @TypeormLoader()
+  traitListEntries!: TraitListEntry[];
 }

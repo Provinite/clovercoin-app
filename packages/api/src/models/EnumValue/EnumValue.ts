@@ -13,11 +13,12 @@ export class EnumValue {
   @IdField
   id!: string;
 
-  @ManyToOneField({
+  @ManyToOneField<Trait>({
     columnName: "traitId",
     foreignColumnName: "id",
     nullable: false,
     type: () => Trait,
+    inverseSide: (trait) => trait.enumValues,
   })
   trait!: Trait;
 

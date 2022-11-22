@@ -1,3 +1,9 @@
+/**
+ * Type-safety function for
+ * @param stylesheet
+ * @param rules
+ * @returns
+ */
 export function stylish<T>(
   stylesheet: T,
   rules: { [k in keyof T]?: boolean | null | undefined }

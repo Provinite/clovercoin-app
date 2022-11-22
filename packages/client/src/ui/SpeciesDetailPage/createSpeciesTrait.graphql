@@ -1,0 +1,5 @@
+mutation createSpeciesTrait($input: TraitCreateInput!) {
+  createTrait(input: $input) {
+    id
+  }
+}

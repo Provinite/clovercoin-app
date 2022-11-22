@@ -10,6 +10,13 @@
       "name": "API (yarn start)",
       "command": "yarn start",
       "cwd": "${workspaceFolder}/packages/api"
+    },
+    {
+      "type": "node-terminal",
+      "request": "launch",
+      "name": "Codegen",
+      "command": "yarn ts-node ./tools/service-generation/generate-services.ts",
+      "cwd": "${workspaceFolder}/packages/client"
     }
   ]
 }

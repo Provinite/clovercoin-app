@@ -1,12 +1,14 @@
 import { Field, ObjectType } from "type-graphql";
-import { Column, Entity, Unique } from "typeorm";
+import { TypeormLoader } from "type-graphql-dataloader";
+import { Column, Entity, OneToMany } from "typeorm";
 import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes";
+import { EnumValue } from "../EnumValue/EnumValue";
 import { IdField, ManyToOneField } from "../relationFieldDecorators";
 import { Species } from "../Species/Species";
+import { TraitListEntry } from "../TraitListEntry/TraitListEntry";
 
 @Entity()
 @ObjectType()
-@Unique(["id", "speciesId"])
 export class Trait {
   @IdField
   id!: string;
@@ -23,14 +25,22 @@ export class Trait {
   })
   valueType!: CritterTraitValueTypes;
 
-  @ManyToOneField({
-    columnName: "speciesId",
-    foreignColumnName: "id",
-    nullable: false,
-    type: () => Species,
-  })
-  species!: Species;
+  @OneToMany(() => TraitListEntry, (traitListEntry) => traitListEntry.trait)
+  traitListEntries!: TraitListEntry[];
+
+  @Field(() => [EnumValue])
+  @OneToMany(() => EnumValue, (enumValue) => enumValue.trait)
+  @TypeormLoader()
+  enumValues!: EnumValue[];
 
   @Column("uuid", { nullable: false })
   speciesId!: string;
+
+  @ManyToOneField({
+    columnName: "speciesId",
+    nullable: false,
+    type: () => Species,
+    foreignColumnName: "id",
+  })
+  species!: Species;
 }

@@ -1,62 +1,51 @@
 import { ComponentMeta, ComponentStory } from "@storybook/react";
-import { unflatten } from "flat";
 import * as React from "react";
-import { FC } from "react";
-import { flatArgTypes, flattenArgs } from "../../../tools/storybook-utils";
-import type { Flatten } from "../../typing/types";
-import * as SpeciesListStories from "./SpeciesList/SpeciesList.stories";
-import { SpeciesListPage, SpeciesListPageProps } from "./SpeciesListPage";
-const delimiter = ".";
+import { v4 } from "uuid";
+import { SpeciesListPage } from "./SpeciesListPage";
 
-type FlatProps = Flatten<SpeciesListPageProps>;
-
-const Template: ComponentStory<FC<FlatProps>> = (args) => (
-  <SpeciesListPage
-    {...unflatten<FlatProps, SpeciesListPageProps>(args, { delimiter })}
-  />
-);
-
-const noControls = {
-  control: {
-    type: null,
-  },
-};
-
-const meta: ComponentMeta<FC<FlatProps & SpeciesListPageProps>> = {
-  title: "CloverCoin/Pages/Species List/SpeciesListPage",
+const meta: ComponentMeta<typeof SpeciesListPage> = {
+  title: "CloverCoin/SpeciesListPage",
   component: SpeciesListPage,
+  argTypes: {},
   parameters: {
     layout: "fullscreen",
-    actions: { argTypesRegex: ".*?\\.on[A-Z].*" },
-  },
-  argTypes: {
-    speciesListProps: noControls,
-    headerBarProps: noControls,
-    searchInputProps: noControls,
-    speciesDetailProps: noControls,
-    listContainerProps: noControls,
-    ...flatArgTypes<SpeciesListPageProps>({
-      "speciesListProps.onRowClick": {},
-      "searchInputProps.onChange": {},
-    }),
   },
 };
 
 export default meta;
 
+const Template: ComponentStory<typeof SpeciesListPage> = (args) => (
+  <SpeciesListPage {...args} />
+);
+
+let n = 200;
+
 export const Usage = Template.bind({});
-Usage.args = flattenArgs<SpeciesListPageProps>({
+Usage.args = {
+  loading: false,
   headerBarProps: {
+    title: "Species",
     userIconUrl: "http://placekitten.com/90/90",
     userName: "Mr. Snuggles",
   },
-  speciesListProps: {
-    ...SpeciesListStories.Usage.args,
+  onSpeciesClick: undefined,
+  data: {
+    species: [
+      species({ name: "Pillowings" }),
+      species({ name: "Lintlings" }),
+      species({ name: "Swunny" }),
+      species({ name: "Mundi Felidae" }),
+    ],
   },
-  detailViewTransition: false,
-  onDetailViewTransitionEnd: () => {},
-  speciesDetailProps: {
-    species: SpeciesListStories.Usage.args!.species![0],
-  },
-});
-console.log(Usage.args);
+};
+
+function species({ name }: { name: string }) {
+  ++n;
+  console.log(n);
+  return {
+    id: v4(),
+    name,
+    traitLists: [],
+    iconUrl: `http://placekitten.com/${n}/${n}`,
+  };
+}

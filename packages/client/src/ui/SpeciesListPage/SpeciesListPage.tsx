@@ -1,170 +1,175 @@
-import { css, StyleSheet } from "aphrodite";
-import * as React from "react";
-import { FC, HTMLProps, TransitionEventHandler, useCallback } from "react";
-import { HeaderBar, HeaderBarProps } from "../HeaderBar/HeaderBar";
-import { Page } from "../lib/Page/Page";
+import { FC, useEffect, useState } from "react";
+import { StyleSheet, css } from "aphrodite";
+import { HeaderBar } from "../HeaderBar/HeaderBar";
+import { HeaderBarProps } from "../HeaderBar/HeaderBarProps";
+import { GetSpeciesListViewQuery } from "../../generated/graphql";
+import { SpeciesCard } from "../SpeciesCard/SpeciesCard";
+import { useFetcher } from "react-router-dom";
+import { If } from "../util/If";
+import { useRouteCommunity } from "../SpeciesDetailPage/useRouteCommunity";
+import { AddBadge } from "../AddBadge/AddBadge";
+import MovieFilterIcon from "@mui/icons-material/MovieFilter";
 import {
-  TransitionDuration,
-  TransitionTimingFunction,
-} from "../lib/styles/animation";
-import { Color } from "../lib/styles/colors";
-import {
-  SpeciesDetail,
-  SpeciesDetailProps,
-} from "./SpeciesDetail/SpeciesDetail";
-import { SpeciesList, SpeciesListProps } from "./SpeciesList/SpeciesList";
-import { listBorderStyle } from "./SpeciesList/SpeciesList.stylesheet";
-
+  Card,
+  CardActionArea,
+  CardContent,
+  Grid,
+  Toolbar,
+} from "@mui/material";
+import { SideNav } from "../SideNav/SideNav";
 export interface SpeciesListPageProps {
-  /**
-   * Props for the species list
-   */
-  speciesListProps: SpeciesListProps;
-  /**
-   * Props for the species detail
-   */
-  speciesDetailProps: SpeciesDetailProps;
-  /**
-   * Props for the header bar
-   */
-  headerBarProps: Omit<HeaderBarProps, "title">;
-  /**
-   * Props for the search input element
-   */
-  searchInputProps: HTMLProps<HTMLInputElement>;
-  /**
-   * Props for the list container element that wraps the list and
-   * search
-   */
-  listContainerProps?: HTMLProps<HTMLDivElement>;
-  /**
-   * Fired when a transition finishes for the detail view.
-   */
-  onDetailViewTransitionEnd: () => void;
-  /**
-   * Toggling this prop will begin a transition for the detail view table.
-   * A value of true indicates an ongoing or completed transition in,
-   * while a value of false indicates an ongoing or completed transition out.
-   */
-  detailViewTransition: boolean;
-  /**
-   * Controls whether the detail view is rendered at all.
-   */
-  showDetailView: boolean;
+  headerBarProps: HeaderBarProps;
+  data: GetSpeciesListViewQuery;
+  onSpeciesClick?: (
+    species: GetSpeciesListViewQuery["species"][number]
+  ) => void;
 }
 
-const transition = `all ${TransitionDuration.fullscreen} ${TransitionTimingFunction.EaseInBounceOut}`;
-const transitionOut = `all ${TransitionDuration.fullscreen} ${TransitionTimingFunction.QuickInEaseOut}`;
+const ss = StyleSheet.create({
+  root: {},
+  listContainer: {
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  listItem: {
+    marginLeft: "80px",
+    marginRight: "80px",
+    marginTop: "40px",
+    marginBottom: "40px",
+  },
+  addCard: {
+    paddingTop: "32px",
+    width: "300px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    border: "1px solid #CCC",
+    position: "relative",
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+  },
+  formLabel: {
+    display: "flex",
+    flexDirection: "column",
+    marginBottom: "16px",
+  },
+  formLabelText: {
+    display: "block",
+  },
+  formInput: {
+    display: "block",
+  },
+  clickableCard: {
+    cursor: "pointer",
+  },
+  addCardHeader: {
+    margin: "0 auto",
+  },
+});
 
 export const SpeciesListPage: FC<SpeciesListPageProps> = ({
-  searchInputProps,
   headerBarProps,
-  speciesListProps,
-  speciesDetailProps,
-  detailViewTransition,
-  listContainerProps,
-  onDetailViewTransitionEnd,
-  showDetailView,
+  data,
+  onSpeciesClick,
 }) => {
-  const {
-    table,
-    slimTable,
-    fatTable,
-    detail,
-    searchInput,
-    searchInputWrapper,
-    contentContainer,
-  } = StyleSheet.create({
-    /** Entire content container for page */
-    contentContainer: {
-      display: "flex",
-      flexDirection: "row",
-      flexGrow: 1,
-      flexBasis: "100%",
-      backgroundColor: Color.List.background,
-    },
-    /** List */
-    table: {
-      flexGrow: 1,
-      flexShrink: 0,
-      display: "flex",
-      flexDirection: "column",
-    },
-    /** List when detail not shown */
-    fatTable: {
-      flexBasis: "100%",
-      minWidth: "100%",
-      transition: transitionOut,
-    },
-    /** List when detail shown */
-    slimTable: {
-      minWidth: "300px",
-      flexBasis: "300px",
-      transition,
-    },
-    /** Detail container */
-    detail: {
-      minWidth: "calc(100% - 300px)",
-      width: "calc(100% - 300px)",
-    },
-    /** Search input element */
-    searchInput: {
-      margin: "16px",
-      borderRadius: "12px",
-      padding: "4px 8px",
-      border: `2px solid ${Color.Input.border}`,
-      fontWeight: 300,
-      fontSize: "16px",
-      outline: 0,
-      display: "block",
-
-      ":focus": {
-        border: `2px solid ${Color.Input.Focus.border}`,
-      },
-      ":placeholder-shown": {
-        fontStyle: "italic",
-      },
-    },
-    searchInputWrapper: {
-      borderRight: listBorderStyle,
-    },
-  });
-
-  const handleDetailViewTransitionEnd = useCallback<TransitionEventHandler>(
-    (e) => {
-      if (e.propertyName === "flex-basis") {
-        onDetailViewTransitionEnd();
-      }
-    },
-    [onDetailViewTransitionEnd]
-  );
+  const [showAddForm, setShowAddForm] = useState(false);
+  const fetcher = useFetcher();
+  const community = useRouteCommunity();
+  useEffect(() => {
+    setShowAddForm(false);
+  }, [fetcher.state]);
 
   return (
-    <Page>
-      <HeaderBar {...headerBarProps} title="Species" />
-      <div className={css(contentContainer)}>
-        <div
-          {...listContainerProps}
-          className={css(table, detailViewTransition ? slimTable : fatTable)}
-          onTransitionEnd={handleDetailViewTransitionEnd}
-        >
-          <div className={css(searchInputWrapper)}>
-            <input
-              type="text"
-              placeholder="Search 🔎"
-              {...searchInputProps}
-              className={css(searchInput)}
-            />
-          </div>
-          <SpeciesList {...speciesListProps} />
+    <>
+      <HeaderBar {...headerBarProps} title={`${community.name} Species`} />
+      <div
+        css={{
+          display: "flex",
+          flexDirection: "row",
+          flexGrow: 1,
+        }}
+      >
+        <SideNav
+          navItems={[
+            {
+              to: `/community/${community.id}/species/`,
+              children: "Species",
+              icon: <MovieFilterIcon />,
+            },
+          ]}
+        />
+        <div css={{ flexGrow: 1 }}>
+          <Toolbar />
+          <Grid container css={{ paddingTop: "18px" }} spacing={2}>
+            {data.species.map((s) => (
+              <SpeciesCard
+                key={s.name}
+                species={s}
+                onClick={onSpeciesClick ? () => onSpeciesClick(s) : undefined}
+              />
+            ))}
+            {/* Species Add Card */}
+            <Grid
+              item
+              xs={6}
+              sm={4}
+              lg={3}
+              css={{
+                textAlign: "center",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
+              <Card
+                onClick={() => setShowAddForm(true)}
+                css={{ width: "200px", height: "250px" }}
+              >
+                <If condition={!showAddForm}>
+                  <CardActionArea css={{ height: "100%" }}>
+                    <AddBadge to="">Add One</AddBadge>
+                  </CardActionArea>
+                </If>
+                <CardContent>
+                  <If condition={showAddForm}>
+                    <span className={css(ss.addCardHeader)}>Add One</span>
+                  </If>
+                  <fetcher.Form
+                    action="."
+                    method="post"
+                    className={css(ss.form)}
+                  >
+                    <If condition={showAddForm}>
+                      <label className={css(ss.formLabel)}>
+                        <span className={css(ss.formLabelText)}>Name</span>
+                        <input
+                          autoFocus
+                          autoComplete="off"
+                          type="text"
+                          name="name"
+                          className={css(ss.formInput)}
+                        />
+                      </label>
+                      <label className={css(ss.formLabel)}>
+                        <span className={css(ss.formLabelText)}>Icon</span>
+                        <input
+                          type="string"
+                          name="iconUrl"
+                          className={css(ss.formInput)}
+                        />
+                      </label>
+                      <input type="submit" value="+ Add" />
+                    </If>
+                  </fetcher.Form>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
         </div>
-        {showDetailView && (
-          <SpeciesDetail
-            species={speciesDetailProps.species}
-            styles={[detail]}
-          />
-        )}
       </div>
-    </Page>
+    </>
   );
 };

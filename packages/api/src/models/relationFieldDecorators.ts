@@ -10,22 +10,27 @@ import {
   RelationOptions,
 } from "typeorm";
 
-export type ManyToOneFieldOptions = {
-  type: () => ObjectType<any>;
-  fieldType?: () => ObjectType<any> | [ObjectType<any>];
+export type ManyToOneFieldOptions<
+  U = any,
+  T extends ObjectType<U> = ObjectType<U>
+> = {
+  type: () => T;
+  fieldType?: () => T | [T];
   relationOptions?: Omit<RelationOptions, "nullable">;
   nullable: boolean;
   description?: string;
-  columnName?: string;
+  columnName: string;
   foreignColumnName?: string;
   joinColumnOptions?: JoinColumnOptions | JoinColumnOptions[];
+  inverseSide?: (obj: U) => any;
 };
 
-export const ManyToOneField: (
-  options: ManyToOneFieldOptions
+export const ManyToOneField: <U, T extends ObjectType<U> = ObjectType<U>>(
+  options: ManyToOneFieldOptions<U, T>
 ) => PropertyDecorator = ({
   type,
   fieldType = type,
+  inverseSide,
   relationOptions,
   nullable,
   joinColumnOptions,
@@ -34,7 +39,11 @@ export const ManyToOneField: (
   foreignColumnName,
 }) => {
   return (...args) => {
-    ManyToOne(type, { ...relationOptions, nullable })(...args);
+    if (inverseSide) {
+      ManyToOne(type, inverseSide, { ...relationOptions, nullable })(...args);
+    } else {
+      ManyToOne(type, { ...relationOptions, nullable })(...args);
+    }
     JoinColumn(
       joinColumnOptions
         ? (joinColumnOptions as JoinColumnOptions)

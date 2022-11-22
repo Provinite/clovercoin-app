@@ -6,6 +6,7 @@ query getCritters {
       ... on CritterTrait {
         trait {
           id
+          valueType
         }
         displayValue
       }
@@ -13,10 +14,9 @@ query getCritters {
     species {
       id
       name
-      traits {
+      traitLists {
         id
         name
-        valueType
       }
     }
   }

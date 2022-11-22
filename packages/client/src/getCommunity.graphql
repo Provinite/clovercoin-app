@@ -1,0 +1,6 @@
+query getCommunity($filters: CommunityFilters!) {
+  communities(filters: $filters) {
+    id
+    name
+  }
+}

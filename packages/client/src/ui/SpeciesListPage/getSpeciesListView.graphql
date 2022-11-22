@@ -1,0 +1,21 @@
+query getSpeciesListView($name: String, $communityId: ID!) {
+  species(filters: { name: $name, communityId: $communityId }) {
+    id
+    name
+    iconUrl
+    traitLists {
+      id
+      name
+      traitListEntries {
+        id
+        trait {
+          name
+          valueType
+        }
+        order
+        required
+        defaultDisplayValue
+      }
+    }
+  }
+}

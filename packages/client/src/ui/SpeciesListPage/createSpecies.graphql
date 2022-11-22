@@ -1,0 +1,21 @@
+mutation createSpecies($input: SpeciesCreateInput!) {
+  createSpecies(input: $input) {
+    id
+    name
+    iconUrl
+    traitLists {
+      id
+      name
+      traitListEntries {
+        id
+        trait {
+          name
+          valueType
+        }
+        order
+        required
+        defaultDisplayValue
+      }
+    }
+  }
+}

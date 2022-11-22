@@ -19,6 +19,11 @@ input CommunityCreateInput {
   name: String!
 }
 
+input CommunityFilters {
+  id: ID = null
+  name: String = null
+}
+
 type Critter {
   id: ID!
   name: String!
@@ -98,6 +103,13 @@ The javascript `Date` as string. Type represents date and time as the ISO Date s
 """
 scalar DateTime
 
+type EnumValue {
+  id: ID!
+  name: String!
+  trait: Trait!
+  traitId: ID!
+}
+
 type Identity {
   displayName: String!
   email: String!
@@ -122,6 +134,7 @@ type Mutation {
   createSpecies(input: SpeciesCreateInput!): Species!
   createTrait(input: TraitCreateInput!): Trait!
   createTraitList(input: TraitListCreateInput!): TraitList!
+  createTraitListEntry(input: TraitListEntryCreateInput!): TraitListEntry!
 
   """Log in using local credentials and receive an auth token"""
   login(input: LoginArgs!): LoginResponse!
@@ -131,8 +144,10 @@ type Mutation {
 }
 
 type Query {
+  communities(filters: CommunityFilters!): [Community!]!
   critters: [Critter!]!
   species(filters: SpeciesFilters): [Species!]!
+  traits(filters: TraitFilters!): [Trait!]!
 }
 
 input RegisterArgs {
@@ -142,7 +157,7 @@ input RegisterArgs {
 }
 
 """
-Model representing an arbitrarily broad class of charcters that use common trait lists, and administration.
+Model representing an arbitrarily broad class of charcters that use common trait lists and administration.
 """
 type Species {
   """Community that owns this species"""
@@ -151,6 +166,9 @@ type Species {
   """ID of the community that owns this species"""
   communityId: ID!
   critters: [Critter!]!
+
+  """Icon URL for this species"""
+  iconUrl: String!
   id: ID!
 
   """Name of the species"""
@@ -160,14 +178,18 @@ type Species {
 
 input SpeciesCreateInput {
   communityId: ID!
+  iconUrl: String!
   name: String!
 }
 
 input SpeciesFilters {
+  communityId: ID!
+  id: ID = null
   name: String = null
 }
 
 type Trait {
+  enumValues: [EnumValue!]!
   id: ID!
   name: String!
   species: Species!
@@ -181,7 +203,12 @@ input TraitCreateEnumValueInput {
 input TraitCreateInput {
   enumValues: [TraitCreateEnumValueInput!]!
   name: String!
+  speciesId: ID!
   valueType: CritterTraitValueType!
+}
+
+input TraitFilters {
+  speciesId: ID!
 }
 
 type TraitList {
@@ -189,9 +216,29 @@ type TraitList {
   name: String!
   species: Species!
   speciesId: ID!
+  traitListEntries: [TraitListEntry!]!
 }
 
 input TraitListCreateInput {
   name: String!
   speciesId: ID!
+}
+
+type TraitListEntry {
+  defaultDisplayValue: String
+  id: ID!
+  order: Int!
+  required: Boolean!
+  trait: Trait!
+  traitId: ID!
+  traitList: TraitList!
+  traitListId: ID!
+  valueType: CritterTraitValueType!
+}
+
+input TraitListEntryCreateInput {
+  order: Int!
+  required: Boolean = false
+  traitId: ID!
+  traitListId: ID!
 }

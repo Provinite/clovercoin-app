@@ -4,6 +4,7 @@ import { CritterTraitResolver } from "../models/CritterTrait/CritterTraitResolve
 import { SpeciesResolver } from "../models/Species/SpeciesResolver";
 import { TraitResolver } from "../models/Trait/TraitResolver";
 import { TraitListResolver } from "../models/TraitList/TraitListResolver";
+import { TraitListEntryResolver } from "../models/TraitListEntry/TraitListEntryResolver";
 import { LoginResolver } from "./LoginResolver";
 
 export const ResolversMap = {
@@ -14,6 +15,7 @@ export const ResolversMap = {
   SpeciesResolver,
   TraitResolver,
   TraitListResolver,
+  TraitListEntryResolver,
 };
 
 export const ResolversArray = Object.values(ResolversMap);

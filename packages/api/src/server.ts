@@ -2,7 +2,7 @@ import "reflect-metadata";
 import Koa, { Context, Request, Response } from "koa";
 import mount from "koa-mount";
 import { graphqlHTTP, OptionsResult } from "koa-graphql";
-import { buildSchema, NonEmptyArray } from "type-graphql";
+import { buildSchema, MiddlewareFn, NonEmptyArray } from "type-graphql";
 import { createDbConnection } from "./db/dbConnection";
 import { GraphQLParams } from "express-graphql";
 import { v4 } from "uuid";
@@ -20,9 +20,19 @@ import { ResolversArray } from "./business/Resolvers";
 
   const koa = new Koa();
 
+  const errorHandler: MiddlewareFn<any> = async (_, next) => {
+    try {
+      await next();
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  };
   const schema = await buildSchema({
+    // eslint-disable-next-line @typescript-eslint/ban-types
     resolvers: [...ResolversArray] as unknown as NonEmptyArray<Function>,
     emitSchemaFile: "./schema.gql",
+    globalMiddlewares: [errorHandler],
   });
 
   const rootContainer = createContainer<AppGraphqlContext>();

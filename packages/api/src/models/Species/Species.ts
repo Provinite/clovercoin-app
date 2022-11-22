@@ -1,19 +1,15 @@
 import { Field, ID, ObjectType } from "type-graphql";
 import { TypeormLoader } from "type-graphql-dataloader";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany } from "typeorm";
 import { Community } from "../Community/Community";
 import { Critter } from "../Critter/Critter";
-import {
-  IdField,
-  ManyToOneField,
-  RelationIdField,
-} from "../relationFieldDecorators";
+import { IdField, ManyToOneField } from "../relationFieldDecorators";
 import { TraitList } from "../TraitList/TraitList";
 
 @Entity()
 @ObjectType({
   description:
-    "Model representing an arbitrarily broad class of charcters that use common trait lists, and administration.",
+    "Model representing an arbitrarily broad class of charcters that use common trait lists and administration.",
 })
 export class Species {
   @IdField
@@ -47,4 +43,7 @@ export class Species {
   @Field(() => [TraitList], { nullable: false })
   @TypeormLoader()
   traitLists!: TraitList[];
+
+  @Field(() => String, { description: "Icon URL for this species" })
+  iconUrl: string = "https://placekitten.com/200/200";
 }

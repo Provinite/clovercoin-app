@@ -1,12 +1,10 @@
 overwrite: true
 schema: "../api/schema.gql"
 documents: "src/**/*.graphql"
-hooks:
-  afterOneFileWrite:
-    - eslint --fix
 generates:
   src/generated/graphql.ts:
     plugins:
       - "typescript"
       - "typescript-operations"
       - "typescript-react-apollo"
+      - "typescript-apollo-client-helpers"

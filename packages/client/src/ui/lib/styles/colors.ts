@@ -1,7 +1,9 @@
 export const dimBlue = "#e6e6f2";
 export const dimGrey = rgba(0, 0, 0, 0.1);
 export const dimDarkGrey = rgba(0, 0, 0, 0.2);
+export const dimYellow = "#eee9dd";
 
+export const green = "#6EAE40";
 export const Color = {
   List: {
     cellBorder: dimGrey,

@@ -8,7 +8,7 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import { ILike } from "typeorm";
+import { FindManyOptions, ILike } from "typeorm";
 import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
 import { Species } from "./Species";
 
@@ -17,14 +17,23 @@ export class SpeciesCreateInput {
   @Field()
   name!: string;
 
-  @Field(() => ID)
+  @Field(() => ID, { nullable: false })
   communityId!: string;
+
+  @Field(() => String, { nullable: false })
+  iconUrl!: string;
 }
 
 @InputType()
 export class SpeciesFilters {
   @Field(() => String, { nullable: true, defaultValue: null })
   name: string | null = null;
+
+  @Field(() => ID, { nullable: true, defaultValue: null })
+  id: string | null = null;
+
+  @Field(() => ID, { nullable: false })
+  communityId!: string;
 }
 
 @Resolver(() => Species)
@@ -35,15 +44,20 @@ export class SpeciesResolver {
     speciesFilters: SpeciesFilters | null = null,
     @Ctx() { speciesRepository }: AppGraphqlContext
   ): Promise<Species[]> {
-    return await speciesRepository.find(
-      speciesFilters
-        ? {
-            where: {
-              name: ILike(`%${speciesFilters.name}%`),
-            },
-          }
-        : undefined
-    );
+    const filters: FindManyOptions<Species> = {};
+
+    if (speciesFilters) {
+      const { id, name, communityId } = speciesFilters;
+      filters.where = {};
+      if (id) {
+        filters.where.id = id;
+      }
+      if (name) {
+        filters.where.name = ILike(`%${name}%`);
+      }
+      filters.where.communityId = communityId;
+    }
+    return speciesRepository.find(filters);
   }
 
   @Mutation(() => Species)

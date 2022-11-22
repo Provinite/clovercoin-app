@@ -1,0 +1,2 @@
+# This file is here so that parcel detects the client package as a package root
+# https://github.com/parcel-bundler/parcel/issues/7206

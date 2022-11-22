@@ -84,10 +84,10 @@ export type PrefixChildObjectKeys<T, P extends string = "."> = Omit<
   T,
   ObjectKeys<T>
 > & {
-  [key in Exclude<ObjectKeys<T>, Symbol>]: {
+  [key in Exclude<ObjectKeys<T>, symbol>]: {
     [babyKey in Exclude<
       keyof T[key],
-      Symbol
+      symbol
     > as `${key}${P}${babyKey}`]: T[key][babyKey];
   };
 };

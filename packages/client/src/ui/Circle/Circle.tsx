@@ -1,6 +1,6 @@
 import * as React from "react";
 import { FunctionComponent } from "react";
-import { css, StyleDeclarationValue, StyleSheet } from "aphrodite";
+import { css, StyleSheet } from "aphrodite";
 
 export interface CircleProps {
   radius: number;

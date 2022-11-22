@@ -13,6 +13,10 @@ import { TraitListController } from "../models/TraitList/TraitListController";
 import { TraitListEntryController } from "../models/TraitListEntry/TraitListEntryController";
 import { LoginController } from "./LoginController";
 
+/**
+ * Add controllers here when they are created to make them available
+ * via graphql context etc. Handles typing as well.
+ */
 export const ControllersMap = {
   AccountController,
 

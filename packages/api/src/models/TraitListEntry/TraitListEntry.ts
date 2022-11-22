@@ -1,8 +1,8 @@
 import { Field, ID, Int, ObjectType } from "type-graphql";
-import { Column, Entity } from "typeorm";
+import { TypeormLoader } from "type-graphql-dataloader";
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes";
 import { IdField, ManyToOneField } from "../relationFieldDecorators";
-import { Species } from "../Species/Species";
 import { Trait } from "../Trait/Trait";
 import { TraitList } from "../TraitList/TraitList";
 
@@ -25,43 +25,23 @@ export class TraitListEntry {
   /**
    * The associated trait
    */
-  @ManyToOneField({
-    joinColumnOptions: [
-      {
-        name: "traitId",
-        referencedColumnName: "id",
-      },
-      {
-        name: "speciesId",
-        referencedColumnName: "speciesId",
-      },
-    ],
+  @ManyToOneField<Trait, typeof Trait>({
+    columnName: "traitId",
+    foreignColumnName: "id",
+    inverseSide: (trait) => trait.traitListEntries,
     nullable: false,
     type: () => Trait,
   })
   trait!: Trait;
 
   /**
-   * The species that owns the associated trait list
-   */
-  @ManyToOneField({
-    columnName: "speciesId",
-    foreignColumnName: "id",
-    nullable: false,
-    type: () => Species,
-  })
-  species!: Species;
-
-  /**
    * The trait list for this entry
    */
   @ManyToOneField({
-    joinColumnOptions: [
-      { name: "traitListId", referencedColumnName: "id" },
-      { name: "speciesId", referencedColumnName: "speciesId" },
-    ],
     nullable: false,
     type: () => TraitList,
+    columnName: "traitListId",
+    foreignColumnName: "id",
   })
   traitList!: TraitList;
 
@@ -71,13 +51,6 @@ export class TraitListEntry {
   @Column("uuid", { nullable: false })
   @Field(() => ID)
   traitId!: string;
-
-  /**
-   * The ID of the species associated w/ this entry's list
-   */
-  @Column("uuid", { nullable: false })
-  @Field(() => ID)
-  speciesId!: string;
 
   /**
    * ID of the trait list for this entry
