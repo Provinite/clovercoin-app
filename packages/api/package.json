@@ -13,7 +13,8 @@
     "awilix": "^7.0.2",
     "bcrypt": "^5.0.1",
     "class-validator": "^0.13.2",
-    "graphql": "^15.8.0",
+    "graphql": "^15.5.0",
+    "http-errors": "^2.0.0",
     "jsonwebtoken": "^8.5.1",
     "koa": "^2.13.4",
     "koa-graphql": "^0.12.0",
@@ -23,7 +24,8 @@
     "type-graphql": "^1.1.1",
     "type-graphql-dataloader": "^0.5.0",
     "typeorm": "^0.3.6",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "winston": "^3.8.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",

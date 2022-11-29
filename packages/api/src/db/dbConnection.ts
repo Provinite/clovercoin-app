@@ -11,6 +11,5 @@ export function createDbConnection(): Promise<Connection> {
     password: "password",
     synchronize: true,
     entities: [...ModelsArray],
-    logging: "all",
   });
 }

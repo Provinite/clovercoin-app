@@ -1,7 +1,7 @@
-import { useRouteLoaderData } from "react-router-dom";
-import { GetSpeciesDetailQuery } from "../../generated/graphql";
+import { createLoaderDataHook } from "../../utils/loaderDataUtils";
 
-export const useRouteSpecies = () =>
-  useRouteLoaderData(
-    "species.detail"
-  ) as GetSpeciesDetailQuery["species"][number];
+/**
+ * Hook to retrieve the current species loaded on the species detail
+ * route.
+ */
+export const useRouteSpecies = createLoaderDataHook("root.community.species");

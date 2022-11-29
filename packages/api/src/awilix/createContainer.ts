@@ -6,15 +6,11 @@ import {
 import { BaseCradleType } from "./BaseCradleType";
 import { register } from "./register";
 
-export const createContainer = <
-  T extends BaseCradleType<T>
->(): AwilixContainer<T> => {
+export const createContainer = <T extends BaseCradleType<T>>(
+  name: string = "root"
+): AwilixContainer<T> => {
   const container = createAwilixContainer<T>();
-  register<BaseCradleType<T>, "container">(
-    container,
-    "container",
-    asValue(container)
-  );
-
+  register(container, "container", asValue(container));
+  register(container, "contextName", asValue(name));
   return container;
 };

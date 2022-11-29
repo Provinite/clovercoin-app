@@ -1,22 +1,44 @@
-import { FC, useEffect, useState } from "react";
-import { StyleSheet, css } from "aphrodite";
+import React, {
+  ElementType,
+  FC,
+  ForwardedRef,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { HeaderBar } from "../HeaderBar/HeaderBar";
 import { HeaderBarProps } from "../HeaderBar/HeaderBarProps";
 import { GetSpeciesListViewQuery } from "../../generated/graphql";
 import { SpeciesCard } from "../SpeciesCard/SpeciesCard";
 import { useFetcher } from "react-router-dom";
-import { If } from "../util/If";
-import { useRouteCommunity } from "../SpeciesDetailPage/useRouteCommunity";
-import { AddBadge } from "../AddBadge/AddBadge";
+import { useRouteCommunity } from "../../useRouteCommunity";
+import AddIcon from "@mui/icons-material/Add";
+import CheckIcon from "@mui/icons-material/Check";
 import MovieFilterIcon from "@mui/icons-material/MovieFilter";
 import {
-  Card,
-  CardActionArea,
-  CardContent,
+  Alert,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Grid,
+  TextField,
   Toolbar,
+  Typography,
 } from "@mui/material";
 import { SideNav } from "../SideNav/SideNav";
+import { AppRoutes } from "../AppRoutes";
+import { ImageCard } from "../ImageCard/ImageCard";
+import { If } from "../util/If";
+import { stylesheet } from "../../utils/emotion";
+import LoadingButton, { LoadingButtonProps } from "@mui/lab/LoadingButton";
+import { ActionData, RouteType } from "../../routes";
+import {
+  SequentialSnackbar,
+  useSnackbarQueue,
+} from "../SequentialSnackbar/SequentialSnackbar";
 export interface SpeciesListPageProps {
   headerBarProps: HeaderBarProps;
   data: GetSpeciesListViewQuery;
@@ -24,51 +46,6 @@ export interface SpeciesListPageProps {
     species: GetSpeciesListViewQuery["species"][number]
   ) => void;
 }
-
-const ss = StyleSheet.create({
-  root: {},
-  listContainer: {
-    display: "flex",
-    flexDirection: "row",
-    flexWrap: "wrap",
-  },
-  listItem: {
-    marginLeft: "80px",
-    marginRight: "80px",
-    marginTop: "40px",
-    marginBottom: "40px",
-  },
-  addCard: {
-    paddingTop: "32px",
-    width: "300px",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    border: "1px solid #CCC",
-    position: "relative",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-  },
-  formLabel: {
-    display: "flex",
-    flexDirection: "column",
-    marginBottom: "16px",
-  },
-  formLabelText: {
-    display: "block",
-  },
-  formInput: {
-    display: "block",
-  },
-  clickableCard: {
-    cursor: "pointer",
-  },
-  addCardHeader: {
-    margin: "0 auto",
-  },
-});
 
 export const SpeciesListPage: FC<SpeciesListPageProps> = ({
   headerBarProps,
@@ -78,13 +55,36 @@ export const SpeciesListPage: FC<SpeciesListPageProps> = ({
   const [showAddForm, setShowAddForm] = useState(false);
   const fetcher = useFetcher();
   const community = useRouteCommunity();
+  const [name, setName] = useState("");
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const formRef = useRef<HTMLFormElement | null>(null);
+  const snackbarQueue = useSnackbarQueue();
   useEffect(() => {
-    setShowAddForm(false);
-  }, [fetcher.state]);
+    if (fetcher.state === "idle") {
+      const data = fetcher.data as ActionData<
+        RouteType<"root.community.species-list">
+      >;
+
+      if (data) {
+        // error
+        snackbarQueue.append({
+          children: (
+            <Alert severity="error" onClose={snackbarQueue.close}>
+              Failed to create species {data.message}
+            </Alert>
+          ),
+        });
+      } else {
+        setShowAddForm(false);
+        setName("");
+      }
+    }
+  }, [fetcher]);
 
   return (
     <>
       <HeaderBar {...headerBarProps} title={`${community.name} Species`} />
+      <SequentialSnackbar queue={snackbarQueue} />
       <div
         css={{
           display: "flex",
@@ -95,7 +95,7 @@ export const SpeciesListPage: FC<SpeciesListPageProps> = ({
         <SideNav
           navItems={[
             {
-              to: `/community/${community.id}/species/`,
+              to: AppRoutes.speciesList(community.id),
               children: "Species",
               icon: <MovieFilterIcon />,
             },
@@ -105,17 +105,33 @@ export const SpeciesListPage: FC<SpeciesListPageProps> = ({
           <Toolbar />
           <Grid container css={{ paddingTop: "18px" }} spacing={2}>
             {data.species.map((s) => (
-              <SpeciesCard
-                key={s.name}
-                species={s}
-                onClick={onSpeciesClick ? () => onSpeciesClick(s) : undefined}
-              />
+              <Grid
+                item
+                xs={12}
+                sm={6}
+                md={4}
+                lg={3}
+                css={{
+                  textAlign: "center",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+                key={s.id}
+              >
+                <SpeciesCard
+                  css={{ width: "200px", height: "250px" }}
+                  species={s}
+                  onClick={onSpeciesClick ? () => onSpeciesClick(s) : undefined}
+                />
+              </Grid>
             ))}
             {/* Species Add Card */}
             <Grid
               item
-              xs={6}
-              sm={4}
+              xs={12}
+              sm={6}
+              md={4}
               lg={3}
               css={{
                 textAlign: "center",
@@ -124,52 +140,103 @@ export const SpeciesListPage: FC<SpeciesListPageProps> = ({
                 alignItems: "center",
               }}
             >
-              <Card
-                onClick={() => setShowAddForm(true)}
-                css={{ width: "200px", height: "250px" }}
+              <fetcher.Form
+                action={AppRoutes.speciesList(community.id)}
+                method="post"
+                onSubmit={(e) => {
+                  if (!showConfirmDialog) {
+                    e.preventDefault();
+                    setShowConfirmDialog(true);
+                  }
+                }}
+                ref={formRef}
               >
-                <If condition={!showAddForm}>
-                  <CardActionArea css={{ height: "100%" }}>
-                    <AddBadge to="">Add One</AddBadge>
-                  </CardActionArea>
-                </If>
-                <CardContent>
-                  <If condition={showAddForm}>
-                    <span className={css(ss.addCardHeader)}>Add One</span>
+                <ImageCard
+                  CardProps={{
+                    onClick: showAddForm
+                      ? undefined
+                      : () => setShowAddForm(true),
+                  }}
+                  CardMediaProps={{
+                    component: showAddForm ? SpeciesAddFormButton : AddIcon,
+                    loading: showAddForm ? fetcher.state !== "idle" : undefined,
+                    disabled: showAddForm ? !name : undefined,
+                    type: "submit",
+                    css: ss.addCardMedia,
+                  }}
+                  clickable={!showAddForm}
+                  css={{ width: "200px", height: "250px" }}
+                >
+                  <If condition={!showAddForm}>
+                    <Typography variant="overline" color="primary">
+                      Add One
+                    </Typography>
                   </If>
-                  <fetcher.Form
-                    action="."
-                    method="post"
-                    className={css(ss.form)}
-                  >
-                    <If condition={showAddForm}>
-                      <label className={css(ss.formLabel)}>
-                        <span className={css(ss.formLabelText)}>Name</span>
-                        <input
-                          autoFocus
-                          autoComplete="off"
-                          type="text"
-                          name="name"
-                          className={css(ss.formInput)}
-                        />
-                      </label>
-                      <label className={css(ss.formLabel)}>
-                        <span className={css(ss.formLabelText)}>Icon</span>
-                        <input
-                          type="string"
-                          name="iconUrl"
-                          className={css(ss.formInput)}
-                        />
-                      </label>
-                      <input type="submit" value="+ Add" />
-                    </If>
-                  </fetcher.Form>
-                </CardContent>
-              </Card>
+                  <If condition={showAddForm}>
+                    <TextField
+                      label="Name"
+                      name="name"
+                      fullWidth
+                      variant="outlined"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      autoFocus
+                    />
+                    <input type="hidden" name="iconUrl" value="" />
+                  </If>
+                </ImageCard>
+              </fetcher.Form>
             </Grid>
           </Grid>
         </div>
       </div>
+      <Dialog
+        open={showConfirmDialog}
+        onClose={() => setShowConfirmDialog(false)}
+      >
+        <DialogTitle>Create a new species?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to create a new species called "{name}"?
+          </DialogContentText>
+          <DialogActions>
+            <Button onClick={() => setShowConfirmDialog(false)}>No</Button>
+            <Button
+              onClick={() => {
+                setShowConfirmDialog(false);
+                fetcher.submit(formRef.current);
+              }}
+            >
+              Yes
+            </Button>
+          </DialogActions>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
+
+const SpeciesAddFormButton = React.forwardRef(function <
+  T extends ElementType<any>
+>(props: LoadingButtonProps<T>, ref: ForwardedRef<HTMLButtonElement>) {
+  return (
+    <LoadingButton ref={ref} {...props}>
+      <CheckIcon />
+    </LoadingButton>
+  );
+});
+
+const ss = stylesheet({
+  addCardMedia: (theme) => ({
+    borderStyle: "solid",
+    borderWidth: "2px",
+    borderColor: theme.palette.divider,
+    svg: { width: "100%", height: "100%" },
+  }),
+});
+
+declare module "react" {
+  function forwardRef<T, P = Record<string, any>>(
+    render: (props: P, ref: React.Ref<T>) => React.ReactElement | null
+  ): (props: P & React.RefAttributes<T>) => React.ReactElement | null;
+}

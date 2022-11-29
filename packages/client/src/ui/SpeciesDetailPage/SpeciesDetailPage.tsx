@@ -2,13 +2,15 @@ import { FC, ReactNode, useMemo } from "react";
 import { GetSpeciesDetailQuery } from "../../generated/graphql";
 import { HeaderBar } from "../HeaderBar/HeaderBar";
 import { HeaderBarProps } from "../HeaderBar/HeaderBarProps";
-import { useRouteCommunity } from "./useRouteCommunity";
+import { useRouteCommunity } from "../../useRouteCommunity";
 import { Toolbar } from "@mui/material";
 import { NavItem, SideNav } from "../SideNav/SideNav";
 import InterestsIcon from "@mui/icons-material/Interests";
 import MovieFilterIcon from "@mui/icons-material/MovieFilter";
 import NatureIcon from "@mui/icons-material/Nature";
 import SchemaIcon from "@mui/icons-material/Schema";
+import { AppRoutes } from "../AppRoutes";
+
 export interface SpeciesDetailPageProps {
   headerBarProps: HeaderBarProps;
   species: GetSpeciesDetailQuery["species"][number];
@@ -24,31 +26,32 @@ export const SpeciesDetailPage: FC<SpeciesDetailPageProps> = ({
 
   const navGroups = useMemo<NavItem[]>(() => {
     const communityId = community.id;
-    const speciesListUrl = `/community/${communityId}/species/`;
-    const speciesDetailUrl = `${speciesListUrl}${species.id}`;
-
     return [
       {
-        to: speciesListUrl,
+        to: AppRoutes.speciesList(communityId),
         children: `Species`,
         icon: <MovieFilterIcon />,
         childNavItems: [
           {
-            to: `${speciesDetailUrl}/`,
+            to: AppRoutes.speciesDetail(communityId, species.id),
             children: species.name,
             icon: <NatureIcon />,
             childNavItems: [
               {
-                to: `${speciesDetailUrl}/traits/`,
+                to: AppRoutes.speciesTraitList(communityId, species.id),
                 children: "Traits",
                 icon: <InterestsIcon />,
               },
               {
-                to: `${speciesDetailUrl}/trait-lists/`,
-                children: "Trait Lists",
+                to: AppRoutes.speciesVariantList(communityId, species.id),
+                children: "Variants",
                 icon: <SchemaIcon />,
                 childNavItems: species.traitLists.map((tl) => ({
-                  to: `${speciesDetailUrl}/trait-lists/${tl.id}`,
+                  to: AppRoutes.speciesVariantDetail(
+                    community.id,
+                    species.id,
+                    tl.id
+                  ),
                   children: tl.name,
                 })),
               },

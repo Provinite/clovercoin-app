@@ -1,4 +1,4 @@
-import { Field, ObjectType } from "type-graphql";
+import { Field, Int, ObjectType } from "type-graphql";
 import { Column, Entity } from "typeorm";
 import {
   IdField,
@@ -26,9 +26,17 @@ export class EnumValue {
     nullable: false,
     relation: (ev) => ev.trait,
   })
+  @Column()
   traitId!: string;
 
   @Column({ type: "varchar", nullable: false })
   @Field(() => String)
   name!: string;
+
+  @Column({
+    type: "int",
+    nullable: false,
+  })
+  @Field(() => Int)
+  order!: number;
 }

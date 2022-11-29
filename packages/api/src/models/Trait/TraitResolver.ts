@@ -33,6 +33,42 @@ export class TraitCreateInput {
 export class TraitCreateEnumValueInput {
   @Field()
   name!: string;
+
+  @Field()
+  order!: number;
+}
+
+@InputType()
+export class TraitModifyEnumValueInput {
+  @Field(() => ID, {
+    nullable: true,
+    defaultValue: null,
+  })
+  id?: string;
+
+  @Field()
+  name!: string;
+
+  @Field()
+  order!: number;
+}
+
+@InputType()
+export class TraitModifyInput {
+  @Field()
+  name?: string;
+
+  @Field(() => CritterTraitValueTypes)
+  valueType!: CritterTraitValueTypes;
+
+  @Field(() => [TraitModifyEnumValueInput], {
+    nullable: true,
+    defaultValue: null,
+  })
+  enumValues?: TraitModifyEnumValueInput[];
+
+  @Field(() => ID)
+  id!: string;
 }
 
 @InputType()
@@ -57,7 +93,7 @@ export class TraitResolver {
           valueType: input.valueType,
           speciesId: input.speciesId,
         };
-        const trait = await traitController.create(traitCreateBody);
+        const trait: Trait = await traitController.create(traitCreateBody);
 
         const enumValueCreateBodies: EnumValueCreate[] = [];
 
@@ -69,6 +105,7 @@ export class TraitResolver {
             enumValueCreateBodies.push({
               name: enumValue.name,
               trait,
+              order: enumValue.order,
             });
           }
           await Promise.all(
@@ -93,5 +130,38 @@ export class TraitResolver {
         speciesId: filters.speciesId,
       },
     });
+  }
+
+  @Mutation(() => String)
+  async deleteTrait(
+    @Arg("id", () => ID, { nullable: false }) id: string,
+    @Ctx() { traitController }: AppGraphqlContext
+  ) {
+    traitController.deleteOneById(id);
+    return "deleted";
+  }
+
+  @Mutation(() => Trait)
+  async modifyTrait(
+    @Arg("input", () => TraitModifyInput, { nullable: false })
+    input: TraitModifyInput,
+    @Ctx()
+    { transactionProvider }: AppGraphqlContext
+  ) {
+    return transactionProvider.runTransaction(
+      async ({ traitController, enumValueController }) => {
+        if (input.enumValues) {
+          await enumValueController.setEnumValuesForTrait(
+            input.id,
+            input.enumValues
+          );
+        }
+
+        return traitController.updateOneById(input.id, {
+          name: input.name,
+          valueType: input.valueType,
+        });
+      }
+    );
   }
 }

@@ -1,4 +1,7 @@
-// You are also able to use a 3rd party theme this way:
+/**
+ * @file Type declaration unifying our MUI theme
+ * and emotion theme
+ */
 import "@emotion/react";
 import { Theme as MuiTheme } from "@mui/material";
 

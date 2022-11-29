@@ -1,4 +1,4 @@
-import { asClass, AwilixContainer, Lifetime } from "awilix";
+import { asClass, AwilixContainer } from "awilix";
 import { register } from "../awilix/register";
 import { uncapitalize } from "../util/stringUtils";
 import { ControllerClass, ControllerName, ControllersMap } from "./Controllers";
@@ -18,11 +18,8 @@ export function registerControllers<T extends ControllerContext>(
   for (const [name, controllerClass] of Object.entries(ControllersMap)) {
     const controllerKey = uncapitalize(name as ControllerName);
     const resolver = asClass(
-      controllerClass as new (...args: any[]) => InstanceType<ControllerClass>,
-      {
-        lifetime: Lifetime.SCOPED,
-      }
-    );
+      controllerClass as new (...args: any[]) => InstanceType<ControllerClass>
+    ).scoped();
     register(container, controllerKey, resolver as any);
   }
 }

@@ -137,6 +137,7 @@ export type EnumValue = {
   __typename?: "EnumValue";
   id: Scalars["ID"];
   name: Scalars["String"];
+  order: Scalars["Int"];
   trait: Trait;
   traitId: Scalars["ID"];
 };
@@ -169,8 +170,10 @@ export type Mutation = {
   createTrait: Trait;
   createTraitList: TraitList;
   createTraitListEntry: TraitListEntry;
+  deleteTrait: Scalars["String"];
   /** Log in using local credentials and receive an auth token */
   login: LoginResponse;
+  modifyTrait: Trait;
   /** Create a new account and receive an auth token */
   register: LoginResponse;
 };
@@ -203,8 +206,16 @@ export type MutationCreateTraitListEntryArgs = {
   input: TraitListEntryCreateInput;
 };
 
+export type MutationDeleteTraitArgs = {
+  id: Scalars["ID"];
+};
+
 export type MutationLoginArgs = {
   input: LoginArgs;
+};
+
+export type MutationModifyTraitArgs = {
+  input: TraitModifyInput;
 };
 
 export type MutationRegisterArgs = {
@@ -276,6 +287,7 @@ export type Trait = {
 
 export type TraitCreateEnumValueInput = {
   name: Scalars["String"];
+  order: Scalars["Float"];
 };
 
 export type TraitCreateInput = {
@@ -321,6 +333,19 @@ export type TraitListEntryCreateInput = {
   required?: InputMaybe<Scalars["Boolean"]>;
   traitId: Scalars["ID"];
   traitListId: Scalars["ID"];
+};
+
+export type TraitModifyEnumValueInput = {
+  id?: InputMaybe<Scalars["ID"]>;
+  name: Scalars["String"];
+  order: Scalars["Float"];
+};
+
+export type TraitModifyInput = {
+  enumValues?: InputMaybe<Array<TraitModifyEnumValueInput>>;
+  id: Scalars["ID"];
+  name: Scalars["String"];
+  valueType: CritterTraitValueType;
 };
 
 export type GetCommunityQueryVariables = Exact<{
@@ -387,6 +412,15 @@ export type CreateSpeciesTraitMutation = {
   createTrait: { __typename?: "Trait"; id: string };
 };
 
+export type DeleteTraitMutationVariables = Exact<{
+  id: Scalars["ID"];
+}>;
+
+export type DeleteTraitMutation = {
+  __typename?: "Mutation";
+  deleteTrait: string;
+};
+
 export type GetSpeciesDetailQueryVariables = Exact<{
   filters?: InputMaybe<SpeciesFilters>;
 }>;
@@ -436,6 +470,21 @@ export type GetSpeciesTraitsQuery = {
     valueType: CritterTraitValueType;
     enumValues: Array<{ __typename?: "EnumValue"; id: string; name: string }>;
   }>;
+};
+
+export type ModifySpeciesTraitMutationVariables = Exact<{
+  input: TraitModifyInput;
+}>;
+
+export type ModifySpeciesTraitMutation = {
+  __typename?: "Mutation";
+  modifyTrait: {
+    __typename?: "Trait";
+    id: string;
+    name: string;
+    valueType: CritterTraitValueType;
+    enumValues: Array<{ __typename?: "EnumValue"; id: string; name: string }>;
+  };
 };
 
 export type CreateSpeciesMutationVariables = Exact<{
@@ -683,6 +732,54 @@ export type CreateSpeciesTraitMutationOptions = Apollo.BaseMutationOptions<
   CreateSpeciesTraitMutation,
   CreateSpeciesTraitMutationVariables
 >;
+export const DeleteTraitDocument = gql`
+  mutation deleteTrait($id: ID!) {
+    deleteTrait(id: $id)
+  }
+`;
+export type DeleteTraitMutationFn = Apollo.MutationFunction<
+  DeleteTraitMutation,
+  DeleteTraitMutationVariables
+>;
+
+/**
+ * __useDeleteTraitMutation__
+ *
+ * To run a mutation, you first call `useDeleteTraitMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteTraitMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteTraitMutation, { data, loading, error }] = useDeleteTraitMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteTraitMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    DeleteTraitMutation,
+    DeleteTraitMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<DeleteTraitMutation, DeleteTraitMutationVariables>(
+    DeleteTraitDocument,
+    options
+  );
+}
+export type DeleteTraitMutationHookResult = ReturnType<
+  typeof useDeleteTraitMutation
+>;
+export type DeleteTraitMutationResult =
+  Apollo.MutationResult<DeleteTraitMutation>;
+export type DeleteTraitMutationOptions = Apollo.BaseMutationOptions<
+  DeleteTraitMutation,
+  DeleteTraitMutationVariables
+>;
 export const GetSpeciesDetailDocument = gql`
   query getSpeciesDetail($filters: SpeciesFilters) {
     species(filters: $filters) {
@@ -824,6 +921,62 @@ export type GetSpeciesTraitsLazyQueryHookResult = ReturnType<
 export type GetSpeciesTraitsQueryResult = Apollo.QueryResult<
   GetSpeciesTraitsQuery,
   GetSpeciesTraitsQueryVariables
+>;
+export const ModifySpeciesTraitDocument = gql`
+  mutation modifySpeciesTrait($input: TraitModifyInput!) {
+    modifyTrait(input: $input) {
+      id
+      name
+      valueType
+      enumValues {
+        id
+        name
+      }
+    }
+  }
+`;
+export type ModifySpeciesTraitMutationFn = Apollo.MutationFunction<
+  ModifySpeciesTraitMutation,
+  ModifySpeciesTraitMutationVariables
+>;
+
+/**
+ * __useModifySpeciesTraitMutation__
+ *
+ * To run a mutation, you first call `useModifySpeciesTraitMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useModifySpeciesTraitMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [modifySpeciesTraitMutation, { data, loading, error }] = useModifySpeciesTraitMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useModifySpeciesTraitMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    ModifySpeciesTraitMutation,
+    ModifySpeciesTraitMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    ModifySpeciesTraitMutation,
+    ModifySpeciesTraitMutationVariables
+  >(ModifySpeciesTraitDocument, options);
+}
+export type ModifySpeciesTraitMutationHookResult = ReturnType<
+  typeof useModifySpeciesTraitMutation
+>;
+export type ModifySpeciesTraitMutationResult =
+  Apollo.MutationResult<ModifySpeciesTraitMutation>;
+export type ModifySpeciesTraitMutationOptions = Apollo.BaseMutationOptions<
+  ModifySpeciesTraitMutation,
+  ModifySpeciesTraitMutationVariables
 >;
 export const CreateSpeciesDocument = gql`
   mutation createSpecies($input: SpeciesCreateInput!) {
@@ -1084,6 +1237,7 @@ export type CritterTraitFieldPolicy = {
 export type EnumValueKeySpecifier = (
   | "id"
   | "name"
+  | "order"
   | "trait"
   | "traitId"
   | EnumValueKeySpecifier
@@ -1091,6 +1245,7 @@ export type EnumValueKeySpecifier = (
 export type EnumValueFieldPolicy = {
   id?: FieldPolicy<any> | FieldReadFunction<any>;
   name?: FieldPolicy<any> | FieldReadFunction<any>;
+  order?: FieldPolicy<any> | FieldReadFunction<any>;
   trait?: FieldPolicy<any> | FieldReadFunction<any>;
   traitId?: FieldPolicy<any> | FieldReadFunction<any>;
 };
@@ -1124,7 +1279,9 @@ export type MutationKeySpecifier = (
   | "createTrait"
   | "createTraitList"
   | "createTraitListEntry"
+  | "deleteTrait"
   | "login"
+  | "modifyTrait"
   | "register"
   | MutationKeySpecifier
 )[];
@@ -1136,7 +1293,9 @@ export type MutationFieldPolicy = {
   createTrait?: FieldPolicy<any> | FieldReadFunction<any>;
   createTraitList?: FieldPolicy<any> | FieldReadFunction<any>;
   createTraitListEntry?: FieldPolicy<any> | FieldReadFunction<any>;
+  deleteTrait?: FieldPolicy<any> | FieldReadFunction<any>;
   login?: FieldPolicy<any> | FieldReadFunction<any>;
+  modifyTrait?: FieldPolicy<any> | FieldReadFunction<any>;
   register?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type QueryKeySpecifier = (
@@ -1402,6 +1561,29 @@ export class GraphqlService {
     >(finalOptions);
   }
 
+  async deleteTrait(
+    options: Omit<
+      Partial<
+        Apollo.MutationOptions<
+          DeleteTraitMutation,
+          DeleteTraitMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: DeleteTraitMutationVariables;
+    }
+  ) {
+    const finalOptions = {
+      ...options,
+      mutation: DeleteTraitDocument,
+    };
+    return this.client.mutate<
+      DeleteTraitMutation,
+      DeleteTraitMutationVariables
+    >(finalOptions);
+  }
+
   async getSpeciesDetail(
     options: Omit<
       Partial<
@@ -1445,6 +1627,29 @@ export class GraphqlService {
     return this.client.query<
       GetSpeciesTraitsQuery,
       GetSpeciesTraitsQueryVariables
+    >(finalOptions);
+  }
+
+  async modifySpeciesTrait(
+    options: Omit<
+      Partial<
+        Apollo.MutationOptions<
+          ModifySpeciesTraitMutation,
+          ModifySpeciesTraitMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: ModifySpeciesTraitMutationVariables;
+    }
+  ) {
+    const finalOptions = {
+      ...options,
+      mutation: ModifySpeciesTraitDocument,
+    };
+    return this.client.mutate<
+      ModifySpeciesTraitMutation,
+      ModifySpeciesTraitMutationVariables
     >(finalOptions);
   }
 

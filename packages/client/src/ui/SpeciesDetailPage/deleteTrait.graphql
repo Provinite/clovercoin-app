@@ -1,0 +1,3 @@
+mutation deleteTrait($id: ID!) {
+  deleteTrait(id: $id)
+}

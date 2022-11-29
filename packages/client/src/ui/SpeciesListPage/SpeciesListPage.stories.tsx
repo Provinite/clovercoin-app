@@ -1,5 +1,4 @@
 import { ComponentMeta, ComponentStory } from "@storybook/react";
-import * as React from "react";
 import { v4 } from "uuid";
 import { SpeciesListPage } from "./SpeciesListPage";
 
@@ -22,7 +21,6 @@ let n = 200;
 
 export const Usage = Template.bind({});
 Usage.args = {
-  loading: false,
   headerBarProps: {
     title: "Species",
     userIconUrl: "http://placekitten.com/90/90",
@@ -41,7 +39,6 @@ Usage.args = {
 
 function species({ name }: { name: string }) {
   ++n;
-  console.log(n);
   return {
     id: v4(),
     name,

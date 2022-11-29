@@ -1,183 +1,90 @@
-import { FC, Fragment, FunctionComponent, ReactElement, useState } from "react";
-import { useFetcher } from "react-router-dom";
+import { FunctionComponent, useCallback, useMemo } from "react";
+import { useFetcher, useParams } from "react-router-dom";
 import { CritterTraitValueType } from "../../../generated/graphql";
+import { Card, CardContent, CardHeader, Grid } from "@mui/material";
+import { slugToUuid } from "../../../utils/uuidUtils";
+import { AppRoutes } from "../../AppRoutes";
+import { useRouteCommunity } from "../../../useRouteCommunity";
+import { useRouteSpecies } from "../useRouteSpecies";
 import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  FormControl,
-  Grid,
-  MenuItem,
-  TextField,
-  TextFieldProps,
-  Typography,
-} from "@mui/material";
-
+  SequentialSnackbar,
+  useSnackbarQueue,
+} from "../../SequentialSnackbar/SequentialSnackbar";
+import { TraitForm } from "./TraitForm/TraitForm";
+import { useTraitForm } from "./TraitForm/useTraitForm";
+import { TraitPreviewCard } from "./TraitPreviewCard";
+import { TraitActionAlert } from "./TraitActionAlert";
+/**
+ * Card component that allows adding and editing traits. Add/edit
+ * mode are controlled by the current route.
+ * @returns
+ */
 export const AddTraitCard: FunctionComponent = () => {
-  const [name, setName] = useState("");
-  const [dataType, setDataType] = useState<CritterTraitValueType>(
-    CritterTraitValueType.String
-  );
-  const [enumValues, setEnumValues] = useState<string[]>([]);
+  const community = useRouteCommunity();
+  const species = useRouteSpecies();
   const fetcher = useFetcher();
+  const [form, setForm] = useTraitForm();
+  const { traitId: traitSlug } = useParams();
+  const traitId = useMemo(
+    () => (traitSlug ? slugToUuid(traitSlug!) : ""),
+    [traitSlug]
+  );
 
-  const [previewValue, setPreviewValue] = useState<any>("");
-  const sizes = {
+  const onSuccess = useCallback(() => {
+    setForm({
+      enumValues: [],
+      name: "",
+      valueType: CritterTraitValueType.String,
+      id: traitId,
+    });
+
+    snackbarQueue.append({
+      children: (
+        <TraitActionAlert
+          linkTo={AppRoutes.speciesTraitList(community.id, species.id)}
+          onClose={snackbarQueue.close}
+        />
+      ),
+    });
+  }, []);
+
+  const snackbarQueue = useSnackbarQueue();
+  const gridSizes = {
     xs: 6,
     lg: 4,
     xl: 3,
   };
+
   return (
     <>
+      <SequentialSnackbar queue={snackbarQueue} />
       <CardHeader
-        title="Add Trait"
-        subheader="Create traits here, and add them to trait lists later."
+        title="Add"
+        subheader="Create traits here, and add them to trait lists later"
       />
       <CardContent>
         <Grid container spacing={2}>
-          <Grid item {...sizes}>
+          <Grid item {...gridSizes}>
             <Card elevation={2}>
               <CardHeader title="Options" subheader="Set up your trait" />
               <CardContent>
-                <FormControl
-                  component={fetcher.Form}
-                  action="../"
+                <TraitForm
+                  action={AppRoutes.speciesTraitList(community.id, species.id)}
+                  fetcher={fetcher}
+                  form={form}
+                  setForm={setForm}
                   method="post"
-                  fullWidth
-                >
-                  <TextField
-                    label="Name"
-                    name="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    autoFocus
-                  />
-                  <br />
-                  <TextField
-                    name="dataType"
-                    value={dataType}
-                    onChange={(e) =>
-                      setDataType(e.target.value as CritterTraitValueType)
-                    }
-                    select
-                    label="Type"
-                  >
-                    <MenuItem value={CritterTraitValueType.String}>
-                      Text
-                    </MenuItem>
-                    <MenuItem value={CritterTraitValueType.Timestamp}>
-                      Date
-                    </MenuItem>
-                    <MenuItem value={CritterTraitValueType.Integer}>
-                      Number
-                    </MenuItem>
-                    <MenuItem value={CritterTraitValueType.Enum}>
-                      Dropdown
-                    </MenuItem>
-                  </TextField>
-                  <br />
-                  {dataType === CritterTraitValueType.Enum && (
-                    <>
-                      <Typography variant="h6">Dropdown Options</Typography>
-                      <Typography variant="body1" color="text.secondary">
-                        Options for this trait
-                      </Typography>
-                      <br />
-                      {[...enumValues, ""].map((ev, i) => (
-                        <Fragment key={i}>
-                          <TextField
-                            label={`Dropdown Option ${i}`}
-                            type="string"
-                            value={ev}
-                            name="enumValues"
-                            onChange={(e) => {
-                              setEnumValues((enumValues) => [
-                                ...enumValues.slice(0, i),
-                                e.target.value,
-                                ...enumValues.slice(i + 1),
-                              ]);
-                            }}
-                            onBlur={(e) => {
-                              if (e.target.value === "") {
-                                setEnumValues((enumValues) => [
-                                  ...enumValues.slice(0, i),
-                                  ...enumValues.slice(i + 1),
-                                ]);
-                              }
-                            }}
-                          />
-                          <br />
-                        </Fragment>
-                      ))}
-                    </>
-                  )}
-                  <Button variant="contained" type="submit">
-                    Submit
-                  </Button>
-                </FormControl>
+                  onSuccess={onSuccess}
+                  saveButtonText="Save"
+                />
               </CardContent>
             </Card>
           </Grid>
-          <Grid item {...sizes}>
-            <Card elevation={2}>
-              <CardHeader
-                title="Preview"
-                subheader="This is what your new trait will look like when editing a character."
-              ></CardHeader>
-              <CardContent>
-                <FormControl fullWidth>
-                  <TraitInput
-                    type={dataType}
-                    name={name}
-                    enumOptions={enumValues}
-                    fieldProps={{
-                      value: previewValue,
-                      onChange: (e) => setPreviewValue(e.target.value),
-                    }}
-                  />
-                </FormControl>
-              </CardContent>
-            </Card>
+          <Grid item {...gridSizes}>
+            <TraitPreviewCard form={form} />
           </Grid>
         </Grid>
       </CardContent>
     </>
   );
-};
-
-interface TraitInputProps {
-  name: string;
-  type: CritterTraitValueType;
-  enumOptions?: string[];
-  fieldProps?: TextFieldProps;
-}
-const TraitInput: FC<TraitInputProps> = ({
-  name,
-  type,
-  enumOptions,
-  fieldProps,
-}) => {
-  const results: Record<CritterTraitValueType, () => ReactElement> = {
-    [CritterTraitValueType.Enum]: () => (
-      <TextField {...fieldProps} select label={name}>
-        {enumOptions?.map((name) => (
-          <MenuItem value={name} key={name}>
-            {name}
-          </MenuItem>
-        ))}
-      </TextField>
-    ),
-    [CritterTraitValueType.Integer]: () => (
-      <TextField {...fieldProps} label={name} type="number" />
-    ),
-    [CritterTraitValueType.String]: () => (
-      <TextField {...fieldProps} label={name} />
-    ),
-    [CritterTraitValueType.Timestamp]: () => (
-      <TextField {...fieldProps} label={name} />
-    ),
-  };
-
-  return results[type]();
 };

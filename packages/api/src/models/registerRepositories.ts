@@ -16,7 +16,7 @@ export function registerRepositories(
   register(
     container,
     "transactionProvider",
-    asClass(TransactionProvider, { lifetime: Lifetime.SCOPED })
+    asClass(TransactionProvider, { lifetime: Lifetime.TRANSIENT })
   );
   for (const [modelNameStr, modelClass] of Object.entries(ModelsMap)) {
     const modelName = modelNameStr as ModelClassName;
@@ -26,7 +26,7 @@ export function registerRepositories(
     register(
       container,
       getRepositoryName(modelName),
-      asFunction(resolver, { lifetime: Lifetime.SCOPED })
+      asFunction(resolver).scoped()
     );
   }
 }

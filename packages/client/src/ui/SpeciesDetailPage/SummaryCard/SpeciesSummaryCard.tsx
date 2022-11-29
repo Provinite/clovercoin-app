@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, Typography } from "@mui/material";
 import { FunctionComponent } from "react";
-import { useRouteCommunity } from "../useRouteCommunity";
+import { useRouteCommunity } from "../../../useRouteCommunity";
 import { useRouteSpecies } from "../useRouteSpecies";
 
 interface SpeciesSummaryCardProps {}

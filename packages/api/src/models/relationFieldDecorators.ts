@@ -1,6 +1,7 @@
 import { Field, ID } from "type-graphql";
 import { TypeormLoader } from "type-graphql-dataloader";
 import {
+  Column,
   JoinColumn,
   JoinColumnOptions,
   ManyToOne,
@@ -67,6 +68,7 @@ export const RelationIdField: <T>(
   (...args) => {
     RelationId(relation)(...args);
     Field(() => ID, { nullable, description })(...args);
+    Column()(...args);
   };
 
 export const IdField: PropertyDecorator = (...args) => {

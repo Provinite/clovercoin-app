@@ -1,0 +1,11 @@
+mutation modifySpeciesTrait($input: TraitModifyInput!) {
+  modifyTrait(input: $input) {
+    id
+    name
+    valueType
+    enumValues {
+      id
+      name
+    }
+  }
+}

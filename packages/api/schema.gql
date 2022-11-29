@@ -106,6 +106,7 @@ scalar DateTime
 type EnumValue {
   id: ID!
   name: String!
+  order: Int!
   trait: Trait!
   traitId: ID!
 }
@@ -135,9 +136,11 @@ type Mutation {
   createTrait(input: TraitCreateInput!): Trait!
   createTraitList(input: TraitListCreateInput!): TraitList!
   createTraitListEntry(input: TraitListEntryCreateInput!): TraitListEntry!
+  deleteTrait(id: ID!): String!
 
   """Log in using local credentials and receive an auth token"""
   login(input: LoginArgs!): LoginResponse!
+  modifyTrait(input: TraitModifyInput!): Trait!
 
   """Create a new account and receive an auth token"""
   register(input: RegisterArgs!): LoginResponse!
@@ -198,6 +201,7 @@ type Trait {
 
 input TraitCreateEnumValueInput {
   name: String!
+  order: Float!
 }
 
 input TraitCreateInput {
@@ -241,4 +245,17 @@ input TraitListEntryCreateInput {
   required: Boolean = false
   traitId: ID!
   traitListId: ID!
+}
+
+input TraitModifyEnumValueInput {
+  id: ID = null
+  name: String!
+  order: Float!
+}
+
+input TraitModifyInput {
+  enumValues: [TraitModifyEnumValueInput!] = null
+  id: ID!
+  name: String!
+  valueType: CritterTraitValueType!
 }

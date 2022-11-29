@@ -1,10 +1,16 @@
-import { DeepPartial, ObjectLiteral, Repository } from "typeorm";
+import {
+  DeepPartial,
+  FindOptionsWhere,
+  ObjectLiteral,
+  Repository,
+} from "typeorm";
 import { ensureArray } from "../util/ensureArray";
 
 export class EntityController<
   Model extends ObjectLiteral,
   R extends Repository<Model>,
-  CreateBody
+  CreateBody,
+  UpdateBody = any
 > {
   constructor(protected repository: R) {}
 
@@ -37,5 +43,17 @@ export class EntityController<
     return this.repository.findOneBy({
       id,
     });
+  }
+
+  async deleteOneById(id: Model["id"]) {
+    return this.repository.delete({ id });
+  }
+
+  async updateOneById(id: Model["id"], updateBody: UpdateBody): Promise<Model> {
+    return this.repository.save({ id, ...(updateBody as DeepPartial<Model>) });
+  }
+
+  async find(where: FindOptionsWhere<Model>): Promise<Model[]> {
+    return this.repository.findBy(where);
   }
 }
