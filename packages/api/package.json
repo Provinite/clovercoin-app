@@ -4,7 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "ts-node-dev src/server.ts"
+    "start": "ts-node-dev src/server.ts",
+    "test-unit": "jest --config jest.unit.config.ts"
   },
   "dependencies": {
     "@graphql-codegen/cli": "^2.6.2",
