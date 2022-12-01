@@ -17,6 +17,13 @@
       "name": "Codegen",
       "command": "yarn ts-node ./tools/service-generation/generate-services.ts",
       "cwd": "${workspaceFolder}/packages/client"
+    },
+    {
+      "type": "node-terminal",
+      "request": "launch",
+      "name": "Integration Tests",
+      "command": "yarn test-integration",
+      "cwd": "${workspaceFolder}/packages/api"
     }
   ]
 }

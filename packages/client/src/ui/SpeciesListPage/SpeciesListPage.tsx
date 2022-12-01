@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import { HeaderBar } from "../HeaderBar/HeaderBar";
 import { HeaderBarProps } from "../HeaderBar/HeaderBarProps";
-import { GetSpeciesListViewQuery } from "../../generated/graphql";
+import { GetSpeciesListViewQuery } from "@clovercoin/api-client";
 import { SpeciesCard } from "../SpeciesCard/SpeciesCard";
 import { useFetcher } from "react-router-dom";
 import { useRouteCommunity } from "../../useRouteCommunity";

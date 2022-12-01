@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useState } from "react";
-import { CritterTraitValueType } from "../../../../generated/graphql";
+import { CritterTraitValueType } from "@clovercoin/api-client";
 import { TraitFormState } from "./TraitFormState";
 
 export const useTraitForm = (

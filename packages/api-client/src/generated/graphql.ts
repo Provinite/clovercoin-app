@@ -1,11 +1,13 @@
-import { gql } from "@apollo/client";
-import * as Apollo from "@apollo/client";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/ban-types */
 import {
   FieldPolicy,
   FieldReadFunction,
   TypePolicies,
   TypePolicy,
 } from "@apollo/client/cache";
+import { DocumentNode } from "graphql";
+import gql from "graphql-tag";
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = {
@@ -17,7 +19,6 @@ export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
   [SubKey in K]: Maybe<T[SubKey]>;
 };
-const defaultOptions = {} as const;
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -225,12 +226,17 @@ export type MutationRegisterArgs = {
 export type Query = {
   __typename?: "Query";
   communities: Array<Community>;
+  community: Community;
   critters: Array<Critter>;
   species: Array<Species>;
   traits: Array<Trait>;
 };
 
 export type QueryCommunitiesArgs = {
+  filters: CommunityFilters;
+};
+
+export type QueryCommunityArgs = {
   filters: CommunityFilters;
 };
 
@@ -348,13 +354,22 @@ export type TraitModifyInput = {
   valueType: CritterTraitValueType;
 };
 
+export type CreateCommunityMutationVariables = Exact<{
+  input: CommunityCreateInput;
+}>;
+
+export type CreateCommunityMutation = {
+  __typename?: "Mutation";
+  createCommunity: { __typename?: "Community"; id: string; name: string };
+};
+
 export type GetCommunityQueryVariables = Exact<{
   filters: CommunityFilters;
 }>;
 
 export type GetCommunityQuery = {
   __typename?: "Query";
-  communities: Array<{ __typename?: "Community"; id: string; name: string }>;
+  community: { __typename?: "Community"; id: string; name: string };
 };
 
 export type GetCrittersQueryVariables = Exact<{ [key: string]: never }>;
@@ -550,575 +565,6 @@ export type GetSpeciesListViewQuery = {
   }>;
 };
 
-export const GetCommunityDocument = gql`
-  query getCommunity($filters: CommunityFilters!) {
-    communities(filters: $filters) {
-      id
-      name
-    }
-  }
-`;
-
-/**
- * __useGetCommunityQuery__
- *
- * To run a query within a React component, call `useGetCommunityQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCommunityQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetCommunityQuery({
- *   variables: {
- *      filters: // value for 'filters'
- *   },
- * });
- */
-export function useGetCommunityQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    GetCommunityQuery,
-    GetCommunityQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<GetCommunityQuery, GetCommunityQueryVariables>(
-    GetCommunityDocument,
-    options
-  );
-}
-export function useGetCommunityLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetCommunityQuery,
-    GetCommunityQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<GetCommunityQuery, GetCommunityQueryVariables>(
-    GetCommunityDocument,
-    options
-  );
-}
-export type GetCommunityQueryHookResult = ReturnType<
-  typeof useGetCommunityQuery
->;
-export type GetCommunityLazyQueryHookResult = ReturnType<
-  typeof useGetCommunityLazyQuery
->;
-export type GetCommunityQueryResult = Apollo.QueryResult<
-  GetCommunityQuery,
-  GetCommunityQueryVariables
->;
-export const GetCrittersDocument = gql`
-  query getCritters {
-    critters {
-      id
-      name
-      traits {
-        ... on CritterTrait {
-          trait {
-            id
-            valueType
-          }
-          displayValue
-        }
-      }
-      species {
-        id
-        name
-        traitLists {
-          id
-          name
-        }
-      }
-    }
-  }
-`;
-
-/**
- * __useGetCrittersQuery__
- *
- * To run a query within a React component, call `useGetCrittersQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCrittersQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetCrittersQuery({
- *   variables: {
- *   },
- * });
- */
-export function useGetCrittersQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    GetCrittersQuery,
-    GetCrittersQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<GetCrittersQuery, GetCrittersQueryVariables>(
-    GetCrittersDocument,
-    options
-  );
-}
-export function useGetCrittersLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetCrittersQuery,
-    GetCrittersQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<GetCrittersQuery, GetCrittersQueryVariables>(
-    GetCrittersDocument,
-    options
-  );
-}
-export type GetCrittersQueryHookResult = ReturnType<typeof useGetCrittersQuery>;
-export type GetCrittersLazyQueryHookResult = ReturnType<
-  typeof useGetCrittersLazyQuery
->;
-export type GetCrittersQueryResult = Apollo.QueryResult<
-  GetCrittersQuery,
-  GetCrittersQueryVariables
->;
-export const CreateSpeciesTraitDocument = gql`
-  mutation createSpeciesTrait($input: TraitCreateInput!) {
-    createTrait(input: $input) {
-      id
-    }
-  }
-`;
-export type CreateSpeciesTraitMutationFn = Apollo.MutationFunction<
-  CreateSpeciesTraitMutation,
-  CreateSpeciesTraitMutationVariables
->;
-
-/**
- * __useCreateSpeciesTraitMutation__
- *
- * To run a mutation, you first call `useCreateSpeciesTraitMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateSpeciesTraitMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createSpeciesTraitMutation, { data, loading, error }] = useCreateSpeciesTraitMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreateSpeciesTraitMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    CreateSpeciesTraitMutation,
-    CreateSpeciesTraitMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    CreateSpeciesTraitMutation,
-    CreateSpeciesTraitMutationVariables
-  >(CreateSpeciesTraitDocument, options);
-}
-export type CreateSpeciesTraitMutationHookResult = ReturnType<
-  typeof useCreateSpeciesTraitMutation
->;
-export type CreateSpeciesTraitMutationResult =
-  Apollo.MutationResult<CreateSpeciesTraitMutation>;
-export type CreateSpeciesTraitMutationOptions = Apollo.BaseMutationOptions<
-  CreateSpeciesTraitMutation,
-  CreateSpeciesTraitMutationVariables
->;
-export const DeleteTraitDocument = gql`
-  mutation deleteTrait($id: ID!) {
-    deleteTrait(id: $id)
-  }
-`;
-export type DeleteTraitMutationFn = Apollo.MutationFunction<
-  DeleteTraitMutation,
-  DeleteTraitMutationVariables
->;
-
-/**
- * __useDeleteTraitMutation__
- *
- * To run a mutation, you first call `useDeleteTraitMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteTraitMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteTraitMutation, { data, loading, error }] = useDeleteTraitMutation({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useDeleteTraitMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    DeleteTraitMutation,
-    DeleteTraitMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<DeleteTraitMutation, DeleteTraitMutationVariables>(
-    DeleteTraitDocument,
-    options
-  );
-}
-export type DeleteTraitMutationHookResult = ReturnType<
-  typeof useDeleteTraitMutation
->;
-export type DeleteTraitMutationResult =
-  Apollo.MutationResult<DeleteTraitMutation>;
-export type DeleteTraitMutationOptions = Apollo.BaseMutationOptions<
-  DeleteTraitMutation,
-  DeleteTraitMutationVariables
->;
-export const GetSpeciesDetailDocument = gql`
-  query getSpeciesDetail($filters: SpeciesFilters) {
-    species(filters: $filters) {
-      id
-      name
-      traitLists {
-        id
-        name
-        traitListEntries {
-          id
-          defaultDisplayValue
-          order
-          required
-          trait {
-            id
-            name
-            valueType
-            enumValues {
-              id
-              name
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-
-/**
- * __useGetSpeciesDetailQuery__
- *
- * To run a query within a React component, call `useGetSpeciesDetailQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetSpeciesDetailQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetSpeciesDetailQuery({
- *   variables: {
- *      filters: // value for 'filters'
- *   },
- * });
- */
-export function useGetSpeciesDetailQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    GetSpeciesDetailQuery,
-    GetSpeciesDetailQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<GetSpeciesDetailQuery, GetSpeciesDetailQueryVariables>(
-    GetSpeciesDetailDocument,
-    options
-  );
-}
-export function useGetSpeciesDetailLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetSpeciesDetailQuery,
-    GetSpeciesDetailQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<
-    GetSpeciesDetailQuery,
-    GetSpeciesDetailQueryVariables
-  >(GetSpeciesDetailDocument, options);
-}
-export type GetSpeciesDetailQueryHookResult = ReturnType<
-  typeof useGetSpeciesDetailQuery
->;
-export type GetSpeciesDetailLazyQueryHookResult = ReturnType<
-  typeof useGetSpeciesDetailLazyQuery
->;
-export type GetSpeciesDetailQueryResult = Apollo.QueryResult<
-  GetSpeciesDetailQuery,
-  GetSpeciesDetailQueryVariables
->;
-export const GetSpeciesTraitsDocument = gql`
-  query getSpeciesTraits($filters: TraitFilters!) {
-    traits(filters: $filters) {
-      id
-      name
-      enumValues {
-        id
-        name
-      }
-      valueType
-    }
-  }
-`;
-
-/**
- * __useGetSpeciesTraitsQuery__
- *
- * To run a query within a React component, call `useGetSpeciesTraitsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetSpeciesTraitsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetSpeciesTraitsQuery({
- *   variables: {
- *      filters: // value for 'filters'
- *   },
- * });
- */
-export function useGetSpeciesTraitsQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    GetSpeciesTraitsQuery,
-    GetSpeciesTraitsQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<GetSpeciesTraitsQuery, GetSpeciesTraitsQueryVariables>(
-    GetSpeciesTraitsDocument,
-    options
-  );
-}
-export function useGetSpeciesTraitsLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetSpeciesTraitsQuery,
-    GetSpeciesTraitsQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<
-    GetSpeciesTraitsQuery,
-    GetSpeciesTraitsQueryVariables
-  >(GetSpeciesTraitsDocument, options);
-}
-export type GetSpeciesTraitsQueryHookResult = ReturnType<
-  typeof useGetSpeciesTraitsQuery
->;
-export type GetSpeciesTraitsLazyQueryHookResult = ReturnType<
-  typeof useGetSpeciesTraitsLazyQuery
->;
-export type GetSpeciesTraitsQueryResult = Apollo.QueryResult<
-  GetSpeciesTraitsQuery,
-  GetSpeciesTraitsQueryVariables
->;
-export const ModifySpeciesTraitDocument = gql`
-  mutation modifySpeciesTrait($input: TraitModifyInput!) {
-    modifyTrait(input: $input) {
-      id
-      name
-      valueType
-      enumValues {
-        id
-        name
-      }
-    }
-  }
-`;
-export type ModifySpeciesTraitMutationFn = Apollo.MutationFunction<
-  ModifySpeciesTraitMutation,
-  ModifySpeciesTraitMutationVariables
->;
-
-/**
- * __useModifySpeciesTraitMutation__
- *
- * To run a mutation, you first call `useModifySpeciesTraitMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useModifySpeciesTraitMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [modifySpeciesTraitMutation, { data, loading, error }] = useModifySpeciesTraitMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useModifySpeciesTraitMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    ModifySpeciesTraitMutation,
-    ModifySpeciesTraitMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    ModifySpeciesTraitMutation,
-    ModifySpeciesTraitMutationVariables
-  >(ModifySpeciesTraitDocument, options);
-}
-export type ModifySpeciesTraitMutationHookResult = ReturnType<
-  typeof useModifySpeciesTraitMutation
->;
-export type ModifySpeciesTraitMutationResult =
-  Apollo.MutationResult<ModifySpeciesTraitMutation>;
-export type ModifySpeciesTraitMutationOptions = Apollo.BaseMutationOptions<
-  ModifySpeciesTraitMutation,
-  ModifySpeciesTraitMutationVariables
->;
-export const CreateSpeciesDocument = gql`
-  mutation createSpecies($input: SpeciesCreateInput!) {
-    createSpecies(input: $input) {
-      id
-      name
-      iconUrl
-      traitLists {
-        id
-        name
-        traitListEntries {
-          id
-          trait {
-            name
-            valueType
-          }
-          order
-          required
-          defaultDisplayValue
-        }
-      }
-    }
-  }
-`;
-export type CreateSpeciesMutationFn = Apollo.MutationFunction<
-  CreateSpeciesMutation,
-  CreateSpeciesMutationVariables
->;
-
-/**
- * __useCreateSpeciesMutation__
- *
- * To run a mutation, you first call `useCreateSpeciesMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateSpeciesMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createSpeciesMutation, { data, loading, error }] = useCreateSpeciesMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreateSpeciesMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    CreateSpeciesMutation,
-    CreateSpeciesMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    CreateSpeciesMutation,
-    CreateSpeciesMutationVariables
-  >(CreateSpeciesDocument, options);
-}
-export type CreateSpeciesMutationHookResult = ReturnType<
-  typeof useCreateSpeciesMutation
->;
-export type CreateSpeciesMutationResult =
-  Apollo.MutationResult<CreateSpeciesMutation>;
-export type CreateSpeciesMutationOptions = Apollo.BaseMutationOptions<
-  CreateSpeciesMutation,
-  CreateSpeciesMutationVariables
->;
-export const GetSpeciesListViewDocument = gql`
-  query getSpeciesListView($name: String, $communityId: ID!) {
-    species(filters: { name: $name, communityId: $communityId }) {
-      id
-      name
-      iconUrl
-      traitLists {
-        id
-        name
-        traitListEntries {
-          id
-          trait {
-            name
-            valueType
-          }
-          order
-          required
-          defaultDisplayValue
-        }
-      }
-    }
-  }
-`;
-
-/**
- * __useGetSpeciesListViewQuery__
- *
- * To run a query within a React component, call `useGetSpeciesListViewQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetSpeciesListViewQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetSpeciesListViewQuery({
- *   variables: {
- *      name: // value for 'name'
- *      communityId: // value for 'communityId'
- *   },
- * });
- */
-export function useGetSpeciesListViewQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    GetSpeciesListViewQuery,
-    GetSpeciesListViewQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<
-    GetSpeciesListViewQuery,
-    GetSpeciesListViewQueryVariables
-  >(GetSpeciesListViewDocument, options);
-}
-export function useGetSpeciesListViewLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetSpeciesListViewQuery,
-    GetSpeciesListViewQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<
-    GetSpeciesListViewQuery,
-    GetSpeciesListViewQueryVariables
-  >(GetSpeciesListViewDocument, options);
-}
-export type GetSpeciesListViewQueryHookResult = ReturnType<
-  typeof useGetSpeciesListViewQuery
->;
-export type GetSpeciesListViewLazyQueryHookResult = ReturnType<
-  typeof useGetSpeciesListViewLazyQuery
->;
-export type GetSpeciesListViewQueryResult = Apollo.QueryResult<
-  GetSpeciesListViewQuery,
-  GetSpeciesListViewQueryVariables
->;
 export type AccountKeySpecifier = (
   | "id"
   | "identity"
@@ -1300,6 +746,7 @@ export type MutationFieldPolicy = {
 };
 export type QueryKeySpecifier = (
   | "communities"
+  | "community"
   | "critters"
   | "species"
   | "traits"
@@ -1307,6 +754,7 @@ export type QueryKeySpecifier = (
 )[];
 export type QueryFieldPolicy = {
   communities?: FieldPolicy<any> | FieldReadFunction<any>;
+  community?: FieldPolicy<any> | FieldReadFunction<any>;
   critters?: FieldPolicy<any> | FieldReadFunction<any>;
   species?: FieldPolicy<any> | FieldReadFunction<any>;
   traits?: FieldPolicy<any> | FieldReadFunction<any>;
@@ -1499,13 +947,318 @@ export type StrictTypedTypePolicies = {
 };
 export type TypedTypePolicies = StrictTypedTypePolicies & TypePolicies;
 
+export const CreateCommunityDocument = gql`
+  mutation createCommunity($input: CommunityCreateInput!) {
+    createCommunity(input: $input) {
+      id
+      name
+    }
+  }
+`;
+export const GetCommunityDocument = gql`
+  query getCommunity($filters: CommunityFilters!) {
+    community(filters: $filters) {
+      id
+      name
+    }
+  }
+`;
+export const GetCrittersDocument = gql`
+  query getCritters {
+    critters {
+      id
+      name
+      traits {
+        ... on CritterTrait {
+          trait {
+            id
+            valueType
+          }
+          displayValue
+        }
+      }
+      species {
+        id
+        name
+        traitLists {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
+export const CreateSpeciesTraitDocument = gql`
+  mutation createSpeciesTrait($input: TraitCreateInput!) {
+    createTrait(input: $input) {
+      id
+    }
+  }
+`;
+export const DeleteTraitDocument = gql`
+  mutation deleteTrait($id: ID!) {
+    deleteTrait(id: $id)
+  }
+`;
+export const GetSpeciesDetailDocument = gql`
+  query getSpeciesDetail($filters: SpeciesFilters) {
+    species(filters: $filters) {
+      id
+      name
+      traitLists {
+        id
+        name
+        traitListEntries {
+          id
+          defaultDisplayValue
+          order
+          required
+          trait {
+            id
+            name
+            valueType
+            enumValues {
+              id
+              name
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+export const GetSpeciesTraitsDocument = gql`
+  query getSpeciesTraits($filters: TraitFilters!) {
+    traits(filters: $filters) {
+      id
+      name
+      enumValues {
+        id
+        name
+      }
+      valueType
+    }
+  }
+`;
+export const ModifySpeciesTraitDocument = gql`
+  mutation modifySpeciesTrait($input: TraitModifyInput!) {
+    modifyTrait(input: $input) {
+      id
+      name
+      valueType
+      enumValues {
+        id
+        name
+      }
+    }
+  }
+`;
+export const CreateSpeciesDocument = gql`
+  mutation createSpecies($input: SpeciesCreateInput!) {
+    createSpecies(input: $input) {
+      id
+      name
+      iconUrl
+      traitLists {
+        id
+        name
+        traitListEntries {
+          id
+          trait {
+            name
+            valueType
+          }
+          order
+          required
+          defaultDisplayValue
+        }
+      }
+    }
+  }
+`;
+export const GetSpeciesListViewDocument = gql`
+  query getSpeciesListView($name: String, $communityId: ID!) {
+    species(filters: { name: $name, communityId: $communityId }) {
+      id
+      name
+      iconUrl
+      traitLists {
+        id
+        name
+        traitListEntries {
+          id
+          trait {
+            name
+            valueType
+          }
+          order
+          required
+          defaultDisplayValue
+        }
+      }
+    }
+  }
+`;
+export type Requester<C = {}, E = unknown> = <R, V>(
+  doc: DocumentNode,
+  vars?: V,
+  options?: C
+) => Promise<R> | AsyncIterable<R>;
+export function getSdk<C, E>(requester: Requester<C, E>) {
+  return {
+    createCommunity(
+      variables: CreateCommunityMutationVariables,
+      options?: C
+    ): Promise<CreateCommunityMutation> {
+      return requester<
+        CreateCommunityMutation,
+        CreateCommunityMutationVariables
+      >(
+        CreateCommunityDocument,
+        variables,
+        options
+      ) as Promise<CreateCommunityMutation>;
+    },
+    getCommunity(
+      variables: GetCommunityQueryVariables,
+      options?: C
+    ): Promise<GetCommunityQuery> {
+      return requester<GetCommunityQuery, GetCommunityQueryVariables>(
+        GetCommunityDocument,
+        variables,
+        options
+      ) as Promise<GetCommunityQuery>;
+    },
+    getCritters(
+      variables?: GetCrittersQueryVariables,
+      options?: C
+    ): Promise<GetCrittersQuery> {
+      return requester<GetCrittersQuery, GetCrittersQueryVariables>(
+        GetCrittersDocument,
+        variables,
+        options
+      ) as Promise<GetCrittersQuery>;
+    },
+    createSpeciesTrait(
+      variables: CreateSpeciesTraitMutationVariables,
+      options?: C
+    ): Promise<CreateSpeciesTraitMutation> {
+      return requester<
+        CreateSpeciesTraitMutation,
+        CreateSpeciesTraitMutationVariables
+      >(
+        CreateSpeciesTraitDocument,
+        variables,
+        options
+      ) as Promise<CreateSpeciesTraitMutation>;
+    },
+    deleteTrait(
+      variables: DeleteTraitMutationVariables,
+      options?: C
+    ): Promise<DeleteTraitMutation> {
+      return requester<DeleteTraitMutation, DeleteTraitMutationVariables>(
+        DeleteTraitDocument,
+        variables,
+        options
+      ) as Promise<DeleteTraitMutation>;
+    },
+    getSpeciesDetail(
+      variables?: GetSpeciesDetailQueryVariables,
+      options?: C
+    ): Promise<GetSpeciesDetailQuery> {
+      return requester<GetSpeciesDetailQuery, GetSpeciesDetailQueryVariables>(
+        GetSpeciesDetailDocument,
+        variables,
+        options
+      ) as Promise<GetSpeciesDetailQuery>;
+    },
+    getSpeciesTraits(
+      variables: GetSpeciesTraitsQueryVariables,
+      options?: C
+    ): Promise<GetSpeciesTraitsQuery> {
+      return requester<GetSpeciesTraitsQuery, GetSpeciesTraitsQueryVariables>(
+        GetSpeciesTraitsDocument,
+        variables,
+        options
+      ) as Promise<GetSpeciesTraitsQuery>;
+    },
+    modifySpeciesTrait(
+      variables: ModifySpeciesTraitMutationVariables,
+      options?: C
+    ): Promise<ModifySpeciesTraitMutation> {
+      return requester<
+        ModifySpeciesTraitMutation,
+        ModifySpeciesTraitMutationVariables
+      >(
+        ModifySpeciesTraitDocument,
+        variables,
+        options
+      ) as Promise<ModifySpeciesTraitMutation>;
+    },
+    createSpecies(
+      variables: CreateSpeciesMutationVariables,
+      options?: C
+    ): Promise<CreateSpeciesMutation> {
+      return requester<CreateSpeciesMutation, CreateSpeciesMutationVariables>(
+        CreateSpeciesDocument,
+        variables,
+        options
+      ) as Promise<CreateSpeciesMutation>;
+    },
+    getSpeciesListView(
+      variables: GetSpeciesListViewQueryVariables,
+      options?: C
+    ): Promise<GetSpeciesListViewQuery> {
+      return requester<
+        GetSpeciesListViewQuery,
+        GetSpeciesListViewQueryVariables
+      >(
+        GetSpeciesListViewDocument,
+        variables,
+        options
+      ) as Promise<GetSpeciesListViewQuery>;
+    },
+  };
+}
+export type Sdk = ReturnType<typeof getSdk>;
+
 export class GraphqlService {
-  constructor(protected client: Apollo.ApolloClient<any>) {}
+  constructor(
+    protected client: import("@apollo/client/core").ApolloClient<any>
+  ) {}
+
+  async createCommunity(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").MutationOptions<
+          CreateCommunityMutation,
+          CreateCommunityMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: CreateCommunityMutationVariables;
+    }
+  ): Promise<
+    import("@apollo/client/core").SingleExecutionResult<CreateCommunityMutation>
+  > {
+    const finalOptions = {
+      ...options,
+      mutation: CreateCommunityDocument,
+    };
+    return this.client.mutate<
+      CreateCommunityMutation,
+      CreateCommunityMutationVariables
+    >(finalOptions);
+  }
 
   async getCommunity(
     options: Omit<
       Partial<
-        Apollo.QueryOptions<GetCommunityQueryVariables, GetCommunityQuery>
+        import("@apollo/client/core").QueryOptions<
+          GetCommunityQueryVariables,
+          GetCommunityQuery
+        >
       >,
       "variables" | "query"
     > & {
@@ -1523,12 +1276,19 @@ export class GraphqlService {
 
   async getCritters(
     options: Omit<
-      Partial<Apollo.QueryOptions<GetCrittersQueryVariables, GetCrittersQuery>>,
+      Partial<
+        import("@apollo/client/core").QueryOptions<
+          GetCrittersQueryVariables,
+          GetCrittersQuery
+        >
+      >,
       "variables" | "query"
     > & {
       variables: GetCrittersQueryVariables;
     }
-  ) {
+  ): Promise<
+    import("@apollo/client/core").SingleExecutionResult<GetCrittersQuery>
+  > {
     const finalOptions = {
       ...options,
       query: GetCrittersDocument,
@@ -1541,7 +1301,7 @@ export class GraphqlService {
   async createSpeciesTrait(
     options: Omit<
       Partial<
-        Apollo.MutationOptions<
+        import("@apollo/client/core").MutationOptions<
           CreateSpeciesTraitMutation,
           CreateSpeciesTraitMutationVariables
         >
@@ -1550,7 +1310,9 @@ export class GraphqlService {
     > & {
       variables: CreateSpeciesTraitMutationVariables;
     }
-  ) {
+  ): Promise<
+    import("@apollo/client/core").SingleExecutionResult<CreateSpeciesTraitMutation>
+  > {
     const finalOptions = {
       ...options,
       mutation: CreateSpeciesTraitDocument,
@@ -1564,7 +1326,7 @@ export class GraphqlService {
   async deleteTrait(
     options: Omit<
       Partial<
-        Apollo.MutationOptions<
+        import("@apollo/client/core").MutationOptions<
           DeleteTraitMutation,
           DeleteTraitMutationVariables
         >
@@ -1573,7 +1335,9 @@ export class GraphqlService {
     > & {
       variables: DeleteTraitMutationVariables;
     }
-  ) {
+  ): Promise<
+    import("@apollo/client/core").SingleExecutionResult<DeleteTraitMutation>
+  > {
     const finalOptions = {
       ...options,
       mutation: DeleteTraitDocument,
@@ -1587,7 +1351,7 @@ export class GraphqlService {
   async getSpeciesDetail(
     options: Omit<
       Partial<
-        Apollo.QueryOptions<
+        import("@apollo/client/core").QueryOptions<
           GetSpeciesDetailQueryVariables,
           GetSpeciesDetailQuery
         >
@@ -1596,7 +1360,9 @@ export class GraphqlService {
     > & {
       variables: GetSpeciesDetailQueryVariables;
     }
-  ) {
+  ): Promise<
+    import("@apollo/client/core").SingleExecutionResult<GetSpeciesDetailQuery>
+  > {
     const finalOptions = {
       ...options,
       query: GetSpeciesDetailDocument,
@@ -1610,7 +1376,7 @@ export class GraphqlService {
   async getSpeciesTraits(
     options: Omit<
       Partial<
-        Apollo.QueryOptions<
+        import("@apollo/client/core").QueryOptions<
           GetSpeciesTraitsQueryVariables,
           GetSpeciesTraitsQuery
         >
@@ -1619,7 +1385,9 @@ export class GraphqlService {
     > & {
       variables: GetSpeciesTraitsQueryVariables;
     }
-  ) {
+  ): Promise<
+    import("@apollo/client/core").SingleExecutionResult<GetSpeciesTraitsQuery>
+  > {
     const finalOptions = {
       ...options,
       query: GetSpeciesTraitsDocument,
@@ -1633,7 +1401,7 @@ export class GraphqlService {
   async modifySpeciesTrait(
     options: Omit<
       Partial<
-        Apollo.MutationOptions<
+        import("@apollo/client/core").MutationOptions<
           ModifySpeciesTraitMutation,
           ModifySpeciesTraitMutationVariables
         >
@@ -1642,7 +1410,9 @@ export class GraphqlService {
     > & {
       variables: ModifySpeciesTraitMutationVariables;
     }
-  ) {
+  ): Promise<
+    import("@apollo/client/core").SingleExecutionResult<ModifySpeciesTraitMutation>
+  > {
     const finalOptions = {
       ...options,
       mutation: ModifySpeciesTraitDocument,
@@ -1656,7 +1426,7 @@ export class GraphqlService {
   async createSpecies(
     options: Omit<
       Partial<
-        Apollo.MutationOptions<
+        import("@apollo/client/core").MutationOptions<
           CreateSpeciesMutation,
           CreateSpeciesMutationVariables
         >
@@ -1665,7 +1435,9 @@ export class GraphqlService {
     > & {
       variables: CreateSpeciesMutationVariables;
     }
-  ) {
+  ): Promise<
+    import("@apollo/client/core").SingleExecutionResult<CreateSpeciesMutation>
+  > {
     const finalOptions = {
       ...options,
       mutation: CreateSpeciesDocument,
@@ -1679,7 +1451,7 @@ export class GraphqlService {
   async getSpeciesListView(
     options: Omit<
       Partial<
-        Apollo.QueryOptions<
+        import("@apollo/client/core").QueryOptions<
           GetSpeciesListViewQueryVariables,
           GetSpeciesListViewQuery
         >
@@ -1688,7 +1460,9 @@ export class GraphqlService {
     > & {
       variables: GetSpeciesListViewQueryVariables;
     }
-  ) {
+  ): Promise<
+    import("@apollo/client/core").SingleExecutionResult<GetSpeciesListViewQuery>
+  > {
     const finalOptions = {
       ...options,
       query: GetSpeciesListViewDocument,

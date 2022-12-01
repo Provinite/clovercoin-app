@@ -17,7 +17,7 @@ import {
   useRef,
 } from "react";
 import { FetcherWithComponents } from "react-router-dom";
-import { CritterTraitValueType } from "../../../../generated/graphql";
+import { CritterTraitValueType } from "@clovercoin/api-client";
 import { TraitFormState } from "./TraitFormState";
 import { DraggableEnumValueInput } from "./DraggableEnumValueInput";
 import { moveArrayItem } from "../../../util/moveArrayItem";

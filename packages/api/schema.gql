@@ -148,6 +148,7 @@ type Mutation {
 
 type Query {
   communities(filters: CommunityFilters!): [Community!]!
+  community(filters: CommunityFilters!): Community!
   critters: [Critter!]!
   species(filters: SpeciesFilters): [Species!]!
   traits(filters: TraitFilters!): [Trait!]!

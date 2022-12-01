@@ -1,5 +1,5 @@
 import { FC, ReactNode, useMemo } from "react";
-import { GetSpeciesDetailQuery } from "../../generated/graphql";
+import { GetSpeciesDetailQuery } from "@clovercoin/api-client";
 import { HeaderBar } from "../HeaderBar/HeaderBar";
 import { HeaderBarProps } from "../HeaderBar/HeaderBarProps";
 import { useRouteCommunity } from "../../useRouteCommunity";

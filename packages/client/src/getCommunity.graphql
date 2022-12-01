@@ -1,5 +1,5 @@
 query getCommunity($filters: CommunityFilters!) {
-  communities(filters: $filters) {
+  community(filters: $filters) {
     id
     name
   }

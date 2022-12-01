@@ -1,5 +1,5 @@
+import { Species } from "@clovercoin/api-client";
 import { Typography } from "@mui/material";
-import { Species } from "../../generated/graphql";
 import { ImageCard } from "../ImageCard/ImageCard";
 
 export interface SpeciesCardProps {

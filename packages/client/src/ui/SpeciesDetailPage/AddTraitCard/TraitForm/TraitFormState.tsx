@@ -1,4 +1,4 @@
-import { CritterTraitValueType } from "../../../../generated/graphql";
+import { CritterTraitValueType } from "@clovercoin/api-client";
 
 export interface TraitFormState {
   id?: string;

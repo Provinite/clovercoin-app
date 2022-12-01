@@ -1,10 +1,9 @@
 {
-  "name": "client",
+  "name": "@clovercoin/client",
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
     "start": "parcel --no-autoinstall src/index.html",
-    "codegen": "graphql-codegen --config codegen.yml && ts-node ./tools/service-generation/generate-services.ts && eslint --fix ./src/generated",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook -o built-storybook/",
     "gen": "ts-node ./tools/generate.ts",
@@ -13,7 +12,8 @@
     "slug": "ts-node ./tools/slug.ts"
   },
   "dependencies": {
-    "@apollo/client": "^3.5.10",
+    "@apollo/client": "3.7.1",
+    "@clovercoin/api-client": "*",
     "@emotion/babel-plugin": "^11.10.5",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
@@ -21,7 +21,6 @@
     "@mui/icons-material": "^5.10.15",
     "@mui/lab": "^5.0.0-alpha.109",
     "@mui/material": "^5.10.15",
-    "@typescript-eslint/eslint-plugin": "latest",
     "aphrodite": "^2.4.0",
     "base-x": "^4.0.0",
     "classnames": "^2.3.1",
@@ -76,6 +75,7 @@
     "@types/react-dom": "^18.0.6",
     "@types/seedrandom": "^3.0.2",
     "@types/uuid": "^8.3.4",
+    "@typescript-eslint/eslint-plugin": "latest",
     "babel-loader": "9.1.0",
     "code-block-writer": "^11.0.3",
     "css-loader": "^6.7.1",

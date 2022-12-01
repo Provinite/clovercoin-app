@@ -3,7 +3,6 @@ import Koa, { Context, Request, Response } from "koa";
 import mount from "koa-mount";
 import { graphqlHTTP, OptionsResult } from "koa-graphql";
 import { buildSchema, MiddlewareFn, NonEmptyArray } from "type-graphql";
-import { createDbConnection } from "./db/dbConnection";
 import { GraphQLParams } from "express-graphql";
 import { v4 } from "uuid";
 import cors from "@koa/cors";
@@ -18,37 +17,13 @@ import { logger } from "./util/logger";
 import { createChildContainer } from "./awilix/createChildContainer";
 import { GraphQLError, print } from "graphql";
 import { QueryFailedError } from "typeorm";
-(async () => {
-  const db = await createDbConnection();
+import { dataSource } from "./db/dbConnection";
+
+export const createCloverCoinAppServer = async () => {
+  const db = await dataSource.initialize();
 
   const koa = new Koa();
 
-  const errorHandler: MiddlewareFn<AppGraphqlContext> = async (
-    { context: { logger } },
-    next
-  ) => {
-    try {
-      return await next();
-    } catch (err) {
-      logger.error(err);
-
-      throw err;
-    }
-  };
-
-  const loggingMiddleware: MiddlewareFn<AppGraphqlContext> = async (
-    { context: { logger }, info, root },
-    next
-  ) => {
-    if (root === undefined) {
-      logger.info({
-        message: "Request started",
-        path: print(info.operation),
-        fieldName: info.fieldName,
-      });
-    }
-    return next();
-  };
   const schema = await buildSchema({
     resolvers: [...ResolversArray] as NonEmptyArray<
       typeof ResolversArray[number]
@@ -80,6 +55,7 @@ import { QueryFailedError } from "typeorm";
   koa
     .use(cors())
     .use(async (ctx, next) => {
+      // TODO: NO!
       await next();
       if (ctx.status === 500) {
         ctx.status = 200;
@@ -157,12 +133,32 @@ import { QueryFailedError } from "typeorm";
       )
     );
 
-  koa.listen(3000);
+  return { rootContainer, koa };
+};
 
-  rootContainer.build(({ logger }) =>
+const errorHandler: MiddlewareFn<AppGraphqlContext> = async (
+  { context: { logger } },
+  next
+) => {
+  try {
+    return await next();
+  } catch (err) {
+    logger.error(err);
+
+    throw err;
+  }
+};
+
+const loggingMiddleware: MiddlewareFn<AppGraphqlContext> = async (
+  { context: { logger }, info, root },
+  next
+) => {
+  if (root === undefined) {
     logger.info({
-      message: "Server Started",
-      port: 3000,
-    })
-  );
-})();
+      message: "Request started",
+      path: print(info.operation),
+      fieldName: info.fieldName,
+    });
+  }
+  return next();
+};

@@ -1,6 +1,6 @@
 import { TextFieldProps, TextField, MenuItem } from "@mui/material";
 import { FC, ReactElement } from "react";
-import { CritterTraitValueType } from "../../../generated/graphql";
+import { CritterTraitValueType } from "@clovercoin/api-client";
 
 export interface TraitInputProps {
   name: string;

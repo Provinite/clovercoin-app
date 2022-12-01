@@ -4,7 +4,7 @@
  * outside of `useQuery`/`useMutation` hooks.
  */
 import { ApolloClient, InMemoryCache } from "@apollo/client";
-import { GraphqlService } from "./generated/graphql";
+import { GraphqlService } from "@clovercoin/api-client";
 
 /**
  * GraphQL client to use throughout the application.

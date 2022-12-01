@@ -50,7 +50,7 @@ export const routes = [
             },
           });
 
-          return result.data.communities[0];
+          return result.data?.community;
         },
         children: [
           {

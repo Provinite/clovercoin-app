@@ -4,7 +4,7 @@
  */
 import { LoaderFunctionArgs, ActionFunctionArgs } from "react-router-dom";
 import { graphqlService } from "../../client";
-import { CritterTraitValueType } from "../../generated/graphql";
+import { CritterTraitValueType } from "@clovercoin/api-client";
 import { typedRouteConfig } from "../../routes";
 import { slugToUuid } from "../../utils/uuidUtils";
 import { AddTraitCard } from "./AddTraitCard/AddTraitCard";
@@ -126,6 +126,7 @@ async function traitListAction({
     }
     speciesId = slugToUuid(speciesId);
     const formData = await request.formData();
+    let i = 0;
     await graphqlService.createSpeciesTrait({
       variables: {
         input: {
@@ -135,7 +136,7 @@ async function traitListAction({
           enumValues: formData
             .getAll("enumValues")
             .filter((v) => typeof v === "string" && v !== "")
-            .map((name) => ({ name: name as string })),
+            .map((name) => ({ name: name as string, order: i++ })),
         },
       },
       update(cache) {

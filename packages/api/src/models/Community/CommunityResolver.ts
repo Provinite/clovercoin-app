@@ -62,4 +62,19 @@ export class CommunityResolver {
     }
     return await communityRepository.find(filters);
   }
+
+  @Query(() => Community)
+  async community(
+    @Arg("filters") filters: CommunityFilters,
+    @Ctx() { communityController }: AppGraphqlContext
+  ) {
+    const result = await communityController.find({
+      name: filters.name ?? undefined,
+      id: filters.id ?? undefined,
+    });
+    if (!result.length) {
+      throw new Error("404");
+    }
+    return result[0];
+  }
 }

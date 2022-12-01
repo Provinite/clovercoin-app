@@ -1,7 +1,7 @@
 import * as React from "react";
 import { FC } from "react";
 import { useLoaderData, useNavigate } from "react-router-dom";
-import { GetSpeciesListViewQuery } from "../../generated/graphql";
+import { GetSpeciesListViewQuery } from "@clovercoin/api-client";
 import { AppRoutes } from "../AppRoutes";
 import { useHeaderBarProps } from "../HeaderBar/HeaderBarContext";
 import { useRouteCommunity } from "../../useRouteCommunity";

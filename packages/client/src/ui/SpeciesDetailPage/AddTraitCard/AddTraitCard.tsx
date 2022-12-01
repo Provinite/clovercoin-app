@@ -1,6 +1,6 @@
 import { FunctionComponent, useCallback, useMemo } from "react";
 import { useFetcher, useParams } from "react-router-dom";
-import { CritterTraitValueType } from "../../../generated/graphql";
+import { CritterTraitValueType } from "@clovercoin/api-client";
 import { Card, CardContent, CardHeader, Grid } from "@mui/material";
 import { slugToUuid } from "../../../utils/uuidUtils";
 import { AppRoutes } from "../../AppRoutes";

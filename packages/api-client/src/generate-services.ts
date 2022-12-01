@@ -37,6 +37,11 @@ for (const operationName of operationNames) {
   }
 }
 
+sf.insertStatements(0, [
+  `/* eslint-disable @typescript-eslint/no-unused-vars */`,
+  `/* eslint-disable @typescript-eslint/ban-types */`,
+]);
+
 const serviceClass = sf.addClass({
   name: "GraphqlService",
   isExported: true,
@@ -46,7 +51,7 @@ const serviceClass = sf.addClass({
         {
           scope: Scope.Protected,
           name: "client",
-          type: "Apollo.ApolloClient<any>",
+          type: `import("@apollo/client/core").ApolloClient<any>`,
         },
       ],
     },
@@ -60,8 +65,8 @@ for (const operation of operations) {
 
   const optionsType =
     operation.type === "Mutation"
-      ? `Apollo.MutationOptions<${operationResultType}, ${operationVariablesType}>`
-      : `Apollo.QueryOptions<${operationVariablesType}, ${operationResultType}>`;
+      ? `import("@apollo/client/core").MutationOptions<${operationResultType}, ${operationVariablesType}>`
+      : `import("@apollo/client/core").QueryOptions<${operationVariablesType}, ${operationResultType}>`;
   serviceClass.addMethod({
     name: operation.name[0].toLowerCase() + operation.name.substring(1),
     isAsync: true,
@@ -76,6 +81,7 @@ for (const operation of operations) {
                 }`,
       },
     ],
+    returnType: `Promise<import("@apollo/client/core").SingleExecutionResult<${operationResultType}>>`,
     statements: (w) =>
       w
         .writeLine(``)
