@@ -20,7 +20,7 @@ export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
   [SubKey in K]: Maybe<T[SubKey]>;
 };
 /** All built-in and custom scalars, mapped to their actual values */
-export type Scalars = {
+export interface Scalars {
   ID: string;
   String: string;
   Boolean: boolean;
@@ -28,32 +28,53 @@ export type Scalars = {
   Float: number;
   /** The javascript `Date` as string. Type represents date and time as the ISO Date string. */
   DateTime: any;
-};
+}
 
-export type Account = {
+export interface Account {
   __typename?: "Account";
   id: Scalars["ID"];
   identity: Identity;
   identityId: Scalars["ID"];
   username: Scalars["String"];
-};
+}
 
-export type Community = {
+export interface BaseError {
+  message: Scalars["String"];
+}
+
+export type CommunitiesResponse = CommunityList | InvalidArgumentError;
+
+export interface Community {
   __typename?: "Community";
   id: Scalars["ID"];
   name: Scalars["String"];
-};
+}
 
-export type CommunityCreateInput = {
+export interface CommunityCreateInput {
   name: Scalars["String"];
-};
+}
 
-export type CommunityFilters = {
+export interface CommunityFilters {
   id?: InputMaybe<Scalars["ID"]>;
   name?: InputMaybe<Scalars["String"]>;
-};
+}
 
-export type Critter = {
+export interface CommunityList {
+  __typename?: "CommunityList";
+  list: Array<Community>;
+}
+
+export type CommunityResponse =
+  | Community
+  | InvalidArgumentError
+  | NotFoundError;
+
+export type CreateCommunityResponse =
+  | Community
+  | DuplicateError
+  | InvalidArgumentError;
+
+export interface Critter {
   __typename?: "Critter";
   id: Scalars["ID"];
   name: Scalars["String"];
@@ -64,14 +85,14 @@ export type Critter = {
   traitList: TraitList;
   traitListId: Scalars["ID"];
   traits: Array<CritterTraitUnion>;
-};
+}
 
-export type CritterCreateInput = {
+export interface CritterCreateInput {
   name: Scalars["String"];
   speciesId: Scalars["String"];
-};
+}
 
-export type CritterIntTrait = CritterTrait & {
+export interface CritterIntTrait extends CritterTrait {
   __typename?: "CritterIntTrait";
   critterId: Scalars["ID"];
   displayValue?: Maybe<Scalars["String"]>;
@@ -80,9 +101,9 @@ export type CritterIntTrait = CritterTrait & {
   traitId: Scalars["ID"];
   valueInt?: Maybe<Scalars["Float"]>;
   valueType: CritterTraitValueType;
-};
+}
 
-export type CritterStringTrait = CritterTrait & {
+export interface CritterStringTrait extends CritterTrait {
   __typename?: "CritterStringTrait";
   critterId: Scalars["ID"];
   displayValue?: Maybe<Scalars["String"]>;
@@ -91,9 +112,9 @@ export type CritterStringTrait = CritterTrait & {
   traitId: Scalars["ID"];
   valueString?: Maybe<Scalars["String"]>;
   valueType: CritterTraitValueType;
-};
+}
 
-export type CritterTimestampTrait = CritterTrait & {
+export interface CritterTimestampTrait extends CritterTrait {
   __typename?: "CritterTimestampTrait";
   critterId: Scalars["ID"];
   displayValue?: Maybe<Scalars["String"]>;
@@ -102,25 +123,25 @@ export type CritterTimestampTrait = CritterTrait & {
   traitId: Scalars["ID"];
   valueTimestamp?: Maybe<Scalars["DateTime"]>;
   valueType: CritterTraitValueType;
-};
+}
 
-export type CritterTrait = {
+export interface CritterTrait {
   critterId: Scalars["ID"];
   displayValue?: Maybe<Scalars["String"]>;
   id: Scalars["ID"];
   trait: Trait;
   traitId: Scalars["ID"];
   valueType: CritterTraitValueType;
-};
+}
 
-export type CritterTraitCreateInput = {
+export interface CritterTraitCreateInput {
   critterId: Scalars["ID"];
   traitId: Scalars["ID"];
   valueBool?: InputMaybe<Scalars["Boolean"]>;
   valueDate?: InputMaybe<Scalars["DateTime"]>;
   valueInt?: InputMaybe<Scalars["Int"]>;
   valueString?: InputMaybe<Scalars["String"]>;
-};
+}
 
 export type CritterTraitUnion =
   | CritterIntTrait
@@ -134,40 +155,53 @@ export enum CritterTraitValueType {
   Timestamp = "Timestamp",
 }
 
-export type EnumValue = {
+export interface DuplicateError extends BaseError {
+  __typename?: "DuplicateError";
+  duplicateKeys: Array<Scalars["String"]>;
+  message: Scalars["String"];
+}
+
+export interface EnumValue {
   __typename?: "EnumValue";
   id: Scalars["ID"];
   name: Scalars["String"];
   order: Scalars["Int"];
   trait: Trait;
   traitId: Scalars["ID"];
-};
+}
 
-export type Identity = {
+export interface Identity {
   __typename?: "Identity";
   displayName: Scalars["String"];
   email: Scalars["String"];
   id: Scalars["ID"];
-};
+}
 
-export type LoginArgs = {
+export interface InvalidArgumentError extends BaseError {
+  __typename?: "InvalidArgumentError";
+  message: Scalars["String"];
+  validationErrors: Array<ValidationError>;
+}
+
+export interface LoginArgs {
   password?: InputMaybe<Scalars["String"]>;
   username?: InputMaybe<Scalars["String"]>;
-};
+}
 
-export type LoginResponse = {
+export interface LoginResponse {
   __typename?: "LoginResponse";
   account: Account;
   identity: Identity;
   token: Scalars["String"];
-};
+}
 
-export type Mutation = {
+export interface Mutation {
   __typename?: "Mutation";
-  createCommunity: Community;
+  /** Create a new community */
+  createCommunity: CreateCommunityResponse;
   createCritter: Critter;
   createCritterTrait: CritterTraitUnion;
-  createSpecies: Species;
+  createSpecies: SpeciesCreateResponse;
   createTrait: Trait;
   createTraitList: TraitList;
   createTraitListEntry: TraitListEntry;
@@ -177,85 +211,92 @@ export type Mutation = {
   modifyTrait: Trait;
   /** Create a new account and receive an auth token */
   register: LoginResponse;
-};
+}
 
-export type MutationCreateCommunityArgs = {
+export interface MutationCreateCommunityArgs {
   input: CommunityCreateInput;
-};
+}
 
-export type MutationCreateCritterArgs = {
+export interface MutationCreateCritterArgs {
   input: CritterCreateInput;
-};
+}
 
-export type MutationCreateCritterTraitArgs = {
+export interface MutationCreateCritterTraitArgs {
   input: CritterTraitCreateInput;
-};
+}
 
-export type MutationCreateSpeciesArgs = {
+export interface MutationCreateSpeciesArgs {
   input: SpeciesCreateInput;
-};
+}
 
-export type MutationCreateTraitArgs = {
+export interface MutationCreateTraitArgs {
   input: TraitCreateInput;
-};
+}
 
-export type MutationCreateTraitListArgs = {
+export interface MutationCreateTraitListArgs {
   input: TraitListCreateInput;
-};
+}
 
-export type MutationCreateTraitListEntryArgs = {
+export interface MutationCreateTraitListEntryArgs {
   input: TraitListEntryCreateInput;
-};
+}
 
-export type MutationDeleteTraitArgs = {
+export interface MutationDeleteTraitArgs {
   id: Scalars["ID"];
-};
+}
 
-export type MutationLoginArgs = {
+export interface MutationLoginArgs {
   input: LoginArgs;
-};
+}
 
-export type MutationModifyTraitArgs = {
+export interface MutationModifyTraitArgs {
   input: TraitModifyInput;
-};
+}
 
-export type MutationRegisterArgs = {
+export interface MutationRegisterArgs {
   input: RegisterArgs;
-};
+}
 
-export type Query = {
+export interface NotFoundError extends BaseError {
+  __typename?: "NotFoundError";
+  message: Scalars["String"];
+}
+
+export interface Query {
   __typename?: "Query";
-  communities: Array<Community>;
-  community: Community;
+  /** Fetch a list of communities with filtering */
+  communities: CommunitiesResponse;
+  /** Fetch a community by id and/or name */
+  community: CommunityResponse;
   critters: Array<Critter>;
-  species: Array<Species>;
+  species: SpeciesResponse;
   traits: Array<Trait>;
-};
+}
 
-export type QueryCommunitiesArgs = {
+export interface QueryCommunitiesArgs {
   filters: CommunityFilters;
-};
+}
 
-export type QueryCommunityArgs = {
+export interface QueryCommunityArgs {
   filters: CommunityFilters;
-};
+}
 
-export type QuerySpeciesArgs = {
+export interface QuerySpeciesArgs {
   filters?: InputMaybe<SpeciesFilters>;
-};
+}
 
-export type QueryTraitsArgs = {
+export interface QueryTraitsArgs {
   filters: TraitFilters;
-};
+}
 
-export type RegisterArgs = {
+export interface RegisterArgs {
   email?: InputMaybe<Scalars["String"]>;
   password?: InputMaybe<Scalars["String"]>;
   username?: InputMaybe<Scalars["String"]>;
-};
+}
 
-/** Model representing an arbitrarily broad class of charcters that use common trait lists and administration. */
-export type Species = {
+/** Model representing an arbitrarily broad class of characters that use common trait lists and administration. */
+export interface Species {
   __typename?: "Species";
   /** Community that owns this species */
   community: Community;
@@ -268,60 +309,72 @@ export type Species = {
   /** Name of the species */
   name: Scalars["String"];
   traitLists: Array<TraitList>;
-};
+}
 
-export type SpeciesCreateInput = {
+export interface SpeciesCreateInput {
   communityId: Scalars["ID"];
   iconUrl: Scalars["String"];
   name: Scalars["String"];
-};
+}
 
-export type SpeciesFilters = {
+export type SpeciesCreateResponse =
+  | DuplicateError
+  | InvalidArgumentError
+  | Species;
+
+export interface SpeciesFilters {
   communityId: Scalars["ID"];
   id?: InputMaybe<Scalars["ID"]>;
   name?: InputMaybe<Scalars["String"]>;
-};
+}
 
-export type Trait = {
+export interface SpeciesList {
+  __typename?: "SpeciesList";
+  list: Array<Species>;
+}
+
+export type SpeciesResponse = InvalidArgumentError | SpeciesList;
+
+export interface Trait {
   __typename?: "Trait";
   enumValues: Array<EnumValue>;
   id: Scalars["ID"];
   name: Scalars["String"];
   species: Species;
   valueType: CritterTraitValueType;
-};
+}
 
-export type TraitCreateEnumValueInput = {
+export interface TraitCreateEnumValueInput {
   name: Scalars["String"];
   order: Scalars["Float"];
-};
+}
 
-export type TraitCreateInput = {
+export interface TraitCreateInput {
   enumValues: Array<TraitCreateEnumValueInput>;
   name: Scalars["String"];
   speciesId: Scalars["ID"];
   valueType: CritterTraitValueType;
-};
+}
 
-export type TraitFilters = {
+export interface TraitFilters {
   speciesId: Scalars["ID"];
-};
+}
 
-export type TraitList = {
+export interface TraitList {
   __typename?: "TraitList";
   id: Scalars["ID"];
   name: Scalars["String"];
   species: Species;
   speciesId: Scalars["ID"];
   traitListEntries: Array<TraitListEntry>;
-};
+}
 
-export type TraitListCreateInput = {
+export interface TraitListCreateInput {
   name: Scalars["String"];
   speciesId: Scalars["ID"];
-};
+}
 
-export type TraitListEntry = {
+export interface TraitListEntry {
   __typename?: "TraitListEntry";
   defaultDisplayValue?: Maybe<Scalars["String"]>;
   id: Scalars["ID"];
@@ -332,27 +385,39 @@ export type TraitListEntry = {
   traitList: TraitList;
   traitListId: Scalars["ID"];
   valueType: CritterTraitValueType;
-};
+}
 
-export type TraitListEntryCreateInput = {
+export interface TraitListEntryCreateInput {
   order: Scalars["Int"];
   required?: InputMaybe<Scalars["Boolean"]>;
   traitId: Scalars["ID"];
   traitListId: Scalars["ID"];
-};
+}
 
-export type TraitModifyEnumValueInput = {
+export interface TraitModifyEnumValueInput {
   id?: InputMaybe<Scalars["ID"]>;
   name: Scalars["String"];
   order: Scalars["Float"];
-};
+}
 
-export type TraitModifyInput = {
+export interface TraitModifyInput {
   enumValues?: InputMaybe<Array<TraitModifyEnumValueInput>>;
   id: Scalars["ID"];
   name: Scalars["String"];
   valueType: CritterTraitValueType;
-};
+}
+
+export interface ValidationConstraint {
+  __typename?: "ValidationConstraint";
+  description: Scalars["String"];
+  key: Scalars["String"];
+}
+
+export interface ValidationError {
+  __typename?: "ValidationError";
+  constraints: Array<ValidationConstraint>;
+  field: Scalars["String"];
+}
 
 export type CreateCommunityMutationVariables = Exact<{
   input: CommunityCreateInput;
@@ -360,7 +425,26 @@ export type CreateCommunityMutationVariables = Exact<{
 
 export type CreateCommunityMutation = {
   __typename?: "Mutation";
-  createCommunity: { __typename?: "Community"; id: string; name: string };
+  createCommunity:
+    | { __typename: "Community"; name: string; id: string }
+    | {
+        __typename: "DuplicateError";
+        duplicateKeys: Array<string>;
+        message: string;
+      }
+    | {
+        __typename: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      };
 };
 
 export type GetCommunityQueryVariables = Exact<{
@@ -369,7 +453,10 @@ export type GetCommunityQueryVariables = Exact<{
 
 export type GetCommunityQuery = {
   __typename?: "Query";
-  community: { __typename?: "Community"; id: string; name: string };
+  community:
+    | { __typename: "Community"; id: string; name: string }
+    | { __typename: "InvalidArgumentError"; message: string }
+    | { __typename: "NotFoundError"; message: string };
 };
 
 export type GetCrittersQueryVariables = Exact<{ [key: string]: never }>;
@@ -442,34 +529,39 @@ export type GetSpeciesDetailQueryVariables = Exact<{
 
 export type GetSpeciesDetailQuery = {
   __typename?: "Query";
-  species: Array<{
-    __typename?: "Species";
-    id: string;
-    name: string;
-    traitLists: Array<{
-      __typename?: "TraitList";
-      id: string;
-      name: string;
-      traitListEntries: Array<{
-        __typename?: "TraitListEntry";
-        id: string;
-        defaultDisplayValue?: string | null;
-        order: number;
-        required: boolean;
-        trait: {
-          __typename?: "Trait";
+  species:
+    | { __typename?: "InvalidArgumentError" }
+    | {
+        __typename?: "SpeciesList";
+        list: Array<{
+          __typename?: "Species";
           id: string;
           name: string;
-          valueType: CritterTraitValueType;
-          enumValues: Array<{
-            __typename?: "EnumValue";
+          traitLists: Array<{
+            __typename?: "TraitList";
             id: string;
             name: string;
+            traitListEntries: Array<{
+              __typename?: "TraitListEntry";
+              id: string;
+              defaultDisplayValue?: string | null;
+              order: number;
+              required: boolean;
+              trait: {
+                __typename?: "Trait";
+                id: string;
+                name: string;
+                valueType: CritterTraitValueType;
+                enumValues: Array<{
+                  __typename?: "EnumValue";
+                  id: string;
+                  name: string;
+                }>;
+              };
+            }>;
           }>;
-        };
-      }>;
-    }>;
-  }>;
+        }>;
+      };
 };
 
 export type GetSpeciesTraitsQueryVariables = Exact<{
@@ -507,30 +599,48 @@ export type CreateSpeciesMutationVariables = Exact<{
 }>;
 
 export type CreateSpeciesMutation = {
-  __typename?: "Mutation";
-  createSpecies: {
-    __typename?: "Species";
-    id: string;
-    name: string;
-    iconUrl: string;
-    traitLists: Array<{
-      __typename?: "TraitList";
-      id: string;
-      name: string;
-      traitListEntries: Array<{
-        __typename?: "TraitListEntry";
+  __typename: "Mutation";
+  createSpecies:
+    | {
+        __typename?: "DuplicateError";
+        duplicateKeys: Array<string>;
+        message: string;
+      }
+    | {
+        __typename?: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            description: string;
+            key: string;
+          }>;
+        }>;
+      }
+    | {
+        __typename?: "Species";
         id: string;
-        order: number;
-        required: boolean;
-        defaultDisplayValue?: string | null;
-        trait: {
-          __typename?: "Trait";
+        name: string;
+        iconUrl: string;
+        traitLists: Array<{
+          __typename?: "TraitList";
+          id: string;
           name: string;
-          valueType: CritterTraitValueType;
-        };
-      }>;
-    }>;
-  };
+          traitListEntries: Array<{
+            __typename?: "TraitListEntry";
+            id: string;
+            order: number;
+            required: boolean;
+            defaultDisplayValue?: string | null;
+            trait: {
+              __typename?: "Trait";
+              name: string;
+              valueType: CritterTraitValueType;
+            };
+          }>;
+        }>;
+      };
 };
 
 export type GetSpeciesListViewQueryVariables = Exact<{
@@ -540,29 +650,46 @@ export type GetSpeciesListViewQueryVariables = Exact<{
 
 export type GetSpeciesListViewQuery = {
   __typename?: "Query";
-  species: Array<{
-    __typename?: "Species";
-    id: string;
-    name: string;
-    iconUrl: string;
-    traitLists: Array<{
-      __typename?: "TraitList";
-      id: string;
-      name: string;
-      traitListEntries: Array<{
-        __typename?: "TraitListEntry";
-        id: string;
-        order: number;
-        required: boolean;
-        defaultDisplayValue?: string | null;
-        trait: {
-          __typename?: "Trait";
+  species:
+    | {
+        __typename: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      }
+    | {
+        __typename: "SpeciesList";
+        list: Array<{
+          __typename?: "Species";
+          id: string;
           name: string;
-          valueType: CritterTraitValueType;
-        };
-      }>;
-    }>;
-  }>;
+          iconUrl: string;
+          traitLists: Array<{
+            __typename?: "TraitList";
+            id: string;
+            name: string;
+            traitListEntries: Array<{
+              __typename?: "TraitListEntry";
+              id: string;
+              order: number;
+              required: boolean;
+              defaultDisplayValue?: string | null;
+              trait: {
+                __typename?: "Trait";
+                name: string;
+                valueType: CritterTraitValueType;
+              };
+            }>;
+          }>;
+        }>;
+      };
 };
 
 export type AccountKeySpecifier = (
@@ -578,10 +705,18 @@ export type AccountFieldPolicy = {
   identityId?: FieldPolicy<any> | FieldReadFunction<any>;
   username?: FieldPolicy<any> | FieldReadFunction<any>;
 };
+export type BaseErrorKeySpecifier = ("message" | BaseErrorKeySpecifier)[];
+export type BaseErrorFieldPolicy = {
+  message?: FieldPolicy<any> | FieldReadFunction<any>;
+};
 export type CommunityKeySpecifier = ("id" | "name" | CommunityKeySpecifier)[];
 export type CommunityFieldPolicy = {
   id?: FieldPolicy<any> | FieldReadFunction<any>;
   name?: FieldPolicy<any> | FieldReadFunction<any>;
+};
+export type CommunityListKeySpecifier = ("list" | CommunityListKeySpecifier)[];
+export type CommunityListFieldPolicy = {
+  list?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type CritterKeySpecifier = (
   | "id"
@@ -680,6 +815,15 @@ export type CritterTraitFieldPolicy = {
   traitId?: FieldPolicy<any> | FieldReadFunction<any>;
   valueType?: FieldPolicy<any> | FieldReadFunction<any>;
 };
+export type DuplicateErrorKeySpecifier = (
+  | "duplicateKeys"
+  | "message"
+  | DuplicateErrorKeySpecifier
+)[];
+export type DuplicateErrorFieldPolicy = {
+  duplicateKeys?: FieldPolicy<any> | FieldReadFunction<any>;
+  message?: FieldPolicy<any> | FieldReadFunction<any>;
+};
 export type EnumValueKeySpecifier = (
   | "id"
   | "name"
@@ -705,6 +849,15 @@ export type IdentityFieldPolicy = {
   displayName?: FieldPolicy<any> | FieldReadFunction<any>;
   email?: FieldPolicy<any> | FieldReadFunction<any>;
   id?: FieldPolicy<any> | FieldReadFunction<any>;
+};
+export type InvalidArgumentErrorKeySpecifier = (
+  | "message"
+  | "validationErrors"
+  | InvalidArgumentErrorKeySpecifier
+)[];
+export type InvalidArgumentErrorFieldPolicy = {
+  message?: FieldPolicy<any> | FieldReadFunction<any>;
+  validationErrors?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type LoginResponseKeySpecifier = (
   | "account"
@@ -744,6 +897,13 @@ export type MutationFieldPolicy = {
   modifyTrait?: FieldPolicy<any> | FieldReadFunction<any>;
   register?: FieldPolicy<any> | FieldReadFunction<any>;
 };
+export type NotFoundErrorKeySpecifier = (
+  | "message"
+  | NotFoundErrorKeySpecifier
+)[];
+export type NotFoundErrorFieldPolicy = {
+  message?: FieldPolicy<any> | FieldReadFunction<any>;
+};
 export type QueryKeySpecifier = (
   | "communities"
   | "community"
@@ -777,6 +937,10 @@ export type SpeciesFieldPolicy = {
   id?: FieldPolicy<any> | FieldReadFunction<any>;
   name?: FieldPolicy<any> | FieldReadFunction<any>;
   traitLists?: FieldPolicy<any> | FieldReadFunction<any>;
+};
+export type SpeciesListKeySpecifier = ("list" | SpeciesListKeySpecifier)[];
+export type SpeciesListFieldPolicy = {
+  list?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type TraitKeySpecifier = (
   | "enumValues"
@@ -831,6 +995,24 @@ export type TraitListEntryFieldPolicy = {
   traitListId?: FieldPolicy<any> | FieldReadFunction<any>;
   valueType?: FieldPolicy<any> | FieldReadFunction<any>;
 };
+export type ValidationConstraintKeySpecifier = (
+  | "description"
+  | "key"
+  | ValidationConstraintKeySpecifier
+)[];
+export type ValidationConstraintFieldPolicy = {
+  description?: FieldPolicy<any> | FieldReadFunction<any>;
+  key?: FieldPolicy<any> | FieldReadFunction<any>;
+};
+export type ValidationErrorKeySpecifier = (
+  | "constraints"
+  | "field"
+  | ValidationErrorKeySpecifier
+)[];
+export type ValidationErrorFieldPolicy = {
+  constraints?: FieldPolicy<any> | FieldReadFunction<any>;
+  field?: FieldPolicy<any> | FieldReadFunction<any>;
+};
 export type StrictTypedTypePolicies = {
   Account?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
@@ -839,12 +1021,26 @@ export type StrictTypedTypePolicies = {
       | (() => undefined | AccountKeySpecifier);
     fields?: AccountFieldPolicy;
   };
+  BaseError?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | BaseErrorKeySpecifier
+      | (() => undefined | BaseErrorKeySpecifier);
+    fields?: BaseErrorFieldPolicy;
+  };
   Community?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
       | false
       | CommunityKeySpecifier
       | (() => undefined | CommunityKeySpecifier);
     fields?: CommunityFieldPolicy;
+  };
+  CommunityList?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | CommunityListKeySpecifier
+      | (() => undefined | CommunityListKeySpecifier);
+    fields?: CommunityListFieldPolicy;
   };
   Critter?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
@@ -881,6 +1077,13 @@ export type StrictTypedTypePolicies = {
       | (() => undefined | CritterTraitKeySpecifier);
     fields?: CritterTraitFieldPolicy;
   };
+  DuplicateError?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | DuplicateErrorKeySpecifier
+      | (() => undefined | DuplicateErrorKeySpecifier);
+    fields?: DuplicateErrorFieldPolicy;
+  };
   EnumValue?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
       | false
@@ -894,6 +1097,13 @@ export type StrictTypedTypePolicies = {
       | IdentityKeySpecifier
       | (() => undefined | IdentityKeySpecifier);
     fields?: IdentityFieldPolicy;
+  };
+  InvalidArgumentError?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | InvalidArgumentErrorKeySpecifier
+      | (() => undefined | InvalidArgumentErrorKeySpecifier);
+    fields?: InvalidArgumentErrorFieldPolicy;
   };
   LoginResponse?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
@@ -909,6 +1119,13 @@ export type StrictTypedTypePolicies = {
       | (() => undefined | MutationKeySpecifier);
     fields?: MutationFieldPolicy;
   };
+  NotFoundError?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | NotFoundErrorKeySpecifier
+      | (() => undefined | NotFoundErrorKeySpecifier);
+    fields?: NotFoundErrorFieldPolicy;
+  };
   Query?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
       | false
@@ -922,6 +1139,13 @@ export type StrictTypedTypePolicies = {
       | SpeciesKeySpecifier
       | (() => undefined | SpeciesKeySpecifier);
     fields?: SpeciesFieldPolicy;
+  };
+  SpeciesList?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | SpeciesListKeySpecifier
+      | (() => undefined | SpeciesListKeySpecifier);
+    fields?: SpeciesListFieldPolicy;
   };
   Trait?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
@@ -944,22 +1168,65 @@ export type StrictTypedTypePolicies = {
       | (() => undefined | TraitListEntryKeySpecifier);
     fields?: TraitListEntryFieldPolicy;
   };
+  ValidationConstraint?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | ValidationConstraintKeySpecifier
+      | (() => undefined | ValidationConstraintKeySpecifier);
+    fields?: ValidationConstraintFieldPolicy;
+  };
+  ValidationError?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | ValidationErrorKeySpecifier
+      | (() => undefined | ValidationErrorKeySpecifier);
+    fields?: ValidationErrorFieldPolicy;
+  };
 };
 export type TypedTypePolicies = StrictTypedTypePolicies & TypePolicies;
 
 export const CreateCommunityDocument = gql`
   mutation createCommunity($input: CommunityCreateInput!) {
     createCommunity(input: $input) {
-      id
-      name
+      __typename
+      ... on Community {
+        name
+        id
+      }
+      ... on DuplicateError {
+        duplicateKeys
+        message
+      }
+      ... on InvalidArgumentError {
+        message
+        validationErrors {
+          constraints {
+            key
+            description
+          }
+          field
+        }
+      }
+      ... on BaseError {
+        message
+      }
     }
   }
 `;
 export const GetCommunityDocument = gql`
   query getCommunity($filters: CommunityFilters!) {
     community(filters: $filters) {
-      id
-      name
+      __typename
+      ... on Community {
+        id
+        name
+      }
+      ... on NotFoundError {
+        message
+      }
+      ... on BaseError {
+        message
+      }
     }
   }
 `;
@@ -1003,23 +1270,27 @@ export const DeleteTraitDocument = gql`
 export const GetSpeciesDetailDocument = gql`
   query getSpeciesDetail($filters: SpeciesFilters) {
     species(filters: $filters) {
-      id
-      name
-      traitLists {
-        id
-        name
-        traitListEntries {
+      ... on SpeciesList {
+        list {
           id
-          defaultDisplayValue
-          order
-          required
-          trait {
+          name
+          traitLists {
             id
             name
-            valueType
-            enumValues {
+            traitListEntries {
               id
-              name
+              defaultDisplayValue
+              order
+              required
+              trait {
+                id
+                name
+                valueType
+                enumValues {
+                  id
+                  name
+                }
+              }
             }
           }
         }
@@ -1055,23 +1326,42 @@ export const ModifySpeciesTraitDocument = gql`
 `;
 export const CreateSpeciesDocument = gql`
   mutation createSpecies($input: SpeciesCreateInput!) {
+    __typename
     createSpecies(input: $input) {
-      id
-      name
-      iconUrl
-      traitLists {
+      ... on Species {
         id
         name
-        traitListEntries {
+        iconUrl
+        traitLists {
           id
-          trait {
-            name
-            valueType
+          name
+          traitListEntries {
+            id
+            trait {
+              name
+              valueType
+            }
+            order
+            required
+            defaultDisplayValue
           }
-          order
-          required
-          defaultDisplayValue
         }
+      }
+      ... on DuplicateError {
+        duplicateKeys
+        message
+      }
+      ... on InvalidArgumentError {
+        message
+        validationErrors {
+          constraints {
+            description
+            key
+          }
+        }
+      }
+      ... on BaseError {
+        message
       }
     }
   }
@@ -1079,22 +1369,40 @@ export const CreateSpeciesDocument = gql`
 export const GetSpeciesListViewDocument = gql`
   query getSpeciesListView($name: String, $communityId: ID!) {
     species(filters: { name: $name, communityId: $communityId }) {
-      id
-      name
-      iconUrl
-      traitLists {
-        id
-        name
-        traitListEntries {
+      __typename
+      ... on SpeciesList {
+        list {
           id
-          trait {
+          name
+          iconUrl
+          traitLists {
+            id
             name
-            valueType
+            traitListEntries {
+              id
+              trait {
+                name
+                valueType
+              }
+              order
+              required
+              defaultDisplayValue
+            }
           }
-          order
-          required
-          defaultDisplayValue
         }
+      }
+      ... on InvalidArgumentError {
+        message
+        validationErrors {
+          constraints {
+            key
+            description
+          }
+          field
+        }
+      }
+      ... on BaseError {
+        message
       }
     }
   }
@@ -1240,16 +1548,23 @@ export class GraphqlService {
       variables: CreateCommunityMutationVariables;
     }
   ): Promise<
-    import("@apollo/client/core").SingleExecutionResult<CreateCommunityMutation>
+    Omit<
+      import("@apollo/client/core").FetchResult<CreateCommunityMutation>,
+      "data"
+    > & { data: CreateCommunityMutation }
   > {
     const finalOptions = {
       ...options,
       mutation: CreateCommunityDocument,
     };
-    return this.client.mutate<
+    const result = await this.client.mutate<
       CreateCommunityMutation,
       CreateCommunityMutationVariables
     >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
   }
 
   async getCommunity(
@@ -1269,9 +1584,14 @@ export class GraphqlService {
       ...options,
       query: GetCommunityDocument,
     };
-    return this.client.query<GetCommunityQuery, GetCommunityQueryVariables>(
-      finalOptions
-    );
+    const result = await this.client.query<
+      GetCommunityQuery,
+      GetCommunityQueryVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
   }
 
   async getCritters(
@@ -1286,16 +1606,19 @@ export class GraphqlService {
     > & {
       variables: GetCrittersQueryVariables;
     }
-  ): Promise<
-    import("@apollo/client/core").SingleExecutionResult<GetCrittersQuery>
-  > {
+  ) {
     const finalOptions = {
       ...options,
       query: GetCrittersDocument,
     };
-    return this.client.query<GetCrittersQuery, GetCrittersQueryVariables>(
-      finalOptions
-    );
+    const result = await this.client.query<
+      GetCrittersQuery,
+      GetCrittersQueryVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
   }
 
   async createSpeciesTrait(
@@ -1311,16 +1634,23 @@ export class GraphqlService {
       variables: CreateSpeciesTraitMutationVariables;
     }
   ): Promise<
-    import("@apollo/client/core").SingleExecutionResult<CreateSpeciesTraitMutation>
+    Omit<
+      import("@apollo/client/core").FetchResult<CreateSpeciesTraitMutation>,
+      "data"
+    > & { data: CreateSpeciesTraitMutation }
   > {
     const finalOptions = {
       ...options,
       mutation: CreateSpeciesTraitDocument,
     };
-    return this.client.mutate<
+    const result = await this.client.mutate<
       CreateSpeciesTraitMutation,
       CreateSpeciesTraitMutationVariables
     >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
   }
 
   async deleteTrait(
@@ -1336,16 +1666,23 @@ export class GraphqlService {
       variables: DeleteTraitMutationVariables;
     }
   ): Promise<
-    import("@apollo/client/core").SingleExecutionResult<DeleteTraitMutation>
+    Omit<
+      import("@apollo/client/core").FetchResult<DeleteTraitMutation>,
+      "data"
+    > & { data: DeleteTraitMutation }
   > {
     const finalOptions = {
       ...options,
       mutation: DeleteTraitDocument,
     };
-    return this.client.mutate<
+    const result = await this.client.mutate<
       DeleteTraitMutation,
       DeleteTraitMutationVariables
     >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
   }
 
   async getSpeciesDetail(
@@ -1360,17 +1697,19 @@ export class GraphqlService {
     > & {
       variables: GetSpeciesDetailQueryVariables;
     }
-  ): Promise<
-    import("@apollo/client/core").SingleExecutionResult<GetSpeciesDetailQuery>
-  > {
+  ) {
     const finalOptions = {
       ...options,
       query: GetSpeciesDetailDocument,
     };
-    return this.client.query<
+    const result = await this.client.query<
       GetSpeciesDetailQuery,
       GetSpeciesDetailQueryVariables
     >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
   }
 
   async getSpeciesTraits(
@@ -1385,17 +1724,19 @@ export class GraphqlService {
     > & {
       variables: GetSpeciesTraitsQueryVariables;
     }
-  ): Promise<
-    import("@apollo/client/core").SingleExecutionResult<GetSpeciesTraitsQuery>
-  > {
+  ) {
     const finalOptions = {
       ...options,
       query: GetSpeciesTraitsDocument,
     };
-    return this.client.query<
+    const result = await this.client.query<
       GetSpeciesTraitsQuery,
       GetSpeciesTraitsQueryVariables
     >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
   }
 
   async modifySpeciesTrait(
@@ -1411,16 +1752,23 @@ export class GraphqlService {
       variables: ModifySpeciesTraitMutationVariables;
     }
   ): Promise<
-    import("@apollo/client/core").SingleExecutionResult<ModifySpeciesTraitMutation>
+    Omit<
+      import("@apollo/client/core").FetchResult<ModifySpeciesTraitMutation>,
+      "data"
+    > & { data: ModifySpeciesTraitMutation }
   > {
     const finalOptions = {
       ...options,
       mutation: ModifySpeciesTraitDocument,
     };
-    return this.client.mutate<
+    const result = await this.client.mutate<
       ModifySpeciesTraitMutation,
       ModifySpeciesTraitMutationVariables
     >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
   }
 
   async createSpecies(
@@ -1436,16 +1784,23 @@ export class GraphqlService {
       variables: CreateSpeciesMutationVariables;
     }
   ): Promise<
-    import("@apollo/client/core").SingleExecutionResult<CreateSpeciesMutation>
+    Omit<
+      import("@apollo/client/core").FetchResult<CreateSpeciesMutation>,
+      "data"
+    > & { data: CreateSpeciesMutation }
   > {
     const finalOptions = {
       ...options,
       mutation: CreateSpeciesDocument,
     };
-    return this.client.mutate<
+    const result = await this.client.mutate<
       CreateSpeciesMutation,
       CreateSpeciesMutationVariables
     >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
   }
 
   async getSpeciesListView(
@@ -1460,16 +1815,259 @@ export class GraphqlService {
     > & {
       variables: GetSpeciesListViewQueryVariables;
     }
-  ): Promise<
-    import("@apollo/client/core").SingleExecutionResult<GetSpeciesListViewQuery>
-  > {
+  ) {
     const finalOptions = {
       ...options,
       query: GetSpeciesListViewDocument,
     };
-    return this.client.query<
+    const result = await this.client.query<
       GetSpeciesListViewQuery,
       GetSpeciesListViewQueryVariables
     >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
   }
+}
+
+function hasData(result: any): result is { data: {} } {
+  return Boolean(result && result.data);
+}
+
+export function hasTypeName<T extends string>(
+  val: any,
+  typename: T
+): val is { __typeName: T } {
+  return val && typeof val === "object" && val.__typename === typename;
+}
+
+export function isAccount(val: unknown): val is { __typename: "Account" } {
+  return hasTypeName(val, "Account");
+}
+
+export type NarrowToAccount<T> = T extends { __typename?: "Account" }
+  ? T
+  : never;
+
+export function isCommunity(val: unknown): val is { __typename: "Community" } {
+  return hasTypeName(val, "Community");
+}
+
+export type NarrowToCommunity<T> = T extends { __typename?: "Community" }
+  ? T
+  : never;
+
+export function isCommunityList(
+  val: unknown
+): val is { __typename: "CommunityList" } {
+  return hasTypeName(val, "CommunityList");
+}
+
+export type NarrowToCommunityList<T> = T extends {
+  __typename?: "CommunityList";
+}
+  ? T
+  : never;
+
+export function isCritter(val: unknown): val is { __typename: "Critter" } {
+  return hasTypeName(val, "Critter");
+}
+
+export type NarrowToCritter<T> = T extends { __typename?: "Critter" }
+  ? T
+  : never;
+
+export function isCritterIntTrait(
+  val: unknown
+): val is { __typename: "CritterIntTrait" } {
+  return hasTypeName(val, "CritterIntTrait");
+}
+
+export type NarrowToCritterIntTrait<T> = T extends {
+  __typename?: "CritterIntTrait";
+}
+  ? T
+  : never;
+
+export function isCritterStringTrait(
+  val: unknown
+): val is { __typename: "CritterStringTrait" } {
+  return hasTypeName(val, "CritterStringTrait");
+}
+
+export type NarrowToCritterStringTrait<T> = T extends {
+  __typename?: "CritterStringTrait";
+}
+  ? T
+  : never;
+
+export function isCritterTimestampTrait(
+  val: unknown
+): val is { __typename: "CritterTimestampTrait" } {
+  return hasTypeName(val, "CritterTimestampTrait");
+}
+
+export type NarrowToCritterTimestampTrait<T> = T extends {
+  __typename?: "CritterTimestampTrait";
+}
+  ? T
+  : never;
+
+export function isDuplicateError(
+  val: unknown
+): val is { __typename: "DuplicateError" } {
+  return hasTypeName(val, "DuplicateError");
+}
+
+export type NarrowToDuplicateError<T> = T extends {
+  __typename?: "DuplicateError";
+}
+  ? T
+  : never;
+
+export function isEnumValue(val: unknown): val is { __typename: "EnumValue" } {
+  return hasTypeName(val, "EnumValue");
+}
+
+export type NarrowToEnumValue<T> = T extends { __typename?: "EnumValue" }
+  ? T
+  : never;
+
+export function isIdentity(val: unknown): val is { __typename: "Identity" } {
+  return hasTypeName(val, "Identity");
+}
+
+export type NarrowToIdentity<T> = T extends { __typename?: "Identity" }
+  ? T
+  : never;
+
+export function isInvalidArgumentError(
+  val: unknown
+): val is { __typename: "InvalidArgumentError" } {
+  return hasTypeName(val, "InvalidArgumentError");
+}
+
+export type NarrowToInvalidArgumentError<T> = T extends {
+  __typename?: "InvalidArgumentError";
+}
+  ? T
+  : never;
+
+export function isLoginResponse(
+  val: unknown
+): val is { __typename: "LoginResponse" } {
+  return hasTypeName(val, "LoginResponse");
+}
+
+export type NarrowToLoginResponse<T> = T extends {
+  __typename?: "LoginResponse";
+}
+  ? T
+  : never;
+
+export function isMutation(val: unknown): val is { __typename: "Mutation" } {
+  return hasTypeName(val, "Mutation");
+}
+
+export type NarrowToMutation<T> = T extends { __typename?: "Mutation" }
+  ? T
+  : never;
+
+export function isNotFoundError(
+  val: unknown
+): val is { __typename: "NotFoundError" } {
+  return hasTypeName(val, "NotFoundError");
+}
+
+export type NarrowToNotFoundError<T> = T extends {
+  __typename?: "NotFoundError";
+}
+  ? T
+  : never;
+
+export function isQuery(val: unknown): val is { __typename: "Query" } {
+  return hasTypeName(val, "Query");
+}
+
+export type NarrowToQuery<T> = T extends { __typename?: "Query" } ? T : never;
+
+export function isSpecies(val: unknown): val is { __typename: "Species" } {
+  return hasTypeName(val, "Species");
+}
+
+export type NarrowToSpecies<T> = T extends { __typename?: "Species" }
+  ? T
+  : never;
+
+export function isSpeciesList(
+  val: unknown
+): val is { __typename: "SpeciesList" } {
+  return hasTypeName(val, "SpeciesList");
+}
+
+export type NarrowToSpeciesList<T> = T extends { __typename?: "SpeciesList" }
+  ? T
+  : never;
+
+export function isTrait(val: unknown): val is { __typename: "Trait" } {
+  return hasTypeName(val, "Trait");
+}
+
+export type NarrowToTrait<T> = T extends { __typename?: "Trait" } ? T : never;
+
+export function isTraitList(val: unknown): val is { __typename: "TraitList" } {
+  return hasTypeName(val, "TraitList");
+}
+
+export type NarrowToTraitList<T> = T extends { __typename?: "TraitList" }
+  ? T
+  : never;
+
+export function isTraitListEntry(
+  val: unknown
+): val is { __typename: "TraitListEntry" } {
+  return hasTypeName(val, "TraitListEntry");
+}
+
+export type NarrowToTraitListEntry<T> = T extends {
+  __typename?: "TraitListEntry";
+}
+  ? T
+  : never;
+
+export function isValidationConstraint(
+  val: unknown
+): val is { __typename: "ValidationConstraint" } {
+  return hasTypeName(val, "ValidationConstraint");
+}
+
+export type NarrowToValidationConstraint<T> = T extends {
+  __typename?: "ValidationConstraint";
+}
+  ? T
+  : never;
+
+export function isValidationError(
+  val: unknown
+): val is { __typename: "ValidationError" } {
+  return hasTypeName(val, "ValidationError");
+}
+
+export type NarrowToValidationError<T> = T extends {
+  __typename?: "ValidationError";
+}
+  ? T
+  : never;
+
+export function isBaseError(val: any): val is {
+  __typename?: "DuplicateError" | "InvalidArgumentError" | "NotFoundError";
+} {
+  return (
+    val &&
+    val.__typename &&
+    (val.__typename === "DuplicateError" ||
+      val.__typename === "InvalidArgumentError" ||
+      val.__typename === "NotFoundError")
+  );
 }

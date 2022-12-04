@@ -1,22 +1,26 @@
 query getSpeciesDetail($filters: SpeciesFilters) {
   species(filters: $filters) {
-    id
-    name
-    traitLists {
-      id
-      name
-      traitListEntries {
+    ... on SpeciesList {
+      list {
         id
-        defaultDisplayValue
-        order
-        required
-        trait {
+        name
+        traitLists {
           id
           name
-          valueType
-          enumValues {
+          traitListEntries {
             id
-            name
+            defaultDisplayValue
+            order
+            required
+            trait {
+              id
+              name
+              valueType
+              enumValues {
+                id
+                name
+              }
+            }
           }
         }
       }

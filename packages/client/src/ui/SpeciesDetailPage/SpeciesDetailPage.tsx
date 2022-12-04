@@ -1,5 +1,8 @@
 import { FC, ReactNode, useMemo } from "react";
-import { GetSpeciesDetailQuery } from "@clovercoin/api-client";
+import {
+  GetSpeciesDetailQuery,
+  NarrowToSpeciesList,
+} from "@clovercoin/api-client";
 import { HeaderBar } from "../HeaderBar/HeaderBar";
 import { HeaderBarProps } from "../HeaderBar/HeaderBarProps";
 import { useRouteCommunity } from "../../useRouteCommunity";
@@ -13,7 +16,9 @@ import { AppRoutes } from "../AppRoutes";
 
 export interface SpeciesDetailPageProps {
   headerBarProps: HeaderBarProps;
-  species: GetSpeciesDetailQuery["species"][number];
+  species: NarrowToSpeciesList<
+    GetSpeciesDetailQuery["species"]
+  >["list"][number];
   children?: ReactNode;
 }
 
@@ -78,7 +83,7 @@ export const SpeciesDetailPage: FC<SpeciesDetailPageProps> = ({
         <SideNav navItems={navGroups} />
         <div css={{ flexGrow: 1 }}>
           <Toolbar />
-          <div css={{ padding: "18px" }}>{children}</div>
+          <div css={(theme) => ({ padding: theme.spacing(2) })}>{children}</div>
         </div>
       </div>
     </>

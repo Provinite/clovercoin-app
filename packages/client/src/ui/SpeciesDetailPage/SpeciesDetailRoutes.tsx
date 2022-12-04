@@ -4,7 +4,12 @@
  */
 import { LoaderFunctionArgs, ActionFunctionArgs } from "react-router-dom";
 import { graphqlService } from "../../client";
-import { CritterTraitValueType } from "@clovercoin/api-client";
+import {
+  CritterTraitValueType,
+  isInvalidArgumentError,
+  isSpeciesList,
+  isTrait,
+} from "@clovercoin/api-client";
 import { typedRouteConfig } from "../../routes";
 import { slugToUuid } from "../../utils/uuidUtils";
 import { AddTraitCard } from "./AddTraitCard/AddTraitCard";
@@ -82,7 +87,7 @@ async function speciesDetailLoader({
   communityId = slugToUuid(communityId);
   speciesId = slugToUuid(speciesId);
 
-  const result = await graphqlService.getSpeciesDetail({
+  const { data } = await graphqlService.getSpeciesDetail({
     variables: {
       filters: {
         id: speciesId,
@@ -91,7 +96,13 @@ async function speciesDetailLoader({
     },
   });
 
-  return result.data.species[0];
+  if (isSpeciesList(data.species)) {
+    return data.species.list[0];
+  }
+  if (isInvalidArgumentError(data.species)) {
+    throw new Error("404");
+  }
+  throw new Error(data.species.__typename);
 }
 
 /**
@@ -127,7 +138,7 @@ async function traitListAction({
     speciesId = slugToUuid(speciesId);
     const formData = await request.formData();
     let i = 0;
-    await graphqlService.createSpeciesTrait({
+    const { data } = await graphqlService.createSpeciesTrait({
       variables: {
         input: {
           name: formData.get("name") as string,
@@ -139,18 +150,22 @@ async function traitListAction({
             .map((name) => ({ name: name as string, order: i++ })),
         },
       },
-      update(cache) {
-        cache.modify({
-          fields: {
-            traits: (_data, { DELETE, storeFieldName }) => {
-              if (storeFieldName.includes(speciesId!)) {
-                return DELETE;
-              }
+      update(cache, { data }) {
+        if (isTrait(data!.createTrait)) {
+          cache.modify({
+            fields: {
+              traits: (_data, { DELETE, storeFieldName }) => {
+                if (storeFieldName.includes(speciesId!)) {
+                  return DELETE;
+                }
+              },
             },
-          },
-        });
+          });
+        }
       },
     });
+
+    return data.createTrait;
   }
 }
 

@@ -10,6 +10,12 @@ type Account {
   username: String!
 }
 
+interface BaseError {
+  message: String!
+}
+
+union CommunitiesResponse = CommunityList | InvalidArgumentError
+
 type Community {
   id: ID!
   name: String!
@@ -23,6 +29,14 @@ input CommunityFilters {
   id: ID = null
   name: String = null
 }
+
+type CommunityList {
+  list: [Community!]!
+}
+
+union CommunityResponse = Community | InvalidArgumentError | NotFoundError
+
+union CreateCommunityResponse = Community | DuplicateError | InvalidArgumentError
 
 type Critter {
   id: ID!
@@ -103,6 +117,11 @@ The javascript `Date` as string. Type represents date and time as the ISO Date s
 """
 scalar DateTime
 
+type DuplicateError implements BaseError {
+  duplicateKeys: [String!]!
+  message: String!
+}
+
 type EnumValue {
   id: ID!
   name: String!
@@ -117,6 +136,11 @@ type Identity {
   id: ID!
 }
 
+type InvalidArgumentError implements BaseError {
+  message: String!
+  validationErrors: [ValidationError!]!
+}
+
 input LoginArgs {
   password: String = ""
   username: String = ""
@@ -129,10 +153,11 @@ type LoginResponse {
 }
 
 type Mutation {
-  createCommunity(input: CommunityCreateInput!): Community!
+  """Create a new community"""
+  createCommunity(input: CommunityCreateInput!): CreateCommunityResponse!
   createCritter(input: CritterCreateInput!): Critter!
   createCritterTrait(input: CritterTraitCreateInput!): CritterTraitUnion!
-  createSpecies(input: SpeciesCreateInput!): Species!
+  createSpecies(input: SpeciesCreateInput!): SpeciesCreateResponse!
   createTrait(input: TraitCreateInput!): Trait!
   createTraitList(input: TraitListCreateInput!): TraitList!
   createTraitListEntry(input: TraitListEntryCreateInput!): TraitListEntry!
@@ -146,11 +171,18 @@ type Mutation {
   register(input: RegisterArgs!): LoginResponse!
 }
 
+type NotFoundError implements BaseError {
+  message: String!
+}
+
 type Query {
-  communities(filters: CommunityFilters!): [Community!]!
-  community(filters: CommunityFilters!): Community!
+  """Fetch a list of communities with filtering"""
+  communities(filters: CommunityFilters!): CommunitiesResponse!
+
+  """Fetch a community by id and/or name"""
+  community(filters: CommunityFilters!): CommunityResponse!
   critters: [Critter!]!
-  species(filters: SpeciesFilters): [Species!]!
+  species(filters: SpeciesFilters): SpeciesResponse!
   traits(filters: TraitFilters!): [Trait!]!
 }
 
@@ -161,7 +193,7 @@ input RegisterArgs {
 }
 
 """
-Model representing an arbitrarily broad class of charcters that use common trait lists and administration.
+Model representing an arbitrarily broad class of characters that use common trait lists and administration.
 """
 type Species {
   """Community that owns this species"""
@@ -186,11 +218,19 @@ input SpeciesCreateInput {
   name: String!
 }
 
+union SpeciesCreateResponse = DuplicateError | InvalidArgumentError | Species
+
 input SpeciesFilters {
   communityId: ID!
   id: ID = null
   name: String = null
 }
+
+type SpeciesList {
+  list: [Species!]!
+}
+
+union SpeciesResponse = InvalidArgumentError | SpeciesList
 
 type Trait {
   enumValues: [EnumValue!]!
@@ -259,4 +299,14 @@ input TraitModifyInput {
   id: ID!
   name: String!
   valueType: CritterTraitValueType!
+}
+
+type ValidationConstraint {
+  description: String!
+  key: String!
+}
+
+type ValidationError {
+  constraints: [ValidationConstraint!]!
+  field: String!
 }

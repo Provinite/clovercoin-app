@@ -15,10 +15,11 @@ import { registerControllers } from "./business/registerControllers";
 import { ResolversArray } from "./business/Resolvers";
 import { logger } from "./util/logger";
 import { createChildContainer } from "./awilix/createChildContainer";
-import { GraphQLError, print } from "graphql";
-import { QueryFailedError } from "typeorm";
 import { dataSource } from "./db/dbConnection";
-
+import { DuplicateError } from "./errors/DuplicateError";
+import { InvalidArgumentError } from "./errors/InvalidArgumentError";
+import { print } from "graphql";
+import { BaseError } from "./errors/BaseError";
 export const createCloverCoinAppServer = async () => {
   const db = await dataSource.initialize();
 
@@ -107,26 +108,6 @@ export const createCloverCoinAppServer = async () => {
               schema,
               graphiql: true,
               context: requestContainer.cradle,
-              customFormatErrorFn(err: GraphQLError) {
-                if (err.originalError instanceof QueryFailedError) {
-                  if (
-                    err.originalError?.driverError?.code?.toString() === "23505"
-                  ) {
-                    // DUPLICATE KEY
-                    const pattern = /\((?<field>.*?)\)=\((?<value>.*?)\)/g;
-                    const errorDetail: string =
-                      err.originalError.driverError.detail ?? "";
-
-                    const messages: string[] = [];
-                    for (const match of errorDetail.matchAll(pattern)) {
-                      const { field } = match.groups!;
-                      messages.push(`${field}`);
-                    }
-                    err.message = `Duplicate ${messages.join(", ")}`;
-                  }
-                }
-                return err;
-              },
             };
           }
         )
@@ -144,6 +125,20 @@ const errorHandler: MiddlewareFn<AppGraphqlContext> = async (
     return await next();
   } catch (err) {
     logger.error(err);
+    if (err instanceof BaseError) {
+      return err;
+    }
+
+    const asDuplicate = DuplicateError.fromPostgresError(err);
+    if (asDuplicate) {
+      return asDuplicate;
+    }
+
+    const asInvalidArgError =
+      InvalidArgumentError.fromTypegraphqlValidationError(err);
+    if (asInvalidArgError) {
+      return asInvalidArgError;
+    }
 
     throw err;
   }
@@ -153,7 +148,7 @@ const loggingMiddleware: MiddlewareFn<AppGraphqlContext> = async (
   { context: { logger }, info, root },
   next
 ) => {
-  if (root === undefined) {
+  if (!root) {
     logger.info({
       message: "Request started",
       path: print(info.operation),

@@ -9,3 +9,6 @@ generates:
       # - "typescript-react-apollo"
       - "typescript-apollo-client-helpers"
       - "typescript-generic-sdk"
+    config:
+      exportFragmentSpreadSubTypes: true
+      declarationKind: "interface"

@@ -1,20 +1,27 @@
+import { IsUUID, MinLength } from "class-validator";
 import {
   Arg,
+  createUnionType,
   Ctx,
   Field,
   ID,
   InputType,
   Mutation,
+  ObjectType,
   Query,
   Resolver,
 } from "type-graphql";
 import { FindManyOptions, ILike } from "typeorm";
+import { DuplicateError } from "../../errors/DuplicateError";
+import { InvalidArgumentError } from "../../errors/InvalidArgumentError";
+import { NotFoundError } from "../../errors/NotFoundError";
 import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
 import { Community } from "./Community";
 
 @InputType()
 export class CommunityCreateInput {
   @Field(() => String)
+  @MinLength(3)
   name!: string;
 }
 
@@ -30,26 +37,64 @@ export class CommunityFilters {
     nullable: true,
     defaultValue: null,
   })
+  @IsUUID(4)
   id!: string | null;
+}
+
+/**
+ * CreateCommunity mutation response type with all
+ * known errors.
+ */
+const CreateCommunityResponse = createUnionType({
+  name: "CreateCommunityResponse",
+  types: () => [Community, DuplicateError, InvalidArgumentError],
+});
+
+const CommunityResponse = createUnionType({
+  name: "CommunityResponse",
+  types: () => [Community, NotFoundError, InvalidArgumentError],
+});
+
+const CommunitiesResponse = createUnionType({
+  name: "CommunitiesResponse",
+  types: () => [CommunityList, InvalidArgumentError],
+});
+
+@ObjectType()
+class CommunityList {
+  constructor(list: Community[] = []) {
+    this.list = list;
+  }
+  @Field(() => [Community])
+  list!: Community[];
 }
 
 @Resolver(() => Community)
 export class CommunityResolver {
-  @Mutation(() => Community)
+  @Mutation(() => CreateCommunityResponse, {
+    description: "Create a new community",
+  })
   async createCommunity(
     @Arg("input") input: CommunityCreateInput,
     @Ctx() { communityController }: AppGraphqlContext
   ): Promise<Community> {
-    return await communityController.create(input);
+    return communityController.create(input);
   }
 
-  @Query(() => [Community])
+  /**
+   * Fetch multiple communities
+   * @param ctx gql context
+   * @param communityFilters filters
+   * @returns
+   */
+  @Query(() => CommunitiesResponse, {
+    description: "Fetch a list of communities with filtering",
+  })
   async communities(
     @Ctx() { communityRepository }: AppGraphqlContext,
     @Arg("filters") communityFilters: CommunityFilters
-  ) {
+  ): Promise<CommunityList> {
     const filters: FindManyOptions<Community> = {};
-
     if (communityFilters) {
       const { id, name } = communityFilters;
       filters.where = {};
@@ -60,20 +105,28 @@ export class CommunityResolver {
         filters.where.name = ILike(`%${name}%`);
       }
     }
-    return await communityRepository.find(filters);
+    return new CommunityList(await communityRepository.find(filters));
   }
 
-  @Query(() => Community)
+  /**
+   *
+   * @param ctx gql context
+   * @param communityFilters filters
+   * @returns A single community
+   */
+  @Query(() => CommunityResponse, {
+    description: "Fetch a community by id and/or name",
+  })
   async community(
-    @Arg("filters") filters: CommunityFilters,
-    @Ctx() { communityController }: AppGraphqlContext
+    @Ctx() { communityController }: AppGraphqlContext,
+    @Arg("filters") communityFilters: CommunityFilters
   ) {
     const result = await communityController.find({
-      name: filters.name ?? undefined,
-      id: filters.id ?? undefined,
+      name: communityFilters.name ?? undefined,
+      id: communityFilters.id ?? undefined,
     });
     if (!result.length) {
-      throw new Error("404");
+      throw new NotFoundError();
     }
     return result[0];
   }

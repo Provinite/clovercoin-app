@@ -1,6 +1,26 @@
 mutation createCommunity($input: CommunityCreateInput!) {
   createCommunity(input: $input) {
-    id
-    name
+    __typename
+    ... on Community {
+      name
+      id
+    }
+    ... on DuplicateError {
+      duplicateKeys
+      message
+    }
+    ... on InvalidArgumentError {
+      message
+      validationErrors {
+        constraints {
+          key
+          description
+        }
+        field
+      }
+    }
+    ... on BaseError {
+      message
+    }
   }
 }

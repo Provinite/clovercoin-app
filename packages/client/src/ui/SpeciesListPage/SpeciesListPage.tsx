@@ -8,7 +8,10 @@ import React, {
 } from "react";
 import { HeaderBar } from "../HeaderBar/HeaderBar";
 import { HeaderBarProps } from "../HeaderBar/HeaderBarProps";
-import { GetSpeciesListViewQuery } from "@clovercoin/api-client";
+import {
+  GetSpeciesListViewQuery,
+  NarrowToSpeciesList,
+} from "@clovercoin/api-client";
 import { SpeciesCard } from "../SpeciesCard/SpeciesCard";
 import { useFetcher } from "react-router-dom";
 import { useRouteCommunity } from "../../useRouteCommunity";
@@ -41,9 +44,11 @@ import {
 } from "../SequentialSnackbar/SequentialSnackbar";
 export interface SpeciesListPageProps {
   headerBarProps: HeaderBarProps;
-  data: GetSpeciesListViewQuery;
+  data: NarrowToSpeciesList<GetSpeciesListViewQuery["species"]>;
   onSpeciesClick?: (
-    species: GetSpeciesListViewQuery["species"][number]
+    species: NarrowToSpeciesList<
+      GetSpeciesListViewQuery["species"]
+    >["list"][number]
   ) => void;
 }
 
@@ -53,7 +58,8 @@ export const SpeciesListPage: FC<SpeciesListPageProps> = ({
   onSpeciesClick,
 }) => {
   const [showAddForm, setShowAddForm] = useState(false);
-  const fetcher = useFetcher();
+  const fetcher =
+    useFetcher<ActionData<RouteType<"root.community.species-list">>>();
   const community = useRouteCommunity();
   const [name, setName] = useState("");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -61,16 +67,13 @@ export const SpeciesListPage: FC<SpeciesListPageProps> = ({
   const snackbarQueue = useSnackbarQueue();
   useEffect(() => {
     if (fetcher.state === "idle") {
-      const data = fetcher.data as ActionData<
-        RouteType<"root.community.species-list">
-      >;
-
+      const data = fetcher.data;
       if (data) {
         // error
         snackbarQueue.append({
           children: (
             <Alert severity="error" onClose={snackbarQueue.close}>
-              Failed to create species {data.message}
+              Failed to create species: {data.message}
             </Alert>
           ),
         });
@@ -104,7 +107,7 @@ export const SpeciesListPage: FC<SpeciesListPageProps> = ({
         <div css={{ flexGrow: 1 }}>
           <Toolbar />
           <Grid container css={{ paddingTop: "18px" }} spacing={2}>
-            {data.species.map((s) => (
+            {data.list.map((s) => (
               <Grid
                 item
                 xs={12}

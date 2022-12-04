@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`mutation: createCommunity creates a community 1`] = `
+{
+  "__typename": "Community",
+  "id": Any<String>,
+  "name": "Test Community",
+}
+`;

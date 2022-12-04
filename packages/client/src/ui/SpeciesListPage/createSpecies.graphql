@@ -1,21 +1,40 @@
 mutation createSpecies($input: SpeciesCreateInput!) {
+  __typename
   createSpecies(input: $input) {
-    id
-    name
-    iconUrl
-    traitLists {
+    ... on Species {
       id
       name
-      traitListEntries {
+      iconUrl
+      traitLists {
         id
-        trait {
-          name
-          valueType
+        name
+        traitListEntries {
+          id
+          trait {
+            name
+            valueType
+          }
+          order
+          required
+          defaultDisplayValue
         }
-        order
-        required
-        defaultDisplayValue
       }
+    }
+    ... on DuplicateError {
+      duplicateKeys
+      message
+    }
+    ... on InvalidArgumentError {
+      message
+      validationErrors {
+        constraints {
+          description
+          key
+        }
+      }
+    }
+    ... on BaseError {
+      message
     }
   }
 }

@@ -8,22 +8,13 @@
       "type": "node-terminal",
       "request": "launch",
       "name": "API (yarn start)",
-      "command": "yarn start",
-      "cwd": "${workspaceFolder}/packages/api"
-    },
-    {
-      "type": "node-terminal",
-      "request": "launch",
-      "name": "Codegen",
-      "command": "yarn ts-node ./tools/service-generation/generate-services.ts",
-      "cwd": "${workspaceFolder}/packages/client"
+      "command": "yarn workspace @clovercoin/api start"
     },
     {
       "type": "node-terminal",
       "request": "launch",
       "name": "Integration Tests",
-      "command": "yarn test-integration",
-      "cwd": "${workspaceFolder}/packages/api"
+      "command": "yarn workspace @clovercoin/api test-integration"
     }
   ]
 }

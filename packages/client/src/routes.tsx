@@ -3,7 +3,11 @@
  * for the entire application, as well as type utilities to improve
  * type-safety when interacting with react-router-dom.
  */
-import { ApolloError } from "@apollo/client";
+import {
+  isBaseError,
+  isCommunity,
+  isSpeciesList,
+} from "@clovercoin/api-client";
 import {
   Navigate,
   useRouteError,
@@ -50,7 +54,12 @@ export const routes = [
             },
           });
 
-          return result.data?.community;
+          if (isCommunity(result.data.community)) {
+            return result.data.community;
+          }
+          throw new Error(
+            `${result.data.community.__typename}: ${result.data.community.message}`
+          );
         },
         children: [
           {
@@ -62,7 +71,6 @@ export const routes = [
             id: "root.community.species-list",
             path: "species",
             element: <SpeciesListProvider />,
-            errorElement: <SpeciesListProvider />,
             loader: async ({ params: { communityId } }: LoaderFunctionArgs) => {
               if (!communityId) {
                 throw new Error("Missing community id in route");
@@ -74,7 +82,11 @@ export const routes = [
                 },
               });
 
-              return result.data;
+              if (!isSpeciesList(result.data.species)) {
+                throw new Error("404");
+              }
+
+              return result.data.species;
             },
             action: async ({
               params: { communityId: communitySlug },
@@ -87,30 +99,33 @@ export const routes = [
                   throw new Error("Missing community id in route");
                 }
                 const communityId = slugToUuid(communitySlug);
-                try {
-                  await graphqlService.createSpecies({
-                    variables: {
-                      input: {
-                        communityId: communityId,
-                        name: formData.get("name") as string,
-                        iconUrl: formData.get("iconUrl") as string,
-                      },
+                const result = await graphqlService.createSpecies({
+                  variables: {
+                    input: {
+                      communityId: communityId,
+                      name: formData.get("name") as string,
+                      iconUrl: formData.get("iconUrl") as string,
                     },
-                    update(cache) {
-                      // bop any cached species list queries for this community
-                      cache.modify({
-                        fields: {
-                          species: (_data, { DELETE, storeFieldName }) => {
-                            if (storeFieldName.includes(communityId)) {
-                              return DELETE;
-                            }
-                          },
+                  },
+                  update(cache, { data }) {
+                    if (isBaseError(data)) {
+                      return;
+                    }
+                    // bop any cached species list queries for this community (if we succeeded)
+                    cache.modify({
+                      fields: {
+                        species: (_data, { DELETE, storeFieldName }) => {
+                          if (storeFieldName.includes(communityId)) {
+                            return DELETE;
+                          }
                         },
-                      });
-                    },
-                  });
-                } catch (err) {
-                  return err as ApolloError;
+                      },
+                    });
+                  },
+                });
+
+                if (isBaseError(result.data.createSpecies)) {
+                  return result.data.createSpecies;
                 }
               }
             },
