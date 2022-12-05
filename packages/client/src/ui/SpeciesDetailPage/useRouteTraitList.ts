@@ -7,16 +7,16 @@ import { useRouteSpecies } from "./useRouteSpecies";
  * on the species detail query containing all variants.
  * @see useRouteSpecies
  */
-export const useRouteTraitList = () => {
+export const useRouteVariant = () => {
   const species = useRouteSpecies();
   const { traitListId: traitListSlug } = useParams();
   if (!traitListSlug) {
-    throw new Error("Invalid trait list id");
+    throw new Error("Invalid variant id");
   }
   const traitUuid = slugToUuid(traitListSlug);
   const traitList = species.traitLists.find((tl) => tl.id === traitUuid);
   if (!traitList) {
-    throw new Error("Invalid trait list id");
+    throw new Error("Invalid variant id");
   }
   return traitList;
 };

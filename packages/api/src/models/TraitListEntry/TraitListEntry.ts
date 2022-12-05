@@ -1,13 +1,12 @@
 import { Field, ID, Int, ObjectType } from "type-graphql";
-import { TypeormLoader } from "type-graphql-dataloader";
-import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
+import { Column, Entity } from "typeorm";
 import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes";
 import { IdField, ManyToOneField } from "../relationFieldDecorators";
 import { Trait } from "../Trait/Trait";
 import { TraitList } from "../TraitList/TraitList";
 
 /**
- * Model representing a single entry on a trait list.
+ * Model representing a single entry on a variant's trait list.
  */
 @Entity()
 @ObjectType()
@@ -35,7 +34,7 @@ export class TraitListEntry {
   trait!: Trait;
 
   /**
-   * The trait list for this entry
+   * The variant for this entry
    */
   @ManyToOneField({
     nullable: false,
@@ -53,7 +52,7 @@ export class TraitListEntry {
   traitId!: string;
 
   /**
-   * ID of the trait list for this entry
+   * ID of the variant for this entry
    */
   @Column("uuid", { nullable: false })
   @Field(() => ID)
@@ -69,7 +68,7 @@ export class TraitListEntry {
   order!: number;
 
   /**
-   * True if the field is required on a critter using this trait list
+   * True if the field is required on a critter using this variant
    */
   @Column()
   @Field(() => Boolean)

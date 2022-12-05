@@ -1,15 +1,13 @@
-import { Theme } from "@emotion/react";
 import {
   Alert,
   Box,
   Card,
   CardContent,
   CardHeader,
-  Divider,
   Grid,
   Typography,
 } from "@mui/material";
-import { FC, FunctionComponent, ReactNode, useEffect, useState } from "react";
+import { FunctionComponent, useEffect, useState } from "react";
 import { AddBadge } from "../../AddBadge/AddBadge";
 import { useRouteSpecies } from "../useRouteSpecies";
 import TuneIcon from "@mui/icons-material/Tune";
@@ -24,6 +22,7 @@ import {
   SequentialSnackbar,
   useSnackbarQueue,
 } from "../../SequentialSnackbar/SequentialSnackbar";
+import { GridRow } from "../../lib/GridRow";
 export const TraitListCard: FunctionComponent = () => {
   const data = useRouteTraits();
   const species = useRouteSpecies();
@@ -61,7 +60,7 @@ export const TraitListCard: FunctionComponent = () => {
           </AddBadge>
         }
         subheader={`All traits available to ${species.name} are listed here.`}
-      ></CardHeader>
+      />
       <CardContent>
         <Grid container component={Box}>
           <GridRow xs={[3, 3, 6]} xl={[3, 3, 6]}>
@@ -154,70 +153,5 @@ export const TraitListCard: FunctionComponent = () => {
         </Grid>
       </CardContent>
     </Card>
-  );
-};
-
-const ss = {
-  gridRow: (theme: Theme) => ({
-    display: "contents",
-    ":hover": {
-      "& .MuiGrid-item": {
-        backgroundColor: theme.palette.action.hover,
-      },
-    },
-  }),
-  gridRowActive: (theme: Theme) => ({
-    "& .MuiGrid-item": {
-      backgroundColor: theme.palette.action.selected,
-    },
-  }),
-};
-
-const GridRow: FC<{
-  children?: ReactNode[];
-  xs?: number[];
-  sm?: number[];
-  selected?: boolean;
-  md?: number[];
-  lg?: number[];
-  xl?: number[];
-}> = ({
-  children,
-  xs = [],
-  sm = [],
-  md = [],
-  lg = [],
-  xl = [],
-  selected = false,
-}) => {
-  return (
-    <Box css={[ss.gridRow, selected ? ss.gridRowActive : null]}>
-      {children?.map((c, i) => {
-        const gridProps = {
-          xs: xs[i],
-          sm: sm[i],
-          md: md[i],
-          lg: lg[i],
-          xl: xl[i],
-        };
-
-        return (
-          <Grid
-            item
-            key={i}
-            css={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "flex-end",
-              overflowX: "hidden",
-            }}
-            {...gridProps}
-          >
-            {c}
-            <Divider css={{ display: "block" }} />
-          </Grid>
-        );
-      })}
-    </Box>
   );
 };

@@ -19,19 +19,7 @@ const defaultDarkTheme = createTheme({
     mode: "dark",
   },
 });
-// const darkTheme = createTheme({
-//   ...defaultDarkTheme,
-//   palette: {
-//     ...defaultDarkTheme.palette,
-//     success: {
-//       ...defaultDarkTheme.palette.success,
-//       contrastText: "rgba(255, 255, 255, 1)",
-//     },
-//   },
-// });
-
 const darkTheme = defaultDarkTheme;
-console.log(darkTheme);
 
 /**
  * Application root component.
@@ -45,11 +33,22 @@ export const Application: FunctionComponent = () => {
     },
   }));
   return (
+    /**
+     * Drag and drop context provider. This may not need to be
+     * at the top of the application here.
+     * @perf @todo
+     */
     <DndProvider backend={HTML5Backend}>
+      {/** Mui and emotion theme providers. Both use the same theme */}
       <ThemeProvider theme={darkTheme}>
         <EmotionThemeProvider theme={darkTheme}>
+          {/** Baseline styles for mui */}
           <CssBaseline />
+          {/** Apollo client provider for `useQuery`/`useMutation` hooks */}
           <ApolloProvider client={client}>
+            {/**
+             * @todo Get rid of this stupid thing or actually use it.
+             */}
             <HeaderBarContext.Provider value={headerBarContext}>
               <Paper
                 css={{

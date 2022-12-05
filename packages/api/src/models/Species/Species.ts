@@ -9,7 +9,7 @@ import { TraitList } from "../TraitList/TraitList";
 @Entity()
 @ObjectType({
   description:
-    "Model representing an arbitrarily broad class of characters that use common trait lists and administration.",
+    "Model representing an arbitrarily broad class of characters that use common variants and administration.",
 })
 export class Species {
   @IdField

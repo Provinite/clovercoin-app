@@ -9,15 +9,17 @@ import {
   isSpeciesList,
 } from "@clovercoin/api-client";
 import {
-  Navigate,
   useRouteError,
   NonIndexRouteObject,
   IndexRouteObject,
   LoaderFunctionArgs,
   ActionFunctionArgs,
+  Navigate,
 } from "react-router-dom";
 import { Application } from "./Application";
 import { graphqlService } from "./client";
+import { AppRoutes } from "./ui/AppRoutes";
+import { CommunityListRoutes } from "./ui/CommunityListPage/CommunityListRoutes";
 import { SpeciesDetailRoutes } from "./ui/SpeciesDetailPage/SpeciesDetailRoutes";
 import { SpeciesListProvider } from "./ui/SpeciesListPage/SpeciesListProvider";
 import { PrettyPrintJson } from "./ui/util/PrettyPrintJson";
@@ -38,6 +40,12 @@ export const routes = [
     element: <Application />,
     errorElement: <PrintError />,
     children: [
+      CommunityListRoutes,
+      {
+        index: true,
+        id: "root.index",
+        element: <Navigate to={AppRoutes.communityList()} />,
+      },
       {
         id: "root.community",
         path: "community/:communityId",
@@ -62,11 +70,7 @@ export const routes = [
           );
         },
         children: [
-          {
-            id: "root.community.index",
-            index: true,
-            element: <Navigate to="species" />,
-          },
+          SpeciesDetailRoutes,
           {
             id: "root.community.species-list",
             path: "species",
@@ -130,37 +134,55 @@ export const routes = [
               }
             },
           },
-          /**
-           * Register the species detail routes. Noting this here
-           * because it's kind of easy to miss and could use some
-           * highlighting when scanning this file.
-           */
-          SpeciesDetailRoutes,
         ],
       },
     ],
-  } as const),
-] as const;
+  }),
+];
 
-// Here be dragons
+/**
+ * Here be dragons. This stuff seems really unstable and might need to
+ * be removed at some point. Occasionally it breaks when making changes
+ * to routes for no reason. I think something is set up badly in a way
+ * that is causing massive resource consumption from the ts compiler.
+ *
+ * Probably all the searching of these deeply nested structures.
+ */
+
+interface RouteWithId<T extends string> {
+  readonly id: T;
+  children?: readonly RouteWithId<T>[];
+}
+
+type RootRouteType = typeof routes[0];
+type GetRouteIds<R extends RouteWithId<string>> = R extends RouteWithId<infer U>
+  ? U
+  : never;
 
 /**
  * Union of all route ids in the application
  */
-export type RouteId = typeof routes[0] extends TypedRouteConfig<infer U>
-  ? U
-  : never;
+export type RouteId = GetRouteIds<RootRouteType>;
 
+export type TypedNonIndexRouteObject<RouteId extends string = string> = Omit<
+  NonIndexRouteObject,
+  "children" | "id"
+> & {
+  readonly id: RouteId;
+  readonly children?: readonly TypedRouteConfig<RouteId>[];
+};
+
+export type TypedIndexRouteObject<RouteId extends string = string> = Omit<
+  IndexRouteObject,
+  "id"
+> & { readonly id: RouteId };
 /**
  * More strictly-typed variant of the RouteObject from
  * react-router-dom.
  */
 export type TypedRouteConfig<RouteId extends string = string> =
-  | (Omit<NonIndexRouteObject, "children" | "id"> & {
-      id: RouteId;
-      readonly children?: readonly TypedRouteConfig<RouteId>[];
-    })
-  | (Omit<IndexRouteObject, "id"> & { id: RouteId });
+  | TypedNonIndexRouteObject<RouteId>
+  | TypedIndexRouteObject<RouteId>;
 
 /**
  * Create a strongly typed react router RouterObject.

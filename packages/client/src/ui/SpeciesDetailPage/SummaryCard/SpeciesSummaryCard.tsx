@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, Typography } from "@mui/material";
 import { FunctionComponent } from "react";
 import { useRouteCommunity } from "../../../useRouteCommunity";
+import { pluralize } from "../../../utils/pluralize";
 import { useRouteSpecies } from "../useRouteSpecies";
 
 interface SpeciesSummaryCardProps {}
@@ -18,8 +19,8 @@ export const SpeciesSummaryCard: FunctionComponent<
       />
       <CardContent>
         <Typography paragraph variant="body1">
-          Are a species with {species.traitLists.length} trait list
-          {species.traitLists.length === 1 ? "" : "s"}.
+          Are a species with {species.traitLists.length}{" "}
+          {pluralize(species.traitLists.length, "trait list")}
         </Typography>
       </CardContent>
     </Card>

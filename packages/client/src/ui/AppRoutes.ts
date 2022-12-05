@@ -2,6 +2,7 @@ import { uuidToSlug } from "../utils/uuidUtils";
 
 export const AppRouteParts = {
   community: (communityId: string) => ["community", uuidToSlug(communityId)],
+  communityList: () => ["communities"],
   speciesDetail: (communityId: string, speciesId: string) => [
     ...AppRouteParts.speciesList(communityId),
     uuidToSlug(speciesId),

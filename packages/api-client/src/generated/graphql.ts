@@ -295,7 +295,7 @@ export interface RegisterArgs {
   username?: InputMaybe<Scalars["String"]>;
 }
 
-/** Model representing an arbitrarily broad class of characters that use common trait lists and administration. */
+/** Model representing an arbitrarily broad class of characters that use common variants and administration. */
 export interface Species {
   __typename?: "Species";
   /** Community that owns this species */
@@ -505,6 +505,32 @@ export type GetCrittersQuery = {
   }>;
 };
 
+export type GetCommunityListViewQueryVariables = Exact<{
+  filters: CommunityFilters;
+}>;
+
+export type GetCommunityListViewQuery = {
+  __typename?: "Query";
+  communities:
+    | {
+        __typename: "CommunityList";
+        list: Array<{ __typename?: "Community"; id: string; name: string }>;
+      }
+    | {
+        __typename: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      };
+};
+
 export type CreateSpeciesTraitMutationVariables = Exact<{
   input: TraitCreateInput;
 }>;
@@ -530,7 +556,19 @@ export type GetSpeciesDetailQueryVariables = Exact<{
 export type GetSpeciesDetailQuery = {
   __typename?: "Query";
   species:
-    | { __typename?: "InvalidArgumentError" }
+    | {
+        __typename?: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      }
     | {
         __typename?: "SpeciesList";
         list: Array<{
@@ -690,6 +728,46 @@ export type GetSpeciesListViewQuery = {
           }>;
         }>;
       };
+};
+
+export type BaseErrorFragment_DuplicateError_Fragment = {
+  __typename?: "DuplicateError";
+  message: string;
+};
+
+export type BaseErrorFragment_InvalidArgumentError_Fragment = {
+  __typename?: "InvalidArgumentError";
+  message: string;
+};
+
+export type BaseErrorFragment_NotFoundError_Fragment = {
+  __typename?: "NotFoundError";
+  message: string;
+};
+
+export type BaseErrorFragmentFragment =
+  | BaseErrorFragment_DuplicateError_Fragment
+  | BaseErrorFragment_InvalidArgumentError_Fragment
+  | BaseErrorFragment_NotFoundError_Fragment;
+
+export type DuplicateErrorFragmentFragment = {
+  __typename: "DuplicateError";
+  duplicateKeys: Array<string>;
+  message: string;
+};
+
+export type InvalidArgumentErrorFragmentFragment = {
+  __typename?: "InvalidArgumentError";
+  message: string;
+  validationErrors: Array<{
+    __typename?: "ValidationError";
+    field: string;
+    constraints: Array<{
+      __typename?: "ValidationConstraint";
+      key: string;
+      description: string;
+    }>;
+  }>;
 };
 
 export type AccountKeySpecifier = (
@@ -1184,7 +1262,30 @@ export type StrictTypedTypePolicies = {
   };
 };
 export type TypedTypePolicies = StrictTypedTypePolicies & TypePolicies;
-
+export const BaseErrorFragmentFragmentDoc = gql`
+  fragment BaseErrorFragment on BaseError {
+    message
+  }
+`;
+export const DuplicateErrorFragmentFragmentDoc = gql`
+  fragment DuplicateErrorFragment on DuplicateError {
+    __typename
+    duplicateKeys
+    message
+  }
+`;
+export const InvalidArgumentErrorFragmentFragmentDoc = gql`
+  fragment InvalidArgumentErrorFragment on InvalidArgumentError {
+    message
+    validationErrors {
+      constraints {
+        key
+        description
+      }
+      field
+    }
+  }
+`;
 export const CreateCommunityDocument = gql`
   mutation createCommunity($input: CommunityCreateInput!) {
     createCommunity(input: $input) {
@@ -1194,24 +1295,19 @@ export const CreateCommunityDocument = gql`
         id
       }
       ... on DuplicateError {
-        duplicateKeys
-        message
+        ...DuplicateErrorFragment
       }
       ... on InvalidArgumentError {
-        message
-        validationErrors {
-          constraints {
-            key
-            description
-          }
-          field
-        }
+        ...InvalidArgumentErrorFragment
       }
       ... on BaseError {
-        message
+        ...BaseErrorFragment
       }
     }
   }
+  ${DuplicateErrorFragmentFragmentDoc}
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+  ${BaseErrorFragmentFragmentDoc}
 `;
 export const GetCommunityDocument = gql`
   query getCommunity($filters: CommunityFilters!) {
@@ -1225,10 +1321,11 @@ export const GetCommunityDocument = gql`
         message
       }
       ... on BaseError {
-        message
+        ...BaseErrorFragment
       }
     }
   }
+  ${BaseErrorFragmentFragmentDoc}
 `;
 export const GetCrittersDocument = gql`
   query getCritters {
@@ -1254,6 +1351,27 @@ export const GetCrittersDocument = gql`
       }
     }
   }
+`;
+export const GetCommunityListViewDocument = gql`
+  query getCommunityListView($filters: CommunityFilters!) {
+    communities(filters: $filters) {
+      __typename
+      ... on CommunityList {
+        list {
+          id
+          name
+        }
+      }
+      ... on BaseError {
+        ...BaseErrorFragment
+      }
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+    }
+  }
+  ${BaseErrorFragmentFragmentDoc}
+  ${InvalidArgumentErrorFragmentFragmentDoc}
 `;
 export const CreateSpeciesTraitDocument = gql`
   mutation createSpeciesTrait($input: TraitCreateInput!) {
@@ -1295,8 +1413,12 @@ export const GetSpeciesDetailDocument = gql`
           }
         }
       }
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
     }
   }
+  ${InvalidArgumentErrorFragmentFragmentDoc}
 `;
 export const GetSpeciesTraitsDocument = gql`
   query getSpeciesTraits($filters: TraitFilters!) {
@@ -1392,20 +1514,15 @@ export const GetSpeciesListViewDocument = gql`
         }
       }
       ... on InvalidArgumentError {
-        message
-        validationErrors {
-          constraints {
-            key
-            description
-          }
-          field
-        }
+        ...InvalidArgumentErrorFragment
       }
       ... on BaseError {
-        message
+        ...BaseErrorFragment
       }
     }
   }
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+  ${BaseErrorFragmentFragmentDoc}
 `;
 export type Requester<C = {}, E = unknown> = <R, V>(
   doc: DocumentNode,
@@ -1446,6 +1563,19 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
         variables,
         options
       ) as Promise<GetCrittersQuery>;
+    },
+    getCommunityListView(
+      variables: GetCommunityListViewQueryVariables,
+      options?: C
+    ): Promise<GetCommunityListViewQuery> {
+      return requester<
+        GetCommunityListViewQuery,
+        GetCommunityListViewQueryVariables
+      >(
+        GetCommunityListViewDocument,
+        variables,
+        options
+      ) as Promise<GetCommunityListViewQuery>;
     },
     createSpeciesTrait(
       variables: CreateSpeciesTraitMutationVariables,
@@ -1614,6 +1744,33 @@ export class GraphqlService {
     const result = await this.client.query<
       GetCrittersQuery,
       GetCrittersQueryVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
+  async getCommunityListView(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").QueryOptions<
+          GetCommunityListViewQueryVariables,
+          GetCommunityListViewQuery
+        >
+      >,
+      "variables" | "query"
+    > & {
+      variables: GetCommunityListViewQueryVariables;
+    }
+  ) {
+    const finalOptions = {
+      ...options,
+      query: GetCommunityListViewDocument,
+    };
+    const result = await this.client.query<
+      GetCommunityListViewQuery,
+      GetCommunityListViewQueryVariables
     >(finalOptions);
     if (!hasData(result)) {
       throw new Error("Unknown request failure");

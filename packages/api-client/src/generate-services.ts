@@ -3,7 +3,7 @@
  * This script uses ts-morph to augment the graphql-codegen generated data with a helper class
  * providing type-safe access to graphql queries outside react.
  */
-import { InterfaceDeclaration, Project, Scope } from "ts-morph";
+import { Project, Scope } from "ts-morph";
 const project = new Project({
   skipAddingFilesFromTsConfig: true,
 });
