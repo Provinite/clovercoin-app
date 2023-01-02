@@ -13,7 +13,7 @@ export const TraitListListCard: FC<TraitListListCardProps> = () => {
   return (
     <Card elevation={1}>
       <CardHeader
-        title={`${species.name} - Variants`}
+        title={`${species.name}: Variants`}
         subheader={`All variants available to ${species.name} are listed here.`}
       />
       <ul>

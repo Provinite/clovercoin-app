@@ -86,7 +86,7 @@ export const SpeciesListPage: FC<SpeciesListPageProps> = ({
 
   return (
     <>
-      <HeaderBar {...headerBarProps} title={`${community.name} Species`} />
+      <HeaderBar {...headerBarProps} title={`${community.name}: Species`} />
       <SequentialSnackbar queue={snackbarQueue} />
       <div
         css={{

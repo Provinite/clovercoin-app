@@ -1,3 +1,4 @@
+import { IsUUID } from "class-validator";
 import {
   Arg,
   Ctx,
@@ -17,6 +18,19 @@ export class TraitListCreateInput {
 
   @Field(() => String)
   name!: string;
+}
+
+@InputType()
+export class TraitListModifyInput {
+  @Field(() => ID)
+  @IsUUID(4)
+  traitListId!: string;
+
+  @Field(() => String, {
+    nullable: true,
+    defaultValue: null,
+  })
+  name: string | null = null;
 }
 
 @Resolver(() => TraitList)

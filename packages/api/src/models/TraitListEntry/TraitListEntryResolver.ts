@@ -35,4 +35,12 @@ export class TraitListEntryResolver {
   ) {
     return await traitListEntryController.create(input);
   }
+
+  @Mutation(() => String)
+  async deleteTraitListEntry(
+    @Arg("id", () => ID, { nullable: false }) id: string,
+    @Ctx() { traitListEntryController }: AppGraphqlContext
+  ) {
+    return await traitListEntryController.deleteOneById(id);
+  }
 }

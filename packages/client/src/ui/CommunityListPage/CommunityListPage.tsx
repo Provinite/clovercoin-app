@@ -41,25 +41,27 @@ export const CommunityListPage: FC = () => {
         />
         <div css={{ flexGrow: 1 }}>
           <Toolbar />
-          <Card elevation={1}>
-            <CardHeader title={`Communities`} />
-            <CardContent>
-              <Grid container component={Box}>
-                {communities.map((community) => (
-                  <GridRow xs={[12]}>
-                    <Link
-                      p={2}
-                      component={RouterLink}
-                      to={AppRoutes.speciesList(community.id)}
-                    >
-                      {community.name}
-                    </Link>
-                    <></>
-                  </GridRow>
-                ))}
-              </Grid>
-            </CardContent>
-          </Card>
+          <div css={(theme) => ({ padding: theme.spacing(2) })}>
+            <Card elevation={1}>
+              <CardHeader title={`Communities`} />
+              <CardContent>
+                <Grid container component={Box}>
+                  {communities.map((community) => (
+                    <GridRow xs={[12]}>
+                      <Link
+                        p={2}
+                        component={RouterLink}
+                        to={AppRoutes.speciesList(community.id)}
+                      >
+                        {community.name}
+                      </Link>
+                      <></>
+                    </GridRow>
+                  ))}
+                </Grid>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </>

@@ -4,11 +4,15 @@ import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
 import { TraitList } from "./TraitList";
 
 export type TraitListCreate = Pick<TraitList, "speciesId" | "name">;
-
+export type TraitListModify = Pick<
+  Partial<TraitList>,
+  "name" | "traitListEntries"
+>;
 export class TraitListController extends EntityController<
   TraitList,
   Repository<TraitList>,
-  TraitListCreate
+  TraitListCreate,
+  TraitListModify
 > {
   constructor({ traitListRepository }: AppGraphqlContext) {
     super(traitListRepository);

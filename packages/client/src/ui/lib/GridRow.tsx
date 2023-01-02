@@ -26,6 +26,7 @@ export const GridRow: FC<{
   md?: number[];
   lg?: number[];
   xl?: number[];
+  className?: string;
 }> = ({
   children,
   xs = [],
@@ -34,9 +35,10 @@ export const GridRow: FC<{
   lg = [],
   xl = [],
   selected = false,
+  className,
 }) => {
   return (
-    <Box css={[ss.gridRow, selected ? ss.gridRowActive : null]}>
+    <Box css={[className, ss.gridRow, selected ? ss.gridRowActive : null]}>
       {children?.map((c, i) => {
         const gridProps = {
           xs: xs[i],

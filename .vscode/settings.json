@@ -3,5 +3,6 @@
   "files.autoSaveDelay": 5000,
   "editor.formatOnSave": true,
   "eslint.workingDirectories": ["packages/api", "packages/client"],
-  "typescript.tsserver.maxTsServerMemory": 4096
+  "typescript.tsserver.maxTsServerMemory": 4096,
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

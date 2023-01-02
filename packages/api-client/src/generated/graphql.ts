@@ -206,6 +206,7 @@ export interface Mutation {
   createTraitList: TraitList;
   createTraitListEntry: TraitListEntry;
   deleteTrait: Scalars["String"];
+  deleteTraitListEntry: Scalars["String"];
   /** Log in using local credentials and receive an auth token */
   login: LoginResponse;
   modifyTrait: Trait;
@@ -242,6 +243,10 @@ export interface MutationCreateTraitListEntryArgs {
 }
 
 export interface MutationDeleteTraitArgs {
+  id: Scalars["ID"];
+}
+
+export interface MutationDeleteTraitListEntryArgs {
   id: Scalars["ID"];
 }
 
@@ -531,6 +536,28 @@ export type GetCommunityListViewQuery = {
       };
 };
 
+export type CreateTraitListEntryMutationVariables = Exact<{
+  input: TraitListEntryCreateInput;
+}>;
+
+export type CreateTraitListEntryMutation = {
+  __typename?: "Mutation";
+  createTraitListEntry: {
+    __typename?: "TraitListEntry";
+    id: string;
+    defaultDisplayValue?: string | null;
+    order: number;
+    required: boolean;
+    trait: {
+      __typename?: "Trait";
+      id: string;
+      name: string;
+      valueType: CritterTraitValueType;
+      enumValues: Array<{ __typename?: "EnumValue"; id: string; name: string }>;
+    };
+  };
+};
+
 export type CreateSpeciesTraitMutationVariables = Exact<{
   input: TraitCreateInput;
 }>;
@@ -547,6 +574,15 @@ export type DeleteTraitMutationVariables = Exact<{
 export type DeleteTraitMutation = {
   __typename?: "Mutation";
   deleteTrait: string;
+};
+
+export type DeleteTraitListEntryMutationVariables = Exact<{
+  id: Scalars["ID"];
+}>;
+
+export type DeleteTraitListEntryMutation = {
+  __typename?: "Mutation";
+  deleteTraitListEntry: string;
 };
 
 export type GetSpeciesDetailQueryVariables = Exact<{
@@ -957,6 +993,7 @@ export type MutationKeySpecifier = (
   | "createTraitList"
   | "createTraitListEntry"
   | "deleteTrait"
+  | "deleteTraitListEntry"
   | "login"
   | "modifyTrait"
   | "register"
@@ -971,6 +1008,7 @@ export type MutationFieldPolicy = {
   createTraitList?: FieldPolicy<any> | FieldReadFunction<any>;
   createTraitListEntry?: FieldPolicy<any> | FieldReadFunction<any>;
   deleteTrait?: FieldPolicy<any> | FieldReadFunction<any>;
+  deleteTraitListEntry?: FieldPolicy<any> | FieldReadFunction<any>;
   login?: FieldPolicy<any> | FieldReadFunction<any>;
   modifyTrait?: FieldPolicy<any> | FieldReadFunction<any>;
   register?: FieldPolicy<any> | FieldReadFunction<any>;
@@ -1373,6 +1411,25 @@ export const GetCommunityListViewDocument = gql`
   ${BaseErrorFragmentFragmentDoc}
   ${InvalidArgumentErrorFragmentFragmentDoc}
 `;
+export const CreateTraitListEntryDocument = gql`
+  mutation createTraitListEntry($input: TraitListEntryCreateInput!) {
+    createTraitListEntry(input: $input) {
+      id
+      defaultDisplayValue
+      order
+      required
+      trait {
+        id
+        name
+        valueType
+        enumValues {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
 export const CreateSpeciesTraitDocument = gql`
   mutation createSpeciesTrait($input: TraitCreateInput!) {
     createTrait(input: $input) {
@@ -1383,6 +1440,11 @@ export const CreateSpeciesTraitDocument = gql`
 export const DeleteTraitDocument = gql`
   mutation deleteTrait($id: ID!) {
     deleteTrait(id: $id)
+  }
+`;
+export const DeleteTraitListEntryDocument = gql`
+  mutation deleteTraitListEntry($id: ID!) {
+    deleteTraitListEntry(id: $id)
   }
 `;
 export const GetSpeciesDetailDocument = gql`
@@ -1577,6 +1639,19 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
         options
       ) as Promise<GetCommunityListViewQuery>;
     },
+    createTraitListEntry(
+      variables: CreateTraitListEntryMutationVariables,
+      options?: C
+    ): Promise<CreateTraitListEntryMutation> {
+      return requester<
+        CreateTraitListEntryMutation,
+        CreateTraitListEntryMutationVariables
+      >(
+        CreateTraitListEntryDocument,
+        variables,
+        options
+      ) as Promise<CreateTraitListEntryMutation>;
+    },
     createSpeciesTrait(
       variables: CreateSpeciesTraitMutationVariables,
       options?: C
@@ -1599,6 +1674,19 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
         variables,
         options
       ) as Promise<DeleteTraitMutation>;
+    },
+    deleteTraitListEntry(
+      variables: DeleteTraitListEntryMutationVariables,
+      options?: C
+    ): Promise<DeleteTraitListEntryMutation> {
+      return requester<
+        DeleteTraitListEntryMutation,
+        DeleteTraitListEntryMutationVariables
+      >(
+        DeleteTraitListEntryDocument,
+        variables,
+        options
+      ) as Promise<DeleteTraitListEntryMutation>;
     },
     getSpeciesDetail(
       variables?: GetSpeciesDetailQueryVariables,
@@ -1778,6 +1866,38 @@ export class GraphqlService {
     return result;
   }
 
+  async createTraitListEntry(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").MutationOptions<
+          CreateTraitListEntryMutation,
+          CreateTraitListEntryMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: CreateTraitListEntryMutationVariables;
+    }
+  ): Promise<
+    Omit<
+      import("@apollo/client/core").FetchResult<CreateTraitListEntryMutation>,
+      "data"
+    > & { data: CreateTraitListEntryMutation }
+  > {
+    const finalOptions = {
+      ...options,
+      mutation: CreateTraitListEntryDocument,
+    };
+    const result = await this.client.mutate<
+      CreateTraitListEntryMutation,
+      CreateTraitListEntryMutationVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
   async createSpeciesTrait(
     options: Omit<
       Partial<
@@ -1835,6 +1955,38 @@ export class GraphqlService {
     const result = await this.client.mutate<
       DeleteTraitMutation,
       DeleteTraitMutationVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
+  async deleteTraitListEntry(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").MutationOptions<
+          DeleteTraitListEntryMutation,
+          DeleteTraitListEntryMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: DeleteTraitListEntryMutationVariables;
+    }
+  ): Promise<
+    Omit<
+      import("@apollo/client/core").FetchResult<DeleteTraitListEntryMutation>,
+      "data"
+    > & { data: DeleteTraitListEntryMutation }
+  > {
+    const finalOptions = {
+      ...options,
+      mutation: DeleteTraitListEntryDocument,
+    };
+    const result = await this.client.mutate<
+      DeleteTraitListEntryMutation,
+      DeleteTraitListEntryMutationVariables
     >(finalOptions);
     if (!hasData(result)) {
       throw new Error("Unknown request failure");

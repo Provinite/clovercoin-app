@@ -61,16 +61,106 @@ export const SpeciesDetailRoutes = typedRouteConfig({
     },
     {
       id: "root.community.species.variants",
-      path: "trait-lists",
+      path: "variants",
       element: <TraitListListCard />,
     },
     {
       id: "root.community.species.variant",
-      path: "trait-lists/:traitListId",
+      path: "variants/:traitListId",
+      loader: traitListLoader,
+      action: variantDetailAction,
       element: <TraitListDetailCard />,
+      children: [
+        {
+          id: "root.community.species.variant.entry",
+          path: "entries/:traitListEntrySlug",
+          action: variantTraitListEntryDetailAction,
+        },
+      ],
     },
   ],
-} as const);
+});
+
+async function variantTraitListEntryDetailAction({
+  params: { traitListEntrySlug, speciesId: speciesSlug },
+  request,
+}: ActionFunctionArgs) {
+  if (request.method !== "DELETE") {
+    return;
+  }
+  if (!traitListEntrySlug) {
+    throw new Error(`Invalid trait list entry id`);
+  }
+  if (!speciesSlug) {
+    throw new Error("Invalid species id");
+  }
+
+  const traitListEntryId = slugToUuid(traitListEntrySlug);
+  const speciesId = slugToUuid(speciesSlug);
+
+  await graphqlService.deleteTraitListEntry({
+    variables: {
+      id: traitListEntryId,
+    },
+    update: (cache) => {
+      cache.modify({
+        fields: {
+          species: (data, { DELETE, storeFieldName }) => {
+            if (storeFieldName.includes(speciesId)) {
+              return DELETE;
+            }
+            return data;
+          },
+        },
+      });
+    },
+  });
+}
+
+async function variantDetailAction({
+  params: { traitListId: traitListSlug, speciesId: speciesSlug },
+  request,
+}: ActionFunctionArgs) {
+  if (request.method !== "POST") {
+    return;
+  }
+
+  if (!traitListSlug) {
+    throw new Error("Invalid variant id");
+  }
+  if (!speciesSlug) {
+    throw new Error("Invalid species id");
+  }
+
+  const traitListId = slugToUuid(traitListSlug);
+  const speciesId = slugToUuid(speciesSlug);
+  const formData = await request.formData();
+
+  const traitId = formData.get("traitId") as string;
+
+  await graphqlService.createTraitListEntry({
+    variables: {
+      input: {
+        order: 1,
+        traitId,
+        traitListId,
+        required: false,
+      },
+    },
+    update: (cache) => {
+      cache.modify({
+        fields: {
+          species: (data, { DELETE, storeFieldName }) => {
+            if (storeFieldName.includes(speciesId)) {
+              return DELETE;
+            }
+            return data;
+          },
+        },
+      });
+    },
+  });
+}
 
 /**
  * Data loader for species detail

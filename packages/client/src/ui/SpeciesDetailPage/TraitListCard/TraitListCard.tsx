@@ -1,9 +1,15 @@
 import {
   Alert,
   Box,
+  Button,
   Card,
   CardContent,
   CardHeader,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Grid,
   Typography,
 } from "@mui/material";
@@ -23,11 +29,15 @@ import {
   useSnackbarQueue,
 } from "../../SequentialSnackbar/SequentialSnackbar";
 import { GridRow } from "../../lib/GridRow";
+
 export const TraitListCard: FunctionComponent = () => {
   const data = useRouteTraits();
   const species = useRouteSpecies();
   const fetcher = useFetcher();
   const community = useRouteCommunity();
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [traitToDelete, setTraitToDelete] =
+    useState<typeof data["traits"][number]>();
 
   const [loading, setLoading] = useState(false);
   useEffect(() => {
@@ -65,13 +75,11 @@ export const TraitListCard: FunctionComponent = () => {
         <Grid container component={Box}>
           <GridRow xs={[3, 3, 6]} xl={[3, 3, 6]}>
             <Typography p={1} variant="body1" color="text.secondary">
-              Name
+              Trait
             </Typography>
             <Typography p={1} variant="body1" color="text.secondary">
               Type
             </Typography>
-
-            <></>
           </GridRow>
           {data.traits.map((t) => {
             return (
@@ -133,14 +141,8 @@ export const TraitListCard: FunctionComponent = () => {
                     flexGrow: 1,
                   })}
                   onClick={() => {
-                    fetcher.submit(null, {
-                      method: "delete",
-                      action: AppRoutes.speciesTraitDetail(
-                        community.id,
-                        species.id,
-                        t.id
-                      ),
-                    });
+                    setTraitToDelete(t);
+                    setShowConfirmDialog(true);
                   }}
                   startIcon={<DeleteOutlineIcon />}
                 >
@@ -152,6 +154,46 @@ export const TraitListCard: FunctionComponent = () => {
           })}
         </Grid>
       </CardContent>
+      <Dialog
+        TransitionProps={{
+          onExited: () => setTraitToDelete(undefined),
+        }}
+        open={showConfirmDialog}
+        onClose={() => {
+          setShowConfirmDialog(false);
+        }}
+      >
+        <DialogTitle>
+          Delete trait "{traitToDelete?.name ?? "trait"}"?
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete the "
+            {traitToDelete?.name ?? "trait"}" trait? This will remove the trait
+            from all {species.name} variant trait lists and all {species.name}
+          </DialogContentText>
+          <br />
+          <DialogContentText>This action cannot be undone.</DialogContentText>
+          <DialogActions>
+            <Button onClick={() => setShowConfirmDialog(false)}>No</Button>
+            <Button
+              onClick={() => {
+                setShowConfirmDialog(false);
+                fetcher.submit(null, {
+                  action: AppRoutes.speciesTraitDetail(
+                    community.id,
+                    species.id,
+                    traitToDelete!.id
+                  ),
+                  method: "delete",
+                });
+              }}
+            >
+              Yes
+            </Button>
+          </DialogActions>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };

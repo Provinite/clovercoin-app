@@ -71,7 +71,7 @@ export const SpeciesDetailPage: FC<SpeciesDetailPageProps> = ({
     <>
       <HeaderBar
         {...headerBarProps}
-        title={`${community.name} Species - ${species.name}`}
+        title={`${community.name}: Species - ${species.name}`}
       />
       <div
         css={{

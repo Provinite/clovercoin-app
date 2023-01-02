@@ -162,6 +162,7 @@ type Mutation {
   createTraitList(input: TraitListCreateInput!): TraitList!
   createTraitListEntry(input: TraitListEntryCreateInput!): TraitListEntry!
   deleteTrait(id: ID!): String!
+  deleteTraitListEntry(id: ID!): String!
 
   """Log in using local credentials and receive an auth token"""
   login(input: LoginArgs!): LoginResponse!

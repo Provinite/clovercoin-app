@@ -22,7 +22,7 @@ export const AppRouteParts = {
   ],
   speciesVariantList: (communityId: string, speciesId: string) => [
     ...AppRouteParts.speciesDetail(communityId, speciesId),
-    "trait-lists",
+    "variants",
   ],
   speciesVariantDetail: (
     communityId: string,
@@ -31,6 +31,16 @@ export const AppRouteParts = {
   ) => [
     ...AppRouteParts.speciesVariantList(communityId, speciesId),
     uuidToSlug(variantId),
+  ],
+  speciesVariantTraitListEntryDetail: (
+    communityId: string,
+    speciesId: string,
+    variantId: string,
+    traitListEntryId: string
+  ) => [
+    ...AppRouteParts.speciesVariantDetail(communityId, speciesId, variantId),
+    "entries",
+    uuidToSlug(traitListEntryId),
   ],
   speciesTraitDetail: (
     communityId: string,

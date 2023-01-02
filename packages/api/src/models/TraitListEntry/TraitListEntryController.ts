@@ -1,9 +1,10 @@
-import { Repository } from "typeorm";
+import { DeleteResult, Repository } from "typeorm";
 import { EntityController } from "../../business/EntityController";
 import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
 import { TraitController } from "../Trait/TraitController";
 import { TraitListEntry } from "./TraitListEntry";
 import { SetOptional } from "type-fest";
+import { BaseError } from "../../errors/BaseError";
 
 export type TraitListEntryCreate = SetOptional<
   Pick<
@@ -19,7 +20,6 @@ export class TraitListEntryController extends EntityController<
   TraitListEntryCreate
 > {
   #traitController: TraitController;
-
   constructor({
     traitListEntryRepository,
     traitController,
@@ -28,12 +28,16 @@ export class TraitListEntryController extends EntityController<
     this.#traitController = traitController;
   }
 
+  /**
+   * @override
+   */
+  async deleteOneById(_id: string): Promise<DeleteResult> {
+    throw new BaseError("Method not implemented");
+  }
+
   async createBodyToModel(
     createBody: TraitListEntryCreate
   ): Promise<TraitListEntry> {
-    if (createBody.valueType) {
-      return super.createBodyToModel(createBody);
-    }
     const trait = await this.#traitController.findOneById(createBody.traitId);
     if (!trait) {
       throw new Error("Invalid trait id");

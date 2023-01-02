@@ -1,5 +1,6 @@
 import {
   DeepPartial,
+  DeleteResult,
   FindOptionsWhere,
   ObjectLiteral,
   Repository,
@@ -43,6 +44,10 @@ export class EntityController<
     return this.repository.findOneBy({
       id,
     });
+  }
+
+  async delete(where: FindOptionsWhere<Model>): Promise<DeleteResult> {
+    return this.repository.delete(where);
   }
 
   async deleteOneById(id: Model["id"]) {
