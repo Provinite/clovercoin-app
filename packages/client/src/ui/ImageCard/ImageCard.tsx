@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { ElementType, ReactNode } from "react";
 import { stylesheet } from "../../utils/emotion";
+import { DropZone } from "../DropZone/DropZone";
 
 export interface ImageCardProps<
   CardComponent extends ElementType<any> = "div",
@@ -19,6 +20,7 @@ export interface ImageCardProps<
   CardActionAreaComponent extends ElementType<any> = "button"
 > {
   className?: string;
+  onUpload?: (files: File[]) => void;
   CardProps?: CardProps<CardComponent> & {
     component?: CardComponent;
     css?: Interpolation<Theme>;
@@ -46,6 +48,7 @@ export const ImageCard = <
   CardMediaProps = {} as any,
   CardActionAreaProps = {} as any,
   clickable,
+  onUpload,
 }: ImageCardProps<CardComponent, CardMediaComponent>) => {
   return (
     <Card<CardComponent>
@@ -67,12 +70,21 @@ export const ImageCard = <
         css={ss.actionArea}
       >
         <CardContent css={ss.content}>
-          <CardMedia<CardMediaComponent>
-            component="img"
-            image={image}
-            {...CardMediaProps}
-            css={[ss.cardMedia, CardMediaProps.css]}
-          />
+          {!onUpload ? (
+            <CardMedia<CardMediaComponent>
+              component="img"
+              image={image}
+              {...CardMediaProps}
+              css={[ss.cardMedia, CardMediaProps.css]}
+            />
+          ) : (
+            <CardMedia
+              component={DropZone}
+              css={[ss.cardMedia, CardMediaProps.css]}
+              onFilesAdd={onUpload}
+              {...CardMediaProps}
+            />
+          )}
           {children}
         </CardContent>
       </ActionAreaOrBox>

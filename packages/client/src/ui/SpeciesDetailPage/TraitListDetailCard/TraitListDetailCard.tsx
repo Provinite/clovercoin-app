@@ -26,6 +26,9 @@ import { useRouteVariant } from "../useRouteTraitList";
 
 export const TraitListDetailCard: FunctionComponent = () => {
   const variant = useRouteVariant();
+  if (!variant) {
+    throw new Error("Invalid variant");
+  }
   const species = useRouteSpecies();
   const community = useRouteCommunity();
   const allTraits = useRouteLoaderData("root.community.species.variant");
@@ -35,7 +38,7 @@ export const TraitListDetailCard: FunctionComponent = () => {
   const [showConfirmRemoveDialog, setShowConfirmRemoveDialog] = useState(false);
   const [traitToAdd, setTraitToAdd] =
     useState<typeof allTraits["traits"][number]>();
-  const fetcher = useFetcher();
+  const { submit } = useFetcher();
 
   const findTraitListEntry = (traitId: string) =>
     variant.traitListEntries.find((tle) => tle.trait.id === traitId);
@@ -58,7 +61,7 @@ export const TraitListDetailCard: FunctionComponent = () => {
           {/* Trait rows */}
           {allTraits.traits.map((trait) => (
             <With value={() => findTraitListEntry(trait.id)} key={trait.id}>
-              {(tle) => (
+              {(traitListEntry) => (
                 <GridRow xs={[3, 2, 2, 5]}>
                   {/* Name & Type */}
                   <TextStack
@@ -68,17 +71,36 @@ export const TraitListDetailCard: FunctionComponent = () => {
                   />
                   {/* Order */}
                   <div css={ss.gridItem}>
-                    <Typography variant="body1">{tle?.order ?? ""}</Typography>
+                    <Typography variant="body1">
+                      {traitListEntry?.order ?? ""}
+                    </Typography>
                   </div>
                   {/* Required */}
                   <div css={ss.gridItem}>
                     <Switch
-                      disabled={!tle}
-                      checked={tle?.required ?? false}
+                      disabled={!traitListEntry}
+                      checked={traitListEntry?.required ?? false}
                       onChange={() => {
-                        if (!tle) {
+                        if (!traitListEntry) {
                           return;
                         }
+                        submit(
+                          {
+                            required: traitListEntry.required
+                              ? "false"
+                              : "true",
+                          },
+                          {
+                            action:
+                              AppRoutes.speciesVariantTraitListEntryDetail(
+                                community.id,
+                                species.id,
+                                variant.id,
+                                traitListEntry.id
+                              ),
+                            method: "patch",
+                          }
+                        );
                       }}
                     />
                   </div>
@@ -86,13 +108,13 @@ export const TraitListDetailCard: FunctionComponent = () => {
                   <div css={ss.gridItem}>
                     <Switch
                       color="success"
-                      checked={Boolean(tle)}
+                      checked={Boolean(traitListEntry)}
                       onChange={() => {
-                        if (!tle) {
+                        if (!traitListEntry) {
                           setTraitToAdd(trait);
                           setShowConfirmAddDialog(true);
                         } else {
-                          setTraitListEntryToRemove(tle);
+                          setTraitListEntryToRemove(traitListEntry);
                           setShowConfirmRemoveDialog(true);
                         }
                       }}
@@ -127,7 +149,7 @@ export const TraitListDetailCard: FunctionComponent = () => {
             </Button>
             <Button
               onClick={() => {
-                fetcher.submit(
+                submit(
                   {
                     traitId: traitToAdd!.id,
                   },
@@ -176,7 +198,7 @@ export const TraitListDetailCard: FunctionComponent = () => {
             <Button
               color="error"
               onClick={() => {
-                fetcher.submit(null, {
+                submit(null, {
                   action: traitListEntryToRemove
                     ? AppRoutes.speciesVariantTraitListEntryDetail(
                         community.id,
@@ -185,6 +207,7 @@ export const TraitListDetailCard: FunctionComponent = () => {
                         traitListEntryToRemove.id
                       )
                     : "",
+                  method: "delete",
                 });
                 setShowConfirmRemoveDialog(false);
               }}

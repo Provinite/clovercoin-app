@@ -3,25 +3,21 @@
  * for the entire application, as well as type utilities to improve
  * type-safety when interacting with react-router-dom.
  */
-import {
-  isBaseError,
-  isCommunity,
-  isSpeciesList,
-} from "@clovercoin/api-client";
+import { isCommunity } from "@clovercoin/api-client";
 import {
   useRouteError,
   NonIndexRouteObject,
   IndexRouteObject,
   LoaderFunctionArgs,
-  ActionFunctionArgs,
   Navigate,
 } from "react-router-dom";
 import { Application } from "./Application";
 import { graphqlService } from "./client";
+import { adminRoutes } from "./ui/admin/adminRoutes";
 import { AppRoutes } from "./ui/AppRoutes";
-import { CommunityListRoutes } from "./ui/CommunityListPage/CommunityListRoutes";
+import { communityListRoutes } from "./ui/CommunityListPage/communityListRoutes";
 import { SpeciesDetailRoutes } from "./ui/SpeciesDetailPage/SpeciesDetailRoutes";
-import { SpeciesListProvider } from "./ui/SpeciesListPage/SpeciesListProvider";
+import { speciesListRoutes } from "./ui/SpeciesListPage/speciesListRoutes";
 import { PrettyPrintJson } from "./ui/util/PrettyPrintJson";
 import { slugToUuid } from "./utils/uuidUtils";
 
@@ -40,11 +36,12 @@ export const routes = [
     element: <Application />,
     errorElement: <PrintError />,
     children: [
-      CommunityListRoutes,
+      communityListRoutes,
+      adminRoutes,
       {
         index: true,
         id: "root.index",
-        element: <Navigate to={AppRoutes.communityList()} />,
+        element: <Navigate to={AppRoutes.communityList()} replace={true} />,
       },
       {
         id: "root.community",
@@ -69,72 +66,7 @@ export const routes = [
             `${result.data.community.__typename}: ${result.data.community.message}`
           );
         },
-        children: [
-          SpeciesDetailRoutes,
-          {
-            id: "root.community.species-list",
-            path: "species",
-            element: <SpeciesListProvider />,
-            loader: async ({ params: { communityId } }: LoaderFunctionArgs) => {
-              if (!communityId) {
-                throw new Error("Missing community id in route");
-              }
-              communityId = slugToUuid(communityId);
-              const result = await graphqlService.getSpeciesListView({
-                variables: {
-                  communityId,
-                },
-              });
-
-              if (!isSpeciesList(result.data.species)) {
-                throw new Error("404");
-              }
-
-              return result.data.species;
-            },
-            action: async ({
-              params: { communityId: communitySlug },
-              request,
-            }: ActionFunctionArgs) => {
-              if (request.method === "POST") {
-                const formData = await request.formData();
-
-                if (!communitySlug) {
-                  throw new Error("Missing community id in route");
-                }
-                const communityId = slugToUuid(communitySlug);
-                const result = await graphqlService.createSpecies({
-                  variables: {
-                    input: {
-                      communityId: communityId,
-                      name: formData.get("name") as string,
-                      iconUrl: formData.get("iconUrl") as string,
-                    },
-                  },
-                  update(cache, { data }) {
-                    if (isBaseError(data)) {
-                      return;
-                    }
-                    // bop any cached species list queries for this community (if we succeeded)
-                    cache.modify({
-                      fields: {
-                        species: (_data, { DELETE, storeFieldName }) => {
-                          if (storeFieldName.includes(communityId)) {
-                            return DELETE;
-                          }
-                        },
-                      },
-                    });
-                  },
-                });
-
-                if (isBaseError(result.data.createSpecies)) {
-                  return result.data.createSpecies;
-                }
-              }
-            },
-          },
-        ],
+        children: [SpeciesDetailRoutes(), speciesListRoutes],
       },
     ],
   }),

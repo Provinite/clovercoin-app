@@ -1,5 +1,13 @@
 import { Snackbar, SnackbarCloseReason, SnackbarProps } from "@mui/material";
-import { FC, SyntheticEvent, useEffect, useMemo, useState } from "react";
+import {
+  FC,
+  SyntheticEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { useInterval } from "../../utils/useInterval";
 
 /**
  * Snackbar props that we allow to be customized when used
@@ -35,20 +43,50 @@ export interface SequentialSnackbarProps {
  * ```
  */
 export const SequentialSnackbar: FC<SequentialSnackbarProps> = ({ queue }) => {
-  const [props, setProps] = useState<CustomizableSnackbarProps>();
+  /**
+   * Currently displayed snackbar props
+   */
+  const [curSnackbarProps, setProps] = useState<CustomizableSnackbarProps>();
   useEffect(() => {
-    if (queue.queue.length && !props) {
+    // If we have a snackbar to show, and we aren't showing one
+    if (queue.queue.length && !curSnackbarProps) {
       setProps({ ...queue.queue[0] });
       queue.shift();
       queue.open();
-    } else if (queue.queue.length && props && queue.isOpen) {
+    }
+    // If we have a snackbar to show, and we _are_ currently showing one
+    else if (queue.queue.length && curSnackbarProps && queue.isOpen) {
       queue.close();
     }
-  }, [queue, props, open]);
+  }, [queue, curSnackbarProps, queue.isOpen]);
+
+  /**
+   * Stores the last timestamp (ms) that the snackbar was opened at.
+   */
+  const lastOpenedAtRef = useRef<number>(-1);
+  useEffect(() => {
+    if (queue.isOpen) {
+      lastOpenedAtRef.current = Date.now();
+    }
+  }, [queue.isOpen]);
+
+  /**
+   * Automatically close snackbars after 6 seconds.
+   */
+  useInterval(() => {
+    if (!queue.isOpen) {
+      return;
+    }
+    const msOpened = Date.now() - lastOpenedAtRef.current;
+    if (msOpened >= 6000) {
+      queue.shift();
+      queue.close();
+    }
+  }, 1000);
 
   return (
     <Snackbar
-      {...props}
+      {...curSnackbarProps}
       open={queue.isOpen}
       onClose={queue.close}
       TransitionProps={{

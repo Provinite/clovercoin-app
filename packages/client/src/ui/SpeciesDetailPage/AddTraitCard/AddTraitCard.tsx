@@ -1,7 +1,7 @@
 import { FunctionComponent, useCallback, useMemo } from "react";
 import { useFetcher, useParams } from "react-router-dom";
 import { CritterTraitValueType } from "@clovercoin/api-client";
-import { Card, CardContent, CardHeader, Grid } from "@mui/material";
+import { Alert, Card, CardContent, CardHeader, Grid } from "@mui/material";
 import { slugToUuid } from "../../../utils/uuidUtils";
 import { AppRoutes } from "../../AppRoutes";
 import { useRouteCommunity } from "../../../useRouteCommunity";
@@ -10,7 +10,7 @@ import {
   SequentialSnackbar,
   useSnackbarQueue,
 } from "../../SequentialSnackbar/SequentialSnackbar";
-import { TraitForm } from "./TraitForm/TraitForm";
+import { TraitForm, TraitFormProps } from "./TraitForm/TraitForm";
 import { useTraitForm } from "./TraitForm/useTraitForm";
 import { TraitPreviewCard } from "./TraitPreviewCard";
 import { TraitActionAlert } from "./TraitActionAlert";
@@ -25,11 +25,19 @@ export const AddTraitCard: FunctionComponent = () => {
   const fetcher = useFetcher();
   const [form, setForm] = useTraitForm();
   const { traitId: traitSlug } = useParams();
+  const snackbarQueue = useSnackbarQueue();
+
+  /**
+   * Trait ID to edit (if editing)
+   */
   const traitId = useMemo(
-    () => (traitSlug ? slugToUuid(traitSlug!) : ""),
+    () => (traitSlug ? slugToUuid(traitSlug) : ""),
     [traitSlug]
   );
 
+  /**
+   * Callback invoked after successfully saving a new trait
+   */
   const onSuccess = useCallback(() => {
     setForm({
       enumValues: [],
@@ -48,7 +56,22 @@ export const AddTraitCard: FunctionComponent = () => {
     });
   }, []);
 
-  const snackbarQueue = useSnackbarQueue();
+  /**
+   * Callback when trait creation fails
+   */
+  const onError = useCallback<TraitFormProps["onError"]>(
+    (err) => {
+      snackbarQueue.append({
+        children: (
+          <Alert severity="error" onClose={snackbarQueue.close}>
+            Failed to create trait: {err.message}
+          </Alert>
+        ),
+      });
+    },
+    [snackbarQueue]
+  );
+
   const gridSizes = {
     xs: 6,
     lg: 4,
@@ -75,6 +98,7 @@ export const AddTraitCard: FunctionComponent = () => {
                   setForm={setForm}
                   method="post"
                   onSuccess={onSuccess}
+                  onError={onError}
                   saveButtonText="Save"
                 />
               </CardContent>

@@ -158,9 +158,8 @@ export const DraggableEnumValueInput: FC<DraggableEnumValueInputProps> = ({
         onChange={onChange}
         onFocus={() => setIsFocused(true)}
         onBlur={(...args) => {
-          console.log("Blur");
           setIsFocused(false);
-          onBlur && onBlur(...args);
+          onBlur?.(...args);
         }}
         css={[
           error ? ss.errorField : undefined,

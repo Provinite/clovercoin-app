@@ -5,15 +5,7 @@ export const getCrittersQuery = gql`
     critters {
       id
       name
-      traits {
-        ... on CritterTrait {
-          trait {
-            id
-            valueType
-          }
-          displayValue
-        }
-      }
+      traitValues
       species {
         id
         name

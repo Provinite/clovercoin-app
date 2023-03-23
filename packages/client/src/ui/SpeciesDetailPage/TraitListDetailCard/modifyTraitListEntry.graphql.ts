@@ -1,8 +1,8 @@
 import gql from "graphql-tag";
 
 export default gql`
-  mutation createTraitListEntry($input: TraitListEntryCreateInput!) {
-    createTraitListEntry(input: $input) {
+  mutation modifyTraitListEntry($input: TraitListEntryModifyInput!) {
+    modifyTraitListEntry(input: $input) {
       __typename
       ... on TraitListEntry {
         id
@@ -19,14 +19,11 @@ export default gql`
           }
         }
       }
-      ... on BaseError {
-        ...BaseErrorFragment
-      }
-      ... on DuplicateError {
-        ...DuplicateErrorFragment
-      }
       ... on InvalidArgumentError {
         ...InvalidArgumentErrorFragment
+      }
+      ... on BaseError {
+        ...BaseErrorFragment
       }
     }
   }

@@ -8,11 +8,14 @@ import { HeaderBarProps } from "../HeaderBar/HeaderBarProps";
 import { useRouteCommunity } from "../../useRouteCommunity";
 import { Toolbar } from "@mui/material";
 import { NavItem, SideNav } from "../SideNav/SideNav";
+import { AppRoutes } from "../AppRoutes";
 import InterestsIcon from "@mui/icons-material/Interests";
 import MovieFilterIcon from "@mui/icons-material/MovieFilter";
 import NatureIcon from "@mui/icons-material/Nature";
 import SchemaIcon from "@mui/icons-material/Schema";
-import { AppRoutes } from "../AppRoutes";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import SpaIcon from "@mui/icons-material/Spa";
+import { useRouteVariant } from "./useRouteTraitList";
 
 export interface SpeciesDetailPageProps {
   headerBarProps: HeaderBarProps;
@@ -28,44 +31,60 @@ export const SpeciesDetailPage: FC<SpeciesDetailPageProps> = ({
   children,
 }) => {
   const community = useRouteCommunity();
-
+  const variant = useRouteVariant();
   const navGroups = useMemo<NavItem[]>(() => {
     const communityId = community.id;
     return [
       {
-        to: AppRoutes.speciesList(communityId),
-        children: `Species`,
-        icon: <MovieFilterIcon />,
+        to: AppRoutes.communityList(),
+        children: community.name,
+        icon: <SpaIcon />,
         childNavItems: [
           {
-            to: AppRoutes.speciesDetail(communityId, species.id),
-            children: species.name,
-            icon: <NatureIcon />,
+            to: AppRoutes.speciesList(communityId),
+            children: `Species`,
+            icon: <MovieFilterIcon />,
             childNavItems: [
               {
-                to: AppRoutes.speciesTraitList(communityId, species.id),
-                children: "Traits",
-                icon: <InterestsIcon />,
-              },
-              {
-                to: AppRoutes.speciesVariantList(communityId, species.id),
-                children: "Variants",
-                icon: <SchemaIcon />,
-                childNavItems: species.traitLists.map((tl) => ({
-                  to: AppRoutes.speciesVariantDetail(
-                    community.id,
-                    species.id,
-                    tl.id
-                  ),
-                  children: tl.name,
-                })),
+                to: AppRoutes.speciesDetail(communityId, species.id),
+                children: species.name,
+                icon: <NatureIcon />,
+                childNavItems: [
+                  {
+                    to: AppRoutes.speciesTraitList(communityId, species.id),
+                    children: "Traits",
+                    icon: <InterestsIcon />,
+                  },
+                  {
+                    to: AppRoutes.speciesVariantList(communityId, species.id),
+                    children: "Variants",
+                    icon: <SchemaIcon />,
+                    childNavItems: variant
+                      ? [
+                          {
+                            to: AppRoutes.speciesVariantDetail(
+                              community.id,
+                              species.id,
+                              variant.id
+                            ),
+                            children: variant.name,
+                          },
+                        ]
+                      : undefined,
+                  },
+                ],
               },
             ],
           },
         ],
       },
+      {
+        to: AppRoutes.admin(),
+        children: "Site Administration",
+        icon: <AdminPanelSettingsIcon />,
+      },
     ];
-  }, [community, species]);
+  }, [community, species, variant]);
 
   return (
     <>

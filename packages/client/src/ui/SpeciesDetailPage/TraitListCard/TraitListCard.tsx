@@ -18,8 +18,7 @@ import { AddBadge } from "../../AddBadge/AddBadge";
 import { useRouteSpecies } from "../useRouteSpecies";
 import TuneIcon from "@mui/icons-material/Tune";
 import { useRouteTraits } from "../useRouteTraits";
-import { Link as RouterLink, useFetcher } from "react-router-dom";
-import { Link } from "@mui/material";
+import { useFetcher } from "react-router-dom";
 import LoadingButton from "@mui/lab/LoadingButton";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { useRouteCommunity } from "../../../useRouteCommunity";
@@ -29,6 +28,7 @@ import {
   useSnackbarQueue,
 } from "../../SequentialSnackbar/SequentialSnackbar";
 import { GridRow } from "../../lib/GridRow";
+import { Link } from "../../Link/Link";
 
 export const TraitListCard: FunctionComponent = () => {
   const data = useRouteTraits();
@@ -80,6 +80,7 @@ export const TraitListCard: FunctionComponent = () => {
             <Typography p={1} variant="body1" color="text.secondary">
               Type
             </Typography>
+            <></>
           </GridRow>
           {data.traits.map((t) => {
             return (
@@ -112,7 +113,6 @@ export const TraitListCard: FunctionComponent = () => {
                       display: "flex",
                       flexDirection: "column",
                     }}
-                    component={RouterLink}
                     to={AppRoutes.speciesTraitDetail(
                       community.id,
                       species.id,

@@ -38,7 +38,10 @@ export const GridRow: FC<{
   className,
 }) => {
   return (
-    <Box css={[className, ss.gridRow, selected ? ss.gridRowActive : null]}>
+    <Box
+      className={className}
+      css={[ss.gridRow, selected ? ss.gridRowActive : null]}
+    >
       {children?.map((c, i) => {
         const gridProps = {
           xs: xs[i],

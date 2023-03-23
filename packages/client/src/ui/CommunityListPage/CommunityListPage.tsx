@@ -4,18 +4,19 @@ import { HeaderBar } from "../HeaderBar/HeaderBar";
 import { useHeaderBarProps } from "../HeaderBar/HeaderBarContext";
 import { SideNav } from "../SideNav/SideNav";
 import SpaIcon from "@mui/icons-material/Spa";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+
 import {
   Box,
   Card,
   CardContent,
   CardHeader,
   Grid,
-  Link,
   Toolbar,
 } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
 import { useRouteLoaderData } from "../../utils/loaderDataUtils";
 import { GridRow } from "../lib/GridRow";
+import { Link } from "../Link/Link";
 
 export const CommunityListPage: FC = () => {
   const headerBarProps = useHeaderBarProps();
@@ -37,6 +38,11 @@ export const CommunityListPage: FC = () => {
               children: "Communities",
               icon: <SpaIcon />,
             },
+            {
+              to: AppRoutes.admin(),
+              children: "Site Administration",
+              icon: <AdminPanelSettingsIcon />,
+            },
           ]}
         />
         <div css={{ flexGrow: 1 }}>
@@ -47,10 +53,9 @@ export const CommunityListPage: FC = () => {
               <CardContent>
                 <Grid container component={Box}>
                   {communities.map((community) => (
-                    <GridRow xs={[12]}>
+                    <GridRow xs={[12]} key={community.id}>
                       <Link
-                        p={2}
-                        component={RouterLink}
+                        padding={2}
                         to={AppRoutes.speciesList(community.id)}
                       >
                         {community.name}

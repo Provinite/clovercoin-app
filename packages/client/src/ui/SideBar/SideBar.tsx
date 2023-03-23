@@ -3,7 +3,8 @@ import { FunctionComponent, ReactNode } from "react";
 
 export const SideBar: FunctionComponent<{
   children?: ReactNode;
-}> = ({ children }) => (
+  className?: string;
+}> = ({ children, className }) => (
   <Drawer
     variant="permanent"
     css={{
@@ -11,6 +12,7 @@ export const SideBar: FunctionComponent<{
       flexShrink: 0,
       [`& .MuiDrawer-paper`]: { width: "240px", boxSizing: "border-box" },
     }}
+    className={className}
   >
     <Toolbar />
     <Paper css={{ flexGrow: 1 }}>{children}</Paper>

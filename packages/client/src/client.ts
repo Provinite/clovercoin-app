@@ -4,7 +4,7 @@
  * outside of `useQuery`/`useMutation` hooks.
  */
 import { ApolloClient, InMemoryCache } from "@apollo/client";
-import { GraphqlService } from "@clovercoin/api-client";
+import { GraphqlService, UploadService } from "@clovercoin/api-client";
 
 /**
  * GraphQL client to use throughout the application.
@@ -23,3 +23,5 @@ export const client = new ApolloClient({
  * GraphQL API.
  */
 export const graphqlService = new GraphqlService(client);
+
+export const uploadService = new UploadService();

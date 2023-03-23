@@ -9,14 +9,14 @@ import { useRouteSpecies } from "./useRouteSpecies";
  */
 export const useRouteVariant = () => {
   const species = useRouteSpecies();
-  const { traitListId: traitListSlug } = useParams();
-  if (!traitListSlug) {
+  const { variantSlug } = useParams();
+  if (!variantSlug) {
+    return;
+  }
+  const variantId = slugToUuid(variantSlug);
+  const variant = species.traitLists.find((tl) => tl.id === variantId);
+  if (!variant) {
     throw new Error("Invalid variant id");
   }
-  const traitUuid = slugToUuid(traitListSlug);
-  const traitList = species.traitLists.find((tl) => tl.id === traitUuid);
-  if (!traitList) {
-    throw new Error("Invalid variant id");
-  }
-  return traitList;
+  return variant;
 };

@@ -17,16 +17,25 @@ import {
   useRef,
 } from "react";
 import { FetcherWithComponents } from "react-router-dom";
-import { CritterTraitValueType } from "@clovercoin/api-client";
+import {
+  CritterTraitValueType,
+  DuplicateError,
+  InvalidArgumentError,
+  isBaseError,
+} from "@clovercoin/api-client";
 import { TraitFormState } from "./TraitFormState";
 import { DraggableEnumValueInput } from "./DraggableEnumValueInput";
 import { moveArrayItem } from "../../../util/moveArrayItem";
 import { v4 } from "uuid";
+import { ActionData, RouteType } from "../../../../routes";
 export interface TraitFormProps {
-  fetcher: FetcherWithComponents<any>;
+  fetcher: FetcherWithComponents<
+    ActionData<RouteType<"root.community.species.traits">>
+  >;
   form: TraitFormState;
   setForm: Dispatch<SetStateAction<TraitFormState>>;
   onSuccess: () => void;
+  onError: (error: DuplicateError | InvalidArgumentError) => void;
   action: string;
   method: "get" | "put" | "post" | "patch";
   saveButtonText: string;
@@ -40,30 +49,38 @@ export const TraitForm: FC<TraitFormProps> = ({
   fetcher,
   onSuccess,
   saveButtonText,
+  onError,
 }) => {
-  /**
-   * We maintain a ref with the current `onSuccess` callback so that
-   * we can invoke `onSuccess` from the fetcher `useEffect` without
-   * resetting up the effect every time `onSuccess` changes.
-   */
+  /** Ref for the current `onSuccess` prop */
   const onSuccessRef = useRef(onSuccess);
-  const didSubmit = useRef(false);
-  useEffect(() => {
-    onSuccessRef.current = onSuccess;
-  }, [onSuccess]);
+
+  /** Ref for the current `onError` prop */
+  const onErrorRef = useRef(onError);
 
   /**
-   * Synchronize `onSuccessRef` with `props.onSuccess`
+   * Maintain refs for callbacks
    */
   useEffect(() => {
-    if (!didSubmit.current) {
-      return;
-    }
-    if (fetcher.state === "idle") {
-      onSuccessRef.current();
+    onSuccessRef.current = onSuccess;
+    onErrorRef.current = onError;
+  }, [onSuccess, onError]);
+
+  /**
+   * Invoke onSuccess/onError when a fetch finishes.
+   */
+  useEffect(() => {
+    if (fetcher.state === "idle" && fetcher.data) {
+      if (isBaseError(fetcher.data)) {
+        onErrorRef.current(fetcher.data);
+      } else {
+        onSuccessRef.current();
+      }
     }
   }, [fetcher]);
 
+  /**
+   * Event handler for name field changes
+   */
   const handleNameChange = useCallback<ChangeEventHandler<HTMLInputElement>>(
     (e) => {
       setForm((f) => ({ ...f, name: e.target.value }));
@@ -71,6 +88,10 @@ export const TraitForm: FC<TraitFormProps> = ({
     [setForm]
   );
 
+  /**
+   * Map tracking how many times each enum item shows up. Used to
+   * prevent duplicates.
+   */
   const instanceCount = useMemo(
     () =>
       form.enumValues.reduce<Record<string, number>>((map, { name }) => {
@@ -80,6 +101,10 @@ export const TraitForm: FC<TraitFormProps> = ({
     [form.enumValues]
   );
 
+  /**
+   * Enum values to be rendered, includes the extra "empty" enum value for
+   * the next-to-be-created.
+   */
   const enumValuesToRender = useMemo(
     () => [
       ...form.enumValues,
@@ -93,13 +118,7 @@ export const TraitForm: FC<TraitFormProps> = ({
   );
 
   return (
-    <FormControl
-      component={fetcher.Form}
-      action={action}
-      method={method}
-      fullWidth
-      onSubmit={() => (didSubmit.current = true)}
-    >
+    <fetcher.Form action={action} method={method}>
       <input type="hidden" name="id" value={form.id} />
       <TextField
         label="Name"
@@ -107,25 +126,34 @@ export const TraitForm: FC<TraitFormProps> = ({
         value={form.name}
         onChange={handleNameChange}
         autoFocus
+        fullWidth
       />
       <br />
-      <TextField
-        name="valueType"
-        value={form.valueType}
-        onChange={(e) =>
-          setForm((f) => ({
-            ...f,
-            valueType: e.target.value as CritterTraitValueType,
-          }))
-        }
-        select
-        label="Type"
+      <FormControl
+        fullWidth
+        css={(theme) => ({
+          paddingTop: theme.spacing(2),
+          paddingBottom: theme.spacing(2),
+        })}
       >
-        <MenuItem value={CritterTraitValueType.String}>Text</MenuItem>
-        <MenuItem value={CritterTraitValueType.Timestamp}>Date</MenuItem>
-        <MenuItem value={CritterTraitValueType.Integer}>Number</MenuItem>
-        <MenuItem value={CritterTraitValueType.Enum}>Dropdown</MenuItem>
-      </TextField>
+        <TextField
+          name="valueType"
+          value={form.valueType}
+          onChange={(e) =>
+            setForm((f) => ({
+              ...f,
+              valueType: e.target.value as CritterTraitValueType,
+            }))
+          }
+          select
+          label="Type"
+        >
+          <MenuItem value={CritterTraitValueType.String}>Text</MenuItem>
+          <MenuItem value={CritterTraitValueType.Timestamp}>Date</MenuItem>
+          <MenuItem value={CritterTraitValueType.Integer}>Number</MenuItem>
+          <MenuItem value={CritterTraitValueType.Enum}>Dropdown</MenuItem>
+        </TextField>
+      </FormControl>
       <br />
       {form.valueType === CritterTraitValueType.Enum && (
         <>
@@ -197,6 +225,6 @@ export const TraitForm: FC<TraitFormProps> = ({
       >
         {saveButtonText}
       </LoadingButton>
-    </FormControl>
+    </fetcher.Form>
   );
 };

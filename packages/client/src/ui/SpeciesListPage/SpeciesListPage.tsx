@@ -42,6 +42,9 @@ import {
   SequentialSnackbar,
   useSnackbarQueue,
 } from "../SequentialSnackbar/SequentialSnackbar";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import SpaIcon from "@mui/icons-material/Spa";
+
 export interface SpeciesListPageProps {
   headerBarProps: HeaderBarProps;
   data: NarrowToSpeciesList<GetSpeciesListViewQuery["species"]>;
@@ -98,16 +101,28 @@ export const SpeciesListPage: FC<SpeciesListPageProps> = ({
         <SideNav
           navItems={[
             {
-              to: AppRoutes.speciesList(community.id),
-              children: "Species",
-              icon: <MovieFilterIcon />,
+              to: AppRoutes.communityList(),
+              children: community.name,
+              icon: <SpaIcon />,
+              childNavItems: [
+                {
+                  to: AppRoutes.speciesList(community.id),
+                  children: "Species",
+                  icon: <MovieFilterIcon />,
+                },
+              ],
+            },
+            {
+              to: AppRoutes.admin(),
+              children: "Site Administration",
+              icon: <AdminPanelSettingsIcon />,
             },
           ]}
         />
         <div css={{ flexGrow: 1 }}>
           <Toolbar />
           <Grid container css={{ paddingTop: "18px" }} spacing={2}>
-            {data.list.map((s) => (
+            {data.list.map((species) => (
               <Grid
                 item
                 xs={12}
@@ -120,12 +135,14 @@ export const SpeciesListPage: FC<SpeciesListPageProps> = ({
                   flexDirection: "column",
                   alignItems: "center",
                 }}
-                key={s.id}
+                key={species.id}
               >
                 <SpeciesCard
                   css={{ width: "200px", height: "250px" }}
-                  species={s}
-                  onClick={onSpeciesClick ? () => onSpeciesClick(s) : undefined}
+                  species={species}
+                  onClick={
+                    onSpeciesClick ? () => onSpeciesClick(species) : undefined
+                  }
                 />
               </Grid>
             ))}

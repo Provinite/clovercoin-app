@@ -1,6 +1,6 @@
 import { FunctionComponent, useCallback, useEffect, useMemo } from "react";
 import { useFetcher, useParams } from "react-router-dom";
-import { Card, CardContent, CardHeader, Grid } from "@mui/material";
+import { Alert, Card, CardContent, CardHeader, Grid } from "@mui/material";
 import { slugToUuid } from "../../../utils/uuidUtils";
 import { AppRoutes } from "../../AppRoutes";
 import { useRouteCommunity } from "../../../useRouteCommunity";
@@ -95,6 +95,15 @@ export const EditTraitCard: FunctionComponent = () => {
                   fetcher={fetcher}
                   form={form}
                   setForm={setForm}
+                  onError={(err) => {
+                    snackbarQueue.append({
+                      children: (
+                        <Alert onClose={snackbarQueue.close} severity="error">
+                          {err.__typename}: {err.message}
+                        </Alert>
+                      ),
+                    });
+                  }}
                   method="put"
                   onSuccess={onSuccess}
                   saveButtonText="Save"

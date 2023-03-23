@@ -9,7 +9,8 @@
     "gen": "ts-node ./tools/generate.ts",
     "postinstall": "rm -rf node_modules/@mui/system/styleFunctionSx; find node_modules/@mui/styled-engine -name '*.d.ts' -delete; sed -i 's/ComponentPropsWithRef/ComponentProps/' node_modules/@mui/material/OverridableComponent.d.ts",
     "explainPostInstall": "echo \"This is a performance hack to make tsserver more responsive while using Mui. See https://github.com/mui/material-ui/issues/19113\"",
-    "slug": "ts-node ./tools/slug.ts"
+    "slug": "ts-node ./tools/slug.ts",
+    "refresh-api-client": "./tools/refresh-api-client.sh"
   },
   "dependencies": {
     "@apollo/client": "3.7.1",
