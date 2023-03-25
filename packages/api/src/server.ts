@@ -7,7 +7,7 @@ import { GraphQLParams } from "express-graphql";
 import { v4 } from "uuid";
 import cors from "@koa/cors";
 import { AppGraphqlContext } from "./graphql/AppGraphqlContext";
-import { asFunction, asValue } from "awilix";
+import { asClass, asFunction, asValue } from "awilix";
 import { register } from "./awilix/register";
 import { registerRepositories } from "./models/registerRepositories";
 import { createContainer } from "./awilix/createContainer";
@@ -20,11 +20,19 @@ import { DuplicateError } from "./errors/DuplicateError";
 import { InvalidArgumentError } from "./errors/InvalidArgumentError";
 import { print } from "graphql";
 import { BaseError } from "./errors/BaseError";
+import { PresignedUrlService } from "./s3/PresignedUrlService";
+import { s3Config } from "./s3/s3Config";
 export const createCloverCoinAppServer = async () => {
   const db = await dataSource.initialize();
 
+  /**
+   * HTTP
+   */
   const koa = new Koa();
 
+  /**
+   * GraphQL
+   */
   const schema = await buildSchema({
     resolvers: [...ResolversArray] as NonEmptyArray<
       typeof ResolversArray[number]
@@ -34,8 +42,28 @@ export const createCloverCoinAppServer = async () => {
   });
 
   const rootContainer = createContainer<AppGraphqlContext>("root");
+  /**
+   * Postgres
+   */
   register(rootContainer, "db", asValue(db));
+  /**
+   * S3
+   */
+  register(rootContainer, "s3Config", asFunction(s3Config));
+  register(rootContainer, "presignedUrlService", asClass(PresignedUrlService));
 
+  /**
+   * Logging
+   */
+  register(
+    rootContainer,
+    "logger",
+    asFunction(({ contextName }) => logger.child({ contextName })).scoped()
+  );
+
+  /**
+   * TypeORM
+   */
   register(
     rootContainer,
     "entityManager",
@@ -44,13 +72,13 @@ export const createCloverCoinAppServer = async () => {
     }).scoped()
   );
 
-  register(
-    rootContainer,
-    "logger",
-    asFunction(({ contextName }) => logger.child({ contextName })).scoped()
-  );
-
+  /**
+   * Entity Repositories
+   */
   registerRepositories(rootContainer);
+  /**
+   * Entity Controllers
+   */
   registerControllers(rootContainer);
 
   koa

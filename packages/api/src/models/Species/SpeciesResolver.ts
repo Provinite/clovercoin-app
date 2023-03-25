@@ -1,20 +1,24 @@
-import { IsOptional, IsUrl, IsUUID, MinLength } from "class-validator";
+import { IsOptional, IsUUID, MinLength } from "class-validator";
 import {
   Arg,
   createUnionType,
   Ctx,
   Field,
+  FieldResolver,
   ID,
   InputType,
   Mutation,
   ObjectType,
   Query,
   Resolver,
+  Root,
 } from "type-graphql";
 import { FindManyOptions, ILike } from "typeorm";
 import { DuplicateError } from "../../errors/DuplicateError";
 import { InvalidArgumentError } from "../../errors/InvalidArgumentError";
+import { NotFoundError } from "../../errors/NotFoundError";
 import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
+import { ImageContentType } from "../ImageContentType";
 import { Species } from "./Species";
 
 @InputType()
@@ -26,16 +30,23 @@ export class SpeciesCreateInput {
   @Field(() => ID, { nullable: false })
   @IsUUID(4)
   communityId!: string;
+}
 
-  @Field(() => String, { nullable: false })
-  @IsUrl({
-    require_protocol: true,
-    require_valid_protocol: true,
-    protocols: ["https", "http"],
-    allow_protocol_relative_urls: false,
-    validate_length: false,
-  })
-  iconUrl!: string;
+@InputType()
+export class SpeciesModifyInput {
+  @Field()
+  @IsUUID(4)
+  id!: string;
+}
+
+@InputType()
+export class SpeciesImageUrlCreateInput {
+  @Field(() => ID)
+  @IsUUID(4)
+  speciesId!: string;
+
+  @Field(() => ImageContentType)
+  contentType!: ImageContentType;
 }
 
 @InputType()
@@ -69,6 +80,15 @@ class SpeciesList {
   list!: Species[];
 }
 
+@ObjectType()
+class UrlResponse {
+  @Field(() => String)
+  url: string;
+  constructor(url: string) {
+    this.url = url;
+  }
+}
+
 const SpeciesResponse = createUnionType({
   name: "SpeciesResponse",
   types: () => [SpeciesList, InvalidArgumentError],
@@ -98,11 +118,61 @@ export class SpeciesResolver {
     return new SpeciesList(await speciesRepository.find(filters));
   }
 
+  @FieldResolver(() => String, {
+    description: "Icon URL for this species",
+    nullable: true,
+  })
+  async iconUrl(
+    @Root() species: Species,
+    @Ctx() { presignedUrlService }: AppGraphqlContext
+  ): Promise<string | null> {
+    if (species.hasImage) {
+      return presignedUrlService.getPresignedUrl({
+        object: {
+          Bucket: "images",
+          Key: `species-${species.id}`,
+        },
+      });
+    }
+    return null;
+  }
+
   @Mutation(() => SpeciesCreateResponse)
   async createSpecies(
     @Arg("input") input: SpeciesCreateInput,
     @Ctx() { speciesController }: AppGraphqlContext
   ): Promise<Species> {
-    return await speciesController.create(input);
+    return await speciesController.create({
+      ...input,
+    });
+  }
+
+  @Mutation(() => UrlResponse)
+  async createSpeciesImageUploadUrl(
+    @Arg("input") input: SpeciesImageUrlCreateInput,
+    @Ctx() { transactionProvider }: AppGraphqlContext
+  ): Promise<UrlResponse> {
+    return transactionProvider.runTransaction(
+      async ({ presignedUrlService, speciesController }) => {
+        const species = await speciesController.findOneById(input.speciesId);
+        if (!species) {
+          throw new NotFoundError();
+        }
+        if (!species.hasImage) {
+          await speciesController.updateOneById(species.id, { hasImage: true });
+        }
+        await speciesController.updateOneById(input.speciesId, {
+          hasImage: true,
+        });
+        return new UrlResponse(
+          await presignedUrlService.putPresignedUrl({
+            object: {
+              Bucket: "images",
+              Key: `species-${input.speciesId}`,
+            },
+          })
+        );
+      }
+    );
   }
 }

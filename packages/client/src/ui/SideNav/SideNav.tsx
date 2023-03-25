@@ -13,25 +13,18 @@ import {
   useMemo,
   ReactNode,
 } from "react";
-import { css } from "@emotion/react";
 import { useMatch, useNavigate, LinkProps } from "react-router-dom";
 import { SideBar } from "../SideBar/SideBar";
 import { Link } from "../Link/Link";
-import { noop } from "../util/noop";
-const ss = {
-  navLink: {},
-  activeLink: css({
-    textDecoration: "none",
-    cursor: "default",
-    ":hover": {
-      textDecoration: "none",
-    },
-  }),
-};
+import { isNullish } from "../util/isNullish";
 
 export const SideNavLink: FC<NavItem> = (props) => {
-  const { childNavItems, to, icon, ...rest } = props;
-  const match = useMatch(to as string);
+  const { childNavItems, to, icon, partialUrlMatch, ...rest } = props;
+  const match = useMatch({
+    path: to,
+    caseSensitive: false,
+    end: isNullish(partialUrlMatch) ? true : !partialUrlMatch,
+  });
   const { level } = useContext(NavListContext);
   const navigate = useNavigate();
   return (
@@ -41,7 +34,7 @@ export const SideNavLink: FC<NavItem> = (props) => {
           paddingLeft: theme.spacing(1 + 2 * level),
         })}
         button
-        onClick={match ? noop : () => navigate(to)}
+        onClick={() => navigate(to)}
       >
         <ListItemIcon style={{ minWidth: "34px" }}>{icon}</ListItemIcon>
         <ListItemText>
@@ -60,9 +53,24 @@ export const SideNavLink: FC<NavItem> = (props) => {
   );
 };
 
-export interface NavItem extends LinkProps {
+export interface NavItem extends Omit<LinkProps, "to"> {
+  to: string;
   childNavItems?: NavItem[];
+  /**
+   * Icon to render next to the nav link.
+   * @example
+   * import CoolIcon from "@mui/icons-material/Cool";
+   * const icon = <CoolIcon />;
+   */
   icon?: ReactNode;
+  /**
+   * If true, the link will be rendered in the active state when
+   * the url is that specified in `to` is active, or any route
+   * prefixed with `to`.
+   *
+   * @default false
+   */
+  partialUrlMatch?: boolean;
 }
 
 export interface NavListProps extends ListProps {
@@ -99,4 +107,11 @@ export const SideNav: FC<NavListProps> = (props) => {
       <NavList {...props} />
     </SideBar>
   );
+};
+
+const ss = {
+  navLink: {},
+  activeLink: {
+    textDecoration: "none",
+  },
 };

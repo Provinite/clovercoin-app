@@ -47,7 +47,7 @@ type Critter {
   speciesId: ID!
   traitList: TraitList!
   traitListId: ID!
-  traits: [CritterTraitUnion!]!
+  traitValues: [String!]!
 }
 
 input CritterCreateInput {
@@ -55,56 +55,7 @@ input CritterCreateInput {
   speciesId: String!
 }
 
-type CritterIntTrait implements CritterTrait {
-  critterId: ID!
-  displayValue: String
-  id: ID!
-  trait: Trait!
-  traitId: ID!
-  valueInt: Float
-  valueType: CritterTraitValueType!
-}
-
-type CritterStringTrait implements CritterTrait {
-  critterId: ID!
-  displayValue: String
-  id: ID!
-  trait: Trait!
-  traitId: ID!
-  valueString: String
-  valueType: CritterTraitValueType!
-}
-
-type CritterTimestampTrait implements CritterTrait {
-  critterId: ID!
-  displayValue: String
-  id: ID!
-  trait: Trait!
-  traitId: ID!
-  valueTimestamp: DateTime
-  valueType: CritterTraitValueType!
-}
-
-interface CritterTrait {
-  critterId: ID!
-  displayValue: String
-  id: ID!
-  trait: Trait!
-  traitId: ID!
-  valueType: CritterTraitValueType!
-}
-
-input CritterTraitCreateInput {
-  critterId: ID!
-  traitId: ID!
-  valueBool: Boolean = null
-  valueDate: DateTime = null
-  valueInt: Int = null
-  valueString: String = null
-}
-
-union CritterTraitUnion = CritterIntTrait | CritterStringTrait | CritterTimestampTrait
-
+"""Critter trait value types"""
 enum CritterTraitValueType {
   Enum
   Integer
@@ -112,10 +63,9 @@ enum CritterTraitValueType {
   Timestamp
 }
 
-"""
-The javascript `Date` as string. Type represents date and time as the ISO Date string.
-"""
-scalar DateTime
+type DeleteResponse {
+  ok: Boolean!
+}
 
 type DuplicateError implements BaseError {
   duplicateKeys: [String!]!
@@ -134,6 +84,13 @@ type Identity {
   displayName: String!
   email: String!
   id: ID!
+}
+
+"""Acceptable MIME types for images"""
+enum ImageContentType {
+  Gif
+  Jpg
+  Png
 }
 
 type InvalidArgumentError implements BaseError {
@@ -156,17 +113,26 @@ type Mutation {
   """Create a new community"""
   createCommunity(input: CommunityCreateInput!): CreateCommunityResponse!
   createCritter(input: CritterCreateInput!): Critter!
-  createCritterTrait(input: CritterTraitCreateInput!): CritterTraitUnion!
   createSpecies(input: SpeciesCreateInput!): SpeciesCreateResponse!
-  createTrait(input: TraitCreateInput!): Trait!
-  createTraitList(input: TraitListCreateInput!): TraitList!
-  createTraitListEntry(input: TraitListEntryCreateInput!): TraitListEntry!
+  createSpeciesImageUploadUrl(input: SpeciesImageUrlCreateInput!): UrlResponse!
+  createTrait(input: TraitCreateInput!): TraitCreateResponse!
+  createTraitList(input: TraitListCreateInput!): TraitListCreateResponse!
+
+  """Add a trait to a variant's trait list"""
+  createTraitListEntry(input: TraitListEntryCreateInput!): TraitListEntryCreateResponse!
   deleteTrait(id: ID!): String!
-  deleteTraitListEntry(id: ID!): String!
+
+  """
+  Remove a trait from a variant's traitlist. This will delete any values for this trait from all existing characters under the specified variant.
+  """
+  deleteTraitListEntry(id: ID!): TraitListEntryDeleteResponse!
 
   """Log in using local credentials and receive an auth token"""
   login(input: LoginArgs!): LoginResponse!
-  modifyTrait(input: TraitModifyInput!): Trait!
+  modifyTrait(input: TraitModifyInput!): TraitModifyResponse!
+
+  """Update an entry on a variant's trait list"""
+  modifyTraitListEntry(input: TraitListEntryModifyInput!): TraitListEntryModifyResponse!
 
   """Create a new account and receive an auth token"""
   register(input: RegisterArgs!): LoginResponse!
@@ -203,9 +169,10 @@ type Species {
   """ID of the community that owns this species"""
   communityId: ID!
   critters: [Critter!]!
+  hasImage: String!
 
   """Icon URL for this species"""
-  iconUrl: String!
+  iconUrl: String
   id: ID!
 
   """Name of the species"""
@@ -215,7 +182,6 @@ type Species {
 
 input SpeciesCreateInput {
   communityId: ID!
-  iconUrl: String!
   name: String!
 }
 
@@ -225,6 +191,11 @@ input SpeciesFilters {
   communityId: ID!
   id: ID = null
   name: String = null
+}
+
+input SpeciesImageUrlCreateInput {
+  contentType: ImageContentType!
+  speciesId: ID!
 }
 
 type SpeciesList {
@@ -253,6 +224,8 @@ input TraitCreateInput {
   valueType: CritterTraitValueType!
 }
 
+union TraitCreateResponse = DuplicateError | InvalidArgumentError | Trait
+
 input TraitFilters {
   speciesId: ID!
 }
@@ -270,6 +243,8 @@ input TraitListCreateInput {
   speciesId: ID!
 }
 
+union TraitListCreateResponse = DuplicateError | InvalidArgumentError | TraitList
+
 type TraitListEntry {
   defaultDisplayValue: String
   id: ID!
@@ -282,12 +257,26 @@ type TraitListEntry {
   valueType: CritterTraitValueType!
 }
 
+"""Input object for creating a new TraitListEntry"""
 input TraitListEntryCreateInput {
   order: Int!
   required: Boolean = false
   traitId: ID!
   traitListId: ID!
 }
+
+union TraitListEntryCreateResponse = DuplicateError | InvalidArgumentError | TraitListEntry
+
+union TraitListEntryDeleteResponse = DeleteResponse | InvalidArgumentError
+
+"""Input object for modifying a TraitListEntry"""
+input TraitListEntryModifyInput {
+  id: ID!
+  order: Int
+  required: Boolean
+}
+
+union TraitListEntryModifyResponse = InvalidArgumentError | TraitListEntry
 
 input TraitModifyEnumValueInput {
   id: ID = null
@@ -300,6 +289,12 @@ input TraitModifyInput {
   id: ID!
   name: String!
   valueType: CritterTraitValueType!
+}
+
+union TraitModifyResponse = DuplicateError | InvalidArgumentError | Trait
+
+type UrlResponse {
+  url: String!
 }
 
 type ValidationConstraint {

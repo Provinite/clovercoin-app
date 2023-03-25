@@ -1,9 +1,6 @@
-import { Field, ID, ObjectType } from "type-graphql";
-import { Column, Entity, ManyToOne, OneToMany, RelationId } from "typeorm";
+import { Field, ObjectType } from "type-graphql";
+import { Column, Entity } from "typeorm";
 import { Species } from "../Species/Species";
-import { TypeormLoader } from "type-graphql-dataloader";
-import { CritterTrait } from "../CritterTrait/CritterTrait";
-import { CritterTraitUnionType } from "../CritterTrait/CritterTraitUnionType";
 import {
   IdField,
   ManyToOneField,
@@ -64,10 +61,9 @@ export class Critter {
   })
   traitListId!: string;
 
-  @OneToMany(() => CritterTrait, (critterTrait) => critterTrait.critter)
-  @Field(() => [CritterTraitUnionType], { nullable: false })
-  @TypeormLoader()
-  traits!: CritterTrait[];
+  @Column("jsonb", { default: [], array: true, nullable: false })
+  @Field(() => [String], { nullable: false })
+  traitValues!: string[];
 }
 
 export type CritterRequiredFieldKeys = "speciesId";

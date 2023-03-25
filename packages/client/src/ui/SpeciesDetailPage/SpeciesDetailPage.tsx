@@ -54,6 +54,7 @@ export const SpeciesDetailPage: FC<SpeciesDetailPageProps> = ({
                     to: AppRoutes.speciesTraitList(communityId, species.id),
                     children: "Traits",
                     icon: <InterestsIcon />,
+                    partialUrlMatch: true,
                   },
                   {
                     to: AppRoutes.speciesVariantList(communityId, species.id),

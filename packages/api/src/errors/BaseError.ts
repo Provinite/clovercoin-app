@@ -1,9 +1,9 @@
 import { Field, InterfaceType } from "type-graphql";
 
 @InterfaceType({
-  isAbstract: true,
+  isAbstract: false,
 })
-export class BaseError {
+export abstract class BaseError {
   constructor(message = "Unknown error.") {
     this.message = message;
   }

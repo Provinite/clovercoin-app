@@ -4,11 +4,15 @@ import type { ControllerContext } from "../business/registerControllers";
 import type { TransactionProvider } from "../db/TransactionProvider";
 import type { RepositoryContext } from "../models/registerRepositories";
 import type { Logger } from "winston";
+import { PresignedUrlService } from "../s3/PresignedUrlService";
+import { S3ClientConfig } from "@aws-sdk/client-s3";
 export interface AppGraphqlContext
   extends RepositoryContext,
     ControllerContext {
   db: Connection;
   entityManager: EntityManager;
+  presignedUrlService: PresignedUrlService;
+  s3Config: S3ClientConfig;
   _tgdContext: {
     requestId: string;
     typeormGetConnection: () => Connection;

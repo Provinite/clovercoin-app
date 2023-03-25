@@ -14,7 +14,6 @@ import {
   Typography,
 } from "@mui/material";
 import { FunctionComponent, useEffect, useState } from "react";
-import { AddBadge } from "../../AddBadge/AddBadge";
 import { useRouteSpecies } from "../useRouteSpecies";
 import TuneIcon from "@mui/icons-material/Tune";
 import { useRouteTraits } from "../useRouteTraits";
@@ -40,6 +39,8 @@ export const TraitListCard: FunctionComponent = () => {
     useState<typeof data["traits"][number]>();
 
   const [loading, setLoading] = useState(false);
+  const snackbarQueue = useSnackbarQueue();
+
   useEffect(() => {
     if (fetcher.state !== "idle") {
       setLoading(true);
@@ -57,17 +58,16 @@ export const TraitListCard: FunctionComponent = () => {
         ),
       });
     }
-  }, [fetcher]);
-  const snackbarQueue = useSnackbarQueue();
+  }, [fetcher, snackbarQueue.append]);
   return (
     <Card elevation={1}>
       <SequentialSnackbar queue={snackbarQueue} />
       <CardHeader
         title={`${species.name} - Traits`}
         action={
-          <AddBadge to={AppRoutes.speciesTraitAdd(community.id, species.id)}>
-            Add One
-          </AddBadge>
+          <Link to={AppRoutes.speciesTraitAdd(community.id, species.id)}>
+            <Button variant="contained">Add One</Button>
+          </Link>
         }
         subheader={`All traits available to ${species.name} are listed here.`}
       />

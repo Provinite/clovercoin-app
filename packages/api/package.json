@@ -9,12 +9,14 @@
     "test-integration": "jest --config jest.integration.config.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.282.0",
+    "@aws-sdk/s3-request-presigner": "^3.282.0",
     "@graphql-codegen/cli": "^2.6.2",
     "@koa/cors": "^3.3.0",
     "@types/koa__cors": "^3.1.1",
     "awilix": "^7.0.2",
     "bcrypt": "^5.0.1",
-    "class-validator": "^0.13.2",
+    "class-validator": "0.14.0",
     "graphql": "^15.5.0",
     "http-errors": "^2.0.0",
     "jsonwebtoken": "^8.5.1",
@@ -31,6 +33,7 @@
   },
   "devDependencies": {
     "@apollo/client": "^3.7.1",
+    "@aws-sdk/types": "^3.272.0",
     "@clovercoin/api-client": "*",
     "@types/bcrypt": "^5.0.0",
     "@types/koa-mount": "^4.0.1",

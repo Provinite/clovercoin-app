@@ -34,7 +34,7 @@ export const EditTraitCard: FunctionComponent = () => {
    * Current editing trait uuid
    */
   const traitId = useMemo(
-    () => (traitSlug ? slugToUuid(traitSlug!) : ""),
+    () => (traitSlug ? slugToUuid(traitSlug) : ""),
     [traitSlug]
   );
 

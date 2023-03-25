@@ -4,6 +4,7 @@ import { useRouteSpecies } from "../useRouteSpecies";
 import {
   Button,
   Card,
+  CardContent,
   CardHeader,
   Grid,
   Stack,
@@ -41,67 +42,69 @@ export const VariantListCard: FC<VariantListCardProps> = () => {
         title={`${species.name}: Variants`}
         subheader={`All variants available to ${species.name} are listed here.`}
       />
-      <fetcher.Form
-        action={AppRoutes.speciesVariantList(community.id, species.id)}
-        method="post"
-      >
-        <Grid container>
-          <GridRow xs={[6, 6]}>
-            <Typography p={2} variant="body1" color="text.secondary">
-              Variant Name
-            </Typography>
-            <></>
-          </GridRow>
-          {species.traitLists.map((traitList) => (
-            <GridRow key={traitList.id} xs={[12, 0]}>
-              <Link
-                padding={2}
-                to={AppRoutes.speciesVariantDetail(
-                  community.id,
-                  species.id,
-                  traitList.id
-                )}
-                state
-              >
-                {traitList.name}
-              </Link>
+      <CardContent>
+        <fetcher.Form
+          action={AppRoutes.speciesVariantList(community.id, species.id)}
+          method="post"
+        >
+          <Grid container>
+            <GridRow xs={[6, 6]}>
+              <Typography p={2} variant="body1" color="text.secondary">
+                Variant Name
+              </Typography>
               <></>
             </GridRow>
-          ))}
+            {species.traitLists.map((traitList) => (
+              <GridRow key={traitList.id} xs={[12, 0]}>
+                <Link
+                  padding={2}
+                  to={AppRoutes.speciesVariantDetail(
+                    community.id,
+                    species.id,
+                    traitList.id
+                  )}
+                  state
+                >
+                  {traitList.name}
+                </Link>
+                <></>
+              </GridRow>
+            ))}
 
-          <GridRow
-            xs={[6, 2, 4]}
-            css={{
-              ":hover": {
-                ".MuiGrid-item": {
-                  backgroundColor: "unset",
+            <GridRow
+              xs={[6, 2, 4]}
+              css={{
+                ":hover": {
+                  ".MuiGrid-item": {
+                    backgroundColor: "unset",
+                  },
                 },
-              },
-            }}
-          >
-            <TextField
-              name="name"
-              label="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              css={(theme) => ({ margin: theme.spacing(2) })}
-            />
-            <Stack
-              p={2}
-              pl={2}
-              pr={2}
-              direction="column"
-              justifyContent="center"
-              flexGrow={1}
+              }}
             >
-              <Button disabled={!name} type="submit" variant="contained">
-                <AddIcon fontSize="large" />
-              </Button>
-            </Stack>
-            <></>
-          </GridRow>
-        </Grid>
-      </fetcher.Form>
+              <TextField
+                name="name"
+                label="Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                css={(theme) => ({ margin: theme.spacing(2) })}
+              />
+              <Stack
+                p={2}
+                pl={2}
+                pr={2}
+                direction="column"
+                justifyContent="center"
+                flexGrow={1}
+              >
+                <Button disabled={!name} type="submit" variant="contained">
+                  <AddIcon fontSize="large" />
+                </Button>
+              </Stack>
+              <></>
+            </GridRow>
+          </Grid>
+        </fetcher.Form>
+      </CardContent>
     </Card>
   );
 };

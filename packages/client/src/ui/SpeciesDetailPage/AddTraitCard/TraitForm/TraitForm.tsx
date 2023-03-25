@@ -162,21 +162,21 @@ export const TraitForm: FC<TraitFormProps> = ({
             Options for this trait. Drag to reorder.
           </Typography>
           <List>
-            {enumValuesToRender.map((ev, i) => {
+            {enumValuesToRender.map((enumValue, i) => {
               return (
                 <DraggableEnumValueInput
                   index={i}
-                  key={ev.id || ev.localId}
+                  key={enumValue.id || enumValue.localId}
                   label={`Dropdown option ${i}`}
-                  enumValue={ev}
-                  error={instanceCount[ev.name] > 1}
+                  enumValue={enumValue}
+                  error={instanceCount[enumValue.name] > 1}
                   onChange={(e) => {
                     setForm((f) => ({
                       ...f,
                       enumValues: [
                         ...f.enumValues.slice(0, i),
                         {
-                          ...ev,
+                          ...enumValue,
                           name: e.target.value,
                         },
                         ...f.enumValues.slice(i + 1),

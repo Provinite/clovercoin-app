@@ -3,7 +3,6 @@ import { Community } from "./Community/Community";
 import { CommunityMember } from "./CommunityMember/CommunityMember";
 import { Critter } from "./Critter/Critter";
 import { CritterOwnershipChange } from "./CritterOwnershipChange/CritterOwnershipChange";
-import { CritterTrait } from "./CritterTrait/CritterTrait";
 import { EnumValue } from "./EnumValue/EnumValue";
 import { EnumValueSetting } from "./EnumValueSetting/EnumValueSetting";
 import { Identity } from "./Identity/Identity";
@@ -23,7 +22,6 @@ const modelsByName = {
 
   Critter,
   CritterOwnershipChange,
-  CritterTrait,
 
   EnumValue,
   EnumValueSetting,

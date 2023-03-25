@@ -378,9 +378,9 @@ const traitDetailAction = makeAction(
     form: {
       id: true,
       name: true,
-      dataType: true,
+      valueType: true,
       enumValues: { all: true, required: true },
-      enumValueIds: {
+      enumValueId: {
         all: true,
         required: true,
       },
@@ -389,7 +389,7 @@ const traitDetailAction = makeAction(
   async ({
     method,
     ids: { traitId, speciesId },
-    form: { id, name, dataType, enumValues, enumValueIds },
+    form: { id, name, valueType, enumValues, enumValueId },
   }) => {
     if (method === "DELETE") {
       await graphqlService.deleteTrait({
@@ -407,28 +407,29 @@ const traitDetailAction = makeAction(
         },
       });
     } else if (method === "PUT") {
-      if (enumValues.length !== enumValueIds.length) {
+      if (enumValues.length !== enumValueId.length) {
         throw new Error("400");
       }
 
-      const input = {
-        id,
-        name,
-        valueType: dataType as CritterTraitValueType,
-        enumValues: enumValues
-          .map((name, i) => ({
-            name,
-            id: enumValueIds[i],
-            order: i,
-          }))
-          .filter(({ name }) => name),
-      };
-
-      await graphqlService.modifySpeciesTrait({
+      const result = await graphqlService.modifySpeciesTrait({
         variables: {
-          input: input,
+          input: {
+            id,
+            name,
+            valueType: valueType as CritterTraitValueType,
+            enumValues: enumValues
+              .map((name, i) => ({
+                name,
+                id: enumValueId[i] || undefined,
+                order: i,
+              }))
+              .filter(({ name }) => name),
+          },
         },
-        update(cache) {
+        update(cache, { data }) {
+          if (!data || isBaseError(data.modifyTrait)) {
+            return;
+          }
           cache.modify({
             fields: {
               traits: (data, { DELETE, storeFieldName }) => {
@@ -441,6 +442,7 @@ const traitDetailAction = makeAction(
           });
         },
       });
+      return result.data.modifyTrait;
     }
   }
 );

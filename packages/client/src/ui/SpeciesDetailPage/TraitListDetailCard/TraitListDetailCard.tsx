@@ -10,10 +10,8 @@ import {
   DialogContentText,
   DialogTitle,
   Grid,
-  Switch,
-  Typography,
 } from "@mui/material";
-import { FC, FunctionComponent, HTMLProps, useState } from "react";
+import { FunctionComponent, useState } from "react";
 import { useFetcher } from "react-router-dom";
 import { useRouteCommunity } from "../../../useRouteCommunity";
 import { stylesheet } from "../../../utils/emotion";
@@ -23,6 +21,8 @@ import { GridRow } from "../../lib/GridRow";
 import { With } from "../../util/With";
 import { useRouteSpecies } from "../useRouteSpecies";
 import { useRouteVariant } from "../useRouteTraitList";
+import { TextStack } from "./TextStack";
+import { VariantTraitListEntryListItem } from "./VariantTraitListItem";
 
 export const TraitListDetailCard: FunctionComponent = () => {
   const variant = useRouteVariant();
@@ -62,65 +62,32 @@ export const TraitListDetailCard: FunctionComponent = () => {
           {allTraits.traits.map((trait) => (
             <With value={() => findTraitListEntry(trait.id)} key={trait.id}>
               {(traitListEntry) => (
-                <GridRow xs={[3, 2, 2, 5]}>
-                  {/* Name & Type */}
-                  <TextStack
-                    css={ss.gridItem}
-                    primary={trait.name}
-                    secondary={trait.valueType}
-                  />
-                  {/* Order */}
-                  <div css={ss.gridItem}>
-                    <Typography variant="body1">
-                      {traitListEntry?.order ?? ""}
-                    </Typography>
-                  </div>
-                  {/* Required */}
-                  <div css={ss.gridItem}>
-                    <Switch
-                      disabled={!traitListEntry}
-                      checked={traitListEntry?.required ?? false}
-                      onChange={() => {
-                        if (!traitListEntry) {
-                          return;
-                        }
-                        submit(
-                          {
-                            required: traitListEntry.required
-                              ? "false"
-                              : "true",
-                          },
-                          {
-                            action:
-                              AppRoutes.speciesVariantTraitListEntryDetail(
-                                community.id,
-                                species.id,
-                                variant.id,
-                                traitListEntry.id
-                              ),
-                            method: "patch",
-                          }
-                        );
-                      }}
-                    />
-                  </div>
-                  {/* Enabled */}
-                  <div css={ss.gridItem}>
-                    <Switch
-                      color="success"
-                      checked={Boolean(traitListEntry)}
-                      onChange={() => {
-                        if (!traitListEntry) {
-                          setTraitToAdd(trait);
-                          setShowConfirmAddDialog(true);
-                        } else {
-                          setTraitListEntryToRemove(traitListEntry);
-                          setShowConfirmRemoveDialog(true);
-                        }
-                      }}
-                    />
-                  </div>
-                </GridRow>
+                <VariantTraitListEntryListItem
+                  trait={trait}
+                  traitListEntry={traitListEntry}
+                  onEnabledChange={(trait, enabled, traitListEntry) => {
+                    if (enabled) {
+                      setTraitToAdd(trait);
+                      setShowConfirmAddDialog(true);
+                    } else {
+                      setTraitListEntryToRemove(traitListEntry);
+                      setShowConfirmRemoveDialog(true);
+                    }
+                  }}
+                  onRequiredChange={(traitListEntry, required) => {
+                    const route = AppRoutes.speciesVariantTraitListEntryDetail(
+                      community.id,
+                      species.id,
+                      variant.id,
+                      traitListEntry.id
+                    );
+                    const formData = { required: required.toString() };
+                    submit(formData, {
+                      action: route,
+                      method: "patch",
+                    });
+                  }}
+                ></VariantTraitListEntryListItem>
               )}
             </With>
           ))}
@@ -218,26 +185,6 @@ export const TraitListDetailCard: FunctionComponent = () => {
         </DialogContent>
       </Dialog>
     </Card>
-  );
-};
-
-const TextStack: FC<
-  {
-    primary: string;
-    secondary?: string;
-    className?: string;
-  } & HTMLProps<HTMLDivElement>
-> = ({ primary, secondary, ...rest }) => {
-  return (
-    <div {...rest}>
-      <Typography variant="body1">{primary}</Typography>
-      <Typography
-        variant="body2"
-        css={(theme) => ({ color: theme.palette.text.secondary })}
-      >
-        {secondary ?? "\u00A0"}
-      </Typography>
-    </div>
   );
 };
 

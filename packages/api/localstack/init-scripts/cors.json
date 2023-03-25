@@ -1,0 +1,12 @@
+{
+  "CORSRules": [
+    {
+      "ID": "local-dev",
+      "AllowedHeaders": ["content-type"],
+      "AllowedMethods": ["PUT"],
+      "AllowedOrigins": ["http://localhost:1234"],
+      "ExposeHeaders": [],
+      "MaxAgeSeconds": 10
+    }
+  ]
+}

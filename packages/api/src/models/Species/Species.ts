@@ -44,6 +44,7 @@ export class Species {
   @TypeormLoader()
   traitLists!: TraitList[];
 
-  @Field(() => String, { description: "Icon URL for this species" })
-  iconUrl: string = "https://placekitten.com/200/200";
+  @Field(() => String, {})
+  @Column("boolean", { nullable: false, default: false })
+  hasImage: boolean = false;
 }

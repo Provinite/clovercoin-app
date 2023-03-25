@@ -121,7 +121,7 @@ export const DraggableEnumValueInput: FC<DraggableEnumValueInputProps> = ({
   drag(drop(ref));
 
   return (
-    <ListItem sx={{ pl: 0, pr: 0 }} ref={ref}>
+    <ListItem css={{ paddingLeft: 0, paddingRight: 0 }} ref={ref}>
       <input type="hidden" name="enumValueId" value={id ?? ""} />
       <TextField
         label={label}

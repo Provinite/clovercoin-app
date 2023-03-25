@@ -55,7 +55,12 @@ export class EntityController<
   }
 
   async updateOneById(id: Model["id"], updateBody: UpdateBody): Promise<Model> {
-    return this.repository.save({ id, ...(updateBody as DeepPartial<Model>) });
+    await this.repository.save({ id, ...(updateBody as DeepPartial<Model>) });
+    return this.repository.findOneOrFail({
+      where: {
+        id,
+      },
+    });
   }
 
   async find(where: FindOptionsWhere<Model>): Promise<Model[]> {

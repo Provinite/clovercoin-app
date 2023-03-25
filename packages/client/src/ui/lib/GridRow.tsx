@@ -27,6 +27,7 @@ export const GridRow: FC<{
   lg?: number[];
   xl?: number[];
   className?: string;
+  divider?: boolean;
 }> = ({
   children,
   xs = [],
@@ -36,6 +37,7 @@ export const GridRow: FC<{
   xl = [],
   selected = false,
   className,
+  divider = true,
 }) => {
   return (
     <Box
@@ -64,7 +66,7 @@ export const GridRow: FC<{
             {...gridProps}
           >
             {c}
-            <Divider css={{ display: "block" }} />
+            {divider && <Divider css={{ display: "block" }} />}
           </Grid>
         );
       })}

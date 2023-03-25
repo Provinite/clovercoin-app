@@ -26,8 +26,6 @@ export interface Scalars {
   Boolean: boolean;
   Int: number;
   Float: number;
-  /** The javascript `Date` as string. Type represents date and time as the ISO Date string. */
-  DateTime: any;
 }
 
 export interface Account {
@@ -84,7 +82,7 @@ export interface Critter {
   speciesId: Scalars["ID"];
   traitList: TraitList;
   traitListId: Scalars["ID"];
-  traits: Array<CritterTraitUnion>;
+  traitValues: Array<Scalars["String"]>;
 }
 
 export interface CritterCreateInput {
@@ -92,67 +90,17 @@ export interface CritterCreateInput {
   speciesId: Scalars["String"];
 }
 
-export interface CritterIntTrait extends CritterTrait {
-  __typename?: "CritterIntTrait";
-  critterId: Scalars["ID"];
-  displayValue?: Maybe<Scalars["String"]>;
-  id: Scalars["ID"];
-  trait: Trait;
-  traitId: Scalars["ID"];
-  valueInt?: Maybe<Scalars["Float"]>;
-  valueType: CritterTraitValueType;
-}
-
-export interface CritterStringTrait extends CritterTrait {
-  __typename?: "CritterStringTrait";
-  critterId: Scalars["ID"];
-  displayValue?: Maybe<Scalars["String"]>;
-  id: Scalars["ID"];
-  trait: Trait;
-  traitId: Scalars["ID"];
-  valueString?: Maybe<Scalars["String"]>;
-  valueType: CritterTraitValueType;
-}
-
-export interface CritterTimestampTrait extends CritterTrait {
-  __typename?: "CritterTimestampTrait";
-  critterId: Scalars["ID"];
-  displayValue?: Maybe<Scalars["String"]>;
-  id: Scalars["ID"];
-  trait: Trait;
-  traitId: Scalars["ID"];
-  valueTimestamp?: Maybe<Scalars["DateTime"]>;
-  valueType: CritterTraitValueType;
-}
-
-export interface CritterTrait {
-  critterId: Scalars["ID"];
-  displayValue?: Maybe<Scalars["String"]>;
-  id: Scalars["ID"];
-  trait: Trait;
-  traitId: Scalars["ID"];
-  valueType: CritterTraitValueType;
-}
-
-export interface CritterTraitCreateInput {
-  critterId: Scalars["ID"];
-  traitId: Scalars["ID"];
-  valueBool?: InputMaybe<Scalars["Boolean"]>;
-  valueDate?: InputMaybe<Scalars["DateTime"]>;
-  valueInt?: InputMaybe<Scalars["Int"]>;
-  valueString?: InputMaybe<Scalars["String"]>;
-}
-
-export type CritterTraitUnion =
-  | CritterIntTrait
-  | CritterStringTrait
-  | CritterTimestampTrait;
-
+/** Critter trait value types */
 export enum CritterTraitValueType {
   Enum = "Enum",
   Integer = "Integer",
   String = "String",
   Timestamp = "Timestamp",
+}
+
+export interface DeleteResponse {
+  __typename?: "DeleteResponse";
+  ok: Scalars["Boolean"];
 }
 
 export interface DuplicateError extends BaseError {
@@ -175,6 +123,13 @@ export interface Identity {
   displayName: Scalars["String"];
   email: Scalars["String"];
   id: Scalars["ID"];
+}
+
+/** Acceptable MIME types for images */
+export enum ImageContentType {
+  Gif = "Gif",
+  Jpg = "Jpg",
+  Png = "Png",
 }
 
 export interface InvalidArgumentError extends BaseError {
@@ -200,16 +155,20 @@ export interface Mutation {
   /** Create a new community */
   createCommunity: CreateCommunityResponse;
   createCritter: Critter;
-  createCritterTrait: CritterTraitUnion;
   createSpecies: SpeciesCreateResponse;
-  createTrait: Trait;
-  createTraitList: TraitList;
-  createTraitListEntry: TraitListEntry;
+  createSpeciesImageUploadUrl: UrlResponse;
+  createTrait: TraitCreateResponse;
+  createTraitList: TraitListCreateResponse;
+  /** Add a trait to a variant's trait list */
+  createTraitListEntry: TraitListEntryCreateResponse;
   deleteTrait: Scalars["String"];
-  deleteTraitListEntry: Scalars["String"];
+  /** Remove a trait from a variant's traitlist. This will delete any values for this trait from all existing characters under the specified variant. */
+  deleteTraitListEntry: TraitListEntryDeleteResponse;
   /** Log in using local credentials and receive an auth token */
   login: LoginResponse;
-  modifyTrait: Trait;
+  modifyTrait: TraitModifyResponse;
+  /** Update an entry on a variant's trait list */
+  modifyTraitListEntry: TraitListEntryModifyResponse;
   /** Create a new account and receive an auth token */
   register: LoginResponse;
 }
@@ -222,12 +181,12 @@ export interface MutationCreateCritterArgs {
   input: CritterCreateInput;
 }
 
-export interface MutationCreateCritterTraitArgs {
-  input: CritterTraitCreateInput;
-}
-
 export interface MutationCreateSpeciesArgs {
   input: SpeciesCreateInput;
+}
+
+export interface MutationCreateSpeciesImageUploadUrlArgs {
+  input: SpeciesImageUrlCreateInput;
 }
 
 export interface MutationCreateTraitArgs {
@@ -256,6 +215,10 @@ export interface MutationLoginArgs {
 
 export interface MutationModifyTraitArgs {
   input: TraitModifyInput;
+}
+
+export interface MutationModifyTraitListEntryArgs {
+  input: TraitListEntryModifyInput;
 }
 
 export interface MutationRegisterArgs {
@@ -308,8 +271,9 @@ export interface Species {
   /** ID of the community that owns this species */
   communityId: Scalars["ID"];
   critters: Array<Critter>;
+  hasImage: Scalars["String"];
   /** Icon URL for this species */
-  iconUrl: Scalars["String"];
+  iconUrl?: Maybe<Scalars["String"]>;
   id: Scalars["ID"];
   /** Name of the species */
   name: Scalars["String"];
@@ -318,7 +282,6 @@ export interface Species {
 
 export interface SpeciesCreateInput {
   communityId: Scalars["ID"];
-  iconUrl: Scalars["String"];
   name: Scalars["String"];
 }
 
@@ -331,6 +294,11 @@ export interface SpeciesFilters {
   communityId: Scalars["ID"];
   id?: InputMaybe<Scalars["ID"]>;
   name?: InputMaybe<Scalars["String"]>;
+}
+
+export interface SpeciesImageUrlCreateInput {
+  contentType: ImageContentType;
+  speciesId: Scalars["ID"];
 }
 
 export interface SpeciesList {
@@ -361,6 +329,8 @@ export interface TraitCreateInput {
   valueType: CritterTraitValueType;
 }
 
+export type TraitCreateResponse = DuplicateError | InvalidArgumentError | Trait;
+
 export interface TraitFilters {
   speciesId: Scalars["ID"];
 }
@@ -379,6 +349,11 @@ export interface TraitListCreateInput {
   speciesId: Scalars["ID"];
 }
 
+export type TraitListCreateResponse =
+  | DuplicateError
+  | InvalidArgumentError
+  | TraitList;
+
 export interface TraitListEntry {
   __typename?: "TraitListEntry";
   defaultDisplayValue?: Maybe<Scalars["String"]>;
@@ -392,12 +367,33 @@ export interface TraitListEntry {
   valueType: CritterTraitValueType;
 }
 
+/** Input object for creating a new TraitListEntry */
 export interface TraitListEntryCreateInput {
   order: Scalars["Int"];
   required?: InputMaybe<Scalars["Boolean"]>;
   traitId: Scalars["ID"];
   traitListId: Scalars["ID"];
 }
+
+export type TraitListEntryCreateResponse =
+  | DuplicateError
+  | InvalidArgumentError
+  | TraitListEntry;
+
+export type TraitListEntryDeleteResponse =
+  | DeleteResponse
+  | InvalidArgumentError;
+
+/** Input object for modifying a TraitListEntry */
+export interface TraitListEntryModifyInput {
+  id: Scalars["ID"];
+  order?: InputMaybe<Scalars["Int"]>;
+  required?: InputMaybe<Scalars["Boolean"]>;
+}
+
+export type TraitListEntryModifyResponse =
+  | InvalidArgumentError
+  | TraitListEntry;
 
 export interface TraitModifyEnumValueInput {
   id?: InputMaybe<Scalars["ID"]>;
@@ -410,6 +406,13 @@ export interface TraitModifyInput {
   id: Scalars["ID"];
   name: Scalars["String"];
   valueType: CritterTraitValueType;
+}
+
+export type TraitModifyResponse = DuplicateError | InvalidArgumentError | Trait;
+
+export interface UrlResponse {
+  __typename?: "UrlResponse";
+  url: Scalars["String"];
 }
 
 export interface ValidationConstraint {
@@ -472,35 +475,7 @@ export type GetCrittersQuery = {
     __typename?: "Critter";
     id: string;
     name: string;
-    traits: Array<
-      | {
-          __typename?: "CritterIntTrait";
-          displayValue?: string | null;
-          trait: {
-            __typename?: "Trait";
-            id: string;
-            valueType: CritterTraitValueType;
-          };
-        }
-      | {
-          __typename?: "CritterStringTrait";
-          displayValue?: string | null;
-          trait: {
-            __typename?: "Trait";
-            id: string;
-            valueType: CritterTraitValueType;
-          };
-        }
-      | {
-          __typename?: "CritterTimestampTrait";
-          displayValue?: string | null;
-          trait: {
-            __typename?: "Trait";
-            id: string;
-            valueType: CritterTraitValueType;
-          };
-        }
-    >;
+    traitValues: Array<string>;
     species: {
       __typename?: "Species";
       id: string;
@@ -542,20 +517,115 @@ export type CreateTraitListEntryMutationVariables = Exact<{
 
 export type CreateTraitListEntryMutation = {
   __typename?: "Mutation";
-  createTraitListEntry: {
-    __typename?: "TraitListEntry";
-    id: string;
-    defaultDisplayValue?: string | null;
-    order: number;
-    required: boolean;
-    trait: {
-      __typename?: "Trait";
-      id: string;
-      name: string;
-      valueType: CritterTraitValueType;
-      enumValues: Array<{ __typename?: "EnumValue"; id: string; name: string }>;
-    };
-  };
+  createTraitListEntry:
+    | {
+        __typename: "DuplicateError";
+        message: string;
+        duplicateKeys: Array<string>;
+      }
+    | {
+        __typename: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      }
+    | {
+        __typename: "TraitListEntry";
+        id: string;
+        defaultDisplayValue?: string | null;
+        order: number;
+        required: boolean;
+        trait: {
+          __typename?: "Trait";
+          id: string;
+          name: string;
+          valueType: CritterTraitValueType;
+          enumValues: Array<{
+            __typename?: "EnumValue";
+            id: string;
+            name: string;
+          }>;
+        };
+      };
+};
+
+export type DeleteTraitListEntryMutationVariables = Exact<{
+  id: Scalars["ID"];
+}>;
+
+export type DeleteTraitListEntryMutation = {
+  __typename?: "Mutation";
+  deleteTraitListEntry:
+    | { __typename: "DeleteResponse"; ok: boolean }
+    | {
+        __typename: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      };
+};
+
+export type ModifyTraitListEntryMutationVariables = Exact<{
+  input: TraitListEntryModifyInput;
+}>;
+
+export type ModifyTraitListEntryMutation = {
+  __typename?: "Mutation";
+  modifyTraitListEntry:
+    | {
+        __typename: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      }
+    | {
+        __typename: "TraitListEntry";
+        id: string;
+        defaultDisplayValue?: string | null;
+        order: number;
+        required: boolean;
+        trait: {
+          __typename?: "Trait";
+          id: string;
+          name: string;
+          valueType: CritterTraitValueType;
+          enumValues: Array<{
+            __typename?: "EnumValue";
+            id: string;
+            name: string;
+          }>;
+        };
+      };
+};
+
+export type CreateSpeciesImageUploadUrlMutationVariables = Exact<{
+  input: SpeciesImageUrlCreateInput;
+}>;
+
+export type CreateSpeciesImageUploadUrlMutation = {
+  __typename?: "Mutation";
+  createSpeciesImageUploadUrl: { __typename: "UrlResponse"; url: string };
 };
 
 export type CreateSpeciesTraitMutationVariables = Exact<{
@@ -564,7 +634,54 @@ export type CreateSpeciesTraitMutationVariables = Exact<{
 
 export type CreateSpeciesTraitMutation = {
   __typename?: "Mutation";
-  createTrait: { __typename?: "Trait"; id: string };
+  createTrait:
+    | {
+        __typename: "DuplicateError";
+        duplicateKeys: Array<string>;
+        message: string;
+      }
+    | {
+        __typename?: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      }
+    | { __typename?: "Trait"; id: string };
+};
+
+export type CreateVariantMutationVariables = Exact<{
+  input: TraitListCreateInput;
+}>;
+
+export type CreateVariantMutation = {
+  __typename?: "Mutation";
+  createTraitList:
+    | {
+        __typename: "DuplicateError";
+        message: string;
+        duplicateKeys: Array<string>;
+      }
+    | {
+        __typename?: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      }
+    | { __typename?: "TraitList"; id: string; name: string };
 };
 
 export type DeleteTraitMutationVariables = Exact<{
@@ -574,15 +691,6 @@ export type DeleteTraitMutationVariables = Exact<{
 export type DeleteTraitMutation = {
   __typename?: "Mutation";
   deleteTrait: string;
-};
-
-export type DeleteTraitListEntryMutationVariables = Exact<{
-  id: Scalars["ID"];
-}>;
-
-export type DeleteTraitListEntryMutation = {
-  __typename?: "Mutation";
-  deleteTraitListEntry: string;
 };
 
 export type GetSpeciesDetailQueryVariables = Exact<{
@@ -659,13 +767,36 @@ export type ModifySpeciesTraitMutationVariables = Exact<{
 
 export type ModifySpeciesTraitMutation = {
   __typename?: "Mutation";
-  modifyTrait: {
-    __typename?: "Trait";
-    id: string;
-    name: string;
-    valueType: CritterTraitValueType;
-    enumValues: Array<{ __typename?: "EnumValue"; id: string; name: string }>;
-  };
+  modifyTrait:
+    | {
+        __typename: "DuplicateError";
+        duplicateKeys: Array<string>;
+        message: string;
+      }
+    | {
+        __typename?: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      }
+    | {
+        __typename?: "Trait";
+        id: string;
+        name: string;
+        valueType: CritterTraitValueType;
+        enumValues: Array<{
+          __typename?: "EnumValue";
+          id: string;
+          name: string;
+        }>;
+      };
 };
 
 export type CreateSpeciesMutationVariables = Exact<{
@@ -696,7 +827,7 @@ export type CreateSpeciesMutation = {
         __typename?: "Species";
         id: string;
         name: string;
-        iconUrl: string;
+        iconUrl?: string | null;
         traitLists: Array<{
           __typename?: "TraitList";
           id: string;
@@ -744,7 +875,7 @@ export type GetSpeciesListViewQuery = {
           __typename?: "Species";
           id: string;
           name: string;
-          iconUrl: string;
+          iconUrl?: string | null;
           traitLists: Array<{
             __typename?: "TraitList";
             id: string;
@@ -841,7 +972,7 @@ export type CritterKeySpecifier = (
   | "speciesId"
   | "traitList"
   | "traitListId"
-  | "traits"
+  | "traitValues"
   | CritterKeySpecifier
 )[];
 export type CritterFieldPolicy = {
@@ -853,81 +984,11 @@ export type CritterFieldPolicy = {
   speciesId?: FieldPolicy<any> | FieldReadFunction<any>;
   traitList?: FieldPolicy<any> | FieldReadFunction<any>;
   traitListId?: FieldPolicy<any> | FieldReadFunction<any>;
-  traits?: FieldPolicy<any> | FieldReadFunction<any>;
+  traitValues?: FieldPolicy<any> | FieldReadFunction<any>;
 };
-export type CritterIntTraitKeySpecifier = (
-  | "critterId"
-  | "displayValue"
-  | "id"
-  | "trait"
-  | "traitId"
-  | "valueInt"
-  | "valueType"
-  | CritterIntTraitKeySpecifier
-)[];
-export type CritterIntTraitFieldPolicy = {
-  critterId?: FieldPolicy<any> | FieldReadFunction<any>;
-  displayValue?: FieldPolicy<any> | FieldReadFunction<any>;
-  id?: FieldPolicy<any> | FieldReadFunction<any>;
-  trait?: FieldPolicy<any> | FieldReadFunction<any>;
-  traitId?: FieldPolicy<any> | FieldReadFunction<any>;
-  valueInt?: FieldPolicy<any> | FieldReadFunction<any>;
-  valueType?: FieldPolicy<any> | FieldReadFunction<any>;
-};
-export type CritterStringTraitKeySpecifier = (
-  | "critterId"
-  | "displayValue"
-  | "id"
-  | "trait"
-  | "traitId"
-  | "valueString"
-  | "valueType"
-  | CritterStringTraitKeySpecifier
-)[];
-export type CritterStringTraitFieldPolicy = {
-  critterId?: FieldPolicy<any> | FieldReadFunction<any>;
-  displayValue?: FieldPolicy<any> | FieldReadFunction<any>;
-  id?: FieldPolicy<any> | FieldReadFunction<any>;
-  trait?: FieldPolicy<any> | FieldReadFunction<any>;
-  traitId?: FieldPolicy<any> | FieldReadFunction<any>;
-  valueString?: FieldPolicy<any> | FieldReadFunction<any>;
-  valueType?: FieldPolicy<any> | FieldReadFunction<any>;
-};
-export type CritterTimestampTraitKeySpecifier = (
-  | "critterId"
-  | "displayValue"
-  | "id"
-  | "trait"
-  | "traitId"
-  | "valueTimestamp"
-  | "valueType"
-  | CritterTimestampTraitKeySpecifier
-)[];
-export type CritterTimestampTraitFieldPolicy = {
-  critterId?: FieldPolicy<any> | FieldReadFunction<any>;
-  displayValue?: FieldPolicy<any> | FieldReadFunction<any>;
-  id?: FieldPolicy<any> | FieldReadFunction<any>;
-  trait?: FieldPolicy<any> | FieldReadFunction<any>;
-  traitId?: FieldPolicy<any> | FieldReadFunction<any>;
-  valueTimestamp?: FieldPolicy<any> | FieldReadFunction<any>;
-  valueType?: FieldPolicy<any> | FieldReadFunction<any>;
-};
-export type CritterTraitKeySpecifier = (
-  | "critterId"
-  | "displayValue"
-  | "id"
-  | "trait"
-  | "traitId"
-  | "valueType"
-  | CritterTraitKeySpecifier
-)[];
-export type CritterTraitFieldPolicy = {
-  critterId?: FieldPolicy<any> | FieldReadFunction<any>;
-  displayValue?: FieldPolicy<any> | FieldReadFunction<any>;
-  id?: FieldPolicy<any> | FieldReadFunction<any>;
-  trait?: FieldPolicy<any> | FieldReadFunction<any>;
-  traitId?: FieldPolicy<any> | FieldReadFunction<any>;
-  valueType?: FieldPolicy<any> | FieldReadFunction<any>;
+export type DeleteResponseKeySpecifier = ("ok" | DeleteResponseKeySpecifier)[];
+export type DeleteResponseFieldPolicy = {
+  ok?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type DuplicateErrorKeySpecifier = (
   | "duplicateKeys"
@@ -987,8 +1048,8 @@ export type LoginResponseFieldPolicy = {
 export type MutationKeySpecifier = (
   | "createCommunity"
   | "createCritter"
-  | "createCritterTrait"
   | "createSpecies"
+  | "createSpeciesImageUploadUrl"
   | "createTrait"
   | "createTraitList"
   | "createTraitListEntry"
@@ -996,14 +1057,15 @@ export type MutationKeySpecifier = (
   | "deleteTraitListEntry"
   | "login"
   | "modifyTrait"
+  | "modifyTraitListEntry"
   | "register"
   | MutationKeySpecifier
 )[];
 export type MutationFieldPolicy = {
   createCommunity?: FieldPolicy<any> | FieldReadFunction<any>;
   createCritter?: FieldPolicy<any> | FieldReadFunction<any>;
-  createCritterTrait?: FieldPolicy<any> | FieldReadFunction<any>;
   createSpecies?: FieldPolicy<any> | FieldReadFunction<any>;
+  createSpeciesImageUploadUrl?: FieldPolicy<any> | FieldReadFunction<any>;
   createTrait?: FieldPolicy<any> | FieldReadFunction<any>;
   createTraitList?: FieldPolicy<any> | FieldReadFunction<any>;
   createTraitListEntry?: FieldPolicy<any> | FieldReadFunction<any>;
@@ -1011,6 +1073,7 @@ export type MutationFieldPolicy = {
   deleteTraitListEntry?: FieldPolicy<any> | FieldReadFunction<any>;
   login?: FieldPolicy<any> | FieldReadFunction<any>;
   modifyTrait?: FieldPolicy<any> | FieldReadFunction<any>;
+  modifyTraitListEntry?: FieldPolicy<any> | FieldReadFunction<any>;
   register?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type NotFoundErrorKeySpecifier = (
@@ -1039,6 +1102,7 @@ export type SpeciesKeySpecifier = (
   | "community"
   | "communityId"
   | "critters"
+  | "hasImage"
   | "iconUrl"
   | "id"
   | "name"
@@ -1049,6 +1113,7 @@ export type SpeciesFieldPolicy = {
   community?: FieldPolicy<any> | FieldReadFunction<any>;
   communityId?: FieldPolicy<any> | FieldReadFunction<any>;
   critters?: FieldPolicy<any> | FieldReadFunction<any>;
+  hasImage?: FieldPolicy<any> | FieldReadFunction<any>;
   iconUrl?: FieldPolicy<any> | FieldReadFunction<any>;
   id?: FieldPolicy<any> | FieldReadFunction<any>;
   name?: FieldPolicy<any> | FieldReadFunction<any>;
@@ -1111,6 +1176,10 @@ export type TraitListEntryFieldPolicy = {
   traitListId?: FieldPolicy<any> | FieldReadFunction<any>;
   valueType?: FieldPolicy<any> | FieldReadFunction<any>;
 };
+export type UrlResponseKeySpecifier = ("url" | UrlResponseKeySpecifier)[];
+export type UrlResponseFieldPolicy = {
+  url?: FieldPolicy<any> | FieldReadFunction<any>;
+};
 export type ValidationConstraintKeySpecifier = (
   | "description"
   | "key"
@@ -1165,33 +1234,12 @@ export type StrictTypedTypePolicies = {
       | (() => undefined | CritterKeySpecifier);
     fields?: CritterFieldPolicy;
   };
-  CritterIntTrait?: Omit<TypePolicy, "fields" | "keyFields"> & {
+  DeleteResponse?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
       | false
-      | CritterIntTraitKeySpecifier
-      | (() => undefined | CritterIntTraitKeySpecifier);
-    fields?: CritterIntTraitFieldPolicy;
-  };
-  CritterStringTrait?: Omit<TypePolicy, "fields" | "keyFields"> & {
-    keyFields?:
-      | false
-      | CritterStringTraitKeySpecifier
-      | (() => undefined | CritterStringTraitKeySpecifier);
-    fields?: CritterStringTraitFieldPolicy;
-  };
-  CritterTimestampTrait?: Omit<TypePolicy, "fields" | "keyFields"> & {
-    keyFields?:
-      | false
-      | CritterTimestampTraitKeySpecifier
-      | (() => undefined | CritterTimestampTraitKeySpecifier);
-    fields?: CritterTimestampTraitFieldPolicy;
-  };
-  CritterTrait?: Omit<TypePolicy, "fields" | "keyFields"> & {
-    keyFields?:
-      | false
-      | CritterTraitKeySpecifier
-      | (() => undefined | CritterTraitKeySpecifier);
-    fields?: CritterTraitFieldPolicy;
+      | DeleteResponseKeySpecifier
+      | (() => undefined | DeleteResponseKeySpecifier);
+    fields?: DeleteResponseFieldPolicy;
   };
   DuplicateError?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
@@ -1284,6 +1332,13 @@ export type StrictTypedTypePolicies = {
       | (() => undefined | TraitListEntryKeySpecifier);
     fields?: TraitListEntryFieldPolicy;
   };
+  UrlResponse?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | UrlResponseKeySpecifier
+      | (() => undefined | UrlResponseKeySpecifier);
+    fields?: UrlResponseFieldPolicy;
+  };
   ValidationConstraint?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
       | false
@@ -1370,15 +1425,7 @@ export const GetCrittersDocument = gql`
     critters {
       id
       name
-      traits {
-        ... on CritterTrait {
-          trait {
-            id
-            valueType
-          }
-          displayValue
-        }
-      }
+      traitValues
       species {
         id
         name
@@ -1414,37 +1461,139 @@ export const GetCommunityListViewDocument = gql`
 export const CreateTraitListEntryDocument = gql`
   mutation createTraitListEntry($input: TraitListEntryCreateInput!) {
     createTraitListEntry(input: $input) {
-      id
-      defaultDisplayValue
-      order
-      required
-      trait {
+      __typename
+      ... on TraitListEntry {
         id
-        name
-        valueType
-        enumValues {
+        defaultDisplayValue
+        order
+        required
+        trait {
           id
           name
+          valueType
+          enumValues {
+            id
+            name
+          }
         }
       }
+      ... on BaseError {
+        ...BaseErrorFragment
+      }
+      ... on DuplicateError {
+        ...DuplicateErrorFragment
+      }
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+    }
+  }
+  ${BaseErrorFragmentFragmentDoc}
+  ${DuplicateErrorFragmentFragmentDoc}
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+`;
+export const DeleteTraitListEntryDocument = gql`
+  mutation deleteTraitListEntry($id: ID!) {
+    deleteTraitListEntry(id: $id) {
+      __typename
+      ... on DeleteResponse {
+        ok
+      }
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+      ... on BaseError {
+        ...BaseErrorFragment
+      }
+    }
+  }
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+  ${BaseErrorFragmentFragmentDoc}
+`;
+export const ModifyTraitListEntryDocument = gql`
+  mutation modifyTraitListEntry($input: TraitListEntryModifyInput!) {
+    modifyTraitListEntry(input: $input) {
+      __typename
+      ... on TraitListEntry {
+        id
+        defaultDisplayValue
+        order
+        required
+        trait {
+          id
+          name
+          valueType
+          enumValues {
+            id
+            name
+          }
+        }
+      }
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+      ... on BaseError {
+        ...BaseErrorFragment
+      }
+    }
+  }
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+  ${BaseErrorFragmentFragmentDoc}
+`;
+export const CreateSpeciesImageUploadUrlDocument = gql`
+  mutation createSpeciesImageUploadUrl($input: SpeciesImageUrlCreateInput!) {
+    createSpeciesImageUploadUrl(input: $input) {
+      url
+      __typename
     }
   }
 `;
 export const CreateSpeciesTraitDocument = gql`
   mutation createSpeciesTrait($input: TraitCreateInput!) {
     createTrait(input: $input) {
-      id
+      ... on Trait {
+        id
+      }
+      ... on DuplicateError {
+        ...DuplicateErrorFragment
+      }
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+      ... on BaseError {
+        ...BaseErrorFragment
+      }
     }
   }
+  ${DuplicateErrorFragmentFragmentDoc}
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+  ${BaseErrorFragmentFragmentDoc}
+`;
+export const CreateVariantDocument = gql`
+  mutation createVariant($input: TraitListCreateInput!) {
+    createTraitList(input: $input) {
+      ... on TraitList {
+        id
+        name
+      }
+      ... on BaseError {
+        ...BaseErrorFragment
+      }
+      ... on DuplicateError {
+        ...DuplicateErrorFragment
+      }
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+    }
+  }
+  ${BaseErrorFragmentFragmentDoc}
+  ${DuplicateErrorFragmentFragmentDoc}
+  ${InvalidArgumentErrorFragmentFragmentDoc}
 `;
 export const DeleteTraitDocument = gql`
   mutation deleteTrait($id: ID!) {
     deleteTrait(id: $id)
-  }
-`;
-export const DeleteTraitListEntryDocument = gql`
-  mutation deleteTraitListEntry($id: ID!) {
-    deleteTraitListEntry(id: $id)
   }
 `;
 export const GetSpeciesDetailDocument = gql`
@@ -1498,15 +1647,25 @@ export const GetSpeciesTraitsDocument = gql`
 export const ModifySpeciesTraitDocument = gql`
   mutation modifySpeciesTrait($input: TraitModifyInput!) {
     modifyTrait(input: $input) {
-      id
-      name
-      valueType
-      enumValues {
+      ... on Trait {
         id
         name
+        valueType
+        enumValues {
+          id
+          name
+        }
+      }
+      ... on DuplicateError {
+        ...DuplicateErrorFragment
+      }
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
       }
     }
   }
+  ${DuplicateErrorFragmentFragmentDoc}
+  ${InvalidArgumentErrorFragmentFragmentDoc}
 `;
 export const CreateSpeciesDocument = gql`
   mutation createSpecies($input: SpeciesCreateInput!) {
@@ -1652,6 +1811,45 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
         options
       ) as Promise<CreateTraitListEntryMutation>;
     },
+    deleteTraitListEntry(
+      variables: DeleteTraitListEntryMutationVariables,
+      options?: C
+    ): Promise<DeleteTraitListEntryMutation> {
+      return requester<
+        DeleteTraitListEntryMutation,
+        DeleteTraitListEntryMutationVariables
+      >(
+        DeleteTraitListEntryDocument,
+        variables,
+        options
+      ) as Promise<DeleteTraitListEntryMutation>;
+    },
+    modifyTraitListEntry(
+      variables: ModifyTraitListEntryMutationVariables,
+      options?: C
+    ): Promise<ModifyTraitListEntryMutation> {
+      return requester<
+        ModifyTraitListEntryMutation,
+        ModifyTraitListEntryMutationVariables
+      >(
+        ModifyTraitListEntryDocument,
+        variables,
+        options
+      ) as Promise<ModifyTraitListEntryMutation>;
+    },
+    createSpeciesImageUploadUrl(
+      variables: CreateSpeciesImageUploadUrlMutationVariables,
+      options?: C
+    ): Promise<CreateSpeciesImageUploadUrlMutation> {
+      return requester<
+        CreateSpeciesImageUploadUrlMutation,
+        CreateSpeciesImageUploadUrlMutationVariables
+      >(
+        CreateSpeciesImageUploadUrlDocument,
+        variables,
+        options
+      ) as Promise<CreateSpeciesImageUploadUrlMutation>;
+    },
     createSpeciesTrait(
       variables: CreateSpeciesTraitMutationVariables,
       options?: C
@@ -1665,6 +1863,16 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
         options
       ) as Promise<CreateSpeciesTraitMutation>;
     },
+    createVariant(
+      variables: CreateVariantMutationVariables,
+      options?: C
+    ): Promise<CreateVariantMutation> {
+      return requester<CreateVariantMutation, CreateVariantMutationVariables>(
+        CreateVariantDocument,
+        variables,
+        options
+      ) as Promise<CreateVariantMutation>;
+    },
     deleteTrait(
       variables: DeleteTraitMutationVariables,
       options?: C
@@ -1674,19 +1882,6 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
         variables,
         options
       ) as Promise<DeleteTraitMutation>;
-    },
-    deleteTraitListEntry(
-      variables: DeleteTraitListEntryMutationVariables,
-      options?: C
-    ): Promise<DeleteTraitListEntryMutation> {
-      return requester<
-        DeleteTraitListEntryMutation,
-        DeleteTraitListEntryMutationVariables
-      >(
-        DeleteTraitListEntryDocument,
-        variables,
-        options
-      ) as Promise<DeleteTraitListEntryMutation>;
     },
     getSpeciesDetail(
       variables?: GetSpeciesDetailQueryVariables,
@@ -1898,6 +2093,102 @@ export class GraphqlService {
     return result;
   }
 
+  async deleteTraitListEntry(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").MutationOptions<
+          DeleteTraitListEntryMutation,
+          DeleteTraitListEntryMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: DeleteTraitListEntryMutationVariables;
+    }
+  ): Promise<
+    Omit<
+      import("@apollo/client/core").FetchResult<DeleteTraitListEntryMutation>,
+      "data"
+    > & { data: DeleteTraitListEntryMutation }
+  > {
+    const finalOptions = {
+      ...options,
+      mutation: DeleteTraitListEntryDocument,
+    };
+    const result = await this.client.mutate<
+      DeleteTraitListEntryMutation,
+      DeleteTraitListEntryMutationVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
+  async modifyTraitListEntry(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").MutationOptions<
+          ModifyTraitListEntryMutation,
+          ModifyTraitListEntryMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: ModifyTraitListEntryMutationVariables;
+    }
+  ): Promise<
+    Omit<
+      import("@apollo/client/core").FetchResult<ModifyTraitListEntryMutation>,
+      "data"
+    > & { data: ModifyTraitListEntryMutation }
+  > {
+    const finalOptions = {
+      ...options,
+      mutation: ModifyTraitListEntryDocument,
+    };
+    const result = await this.client.mutate<
+      ModifyTraitListEntryMutation,
+      ModifyTraitListEntryMutationVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
+  async createSpeciesImageUploadUrl(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").MutationOptions<
+          CreateSpeciesImageUploadUrlMutation,
+          CreateSpeciesImageUploadUrlMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: CreateSpeciesImageUploadUrlMutationVariables;
+    }
+  ): Promise<
+    Omit<
+      import("@apollo/client/core").FetchResult<CreateSpeciesImageUploadUrlMutation>,
+      "data"
+    > & { data: CreateSpeciesImageUploadUrlMutation }
+  > {
+    const finalOptions = {
+      ...options,
+      mutation: CreateSpeciesImageUploadUrlDocument,
+    };
+    const result = await this.client.mutate<
+      CreateSpeciesImageUploadUrlMutation,
+      CreateSpeciesImageUploadUrlMutationVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
   async createSpeciesTrait(
     options: Omit<
       Partial<
@@ -1930,6 +2221,38 @@ export class GraphqlService {
     return result;
   }
 
+  async createVariant(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").MutationOptions<
+          CreateVariantMutation,
+          CreateVariantMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: CreateVariantMutationVariables;
+    }
+  ): Promise<
+    Omit<
+      import("@apollo/client/core").FetchResult<CreateVariantMutation>,
+      "data"
+    > & { data: CreateVariantMutation }
+  > {
+    const finalOptions = {
+      ...options,
+      mutation: CreateVariantDocument,
+    };
+    const result = await this.client.mutate<
+      CreateVariantMutation,
+      CreateVariantMutationVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
   async deleteTrait(
     options: Omit<
       Partial<
@@ -1955,38 +2278,6 @@ export class GraphqlService {
     const result = await this.client.mutate<
       DeleteTraitMutation,
       DeleteTraitMutationVariables
-    >(finalOptions);
-    if (!hasData(result)) {
-      throw new Error("Unknown request failure");
-    }
-    return result;
-  }
-
-  async deleteTraitListEntry(
-    options: Omit<
-      Partial<
-        import("@apollo/client/core").MutationOptions<
-          DeleteTraitListEntryMutation,
-          DeleteTraitListEntryMutationVariables
-        >
-      >,
-      "variables" | "mutation"
-    > & {
-      variables: DeleteTraitListEntryMutationVariables;
-    }
-  ): Promise<
-    Omit<
-      import("@apollo/client/core").FetchResult<DeleteTraitListEntryMutation>,
-      "data"
-    > & { data: DeleteTraitListEntryMutation }
-  > {
-    const finalOptions = {
-      ...options,
-      mutation: DeleteTraitListEntryDocument,
-    };
-    const result = await this.client.mutate<
-      DeleteTraitListEntryMutation,
-      DeleteTraitListEntryMutationVariables
     >(finalOptions);
     if (!hasData(result)) {
       throw new Error("Unknown request failure");
@@ -2187,38 +2478,14 @@ export type NarrowToCritter<T> = T extends { __typename?: "Critter" }
   ? T
   : never;
 
-export function isCritterIntTrait(
+export function isDeleteResponse(
   val: unknown
-): val is { __typename: "CritterIntTrait" } {
-  return hasTypeName(val, "CritterIntTrait");
+): val is { __typename: "DeleteResponse" } {
+  return hasTypeName(val, "DeleteResponse");
 }
 
-export type NarrowToCritterIntTrait<T> = T extends {
-  __typename?: "CritterIntTrait";
-}
-  ? T
-  : never;
-
-export function isCritterStringTrait(
-  val: unknown
-): val is { __typename: "CritterStringTrait" } {
-  return hasTypeName(val, "CritterStringTrait");
-}
-
-export type NarrowToCritterStringTrait<T> = T extends {
-  __typename?: "CritterStringTrait";
-}
-  ? T
-  : never;
-
-export function isCritterTimestampTrait(
-  val: unknown
-): val is { __typename: "CritterTimestampTrait" } {
-  return hasTypeName(val, "CritterTimestampTrait");
-}
-
-export type NarrowToCritterTimestampTrait<T> = T extends {
-  __typename?: "CritterTimestampTrait";
+export type NarrowToDeleteResponse<T> = T extends {
+  __typename?: "DeleteResponse";
 }
   ? T
   : never;
@@ -2342,6 +2609,16 @@ export function isTraitListEntry(
 export type NarrowToTraitListEntry<T> = T extends {
   __typename?: "TraitListEntry";
 }
+  ? T
+  : never;
+
+export function isUrlResponse(
+  val: unknown
+): val is { __typename: "UrlResponse" } {
+  return hasTypeName(val, "UrlResponse");
+}
+
+export type NarrowToUrlResponse<T> = T extends { __typename?: "UrlResponse" }
   ? T
   : never;
 

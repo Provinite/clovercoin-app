@@ -1,6 +1,7 @@
-import { IsUUID } from "class-validator";
+import { IsUUID, MinLength } from "class-validator";
 import {
   Arg,
+  createUnionType,
   Ctx,
   Field,
   ID,
@@ -8,15 +9,19 @@ import {
   Mutation,
   Resolver,
 } from "type-graphql";
+import { DuplicateError } from "../../errors/DuplicateError";
+import { InvalidArgumentError } from "../../errors/InvalidArgumentError";
 import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
 import { TraitList } from "./TraitList";
 
 @InputType()
 export class TraitListCreateInput {
   @Field(() => ID)
+  @IsUUID(4)
   speciesId!: string;
 
   @Field(() => String)
+  @MinLength(1)
   name!: string;
 }
 
@@ -33,13 +38,18 @@ export class TraitListModifyInput {
   name: string | null = null;
 }
 
+const TraitListCreateResponse = createUnionType({
+  name: "TraitListCreateResponse",
+  types: () => [TraitList, DuplicateError, InvalidArgumentError],
+});
+
 @Resolver(() => TraitList)
 export class TraitListResolver {
-  @Mutation(() => TraitList)
+  @Mutation(() => TraitListCreateResponse)
   async createTraitList(
     @Arg("input") input: TraitListCreateInput,
     @Ctx() { traitListController }: AppGraphqlContext
-  ) {
+  ): Promise<TraitList> {
     return await traitListController.create(input);
   }
 }

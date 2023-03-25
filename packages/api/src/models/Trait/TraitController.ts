@@ -26,10 +26,15 @@ export class TraitController extends EntityController<
    */
   async deleteOneById(id: string): Promise<DeleteResult> {
     return this.#transactionProvider.runTransaction(
-      async ({ enumValueRepository, traitController }) => {
+      async ({
+        enumValueRepository,
+        traitController,
+        traitListEntryRepository,
+      }) => {
         await enumValueRepository.delete({
           traitId: id,
         });
+        await traitListEntryRepository.delete({ traitId: id });
         return super.deleteOneById.call(traitController, id);
       }
     );

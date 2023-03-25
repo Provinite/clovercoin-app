@@ -3,7 +3,6 @@ import { CommunityController } from "../models/Community/CommunityController";
 import { CommunityMemberController } from "../models/CommunityMember/CommunityMemberController";
 import { CritterController } from "../models/Critter/CritterController";
 import { CritterOwnershipChangeController } from "../models/CritterOwnershipChange/CritterOwnershipChangeController";
-import { CritterTraitController } from "../models/CritterTrait/CritterTraitController";
 import { EnumValueController } from "../models/EnumValue/EnumValueController";
 import { EnumValueSettingController } from "../models/EnumValueSetting/EnumValueSettingController";
 import { IdentityController } from "../models/Identity/IdentityController";
@@ -24,7 +23,6 @@ export const ControllersMap = {
   CommunityMemberController,
 
   CritterController,
-  CritterTraitController,
   CritterOwnershipChangeController,
 
   EnumValueController,

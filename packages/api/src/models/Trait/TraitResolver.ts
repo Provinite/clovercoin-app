@@ -1,87 +1,20 @@
-import {
-  Arg,
-  Ctx,
-  Field,
-  ID,
-  InputType,
-  Mutation,
-  Query,
-  Resolver,
-} from "type-graphql";
+import { Arg, Ctx, ID, Mutation, Query, Resolver } from "type-graphql";
 import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
 import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes";
 import { EnumValueCreate } from "../EnumValue/EnumValueController";
 import { Trait } from "./Trait";
 import { TraitCreate } from "./TraitController";
-
-@InputType()
-export class TraitCreateInput {
-  @Field()
-  name!: string;
-
-  @Field(() => CritterTraitValueTypes)
-  valueType!: CritterTraitValueTypes;
-
-  @Field(() => [TraitCreateEnumValueInput])
-  enumValues!: TraitCreateEnumValueInput[];
-
-  @Field(() => ID)
-  speciesId!: string;
-}
-
-@InputType()
-export class TraitCreateEnumValueInput {
-  @Field()
-  name!: string;
-
-  @Field()
-  order!: number;
-}
-
-@InputType()
-export class TraitModifyEnumValueInput {
-  @Field(() => ID, {
-    nullable: true,
-    defaultValue: null,
-  })
-  id?: string;
-
-  @Field()
-  name!: string;
-
-  @Field()
-  order!: number;
-}
-
-@InputType()
-export class TraitModifyInput {
-  @Field()
-  name?: string;
-
-  @Field(() => CritterTraitValueTypes)
-  valueType!: CritterTraitValueTypes;
-
-  @Field(() => [TraitModifyEnumValueInput], {
-    nullable: true,
-    defaultValue: null,
-  })
-  enumValues?: TraitModifyEnumValueInput[];
-
-  @Field(() => ID)
-  id!: string;
-}
-
-@InputType()
-export class TraitFilters {
-  @Field(() => ID, {
-    nullable: false,
-  })
-  speciesId!: string;
-}
+import {
+  TraitCreateInput,
+  TraitCreateResponse,
+  TraitFilters,
+  TraitModifyInput,
+  TraitModifyResponse,
+} from "./TraitTypes";
 
 @Resolver(() => Trait)
 export class TraitResolver {
-  @Mutation(() => Trait)
+  @Mutation(() => TraitCreateResponse)
   async createTrait(
     @Arg("input") input: TraitCreateInput,
     @Ctx() { transactionProvider }: AppGraphqlContext
@@ -99,7 +32,7 @@ export class TraitResolver {
 
         if (
           input.valueType === CritterTraitValueTypes.Enum &&
-          input.enumValues.length
+          input.enumValues?.length
         ) {
           for (const enumValue of input.enumValues) {
             enumValueCreateBodies.push({
@@ -125,11 +58,12 @@ export class TraitResolver {
     @Arg("filters", () => TraitFilters) filters: TraitFilters,
     @Ctx() { traitRepository }: AppGraphqlContext
   ): Promise<Trait[]> {
-    return traitRepository.find({
+    const result = traitRepository.find({
       where: {
         speciesId: filters.speciesId,
       },
     });
+    return result;
   }
 
   @Mutation(() => String)
@@ -141,7 +75,7 @@ export class TraitResolver {
     return "deleted";
   }
 
-  @Mutation(() => Trait)
+  @Mutation(() => TraitModifyResponse)
   async modifyTrait(
     @Arg("input", () => TraitModifyInput, { nullable: false })
     input: TraitModifyInput,
