@@ -1,0 +1,49 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "start dev environment",
+      "dependsOn": ["start client (dev)", "start API (dev)"],
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "rebuild api-client",
+      "type": "shell",
+      "command": "yarn packages/client refresh-api-client",
+      "problemMatcher": []
+    },
+    {
+      "label": "start client (dev)",
+      "type": "shell",
+      "command": "yarn packages/client start",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false,
+        "group": "dev"
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "start API (dev)",
+      "type": "shell",
+      "command": "yarn packages/api start",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false,
+        "group": "dev"
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ]
+}
