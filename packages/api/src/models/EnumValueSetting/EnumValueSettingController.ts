@@ -5,7 +5,7 @@ import { EnumValueSetting } from "./EnumValueSetting";
 
 export type EnumValueSettingCreate = Pick<
   EnumValueSetting,
-  "allowed" | "enumValueId" | "traitListId"
+  "enumValueId" | "traitListId"
 >;
 
 export class EnumValueSettingController extends EntityController<

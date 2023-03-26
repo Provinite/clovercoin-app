@@ -111,12 +111,35 @@ export interface DuplicateError extends BaseError {
 
 export interface EnumValue {
   __typename?: "EnumValue";
+  enumValueSettings: Array<EnumValueSetting>;
   id: Scalars["ID"];
   name: Scalars["String"];
   order: Scalars["Int"];
   trait: Trait;
   traitId: Scalars["ID"];
 }
+
+export interface EnumValueDeleteInput {
+  id: Scalars["ID"];
+}
+
+export interface EnumValueSetting {
+  __typename?: "EnumValueSetting";
+  enumValue: EnumValue;
+  enumValueId: Scalars["ID"];
+  id: Scalars["ID"];
+  traitList: Array<TraitList>;
+  traitListId: Scalars["ID"];
+}
+
+export interface EnumValueSettingCreateInput {
+  enumValueId: Scalars["ID"];
+  traitListId: Scalars["ID"];
+}
+
+export type EnumValueSettingDeleteResponse =
+  | DeleteResponse
+  | InvalidArgumentError;
 
 export interface Identity {
   __typename?: "Identity";
@@ -155,12 +178,14 @@ export interface Mutation {
   /** Create a new community */
   createCommunity: CreateCommunityResponse;
   createCritter: Critter;
+  createEnumValueSetting: EnumValueSettingCreateResponse;
   createSpecies: SpeciesCreateResponse;
   createSpeciesImageUploadUrl: UrlResponse;
   createTrait: TraitCreateResponse;
   createTraitList: TraitListCreateResponse;
   /** Add a trait to a variant's trait list */
   createTraitListEntry: TraitListEntryCreateResponse;
+  deleteEnumValueSetting: EnumValueSettingDeleteResponse;
   deleteTrait: Scalars["String"];
   /** Remove a trait from a variant's traitlist. This will delete any values for this trait from all existing characters under the specified variant. */
   deleteTraitListEntry: TraitListEntryDeleteResponse;
@@ -181,6 +206,10 @@ export interface MutationCreateCritterArgs {
   input: CritterCreateInput;
 }
 
+export interface MutationCreateEnumValueSettingArgs {
+  input: EnumValueSettingCreateInput;
+}
+
 export interface MutationCreateSpeciesArgs {
   input: SpeciesCreateInput;
 }
@@ -199,6 +228,10 @@ export interface MutationCreateTraitListArgs {
 
 export interface MutationCreateTraitListEntryArgs {
   input: TraitListEntryCreateInput;
+}
+
+export interface MutationDeleteEnumValueSettingArgs {
+  input: EnumValueDeleteInput;
 }
 
 export interface MutationDeleteTraitArgs {
@@ -337,6 +370,7 @@ export interface TraitFilters {
 
 export interface TraitList {
   __typename?: "TraitList";
+  enumValueSettings: Array<EnumValueSetting>;
   id: Scalars["ID"];
   name: Scalars["String"];
   species: Species;
@@ -426,6 +460,11 @@ export interface ValidationError {
   constraints: Array<ValidationConstraint>;
   field: Scalars["String"];
 }
+
+export type EnumValueSettingCreateResponse =
+  | DuplicateError
+  | EnumValueSetting
+  | InvalidArgumentError;
 
 export type CreateCommunityMutationVariables = Exact<{
   input: CommunityCreateInput;
@@ -619,6 +658,39 @@ export type ModifyTraitListEntryMutation = {
       };
 };
 
+export type CreateEnumValueSettingMutationVariables = Exact<{
+  input: EnumValueSettingCreateInput;
+}>;
+
+export type CreateEnumValueSettingMutation = {
+  __typename?: "Mutation";
+  createEnumValueSetting:
+    | {
+        __typename: "DuplicateError";
+        duplicateKeys: Array<string>;
+        message: string;
+      }
+    | {
+        __typename: "EnumValueSetting";
+        id: string;
+        enumValueId: string;
+        traitListId: string;
+      }
+    | {
+        __typename: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      };
+};
+
 export type CreateSpeciesImageUploadUrlMutationVariables = Exact<{
   input: SpeciesImageUrlCreateInput;
 }>;
@@ -684,6 +756,29 @@ export type CreateVariantMutation = {
     | { __typename?: "TraitList"; id: string; name: string };
 };
 
+export type DeleteEnumValueSettingMutationVariables = Exact<{
+  id: Scalars["ID"];
+}>;
+
+export type DeleteEnumValueSettingMutation = {
+  __typename?: "Mutation";
+  deleteEnumValueSetting:
+    | { __typename: "DeleteResponse"; ok: boolean }
+    | {
+        __typename: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      };
+};
+
 export type DeleteTraitMutationVariables = Exact<{
   id: Scalars["ID"];
 }>;
@@ -698,7 +793,7 @@ export type GetSpeciesDetailQueryVariables = Exact<{
 }>;
 
 export type GetSpeciesDetailQuery = {
-  __typename?: "Query";
+  __typename: "Query";
   species:
     | {
         __typename?: "InvalidArgumentError";
@@ -723,6 +818,12 @@ export type GetSpeciesDetailQuery = {
             __typename?: "TraitList";
             id: string;
             name: string;
+            enumValueSettings: Array<{
+              __typename?: "EnumValueSetting";
+              id: string;
+              traitListId: string;
+              enumValueId: string;
+            }>;
             traitListEntries: Array<{
               __typename?: "TraitListEntry";
               id: string;
@@ -1000,6 +1101,7 @@ export type DuplicateErrorFieldPolicy = {
   message?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type EnumValueKeySpecifier = (
+  | "enumValueSettings"
   | "id"
   | "name"
   | "order"
@@ -1008,11 +1110,27 @@ export type EnumValueKeySpecifier = (
   | EnumValueKeySpecifier
 )[];
 export type EnumValueFieldPolicy = {
+  enumValueSettings?: FieldPolicy<any> | FieldReadFunction<any>;
   id?: FieldPolicy<any> | FieldReadFunction<any>;
   name?: FieldPolicy<any> | FieldReadFunction<any>;
   order?: FieldPolicy<any> | FieldReadFunction<any>;
   trait?: FieldPolicy<any> | FieldReadFunction<any>;
   traitId?: FieldPolicy<any> | FieldReadFunction<any>;
+};
+export type EnumValueSettingKeySpecifier = (
+  | "enumValue"
+  | "enumValueId"
+  | "id"
+  | "traitList"
+  | "traitListId"
+  | EnumValueSettingKeySpecifier
+)[];
+export type EnumValueSettingFieldPolicy = {
+  enumValue?: FieldPolicy<any> | FieldReadFunction<any>;
+  enumValueId?: FieldPolicy<any> | FieldReadFunction<any>;
+  id?: FieldPolicy<any> | FieldReadFunction<any>;
+  traitList?: FieldPolicy<any> | FieldReadFunction<any>;
+  traitListId?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type IdentityKeySpecifier = (
   | "displayName"
@@ -1048,11 +1166,13 @@ export type LoginResponseFieldPolicy = {
 export type MutationKeySpecifier = (
   | "createCommunity"
   | "createCritter"
+  | "createEnumValueSetting"
   | "createSpecies"
   | "createSpeciesImageUploadUrl"
   | "createTrait"
   | "createTraitList"
   | "createTraitListEntry"
+  | "deleteEnumValueSetting"
   | "deleteTrait"
   | "deleteTraitListEntry"
   | "login"
@@ -1064,11 +1184,13 @@ export type MutationKeySpecifier = (
 export type MutationFieldPolicy = {
   createCommunity?: FieldPolicy<any> | FieldReadFunction<any>;
   createCritter?: FieldPolicy<any> | FieldReadFunction<any>;
+  createEnumValueSetting?: FieldPolicy<any> | FieldReadFunction<any>;
   createSpecies?: FieldPolicy<any> | FieldReadFunction<any>;
   createSpeciesImageUploadUrl?: FieldPolicy<any> | FieldReadFunction<any>;
   createTrait?: FieldPolicy<any> | FieldReadFunction<any>;
   createTraitList?: FieldPolicy<any> | FieldReadFunction<any>;
   createTraitListEntry?: FieldPolicy<any> | FieldReadFunction<any>;
+  deleteEnumValueSetting?: FieldPolicy<any> | FieldReadFunction<any>;
   deleteTrait?: FieldPolicy<any> | FieldReadFunction<any>;
   deleteTraitListEntry?: FieldPolicy<any> | FieldReadFunction<any>;
   login?: FieldPolicy<any> | FieldReadFunction<any>;
@@ -1139,6 +1261,7 @@ export type TraitFieldPolicy = {
   valueType?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type TraitListKeySpecifier = (
+  | "enumValueSettings"
   | "id"
   | "name"
   | "species"
@@ -1147,6 +1270,7 @@ export type TraitListKeySpecifier = (
   | TraitListKeySpecifier
 )[];
 export type TraitListFieldPolicy = {
+  enumValueSettings?: FieldPolicy<any> | FieldReadFunction<any>;
   id?: FieldPolicy<any> | FieldReadFunction<any>;
   name?: FieldPolicy<any> | FieldReadFunction<any>;
   species?: FieldPolicy<any> | FieldReadFunction<any>;
@@ -1254,6 +1378,13 @@ export type StrictTypedTypePolicies = {
       | EnumValueKeySpecifier
       | (() => undefined | EnumValueKeySpecifier);
     fields?: EnumValueFieldPolicy;
+  };
+  EnumValueSetting?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | EnumValueSettingKeySpecifier
+      | (() => undefined | EnumValueSettingKeySpecifier);
+    fields?: EnumValueSettingFieldPolicy;
   };
   Identity?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
@@ -1540,6 +1671,30 @@ export const ModifyTraitListEntryDocument = gql`
   ${InvalidArgumentErrorFragmentFragmentDoc}
   ${BaseErrorFragmentFragmentDoc}
 `;
+export const CreateEnumValueSettingDocument = gql`
+  mutation createEnumValueSetting($input: EnumValueSettingCreateInput!) {
+    createEnumValueSetting(input: $input) {
+      __typename
+      ... on EnumValueSetting {
+        id
+        enumValueId
+        traitListId
+      }
+      ... on DuplicateError {
+        ...DuplicateErrorFragment
+      }
+      ... on BaseError {
+        ...BaseErrorFragment
+      }
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+    }
+  }
+  ${DuplicateErrorFragmentFragmentDoc}
+  ${BaseErrorFragmentFragmentDoc}
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+`;
 export const CreateSpeciesImageUploadUrlDocument = gql`
   mutation createSpeciesImageUploadUrl($input: SpeciesImageUrlCreateInput!) {
     createSpeciesImageUploadUrl(input: $input) {
@@ -1591,6 +1746,20 @@ export const CreateVariantDocument = gql`
   ${DuplicateErrorFragmentFragmentDoc}
   ${InvalidArgumentErrorFragmentFragmentDoc}
 `;
+export const DeleteEnumValueSettingDocument = gql`
+  mutation deleteEnumValueSetting($id: ID!) {
+    deleteEnumValueSetting(input: { id: $id }) {
+      __typename
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+      ... on DeleteResponse {
+        ok
+      }
+    }
+  }
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+`;
 export const DeleteTraitDocument = gql`
   mutation deleteTrait($id: ID!) {
     deleteTrait(id: $id)
@@ -1598,6 +1767,7 @@ export const DeleteTraitDocument = gql`
 `;
 export const GetSpeciesDetailDocument = gql`
   query getSpeciesDetail($filters: SpeciesFilters) {
+    __typename
     species(filters: $filters) {
       ... on SpeciesList {
         list {
@@ -1606,6 +1776,11 @@ export const GetSpeciesDetailDocument = gql`
           traitLists {
             id
             name
+            enumValueSettings {
+              id
+              traitListId
+              enumValueId
+            }
             traitListEntries {
               id
               defaultDisplayValue
@@ -1837,6 +2012,19 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
         options
       ) as Promise<ModifyTraitListEntryMutation>;
     },
+    createEnumValueSetting(
+      variables: CreateEnumValueSettingMutationVariables,
+      options?: C
+    ): Promise<CreateEnumValueSettingMutation> {
+      return requester<
+        CreateEnumValueSettingMutation,
+        CreateEnumValueSettingMutationVariables
+      >(
+        CreateEnumValueSettingDocument,
+        variables,
+        options
+      ) as Promise<CreateEnumValueSettingMutation>;
+    },
     createSpeciesImageUploadUrl(
       variables: CreateSpeciesImageUploadUrlMutationVariables,
       options?: C
@@ -1872,6 +2060,19 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
         variables,
         options
       ) as Promise<CreateVariantMutation>;
+    },
+    deleteEnumValueSetting(
+      variables: DeleteEnumValueSettingMutationVariables,
+      options?: C
+    ): Promise<DeleteEnumValueSettingMutation> {
+      return requester<
+        DeleteEnumValueSettingMutation,
+        DeleteEnumValueSettingMutationVariables
+      >(
+        DeleteEnumValueSettingDocument,
+        variables,
+        options
+      ) as Promise<DeleteEnumValueSettingMutation>;
     },
     deleteTrait(
       variables: DeleteTraitMutationVariables,
@@ -2157,6 +2358,38 @@ export class GraphqlService {
     return result;
   }
 
+  async createEnumValueSetting(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").MutationOptions<
+          CreateEnumValueSettingMutation,
+          CreateEnumValueSettingMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: CreateEnumValueSettingMutationVariables;
+    }
+  ): Promise<
+    Omit<
+      import("@apollo/client/core").FetchResult<CreateEnumValueSettingMutation>,
+      "data"
+    > & { data: CreateEnumValueSettingMutation }
+  > {
+    const finalOptions = {
+      ...options,
+      mutation: CreateEnumValueSettingDocument,
+    };
+    const result = await this.client.mutate<
+      CreateEnumValueSettingMutation,
+      CreateEnumValueSettingMutationVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
   async createSpeciesImageUploadUrl(
     options: Omit<
       Partial<
@@ -2246,6 +2479,38 @@ export class GraphqlService {
     const result = await this.client.mutate<
       CreateVariantMutation,
       CreateVariantMutationVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
+  async deleteEnumValueSetting(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").MutationOptions<
+          DeleteEnumValueSettingMutation,
+          DeleteEnumValueSettingMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: DeleteEnumValueSettingMutationVariables;
+    }
+  ): Promise<
+    Omit<
+      import("@apollo/client/core").FetchResult<DeleteEnumValueSettingMutation>,
+      "data"
+    > & { data: DeleteEnumValueSettingMutation }
+  > {
+    const finalOptions = {
+      ...options,
+      mutation: DeleteEnumValueSettingDocument,
+    };
+    const result = await this.client.mutate<
+      DeleteEnumValueSettingMutation,
+      DeleteEnumValueSettingMutationVariables
     >(finalOptions);
     if (!hasData(result)) {
       throw new Error("Unknown request failure");
@@ -2507,6 +2772,18 @@ export function isEnumValue(val: unknown): val is { __typename: "EnumValue" } {
 }
 
 export type NarrowToEnumValue<T> = T extends { __typename?: "EnumValue" }
+  ? T
+  : never;
+
+export function isEnumValueSetting(
+  val: unknown
+): val is { __typename: "EnumValueSetting" } {
+  return hasTypeName(val, "EnumValueSetting");
+}
+
+export type NarrowToEnumValueSetting<T> = T extends {
+  __typename?: "EnumValueSetting";
+}
   ? T
   : never;
 

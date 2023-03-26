@@ -1,21 +1,26 @@
 import { Field, ID, ObjectType } from "type-graphql";
-import { Column, Entity } from "typeorm";
+import { TypeormLoader } from "type-graphql-dataloader";
+import { Column, Entity, JoinColumn, ManyToOne, Unique } from "typeorm";
 import { EnumValue } from "../EnumValue/EnumValue";
 import { IdField, ManyToOneField } from "../relationFieldDecorators";
 import { TraitList } from "../TraitList/TraitList";
 
 @Entity()
 @ObjectType()
+@Unique(["traitListId", "enumValueId"])
 export class EnumValueSetting {
   @IdField
   id!: string;
 
-  @ManyToOneField({
-    columnName: "traitListId",
-    foreignColumnName: "id",
-    type: () => TraitList,
+  @Field(() => [TraitList])
+  @ManyToOne(() => TraitList, (traitList) => traitList.enumValueSettings, {
     nullable: false,
   })
+  @JoinColumn({
+    name: "traitListId",
+    referencedColumnName: "id",
+  })
+  @TypeormLoader()
   traitList!: TraitList;
 
   @ManyToOneField({
@@ -25,10 +30,6 @@ export class EnumValueSetting {
     nullable: false,
   })
   enumValue!: EnumValue;
-
-  @Column("boolean", { nullable: false })
-  @Field(() => Boolean)
-  allowed!: boolean;
 
   @Column("uuid", { nullable: false })
   @Field(() => ID)

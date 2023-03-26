@@ -5,8 +5,10 @@
 import { graphqlService, uploadService } from "../../client";
 import {
   CritterTraitValueType,
+  EnumValueSetting,
   ImageContentType,
   isBaseError,
+  isEnumValueSetting,
   isInvalidArgumentError,
   isSpeciesList,
   isTrait,
@@ -21,6 +23,7 @@ import { TraitListDetailCard } from "./TraitListDetailCard/TraitListDetailCard";
 import { VariantListCard } from "./VariantListCard/VariantListCard";
 import { getLoaderData, makeAction, makeLoader } from "../../utils/loaderUtils";
 import { isFiniteNumber } from "../util/isFiniteNumber";
+import gql from "graphql-tag";
 
 /**
  * Species detail route configuration. Intended to be registered
@@ -80,6 +83,18 @@ export const SpeciesDetailRoutes = () =>
             id: "root.community.species.variant.entry",
             path: "entries/:traitListEntrySlug",
             action: variantTraitListEntryDetailAction,
+            children: [
+              {
+                id: "root.community.species.variant.entry.enumValueSettings",
+                path: "enumValueSettings",
+                action: enumValueSettingListAction,
+              },
+              {
+                id: "root.community.species.variant.entry.enumValueSetting",
+                path: "enumValueSettings/:enumValueSettingSlug",
+                action: enumValueSettingDetailAction,
+              },
+            ],
           },
         ],
       },
@@ -444,5 +459,100 @@ const traitDetailAction = makeAction(
       });
       return result.data.modifyTrait;
     }
+  }
+);
+
+/**
+ * Action handler for the enum value setting list route
+ */
+const enumValueSettingListAction = makeAction(
+  {
+    allowedMethods: ["POST"],
+    form: {
+      enumValueId: true,
+    },
+    slugs: {
+      variantSlug: true,
+    },
+  },
+  async ({ ids: { variantId }, form: { enumValueId } }) => {
+    return graphqlService.createEnumValueSetting({
+      variables: {
+        input: {
+          enumValueId,
+          traitListId: variantId,
+        },
+      },
+      update: (cache, { data }) => {
+        if (data && isEnumValueSetting(data.createEnumValueSetting)) {
+          const cachedData = cache.readFragment<{
+            enumValueSettings: Partial<EnumValueSetting>[];
+          }>({
+            id: `TraitList:${variantId}`,
+            fragment: gql`
+              fragment Settings on TraitList {
+                enumValueSettings {
+                  id
+                  enumValueId
+                  traitListId
+                }
+              }
+            `,
+          });
+          if (!cachedData) {
+            return;
+          }
+          const { enumValueSettings } = cachedData;
+          cache.writeFragment({
+            id: `TraitList:${variantId}`,
+            fragment: gql`
+              fragment Settings on TraitList {
+                enumValueSettings {
+                  __typename
+                  id
+                  enumValueId
+                  traitListId
+                }
+              }
+            `,
+            data: {
+              enumValueSettings: [
+                ...enumValueSettings,
+                data.createEnumValueSetting,
+              ],
+            },
+          });
+        }
+      },
+    });
+  }
+);
+
+/**
+ * Action handler for the enum value setting detail route
+ */
+const enumValueSettingDetailAction = makeAction(
+  {
+    allowedMethods: ["delete"],
+    slugs: {
+      variantSlug: true,
+      enumValueSettingSlug: true,
+    },
+  },
+  async ({ ids: { enumValueSettingId } }) => {
+    return graphqlService.deleteEnumValueSetting({
+      variables: {
+        id: enumValueSettingId,
+      },
+      update: (cache) => {
+        cache.evict({
+          id: cache.identify({
+            __typename: "EnumValueSetting",
+            id: enumValueSettingId,
+          }),
+        });
+        cache.gc();
+      },
+    });
   }
 );

@@ -73,12 +73,32 @@ type DuplicateError implements BaseError {
 }
 
 type EnumValue {
+  enumValueSettings: [EnumValueSetting!]!
   id: ID!
   name: String!
   order: Int!
   trait: Trait!
   traitId: ID!
 }
+
+input EnumValueDeleteInput {
+  id: ID!
+}
+
+type EnumValueSetting {
+  enumValue: EnumValue!
+  enumValueId: ID!
+  id: ID!
+  traitList: [TraitList!]!
+  traitListId: ID!
+}
+
+input EnumValueSettingCreateInput {
+  enumValueId: ID!
+  traitListId: ID!
+}
+
+union EnumValueSettingDeleteResponse = DeleteResponse | InvalidArgumentError
 
 type Identity {
   displayName: String!
@@ -113,6 +133,7 @@ type Mutation {
   """Create a new community"""
   createCommunity(input: CommunityCreateInput!): CreateCommunityResponse!
   createCritter(input: CritterCreateInput!): Critter!
+  createEnumValueSetting(input: EnumValueSettingCreateInput!): enumValueSettingCreateResponse!
   createSpecies(input: SpeciesCreateInput!): SpeciesCreateResponse!
   createSpeciesImageUploadUrl(input: SpeciesImageUrlCreateInput!): UrlResponse!
   createTrait(input: TraitCreateInput!): TraitCreateResponse!
@@ -120,6 +141,7 @@ type Mutation {
 
   """Add a trait to a variant's trait list"""
   createTraitListEntry(input: TraitListEntryCreateInput!): TraitListEntryCreateResponse!
+  deleteEnumValueSetting(input: EnumValueDeleteInput!): EnumValueSettingDeleteResponse!
   deleteTrait(id: ID!): String!
 
   """
@@ -231,6 +253,7 @@ input TraitFilters {
 }
 
 type TraitList {
+  enumValueSettings: [EnumValueSetting!]!
   id: ID!
   name: String!
   species: Species!
@@ -306,3 +329,5 @@ type ValidationError {
   constraints: [ValidationConstraint!]!
   field: String!
 }
+
+union enumValueSettingCreateResponse = DuplicateError | EnumValueSetting | InvalidArgumentError

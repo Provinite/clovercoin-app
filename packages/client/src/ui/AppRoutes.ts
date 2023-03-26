@@ -43,6 +43,36 @@ export const AppRouteParts = {
     "entries",
     uuidToSlug(traitListEntryId),
   ],
+  speciesVariantTraitListEntryEnumValueSettingList: (
+    communityId: string,
+    speciesId: string,
+    variantId: string,
+    traitListEntryId: string
+  ) => [
+    ...AppRouteParts.speciesVariantTraitListEntryDetail(
+      communityId,
+      speciesId,
+      variantId,
+      traitListEntryId
+    ),
+    "enumValueSettings",
+  ],
+  speciesVariantTraitListEntryEnumValueSettingDetail: (
+    communityId: string,
+    speciesId: string,
+    variantId: string,
+    traitListEntryId: string,
+    enumValueSettingId: string
+  ) => [
+    ...AppRouteParts.speciesVariantTraitListEntryDetail(
+      communityId,
+      speciesId,
+      variantId,
+      traitListEntryId
+    ),
+    "enumValueSettings",
+    uuidToSlug(enumValueSettingId),
+  ],
   speciesTraitDetail: (
     communityId: string,
     speciesId: string,

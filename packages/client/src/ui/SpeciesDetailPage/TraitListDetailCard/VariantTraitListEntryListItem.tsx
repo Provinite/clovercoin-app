@@ -1,5 +1,6 @@
 import {
   CritterTraitValueType,
+  EnumValueSetting,
   Trait,
   TraitListEntry,
 } from "@clovercoin/api-client";
@@ -18,12 +19,21 @@ import { stylesheet } from "../../../utils/emotion";
 import { GridRow } from "../../lib/GridRow";
 import { TextStack } from "./TextStack";
 
+type MinTrait = Pick<Trait, "id" | "name" | "valueType"> & {
+  enumValues: Array<Pick<Trait["enumValues"][number], "id" | "name">>;
+};
+
+type MinTraitListEntry = Pick<TraitListEntry, "order" | "required">;
+type MinEnumValueSetting = Pick<EnumValueSetting, "id" | "enumValueId">;
+
 export interface VariantTraitListEntryListItemProps<
-  TraitPartial,
-  TraitListEntryPartial
+  TraitPartial extends MinTrait,
+  TraitListEntryPartial extends MinTraitListEntry,
+  EnumValueSettingPartial extends MinEnumValueSetting
 > {
   trait: TraitPartial;
   traitListEntry?: TraitListEntryPartial;
+  enumValueSettings: Array<EnumValueSettingPartial>;
   onRequiredChange: (
     traitListEntry: TraitListEntryPartial,
     required: boolean
@@ -33,21 +43,31 @@ export interface VariantTraitListEntryListItemProps<
     enabled: boolean,
     traitListEntry?: TraitListEntryPartial
   ) => void;
+  onEnumValueEnabledChange: (
+    trait: TraitPartial,
+    enumValue: TraitPartial["enumValues"][number],
+    enabled: boolean,
+    enumValueSetting?: EnumValueSettingPartial
+  ) => void;
 }
 
 export const VariantTraitListEntryListItem = <
-  TraitListPartial extends Pick<TraitListEntry, "order" | "required">,
-  TraitPartial extends Pick<Trait, "id" | "name" | "valueType"> & {
-    enumValues: Array<Pick<Trait["enumValues"][number], "id" | "name">>;
-  }
+  TraitListEntryPartial extends MinTraitListEntry,
+  TraitPartial extends MinTrait,
+  EnumValueSettingPartial extends MinEnumValueSetting
 >({
   trait,
   traitListEntry,
+  enumValueSettings,
   onRequiredChange,
   onEnabledChange,
-}: VariantTraitListEntryListItemProps<TraitPartial, TraitListPartial>) => {
+  onEnumValueEnabledChange,
+}: VariantTraitListEntryListItemProps<
+  TraitPartial,
+  TraitListEntryPartial,
+  EnumValueSettingPartial
+>) => {
   const [expanded, setExpanded] = useState(false);
-  const [enabledMap, setEnabledMap] = useState<Record<string, boolean>>({});
   useEffect(() => {
     if (!traitListEntry || trait.valueType !== CritterTraitValueType.Enum) {
       setExpanded(false);
@@ -119,39 +139,47 @@ export const VariantTraitListEntryListItem = <
                   Option
                 </Typography>
               </GridRow>
-              {trait.enumValues.map((enumValue, i) => (
-                <GridRow
-                  xs={[2, 10]}
-                  divider={i === trait.enumValues.length - 1}
-                >
-                  <Box css={(theme) => ({ paddingLeft: theme.spacing(2) })}>
-                    <Switch
-                      disabled={!traitListEntry}
-                      checked={enabledMap[enumValue.id] === true}
-                      onChange={() =>
-                        setEnabledMap((em) => ({
-                          ...em,
-                          [enumValue.id]: !em[enumValue.id],
-                        }))
-                      }
-                    />
-                  </Box>
-                  <Box
-                    css={[
-                      ss.gridItem,
-                      (theme) => ({ paddingLeft: theme.spacing(2) }),
-                    ]}
+              {trait.enumValues.map((enumValue, i) => {
+                const enumValueSetting = enumValueSettings?.find(
+                  ({ enumValueId }) => enumValue.id === enumValueId
+                );
+                const valueEnabled = Boolean(enumValueSetting);
+
+                return (
+                  <GridRow
+                    xs={[2, 10]}
+                    divider={i === trait.enumValues.length - 1}
+                    key={enumValue.id}
                   >
-                    <Typography
-                      color={
-                        enabledMap[enumValue.id] ? "inherit" : "text.secondary"
-                      }
+                    <Box css={(theme) => ({ paddingLeft: theme.spacing(2) })}>
+                      <Switch
+                        disabled={!traitListEntry}
+                        checked={valueEnabled}
+                        onChange={() => {
+                          onEnumValueEnabledChange(
+                            trait,
+                            enumValue,
+                            !valueEnabled,
+                            enumValueSetting
+                          );
+                        }}
+                      />
+                    </Box>
+                    <Box
+                      css={[
+                        ss.gridItem,
+                        (theme) => ({ paddingLeft: theme.spacing(2) }),
+                      ]}
                     >
-                      {enumValue.name}
-                    </Typography>
-                  </Box>
-                </GridRow>
-              ))}
+                      <Typography
+                        color={valueEnabled ? "inherit" : "text.secondary"}
+                      >
+                        {enumValue.name}
+                      </Typography>
+                    </Box>
+                  </GridRow>
+                );
+              })}
             </Grid>
           </Collapse>
         </Grid>

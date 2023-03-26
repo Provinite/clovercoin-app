@@ -22,7 +22,7 @@ import { With } from "../../util/With";
 import { useRouteSpecies } from "../useRouteSpecies";
 import { useRouteVariant } from "../useRouteTraitList";
 import { TextStack } from "./TextStack";
-import { VariantTraitListEntryListItem } from "./VariantTraitListItem";
+import { VariantTraitListEntryListItem } from "./VariantTraitListEntryListItem";
 
 export const TraitListDetailCard: FunctionComponent = () => {
   const variant = useRouteVariant();
@@ -65,6 +65,7 @@ export const TraitListDetailCard: FunctionComponent = () => {
                 <VariantTraitListEntryListItem
                   trait={trait}
                   traitListEntry={traitListEntry}
+                  enumValueSettings={variant.enumValueSettings}
                   onEnabledChange={(trait, enabled, traitListEntry) => {
                     if (enabled) {
                       setTraitToAdd(trait);
@@ -86,6 +87,39 @@ export const TraitListDetailCard: FunctionComponent = () => {
                       action: route,
                       method: "patch",
                     });
+                  }}
+                  onEnumValueEnabledChange={(
+                    _trait,
+                    enumValue,
+                    enabled,
+                    enumValueSetting
+                  ) => {
+                    if (enabled) {
+                      const route =
+                        AppRoutes.speciesVariantTraitListEntryEnumValueSettingList(
+                          community.id,
+                          species.id,
+                          variant.id,
+                          traitListEntry!.id
+                        );
+                      const formData = {
+                        enumValueId: enumValue.id,
+                      };
+                      submit(formData, {
+                        action: route,
+                        method: "post",
+                      });
+                    } else {
+                      const route =
+                        AppRoutes.speciesVariantTraitListEntryEnumValueSettingDetail(
+                          community.id,
+                          species.id,
+                          variant.id,
+                          traitListEntry!.id,
+                          enumValueSetting!.id
+                        );
+                      submit(null, { action: route, method: "delete" });
+                    }
                   }}
                 ></VariantTraitListEntryListItem>
               )}

@@ -1,7 +1,9 @@
 import gql from "graphql-tag";
+import InvalidArgumentErrorFragmentGraphql from "../../utils/error-fragments/InvalidArgumentErrorFragment.graphql";
 
 export const getSpeciesDetailQuery = gql`
   query getSpeciesDetail($filters: SpeciesFilters) {
+    __typename
     species(filters: $filters) {
       ... on SpeciesList {
         list {
@@ -10,6 +12,11 @@ export const getSpeciesDetailQuery = gql`
           traitLists {
             id
             name
+            enumValueSettings {
+              id
+              traitListId
+              enumValueId
+            }
             traitListEntries {
               id
               defaultDisplayValue
@@ -33,4 +40,5 @@ export const getSpeciesDetailQuery = gql`
       }
     }
   }
+  ${InvalidArgumentErrorFragmentGraphql}
 `;

@@ -71,7 +71,7 @@ export async function getLoaderData<T extends GetDataArgs>({
   form = {},
 }: T): Promise<GetDataResult<T>> {
   const slugsResult: Record<string, string | undefined> = {};
-  for (const [slugName, isOptional] of Object.entries(slugs)) {
+  for (const [slugName, isRequired] of Object.entries(slugs)) {
     const newSlugName = slugName.endsWith("Slug")
       ? slugName.slice(0, -4) + "Id"
       : slugName;
@@ -80,7 +80,7 @@ export async function getLoaderData<T extends GetDataArgs>({
 
     if (value) {
       slugsResult[newSlugName] = slugToUuid(value);
-    } else if (isOptional) {
+    } else if (!isRequired) {
       slugsResult[newSlugName] = undefined;
     } else {
       throw new Error(`Missing expected parameter ${slugName}`);
