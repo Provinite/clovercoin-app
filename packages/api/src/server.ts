@@ -22,6 +22,7 @@ import { print } from "graphql";
 import { BaseError } from "./errors/BaseError";
 import { PresignedUrlService } from "./s3/PresignedUrlService";
 import { s3Config } from "./s3/s3Config";
+import { objectMap } from "./util/objectMap";
 export const createCloverCoinAppServer = async () => {
   const db = await dataSource.initialize();
 
@@ -180,6 +181,7 @@ const loggingMiddleware: MiddlewareFn<AppGraphqlContext> = async (
     logger.info({
       message: "Request started",
       path: print(info.operation),
+      fragments: objectMap(info.fragments, print),
       fieldName: info.fieldName,
     });
   }

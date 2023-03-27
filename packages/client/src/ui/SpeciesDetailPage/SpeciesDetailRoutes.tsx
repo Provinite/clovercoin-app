@@ -8,6 +8,7 @@ import {
   EnumValueSetting,
   ImageContentType,
   isBaseError,
+  isDeleteResponse,
   isEnumValueSetting,
   isInvalidArgumentError,
   isSpeciesList,
@@ -544,14 +545,16 @@ const enumValueSettingDetailAction = makeAction(
       variables: {
         id: enumValueSettingId,
       },
-      update: (cache) => {
-        cache.evict({
-          id: cache.identify({
-            __typename: "EnumValueSetting",
-            id: enumValueSettingId,
-          }),
-        });
-        cache.gc();
+      update: (cache, { data }) => {
+        if (isDeleteResponse(data?.deleteEnumValueSetting)) {
+          cache.evict({
+            id: cache.identify({
+              __typename: "EnumValueSetting",
+              id: enumValueSettingId,
+            }),
+          });
+          cache.gc();
+        }
       },
     });
   }

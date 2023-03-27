@@ -3278,6 +3278,7 @@ __metadata:
     "@graphql-codegen/cli": ^2.6.2
     "@koa/cors": ^3.3.0
     "@types/bcrypt": ^5.0.0
+    "@types/jest": 29.5.0
     "@types/koa-mount": ^4.0.1
     "@types/koa__cors": ^3.1.1
     "@types/node": ^17.0.23
@@ -8703,6 +8704,16 @@ __metadata:
   dependencies:
     "@types/istanbul-lib-report": "*"
   checksum: f1ad54bc68f37f60b30c7915886b92f86b847033e597f9b34f2415acdbe5ed742fa559a0a40050d74cdba3b6a63c342cac1f3a64dba5b68b66a6941f4abd7903
+  languageName: node
+  linkType: hard
+
+"@types/jest@npm:29.5.0":
+  version: 29.5.0
+  resolution: "@types/jest@npm:29.5.0"
+  dependencies:
+    expect: ^29.0.0
+    pretty-format: ^29.0.0
+  checksum: cd877e5c56d299cceb8bfdcbb1a77723c706750dd3c3bc47403bc3599b8faff590a3b009c68bb5b11bf7a8c77d1fb01de5e124329b4a08e65f1cdda28b0ecdb8
   languageName: node
   linkType: hard
 
