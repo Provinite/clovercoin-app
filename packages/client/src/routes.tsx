@@ -69,7 +69,7 @@ export const routes = [
         children: [SpeciesDetailRoutes(), speciesListRoutes],
       },
     ],
-  }),
+  } as const),
 ];
 
 /**
@@ -181,3 +181,17 @@ type Children<UnionType> = WithChildren<UnionType>["children"][number];
 type WithId<UnionType, IdType> = UnionType extends { id: IdType }
   ? UnionType
   : never;
+
+export function forEachRoute<K extends RouteId>(
+  enterRoute: (route: TypedRouteConfig) => void,
+  exitRoute: (route: TypedRouteConfig) => void,
+  rootRoutes: TypedRouteConfig<K>[]
+) {
+  for (const route of rootRoutes) {
+    enterRoute(route);
+    for (const child of route.children ?? []) {
+      forEachRoute(enterRoute, exitRoute, [child]);
+    }
+    exitRoute(route);
+  }
+}

@@ -18,13 +18,17 @@ import { typedRouteConfig } from "../../routes";
 import { AddTraitCard } from "./AddTraitCard/AddTraitCard";
 import { EditTraitCard } from "./AddTraitCard/EditTraitCard";
 import { SpeciesDetailPageProvider } from "./SpeciesDetailPageProvider";
-import { SpeciesSummaryCard } from "./SummaryCard/SpeciesSummaryCard";
 import { TraitListCard } from "./TraitListCard/TraitListCard";
 import { TraitListDetailCard } from "./TraitListDetailCard/TraitListDetailCard";
 import { VariantListCard } from "./VariantListCard/VariantListCard";
 import { getLoaderData, makeAction, makeLoader } from "../../utils/loaderUtils";
 import { isFiniteNumber } from "../util/isFiniteNumber";
 import gql from "graphql-tag";
+import { SpeciesIndex } from "./SpeciesIndex/SpeciesIndex";
+import {
+  AddCritterCard,
+  ConnectedAddCritterCard,
+} from "./AddCritterCard/AddCritterCard";
 
 /**
  * Species detail route configuration. Intended to be registered
@@ -41,7 +45,12 @@ export const SpeciesDetailRoutes = () =>
       {
         id: "root.community.species.index",
         index: true,
-        element: <SpeciesSummaryCard />,
+        element: <SpeciesIndex />,
+      },
+      {
+        id: "root.community.species.add-critter",
+        path: "add",
+        element: <ConnectedAddCritterCard />,
       },
       {
         id: "root.community.species.traits",

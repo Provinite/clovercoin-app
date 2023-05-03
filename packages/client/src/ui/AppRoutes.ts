@@ -1,9 +1,14 @@
+import { forEachRoute, RouteId, routes, TypedRouteConfig } from "../routes";
 import { uuidToSlug } from "../utils/uuidUtils";
 
 export const AppRouteParts = {
   admin: () => ["admin"],
   community: (communityId: string) => ["community", uuidToSlug(communityId)],
   communityList: () => ["communities"],
+  addCritter: (communityId: string, speciesId: string) => [
+    ...AppRouteParts.speciesDetail(communityId, speciesId),
+    "add",
+  ],
   speciesDetail: (communityId: string, speciesId: string) => [
     ...AppRouteParts.speciesList(communityId),
     uuidToSlug(speciesId),
@@ -85,6 +90,26 @@ export const AppRouteParts = {
     ...AppRouteParts.community(communityId),
     "species",
   ],
+};
+
+export const appRoute = (id: RouteId): string => {
+  const routeToFullPath: Record<string, string> = {};
+  const curPath: TypedRouteConfig[] = [];
+  forEachRoute(
+    (route) => {
+      curPath.push(route);
+      routeToFullPath[route.id] = curPath
+        .map((r) => r.path)
+        .join("/")
+        .replace(/[/]{2,}/g, "/");
+    },
+    () => {
+      curPath.pop();
+    },
+    routes
+  );
+  console.log(routeToFullPath);
+  return routeToFullPath[id];
 };
 
 export const AppRoutes = makeRouteObject(AppRouteParts);

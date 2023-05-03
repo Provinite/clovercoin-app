@@ -22,6 +22,12 @@
       "request": "launch",
       "name": "Integration Tests",
       "command": "yarn workspace @clovercoin/api test-integration"
+    },
+    {
+      "type": "node-terminal",
+      "request": "launch",
+      "name": "test - client (current file)",
+      "command": "yarn workspace @clovercoin/client jest ${fileBasenameNoExtension}"
     }
   ]
 }
