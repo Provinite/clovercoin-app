@@ -16,6 +16,7 @@ import { graphqlService } from "./client";
 import { adminRoutes } from "./ui/admin/adminRoutes";
 import { AppRoutes } from "./ui/AppRoutes";
 import { communityListRoutes } from "./ui/CommunityListPage/communityListRoutes";
+import { Resume } from "./ui/Resume/Resume";
 import { SpeciesDetailRoutes } from "./ui/SpeciesDetailPage/SpeciesDetailRoutes";
 import { speciesListRoutes } from "./ui/SpeciesListPage/speciesListRoutes";
 import { PrettyPrintJson } from "./ui/util/PrettyPrintJson";
@@ -38,6 +39,11 @@ export const routes = [
     children: [
       communityListRoutes,
       adminRoutes,
+      {
+        id: "root.resume",
+        path: "resume",
+        element: <Resume />,
+      },
       {
         index: true,
         id: "root.index",

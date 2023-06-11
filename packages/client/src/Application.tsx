@@ -16,7 +16,10 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 const defaultDarkTheme = createTheme({
   palette: {
-    mode: "dark",
+    mode: "light",
+  },
+  typography: {
+    fontFamily: `-apple-system,BlinkMacSystemFont,"Segoe UI Adjusted","Segoe UI","Liberation Sans",sans-serif`,
   },
 });
 const darkTheme = defaultDarkTheme;
