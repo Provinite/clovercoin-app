@@ -13,6 +13,7 @@ import {
 } from "react-router-dom";
 import { Application } from "./Application";
 import { graphqlService } from "./client";
+import { Castles } from "./scratch/Castles";
 import { adminRoutes } from "./ui/admin/adminRoutes";
 import { AppRoutes } from "./ui/AppRoutes";
 import { communityListRoutes } from "./ui/CommunityListPage/communityListRoutes";
@@ -43,6 +44,11 @@ export const routes = [
         id: "root.resume",
         path: "resume",
         element: <Resume />,
+      },
+      {
+        id: "root.castles",
+        path: "castles",
+        element: <Castles />,
       },
       {
         index: true,
