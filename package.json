@@ -4,7 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "yarn workspaces foreach --include @clovercoin/api --include @clovercoin/client -ipv -j 2 run start"
+    "start": "yarn workspaces foreach --include @clovercoin/api --include @clovercoin/client -ipv -j 2 run start",
+    "tf": "./terraform.sh"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "5.40.1",

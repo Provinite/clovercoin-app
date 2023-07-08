@@ -1,0 +1,191 @@
+# Multi-AZ private subnet group to hold the RDS instance
+resource "aws_db_subnet_group" "private" {
+  name       = "${var.prefix}-private_db_subnets"
+  subnet_ids = var.db_subnets
+}
+
+# ECR repository for API images
+resource "aws_ecr_repository" "app_repo" {
+  name                 = "${var.prefix}-cc-api"
+  image_tag_mutability = "MUTABLE"
+  force_delete         = true
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+# Cloudwatch log group to hold API logs
+resource "aws_cloudwatch_log_group" "api_logs" {
+  name = "${var.prefix}-cc-api"
+}
+
+# # IAM policy for the executor role
+# data "aws_iam_policy_document" "ecs_executor_policy" {
+#   statement {
+#     actions = [
+#       "ecr:GetAuthorizationToken"
+#     ]
+#     resources = ["*"]
+#   }
+#   statement {
+#     actions = [
+#       "ecr:BatchCheckLayerAvailability",
+#       "ecr:GetDownloadUrlForLayer",
+#       "ecr:BatchGetImage",
+#     ]
+#     resources = [aws_ecr_repository.app_repo.arn]
+#   }
+
+#   statement {
+#     actions = [
+#       "logs:CreateLogStream",
+#       "logs:PutLogEvents"
+#     ]
+#     resources = [aws_cloudwatch_log_group.api_logs.arn]
+#   }
+# }
+
+data "aws_iam_policy_document" "ecs_executor_policy" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "secretsmanager:GetSecretValue",
+    ]
+    resources = [module.db.master_secret_arn]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = [aws_cloudwatch_log_group.api_logs.arn]
+  }
+}
+
+
+data "aws_iam_policy_document" "assume_role_lambda" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+}
+
+
+# IAM role that executes the ECS task in Fargate. Responsible
+# for pulling ecr images and creating log streams
+resource "aws_iam_role" "executor" {
+  name = "${var.prefix}-api-executor-role"
+  # assume_role_policy = jsonencode({
+  #   Version = "2012-10-17"
+  #   Statement = [{
+  #     Action = "sts:AssumeRole"
+  #     Principal = {
+  #       Service = "ecs-tasks.amazonaws.com"
+  #     }
+  #     Effect = "Allow"
+  #     Sid    = ""
+  #   }]
+  # })
+
+  assume_role_policy = data.aws_iam_policy_document.assume_role_lambda.json
+  inline_policy {
+    name   = "executor"
+    policy = data.aws_iam_policy_document.ecs_executor_policy.json
+  }
+
+  managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"]
+}
+
+# Security group for RDS Database Instance
+# Use Cases:
+# - Receive connections API tasks
+resource "aws_security_group" "rds_sg" {
+  vpc_id = var.vpc_id
+  name   = "${var.prefix}-api-rds-sg"
+  egress = []
+}
+
+resource "aws_vpc_security_group_ingress_rule" "rds_allow_from_api" {
+  from_port                    = 5432
+  to_port                      = 5432
+  referenced_security_group_id = aws_security_group.api_web_sg.id
+  security_group_id            = aws_security_group.rds_sg.id
+  ip_protocol                  = "tcp"
+}
+
+# Security group for API instances. These are internet-facing instances
+# Use Cases:
+# Egress:
+# - Pulling ECR images
+# - Connecting to RDS
+# 
+# Ingress:
+# - Web traffic from the world
+# TODO: Egress should be locked down most likely to just RDS on postgres port
+# and https to ECR. Not sure if ECR has a known IP range though. Could use VPC
+# endpoints otherwise if not.
+resource "aws_security_group" "api_web_sg" {
+  description = "Security group for api server instances"
+  name        = "${var.prefix}-api-web-sg"
+  vpc_id      = var.vpc_id
+  ingress {
+    description = "ALL"
+    from_port   = 0
+    to_port     = 0
+    protocol    = -1
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress {
+    description = "HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    description     = "Postgres"
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.rds_sg.id]
+  }
+}
+
+module "db" {
+  source = "./modules/db"
+
+  prefix            = var.prefix
+  subnet_group_name = aws_db_subnet_group.private.name
+  vpc_id            = var.vpc_id
+  security_group_id = aws_security_group.rds_sg.id
+}
+
+module "api" {
+  source = "./modules/api"
+
+  db_endpoint           = module.db.endpoint
+  db_secret_arn         = module.db.master_secret_arn
+  prefix                = var.prefix
+  public_subnet_id      = var.public_subnet_id
+  execution_role_arn    = aws_iam_role.executor.arn
+  api_security_group_id = aws_security_group.api_web_sg.id
+  ecr_repo_url          = aws_ecr_repository.app_repo.repository_url
+  log_group_name        = aws_cloudwatch_log_group.api_logs.name
+}

@@ -1,5 +1,5 @@
 import type { AwilixContainer } from "awilix";
-import type { Connection, EntityManager } from "typeorm";
+import type { Connection, DataSource, EntityManager } from "typeorm";
 import type { ControllerContext } from "../business/registerControllers";
 import type { TransactionProvider } from "../db/TransactionProvider";
 import type { RepositoryContext } from "../models/registerRepositories";
@@ -9,7 +9,7 @@ import { S3ClientConfig } from "@aws-sdk/client-s3";
 export interface AppGraphqlContext
   extends RepositoryContext,
     ControllerContext {
-  db: Connection;
+  db: DataSource;
   entityManager: EntityManager;
   presignedUrlService: PresignedUrlService;
   s3Config: S3ClientConfig;

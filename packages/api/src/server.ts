@@ -2,7 +2,7 @@ import "reflect-metadata";
 import Koa, { Context, Request, Response } from "koa";
 import mount from "koa-mount";
 import { graphqlHTTP, OptionsResult } from "koa-graphql";
-import { buildSchema, MiddlewareFn, NonEmptyArray } from "type-graphql";
+import { buildSchemaSync, MiddlewareFn, NonEmptyArray } from "type-graphql";
 import { GraphQLParams } from "express-graphql";
 import { v4 } from "uuid";
 import cors from "@koa/cors";
@@ -15,7 +15,7 @@ import { registerControllers } from "./business/registerControllers";
 import { ResolversArray } from "./business/Resolvers";
 import { logger } from "./util/logger";
 import { createChildContainer } from "./awilix/createChildContainer";
-import { dataSource } from "./db/dbConnection";
+import { configureDataSource, dataSource } from "./db/dbConnection";
 import { DuplicateError } from "./errors/DuplicateError";
 import { InvalidArgumentError } from "./errors/InvalidArgumentError";
 import { print } from "graphql";
@@ -23,8 +23,39 @@ import { BaseError } from "./errors/BaseError";
 import { PresignedUrlService } from "./s3/PresignedUrlService";
 import { s3Config } from "./s3/s3Config";
 import { objectMap } from "./util/objectMap";
-export const createCloverCoinAppServer = async () => {
-  const db = await dataSource.initialize();
+export interface ServerOptions {
+  db: {
+    host?: string;
+    username?: string;
+    password?: string;
+    port?: number;
+    database?: string;
+  };
+}
+export const createCloverCoinAppServer = (options?: ServerOptions) => {
+  if (options) {
+    configureDataSource({
+      ...options.db,
+    });
+  }
+
+  const ready = new Promise<void>((res, rej) => {
+    /**
+     * We do asynchronous setup in here so that we can still
+     * synchronously make the server available (eg for serverless
+     * requests). This promise is awaited before processing any requests,
+     * that combined with lazy initialization of the graphql context entries
+     * allows for a (somewhat percarious) situation where we can get HTTP calls
+     * before the server is strictly ready.
+     */
+    dataSource.initialize().then((db) => {
+      /**
+       * Postgres
+       */
+      register(rootContainer, "db", asValue(db));
+      res();
+    }, rej);
+  });
 
   /**
    * HTTP
@@ -34,7 +65,7 @@ export const createCloverCoinAppServer = async () => {
   /**
    * GraphQL
    */
-  const schema = await buildSchema({
+  const schema = buildSchemaSync({
     resolvers: [...ResolversArray] as NonEmptyArray<
       typeof ResolversArray[number]
     >,
@@ -43,10 +74,6 @@ export const createCloverCoinAppServer = async () => {
   });
 
   const rootContainer = createContainer<AppGraphqlContext>("root");
-  /**
-   * Postgres
-   */
-  register(rootContainer, "db", asValue(db));
   /**
    * S3
    */
@@ -84,6 +111,10 @@ export const createCloverCoinAppServer = async () => {
 
   koa
     .use(cors())
+    .use(async (_ctx, next) => {
+      await ready;
+      await next();
+    })
     .use(async (ctx, next) => {
       // TODO: NO!
       await next();
@@ -143,7 +174,7 @@ export const createCloverCoinAppServer = async () => {
       )
     );
 
-  return { rootContainer, koa };
+  return { rootContainer, koa, ready };
 };
 
 const errorHandler: MiddlewareFn<AppGraphqlContext> = async (
