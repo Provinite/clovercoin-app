@@ -1,6 +1,6 @@
-import { DataSource } from "typeorm";
-import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConnectionOptions";
-import { ModelsArray } from "../models";
+import { DataSource } from "typeorm/data-source/DataSource.js";
+import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConnectionOptions.js";
+import { ModelsArray } from "../models/index.js";
 
 export function configureDataSource(
   options: Partial<PostgresConnectionOptions> = {}

@@ -8,11 +8,11 @@ import {
   ValidateIf,
 } from "class-validator";
 import { createUnionType, Field, ID, InputType, Int } from "type-graphql";
-import { DeleteResponse } from "../../business/DeleteResponse";
-import { DuplicateError } from "../../errors/DuplicateError";
-import { InvalidArgumentError } from "../../errors/InvalidArgumentError";
-import { isNullish } from "../../util/isNullish";
-import { TraitListEntry } from "./TraitListEntry";
+import { DeleteResponse } from "../../business/DeleteResponse.js";
+import { DuplicateError } from "../../errors/DuplicateError.js";
+import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
+import { isNullish } from "../../util/isNullish.js";
+import { TraitListEntry } from "./TraitListEntry.js";
 
 /**
  * Input type for createTraitListEntry mutations.

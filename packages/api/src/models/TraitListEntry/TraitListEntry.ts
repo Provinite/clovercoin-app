@@ -1,9 +1,9 @@
 import { Field, ID, Int, ObjectType } from "type-graphql";
-import { Column, Entity } from "typeorm";
-import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes";
-import { IdField, ManyToOneField } from "../relationFieldDecorators";
-import { Trait } from "../Trait/Trait";
-import { TraitList } from "../TraitList/TraitList";
+import { Column, Entity, type Relation } from "typeorm/index.js";
+import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes.js";
+import { IdField, ManyToOneField } from "../relationFieldDecorators.js";
+import { Trait } from "../Trait/Trait.js";
+import { TraitList } from "../TraitList/TraitList.js";
 
 /**
  * Model representing a single entry on a variant's trait list.
@@ -31,7 +31,7 @@ export class TraitListEntry {
     nullable: false,
     type: () => Trait,
   })
-  trait!: Trait;
+  trait!: Relation<Trait>;
 
   /**
    * The variant for this entry
@@ -42,7 +42,7 @@ export class TraitListEntry {
     columnName: "traitListId",
     foreignColumnName: "id",
   })
-  traitList!: TraitList;
+  traitList!: Relation<TraitList>;
 
   /**
    * The ID of the trait for this entry
@@ -83,7 +83,7 @@ export class TraitListEntry {
     nullable: false,
   })
   @Field(() => CritterTraitValueTypes)
-  valueType!: CritterTraitValueTypes;
+  valueType!: Relation<CritterTraitValueTypes>;
 
   /**
    * Default string value for the trait

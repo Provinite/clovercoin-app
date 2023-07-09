@@ -1,7 +1,7 @@
-import { Repository } from "typeorm";
-import { EntityController } from "../../business/EntityController";
-import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { Species } from "./Species";
+import { Repository } from "typeorm/index.js";
+import { EntityController } from "../../business/EntityController.js";
+import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { Species } from "./Species.js";
 
 export type SpeciesCreate = Pick<Species, "name" | "communityId">;
 export type SpeciesUpdate = Partial<Pick<Species, "hasImage">>;

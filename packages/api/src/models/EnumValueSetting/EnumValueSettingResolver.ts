@@ -1,13 +1,13 @@
 import { Arg, Ctx, Mutation, Resolver } from "type-graphql";
-import { DeleteResponse } from "../../business/DeleteResponse";
-import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { EnumValueSetting } from "./EnumValueSetting";
+import { DeleteResponse } from "../../business/DeleteResponse.js";
+import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { EnumValueSetting } from "./EnumValueSetting.js";
 import {
   EnumValueDeleteInput,
   EnumValueSettingCreateInput,
   EnumValueSettingCreateResponse,
   EnumValueSettingDeleteResponse,
-} from "./EnumValueSettingType";
+} from "./EnumValueSettingType.js";
 
 @Resolver(() => EnumValueSetting)
 export class EnumValueSettingResolver {

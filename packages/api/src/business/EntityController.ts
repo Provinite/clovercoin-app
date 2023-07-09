@@ -4,8 +4,8 @@ import {
   FindOptionsWhere,
   ObjectLiteral,
   Repository,
-} from "typeorm";
-import { ensureArray } from "../util/ensureArray";
+} from "typeorm/index.js";
+import { ensureArray } from "../util/ensureArray.js";
 
 export class EntityController<
   Model extends ObjectLiteral,

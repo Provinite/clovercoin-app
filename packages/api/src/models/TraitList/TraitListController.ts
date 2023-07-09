@@ -1,7 +1,7 @@
-import { Repository } from "typeorm";
-import { EntityController } from "../../business/EntityController";
-import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { TraitList } from "./TraitList";
+import { Repository } from "typeorm/index.js";
+import { EntityController } from "../../business/EntityController.js";
+import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { TraitList } from "./TraitList.js";
 
 export type TraitListCreate = Pick<TraitList, "speciesId" | "name">;
 export type TraitListModify = Pick<

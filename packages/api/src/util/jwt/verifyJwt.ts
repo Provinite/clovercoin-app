@@ -1,5 +1,5 @@
 import { verify } from "jsonwebtoken";
-import { jwtSecret } from "./jwtSecret";
+import { jwtSecret } from "./jwtSecret.js";
 
 export function verifyJwt<T>(jwt: string): Promise<T> {
   return new Promise((res, rej) => {

@@ -1,5 +1,5 @@
-import { compareHash } from "./compareHash";
-import { secureHash } from "./secureHash";
+import { compareHash } from "./compareHash.js";
+import { secureHash } from "./secureHash.js";
 
 describe("utils:crypto", () => {
   describe("password hashing", () => {

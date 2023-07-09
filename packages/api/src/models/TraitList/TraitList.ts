@@ -1,10 +1,16 @@
 import { Field, ID, ObjectType } from "type-graphql";
 import { TypeormLoader } from "type-graphql-dataloader";
-import { Column, Entity, OneToMany, Unique } from "typeorm";
-import { EnumValueSetting } from "../EnumValueSetting/EnumValueSetting";
-import { IdField, ManyToOneField } from "../relationFieldDecorators";
-import { Species } from "../Species/Species";
-import { TraitListEntry } from "../TraitListEntry/TraitListEntry";
+import {
+  Column,
+  Entity,
+  OneToMany,
+  type Relation,
+  Unique,
+} from "typeorm/index.js";
+import { EnumValueSetting } from "../EnumValueSetting/EnumValueSetting.js";
+import { IdField, ManyToOneField } from "../relationFieldDecorators.js";
+import { Species } from "../Species/Species.js";
+import { TraitListEntry } from "../TraitListEntry/TraitListEntry.js";
 
 /**
  * Model representing a specific configuration, selection, and order
@@ -23,7 +29,7 @@ export class TraitList {
     nullable: false,
     type: () => Species,
   })
-  species!: Species;
+  species!: Relation<Species>;
 
   @Column({
     type: "varchar",

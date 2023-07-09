@@ -13,13 +13,13 @@ import {
   Resolver,
   Root,
 } from "type-graphql";
-import { FindManyOptions, ILike } from "typeorm";
-import { DuplicateError } from "../../errors/DuplicateError";
-import { InvalidArgumentError } from "../../errors/InvalidArgumentError";
-import { NotFoundError } from "../../errors/NotFoundError";
-import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { ImageContentType } from "../ImageContentType";
-import { Species } from "./Species";
+import { FindManyOptions, ILike } from "typeorm/index.js";
+import { DuplicateError } from "../../errors/DuplicateError.js";
+import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
+import { NotFoundError } from "../../errors/NotFoundError.js";
+import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { ImageContentType } from "../ImageContentType.js";
+import { Species } from "./Species.js";
 
 @InputType()
 export class SpeciesCreateInput {

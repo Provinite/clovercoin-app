@@ -3,9 +3,9 @@
 import "cross-fetch/polyfill";
 import { Server } from "http";
 import { PostgreSqlContainer } from "testcontainers";
-import { dataSource } from "../db/dbConnection";
-import { createCloverCoinAppServer } from "../server";
-import { logger } from "../util/logger";
+import { dataSource } from "../db/dbConnection.js";
+import { createCloverCoinAppServer } from "../server.js";
+import { logger } from "../util/logger.js";
 
 let server: Server;
 
@@ -33,7 +33,10 @@ const theExport = async () => {
     host: global.ccPostgresContainer.getHost(),
   });
 
-  const { koa } = await createCloverCoinAppServer();
+  const { koa } = await createCloverCoinAppServer({
+    db: {},
+    schema: { emitFile: undefined },
+  });
   server = koa.listen(0);
   const address = server.address();
   if (!address || typeof address === "string") {
@@ -62,4 +65,4 @@ theExport.shutdown = async () => {
   global.ccPostgresContainer = undefined;
 };
 
-export = theExport;
+export default theExport;

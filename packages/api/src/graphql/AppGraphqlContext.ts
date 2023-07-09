@@ -1,10 +1,10 @@
 import type { AwilixContainer } from "awilix";
-import type { Connection, DataSource, EntityManager } from "typeorm";
-import type { ControllerContext } from "../business/registerControllers";
-import type { TransactionProvider } from "../db/TransactionProvider";
-import type { RepositoryContext } from "../models/registerRepositories";
+import type { Connection, DataSource, EntityManager } from "typeorm/index.js";
+import type { ControllerContext } from "../business/registerControllers.js";
+import type { TransactionProvider } from "../db/TransactionProvider.js";
+import type { RepositoryContext } from "../models/registerRepositories.js";
 import type { Logger } from "winston";
-import { PresignedUrlService } from "../s3/PresignedUrlService";
+import { PresignedUrlService } from "../s3/PresignedUrlService.js";
 import { S3ClientConfig } from "@aws-sdk/client-s3";
 export interface AppGraphqlContext
   extends RepositoryContext,

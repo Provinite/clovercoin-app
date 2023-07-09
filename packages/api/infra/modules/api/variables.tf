@@ -33,6 +33,11 @@ variable "db_endpoint" {
   type = string
 }
 
+variable "db_name" {
+  description = "Database name to connect to"
+  type = string
+}
+
 variable "db_secret_arn" {
   description = "ARN of the secrets-manager secret that is used to access the database"
   type = string

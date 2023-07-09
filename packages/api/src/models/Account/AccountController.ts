@@ -1,10 +1,10 @@
-import { Repository } from "typeorm";
-import { EntityController } from "../../business/EntityController";
-import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { canHashPassword } from "../../util/crypto/canHashPassword";
-import { compareHash } from "../../util/crypto/compareHash";
-import { secureHash, secureHashSync } from "../../util/crypto/secureHash";
-import { Account } from "./Account";
+import { Repository } from "typeorm/index.js";
+import { EntityController } from "../../business/EntityController.js";
+import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { canHashPassword } from "../../util/crypto/canHashPassword.js";
+import { compareHash } from "../../util/crypto/compareHash.js";
+import { secureHash, secureHashSync } from "../../util/crypto/secureHash.js";
+import { Account } from "./Account.js";
 
 const mockHashedPassword = secureHashSync("password");
 const wrongMockPassword = "p";

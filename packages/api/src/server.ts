@@ -6,23 +6,23 @@ import { buildSchemaSync, MiddlewareFn, NonEmptyArray } from "type-graphql";
 import { GraphQLParams } from "express-graphql";
 import { v4 } from "uuid";
 import cors from "@koa/cors";
-import { AppGraphqlContext } from "./graphql/AppGraphqlContext";
+import type { AppGraphqlContext } from "./graphql/AppGraphqlContext.js";
 import { asClass, asFunction, asValue } from "awilix";
-import { register } from "./awilix/register";
-import { registerRepositories } from "./models/registerRepositories";
-import { createContainer } from "./awilix/createContainer";
-import { registerControllers } from "./business/registerControllers";
-import { ResolversArray } from "./business/Resolvers";
-import { logger } from "./util/logger";
-import { createChildContainer } from "./awilix/createChildContainer";
-import { configureDataSource, dataSource } from "./db/dbConnection";
-import { DuplicateError } from "./errors/DuplicateError";
-import { InvalidArgumentError } from "./errors/InvalidArgumentError";
+import { register } from "./awilix/register.js";
+import { registerRepositories } from "./models/registerRepositories.js";
+import { createContainer } from "./awilix/createContainer.js";
+import { registerControllers } from "./business/registerControllers.js";
+import { ResolversArray } from "./business/Resolvers.js";
+import { logger } from "./util/logger.js";
+import { createChildContainer } from "./awilix/createChildContainer.js";
+import { configureDataSource, dataSource } from "./db/dbConnection.js";
+import { DuplicateError } from "./errors/DuplicateError.js";
+import { InvalidArgumentError } from "./errors/InvalidArgumentError.js";
 import { print } from "graphql";
-import { BaseError } from "./errors/BaseError";
-import { PresignedUrlService } from "./s3/PresignedUrlService";
-import { s3Config } from "./s3/s3Config";
-import { objectMap } from "./util/objectMap";
+import { BaseError } from "./errors/BaseError.js";
+import { PresignedUrlService } from "./s3/PresignedUrlService.js";
+import { s3Config } from "./s3/s3Config.js";
+import { objectMap } from "./util/objectMap.js";
 export interface ServerOptions {
   db: {
     host?: string;
@@ -31,13 +31,26 @@ export interface ServerOptions {
     port?: number;
     database?: string;
   };
+  schema: {
+    emitFile: string | undefined;
+  };
 }
-export const createCloverCoinAppServer = (options?: ServerOptions) => {
-  if (options) {
-    configureDataSource({
-      ...options.db,
-    });
+export const createCloverCoinAppServer = (options: ServerOptions) => {
+  if (options.db.host) {
+    const result = /(.*?)(?::(\d+))?$/.exec(options.db.host);
+    if (!result) {
+      throw new Error("Invalid options.db.host");
+    }
+    const [_, host, port] = result;
+    options.db.host = host;
+    if (port) {
+      options.db.port = Number(port);
+    }
   }
+  configureDataSource({
+    ...options.db,
+    ssl: true,
+  });
 
   const ready = new Promise<void>((res, rej) => {
     /**
@@ -69,7 +82,7 @@ export const createCloverCoinAppServer = (options?: ServerOptions) => {
     resolvers: [...ResolversArray] as NonEmptyArray<
       typeof ResolversArray[number]
     >,
-    emitSchemaFile: "./schema.gql",
+    emitSchemaFile: options?.schema.emitFile,
     globalMiddlewares: [errorHandler, loggingMiddleware],
   });
 
@@ -111,8 +124,20 @@ export const createCloverCoinAppServer = (options?: ServerOptions) => {
 
   koa
     .use(cors())
-    .use(async (_ctx, next) => {
+    .use(async (ctx, next) => {
+      const req = ctx.req as any;
+      if (
+        Buffer.isBuffer(req.body) &&
+        ctx.req.headers["content-type"] === "application/json"
+      ) {
+        req.body = JSON.parse(req.body.toString());
+      }
       await ready;
+      logger.info({
+        message: {
+          path: ctx.path,
+        },
+      });
       await next();
     })
     .use(async (ctx, next) => {

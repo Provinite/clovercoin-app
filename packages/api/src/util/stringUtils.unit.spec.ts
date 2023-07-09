@@ -1,4 +1,4 @@
-import { getBytesInString } from "./stringUtils";
+import { getBytesInString } from "./stringUtils.js";
 
 describe("stringUtils", () => {
   describe("getBytesInString", () => {

@@ -17,3 +17,8 @@ variable "private_cidr_block2" {
   description = "VPC cidr block for private subnet"
   type        = string
 }
+
+variable "prefix" {
+  description = "Prefix for names of resources"
+  type = string
+}

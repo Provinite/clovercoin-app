@@ -1,16 +1,16 @@
 import { Arg, Ctx, ID, Mutation, Query, Resolver } from "type-graphql";
-import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes";
-import { EnumValueCreate } from "../EnumValue/EnumValueController";
-import { Trait } from "./Trait";
-import { TraitCreate } from "./TraitController";
+import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes.js";
+import { EnumValueCreate } from "../EnumValue/EnumValueController.js";
+import { Trait } from "./Trait.js";
+import { TraitCreate } from "./TraitController.js";
 import {
   TraitCreateInput,
   TraitCreateResponse,
   TraitFilters,
   TraitModifyInput,
   TraitModifyResponse,
-} from "./TraitTypes";
+} from "./TraitTypes.js";
 
 @Resolver(() => Trait)
 export class TraitResolver {

@@ -11,12 +11,12 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import { FindManyOptions, ILike } from "typeorm";
-import { DuplicateError } from "../../errors/DuplicateError";
-import { InvalidArgumentError } from "../../errors/InvalidArgumentError";
-import { NotFoundError } from "../../errors/NotFoundError";
-import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { Community } from "./Community";
+import { FindManyOptions, ILike } from "typeorm/index.js";
+import { DuplicateError } from "../../errors/DuplicateError.js";
+import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
+import { NotFoundError } from "../../errors/NotFoundError.js";
+import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { Community } from "./Community.js";
 
 @InputType()
 export class CommunityCreateInput {

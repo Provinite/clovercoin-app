@@ -49,6 +49,13 @@ data "aws_iam_policy_document" "ecs_executor_policy" {
   statement {
     effect = "Allow"
 
+    actions   = ["rds-db:connect"]
+    resources = ["${module.db.rds_db.arn}/${module.db.rds_db.db_name}"]
+  }
+
+  statement {
+    effect = "Allow"
+
     actions = [
       "secretsmanager:GetSecretValue",
     ]
@@ -181,6 +188,7 @@ module "api" {
   source = "./modules/api"
 
   db_endpoint           = module.db.endpoint
+  db_name               = module.db.rds_db.db_name
   db_secret_arn         = module.db.master_secret_arn
   prefix                = var.prefix
   public_subnet_id      = var.public_subnet_id

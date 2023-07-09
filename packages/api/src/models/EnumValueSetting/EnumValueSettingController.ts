@@ -1,7 +1,7 @@
-import { Repository } from "typeorm";
-import { EntityController } from "../../business/EntityController";
-import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { EnumValueSetting } from "./EnumValueSetting";
+import { Repository } from "typeorm/index.js";
+import { EntityController } from "../../business/EntityController.js";
+import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { EnumValueSetting } from "./EnumValueSetting.js";
 
 export type EnumValueSettingCreate = Pick<
   EnumValueSetting,

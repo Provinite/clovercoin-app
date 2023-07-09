@@ -1,7 +1,7 @@
-import { Repository } from "typeorm";
-import { EntityController } from "../../business/EntityController";
-import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { Identity } from "./Identity";
+import { Repository } from "typeorm/index.js";
+import { EntityController } from "../../business/EntityController.js";
+import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { Identity } from "./Identity.js";
 
 export type IdentityCreate = Pick<Identity, "displayName" | "email">;
 

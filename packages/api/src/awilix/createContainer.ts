@@ -3,8 +3,8 @@ import {
   AwilixContainer,
   createContainer as createAwilixContainer,
 } from "awilix";
-import { BaseCradleType } from "./BaseCradleType";
-import { register } from "./register";
+import { BaseCradleType } from "./BaseCradleType.js";
+import { register } from "./register.js";
 
 export const createContainer = <T extends BaseCradleType<T>>(
   name: string = "root"

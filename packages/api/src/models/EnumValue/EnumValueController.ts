@@ -1,8 +1,8 @@
-import { DeleteResult, Repository } from "typeorm";
-import { EntityController } from "../../business/EntityController";
-import { TransactionProvider } from "../../db/TransactionProvider";
-import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { EnumValue } from "./EnumValue";
+import { DeleteResult, Repository } from "typeorm/index.js";
+import { EntityController } from "../../business/EntityController.js";
+import { TransactionProvider } from "../../db/TransactionProvider.js";
+import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { EnumValue } from "./EnumValue.js";
 
 export type EnumValueCreate =
   | Pick<EnumValue, "name" | "trait" | "order">

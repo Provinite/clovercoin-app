@@ -1,14 +1,14 @@
 import { Arg, Ctx, ID, Mutation, Resolver } from "type-graphql";
-import { DeleteResponse } from "../../business/DeleteResponse";
-import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { TraitListEntry } from "./TraitListEntry";
+import { DeleteResponse } from "../../business/DeleteResponse.js";
+import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { TraitListEntry } from "./TraitListEntry.js";
 import {
   TraitListEntryCreateInput,
   TraitListEntryCreateResponse,
   TraitListEntryDeleteResponse,
   TraitListEntryModifyInput,
   TraitListEntryModifyResponse,
-} from "./TraitListEntryTypes";
+} from "./TraitListEntryTypes.js";
 
 /**
  * Resolver for {@link TraitListEntry}. Used to modify the set of

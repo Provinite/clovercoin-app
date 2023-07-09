@@ -1,11 +1,11 @@
-import { CommunityResolver } from "../models/Community/CommunityResolver";
-import { CritterResolver } from "../models/Critter/CritterResolver";
-import { EnumValueSettingResolver } from "../models/EnumValueSetting/EnumValueSettingResolver";
-import { SpeciesResolver } from "../models/Species/SpeciesResolver";
-import { TraitResolver } from "../models/Trait/TraitResolver";
-import { TraitListResolver } from "../models/TraitList/TraitListResolver";
-import { TraitListEntryResolver } from "../models/TraitListEntry/TraitListEntryResolver";
-import { LoginResolver } from "./LoginResolver";
+import { CommunityResolver } from "../models/Community/CommunityResolver.js";
+import { CritterResolver } from "../models/Critter/CritterResolver.js";
+import { EnumValueSettingResolver } from "../models/EnumValueSetting/EnumValueSettingResolver.js";
+import { SpeciesResolver } from "../models/Species/SpeciesResolver.js";
+import { TraitResolver } from "../models/Trait/TraitResolver.js";
+import { TraitListResolver } from "../models/TraitList/TraitListResolver.js";
+import { TraitListEntryResolver } from "../models/TraitListEntry/TraitListEntryResolver.js";
+import { LoginResolver } from "./LoginResolver.js";
 
 export const ResolversMap = {
   CommunityResolver,
