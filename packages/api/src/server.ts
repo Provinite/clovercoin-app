@@ -49,7 +49,7 @@ export const createCloverCoinAppServer = (options: ServerOptions) => {
   }
   configureDataSource({
     ...options.db,
-    ssl: true,
+    ssl: false,
   });
 
   const ready = new Promise<void>((res, rej) => {

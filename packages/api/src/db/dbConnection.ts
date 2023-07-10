@@ -1,4 +1,4 @@
-import { DataSource } from "typeorm/data-source/DataSource.js";
+import { DataSource } from "typeorm/index.js";
 import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConnectionOptions.js";
 import { ModelsArray } from "../models/index.js";
 

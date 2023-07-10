@@ -1,4 +1,4 @@
-import setup from "./preEnvSetup.js";
+import { shutdown } from "./preEnvSetup.js";
 import { setupTestClient } from "./testClient.js";
 import { beforeAll, afterAll } from "@jest/globals";
 beforeAll(() => {
@@ -6,5 +6,5 @@ beforeAll(() => {
 });
 
 afterAll(async () => {
-  await setup.shutdown();
+  await shutdown();
 });
