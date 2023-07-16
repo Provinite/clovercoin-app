@@ -17,3 +17,13 @@ variable "vpc_id" {
   description = "VPC to deploy into"
   type        = string
 }
+
+variable "domain_name" {
+  type = string
+  description = "Domain name to host the API. Used for cloudfront. Should be on the SSL cert."
+}
+
+variable "acm_cert_arn" {
+  type=string
+  description = "ARN of the ACM cert to use with cloudfront"
+}

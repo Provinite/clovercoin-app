@@ -27,6 +27,9 @@ module "vpc" {
 module "api" {
   source = "../../../packages/api/infra"
 
+  acm_cert_arn = "arn:aws:acm:us-east-1:439703963905:certificate/a2bd2066-7790-4840-b067-5c45396393b9"
+  domain_name  = "beta-api.clovercoin.com"
+
   prefix           = "beta"
   public_subnet_id = module.vpc.subnets.public.id
   db_subnets       = [module.vpc.subnets.private[0].id, module.vpc.subnets.private[1].id]
