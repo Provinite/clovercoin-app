@@ -19,19 +19,20 @@ jobs:
         run: yarn install
       # Run tests, all the time
       - name: Test
-        id: test
-        run: yarn workspace client tsc --noEmit
-      # Build & deploy storybook if client has changed (main only)
-      - name: Build Storybook
-        if: ${{ github.ref == 'refs/heads/main' && contains(steps.files.outputs.all, 'packages/client/') }}
-        run: |
-          yarn workspace client build-storybook
-      - name: Deploy Storybook 🚀
-        if: ${{ github.ref == 'refs/heads/main' && contains(steps.files.outputs.all, 'packages/client/') }}
-        uses: JamesIves/github-pages-deploy-action@3.6.2
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages # The branch the action should deploy to.
-          FOLDER: packages/client/built-storybook # The folder that the build-storybook script generates files.
-          CLEAN: true # Automatically remove deleted files from the deploy branch
-          TARGET_FOLDER: / # The folder that we serve our Storybook files from
+        run: yarn workspaces foreach run test
+      - name: Build
+        run: yarn workspaces foreach run build
+      # # Build & deploy storybook if client has changed (main only)
+      # - name: Build Storybook
+      #   if: ${{ github.ref == 'refs/heads/main' && contains(steps.files.outputs.all, 'packages/client/') }}
+      #   run: |
+      #     yarn workspace client build-storybook
+      # - name: Deploy Storybook 🚀
+      #   if: ${{ github.ref == 'refs/heads/main' && contains(steps.files.outputs.all, 'packages/client/') }}
+      #   uses: JamesIves/github-pages-deploy-action@3.6.2
+      #   with:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     BRANCH: gh-pages # The branch the action should deploy to.
+      #     FOLDER: packages/client/built-storybook # The folder that the build-storybook script generates files.
+      #     CLEAN: true # Automatically remove deleted files from the deploy branch
+      #     TARGET_FOLDER: / # The folder that we serve our Storybook files from
