@@ -22,6 +22,13 @@ jobs:
         run: yarn workspaces foreach run test
       - name: Build
         run: yarn workspaces foreach --topological-dev run build
+      - name: Package
+        run: docker build . -t cc-api:${{ github.sha }}
+        working-directory: ./packages/api
+      - name: Deploy API
+        run:
+      - name: Deploy Client
+        run:
       # # Build & deploy storybook if client has changed (main only)
       # - name: Build Storybook
       #   if: ${{ github.ref == 'refs/heads/main' && contains(steps.files.outputs.all, 'packages/client/') }}

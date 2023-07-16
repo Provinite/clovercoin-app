@@ -23,7 +23,4 @@ COPY  --from=build ${LAMBDA_TASK_ROOT}/node_modules ./node_modules/
 
 ENV NODE_OPTIONS=--enable-source-maps
 ENV CC_LISTEN=false
-ENV CC_JWT_SECRET=OneBigLongSecretLolOneBigLongSecretLolOneBigLongSecretLolOneBigLongSecretLolOneBigLongSecretLolOneBigLongSecretLol
-ENV NODE_OPTIONS=--inspect
-EXPOSE 9229
 CMD [ "app.handler" ]
