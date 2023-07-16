@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@apollo/client": "3.7.1",
-    "@clovercoin/api-client": "*",
+    "@clovercoin/api-client": "workspace:*",
     "@emotion/babel-plugin": "^11.10.5",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",

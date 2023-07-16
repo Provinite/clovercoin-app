@@ -43,7 +43,7 @@
   "devDependencies": {
     "@apollo/client": "^3.7.1",
     "@aws-sdk/types": "^3.272.0",
-    "@clovercoin/api-client": "*",
+    "@clovercoin/api-client": "workspace:*",
     "@hyrious/esbuild-plugin-commonjs": "^0.2.2",
     "@types/bcrypt": "^5.0.0",
     "@types/jest": "^29.5.2",
