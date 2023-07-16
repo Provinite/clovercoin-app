@@ -2,9 +2,8 @@ import "reflect-metadata";
 import Koa, { Context, Request, Response } from "koa";
 import mount from "koa-mount";
 import { graphqlHTTP, OptionsResult } from "koa-graphql";
-import { buildSchemaSync, MiddlewareFn, NonEmptyArray } from "type-graphql";
+import { buildSchema, MiddlewareFn, NonEmptyArray } from "type-graphql";
 import { GraphQLParams } from "express-graphql";
-import { v4 } from "uuid";
 import cors from "@koa/cors";
 import type { AppGraphqlContext } from "./graphql/AppGraphqlContext.js";
 import { asClass, asFunction, asValue } from "awilix";
@@ -14,7 +13,6 @@ import { createContainer } from "./awilix/createContainer.js";
 import { registerControllers } from "./business/registerControllers.js";
 import { ResolversArray } from "./business/Resolvers.js";
 import { logger } from "./util/logger.js";
-import { createChildContainer } from "./awilix/createChildContainer.js";
 import { configureDataSource, dataSource } from "./db/dbConnection.js";
 import { DuplicateError } from "./errors/DuplicateError.js";
 import { InvalidArgumentError } from "./errors/InvalidArgumentError.js";
@@ -23,6 +21,8 @@ import { BaseError } from "./errors/BaseError.js";
 import { PresignedUrlService } from "./s3/PresignedUrlService.js";
 import { s3Config } from "./s3/s3Config.js";
 import { objectMap } from "./util/objectMap.js";
+import { handleJsonBufferBody } from "./http-middleware/handleJsonBufferBody.js";
+import { createRequestContainer } from "./http-middleware/createRequestContainer.js";
 export interface ServerOptions {
   db: {
     host?: string;
@@ -30,12 +30,13 @@ export interface ServerOptions {
     password?: string;
     port?: number;
     database?: string;
+    ssl?: boolean;
   };
   schema: {
     emitFile: string | undefined;
   };
 }
-export const createCloverCoinAppServer = (options: ServerOptions) => {
+export const createCloverCoinAppServer = async (options: ServerOptions) => {
   if (options.db.host) {
     const result = /(.*?)(?::(\d+))?$/.exec(options.db.host);
     if (!result) {
@@ -49,25 +50,6 @@ export const createCloverCoinAppServer = (options: ServerOptions) => {
   }
   configureDataSource({
     ...options.db,
-    ssl: false,
-  });
-
-  const ready = new Promise<void>((res, rej) => {
-    /**
-     * We do asynchronous setup in here so that we can still
-     * synchronously make the server available (eg for serverless
-     * requests). This promise is awaited before processing any requests,
-     * that combined with lazy initialization of the graphql context entries
-     * allows for a (somewhat percarious) situation where we can get HTTP calls
-     * before the server is strictly ready.
-     */
-    dataSource.initialize().then((db) => {
-      /**
-       * Postgres
-       */
-      register(rootContainer, "db", asValue(db));
-      res();
-    }, rej);
   });
 
   /**
@@ -78,7 +60,7 @@ export const createCloverCoinAppServer = (options: ServerOptions) => {
   /**
    * GraphQL
    */
-  const schema = buildSchemaSync({
+  const schema = await buildSchema({
     resolvers: [...ResolversArray] as NonEmptyArray<
       typeof ResolversArray[number]
     >,
@@ -87,6 +69,14 @@ export const createCloverCoinAppServer = (options: ServerOptions) => {
   });
 
   const rootContainer = createContainer<AppGraphqlContext>("root");
+
+  const db = await dataSource.initialize();
+
+  /**
+   * Postgres
+   */
+  register(rootContainer, "db", asValue(db));
+
   /**
    * S3
    */
@@ -99,7 +89,9 @@ export const createCloverCoinAppServer = (options: ServerOptions) => {
   register(
     rootContainer,
     "logger",
-    asFunction(({ contextName }) => logger.child({ contextName })).scoped()
+    asFunction(({ contextName }: AppGraphqlContext) =>
+      logger.child({ contextName })
+    ).scoped()
   );
 
   /**
@@ -124,22 +116,8 @@ export const createCloverCoinAppServer = (options: ServerOptions) => {
 
   koa
     .use(cors())
-    .use(async (ctx, next) => {
-      const req = ctx.req as any;
-      if (
-        Buffer.isBuffer(req.body) &&
-        ctx.req.headers["content-type"] === "application/json"
-      ) {
-        req.body = JSON.parse(req.body.toString());
-      }
-      await ready;
-      logger.info({
-        message: {
-          path: ctx.path,
-        },
-      });
-      await next();
-    })
+    .use(createRequestContainer(rootContainer))
+    .use(handleJsonBufferBody)
     .use(async (ctx, next) => {
       // TODO: NO!
       await next();
@@ -154,40 +132,10 @@ export const createCloverCoinAppServer = (options: ServerOptions) => {
           (
             _request: Request,
             _response: Response,
-            _ctx: Context,
+            ctx: Context,
             _params?: GraphQLParams
           ): OptionsResult => {
-            const requestId = v4();
-
-            const requestContainer = createChildContainer(
-              rootContainer,
-              `request.${requestId}`
-            );
-
-            register(requestContainer, "requestId", asValue(requestId));
-            register(
-              requestContainer,
-              "_tgdContext",
-              asValue({
-                requestId,
-                typeormGetConnection: () => requestContainer.cradle.db,
-              })
-            );
-
-            register(
-              requestContainer,
-              "logger",
-              asFunction(
-                ({
-                  requestId,
-                  parentContainer,
-                  contextName,
-                }: AppGraphqlContext) =>
-                  parentContainer.build(({ logger }) =>
-                    logger.child({ requestId, contextName })
-                  )
-              ).scoped()
-            );
+            const { requestContainer } = ctx.state;
 
             return {
               schema,
@@ -199,7 +147,7 @@ export const createCloverCoinAppServer = (options: ServerOptions) => {
       )
     );
 
-  return { rootContainer, koa, ready };
+  return { rootContainer, koa };
 };
 
 const errorHandler: MiddlewareFn<AppGraphqlContext> = async (

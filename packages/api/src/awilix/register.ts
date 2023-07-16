@@ -1,9 +1,17 @@
 import { AwilixContainer, Resolver } from "awilix";
 
-export function register<T extends {}, K extends keyof T>(
+/**
+ * Register an entry in the provided awilix container. Prefer this method
+ * over `container.register` for improved type-safety.
+ * @param container The container to register in
+ * @param key The name of the entry
+ * @param resolver The awilix resolver to use
+ * @returns The awilix container
+ */
+export function register<T extends Record<any, any>, K extends keyof T>(
   container: AwilixContainer<T>,
   key: K,
-  registration: Resolver<T[K]>
+  resolver: Resolver<T[K]>
 ) {
-  return container.register(key as Exclude<K, number>, registration);
+  return container.register(key as Exclude<K, number>, resolver);
 }

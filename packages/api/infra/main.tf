@@ -4,6 +4,9 @@ resource "aws_db_subnet_group" "private" {
   subnet_ids = var.db_subnets
 }
 
+data "aws_ecr_authorization_token" "token" {}
+
+
 # ECR repository for API images
 resource "aws_ecr_repository" "app_repo" {
   name                 = "${var.prefix}-cc-api"
@@ -12,38 +15,29 @@ resource "aws_ecr_repository" "app_repo" {
   image_scanning_configuration {
     scan_on_push = true
   }
+  lifecycle {
+    ignore_changes = all
+  }
+
+  provisioner "local-exec" {
+    # This is a 1-time execution to put a dummy image into the ECR repo, so 
+    #    terraform provisioning works on the lambda function. Otherwise there is
+    #    a chicken-egg scenario where the lambda can't be provisioned because no
+    #    image exists in the ECR
+    command = <<EOF
+      docker login ${data.aws_ecr_authorization_token.token.proxy_endpoint} -u AWS -p ${data.aws_ecr_authorization_token.token.password}
+      docker pull alpine
+      docker tag alpine ${aws_ecr_repository.app_repo.repository_url}:DUMMY
+      docker push ${aws_ecr_repository.app_repo.repository_url}:DUMMY
+      EOF
+  }
 }
+
 
 # Cloudwatch log group to hold API logs
 resource "aws_cloudwatch_log_group" "api_logs" {
   name = "${var.prefix}-cc-api"
 }
-
-# # IAM policy for the executor role
-# data "aws_iam_policy_document" "ecs_executor_policy" {
-#   statement {
-#     actions = [
-#       "ecr:GetAuthorizationToken"
-#     ]
-#     resources = ["*"]
-#   }
-#   statement {
-#     actions = [
-#       "ecr:BatchCheckLayerAvailability",
-#       "ecr:GetDownloadUrlForLayer",
-#       "ecr:BatchGetImage",
-#     ]
-#     resources = [aws_ecr_repository.app_repo.arn]
-#   }
-
-#   statement {
-#     actions = [
-#       "logs:CreateLogStream",
-#       "logs:PutLogEvents"
-#     ]
-#     resources = [aws_cloudwatch_log_group.api_logs.arn]
-#   }
-# }
 
 data "aws_iam_policy_document" "ecs_executor_policy" {
   statement {
@@ -72,6 +66,7 @@ data "aws_iam_policy_document" "ecs_executor_policy" {
 }
 
 
+# IAM Policy allowing AWS to assume a role to start lambdas
 data "aws_iam_policy_document" "assume_role_lambda" {
   statement {
     effect = "Allow"
@@ -86,22 +81,9 @@ data "aws_iam_policy_document" "assume_role_lambda" {
 }
 
 
-# IAM role that executes the ECS task in Fargate. Responsible
-# for pulling ecr images and creating log streams
+# IAM role that runs the API lambda
 resource "aws_iam_role" "executor" {
-  name = "${var.prefix}-api-executor-role"
-  # assume_role_policy = jsonencode({
-  #   Version = "2012-10-17"
-  #   Statement = [{
-  #     Action = "sts:AssumeRole"
-  #     Principal = {
-  #       Service = "ecs-tasks.amazonaws.com"
-  #     }
-  #     Effect = "Allow"
-  #     Sid    = ""
-  #   }]
-  # })
-
+  name               = "${var.prefix}-api-executor-role"
   assume_role_policy = data.aws_iam_policy_document.assume_role_lambda.json
   inline_policy {
     name   = "executor"
@@ -187,9 +169,10 @@ module "db" {
 module "api" {
   source = "./modules/api"
 
-  db_endpoint           = module.db.endpoint
-  db_name               = module.db.rds_db.db_name
-  db_secret_arn         = module.db.master_secret_arn
+  db_endpoint   = module.db.endpoint
+  db_name       = module.db.rds_db.db_name
+  db_secret_arn = module.db.master_secret_arn
+
   prefix                = var.prefix
   public_subnet_id      = var.public_subnet_id
   execution_role_arn    = aws_iam_role.executor.arn

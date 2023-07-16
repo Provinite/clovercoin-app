@@ -33,3 +33,10 @@ module "api" {
   vpc_id           = module.vpc.vpc_id
   depends_on       = [module.vpc]
 }
+
+module "client" {
+  source       = "../../../packages/client/infra"
+  prefix       = "beta"
+  domain_name  = "beta-app.clovercoin.com"
+  acm_cert_arn = "arn:aws:acm:us-east-1:439703963905:certificate/3b442583-021e-4754-81f7-622829cc8f73"
+}
