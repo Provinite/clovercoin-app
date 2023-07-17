@@ -4,6 +4,7 @@ name: Build, Test, Deploy Everything
 on: push
 jobs:
   build-and-deploy:
+    environment: beta
     runs-on: ubuntu-latest
     steps:
       # Git checkout
