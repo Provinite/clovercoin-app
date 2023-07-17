@@ -33,6 +33,34 @@ resource "aws_ecr_repository" "app_repo" {
   }
 }
 
+resource "aws_iam_policy" "api_deployer" {
+  name   = "${var.prefix}-cc-api-deploy"
+  policy = data.aws_iam_policy_document.api_deployer.json
+}
+
+data "aws_iam_policy_document" "api_deployer" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "ecr:CompleteLayerUpload",
+      "ecr:UploadLayerPart",
+      "ecr:InitiateLayerUpload",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:PutImage"
+    ]
+    resources = [aws_ecr_repository.app_repo.arn]
+  }
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "ecr:GetAuthorizationToken"
+    ]
+    resources = ["*"]
+  }
+}
+
 
 # Cloudwatch log group to hold API logs
 resource "aws_cloudwatch_log_group" "api_logs" {

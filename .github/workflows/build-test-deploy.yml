@@ -22,9 +22,17 @@ jobs:
         run: yarn workspaces foreach run test
       - name: Build
         run: yarn workspaces foreach --topological-dev run build
-      - name: Package
-        run: docker build . -t cc-api:${{ github.sha }}
+      - name: Create API image
+        run: docker build . -t ${{ vars.ENV_NAME }}-cc-api:${{ github.sha }}
         working-directory: ./packages/api
+      - name: Push API image to ECR
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
+        run: |
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.ECR_DOMAIN }}
+          docker tag ${{ vars.ENV_NAME }}-cc-api:${{ github.sha }} ${{ secrets.ECR_DOMAIN }}/${{ vars.ENV_NAME }}-cc-api:${{ github.sha }}
+          docker push ${{ secrets.ECR_DOMAIN }}/${{ vars.ENV_NAME }}-cc-api:${{ github.sha }}
       # - name: Deploy API
       #   run:
       # - name: Deploy Client

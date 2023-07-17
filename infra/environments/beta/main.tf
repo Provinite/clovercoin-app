@@ -8,6 +8,16 @@ terraform {
   }
 }
 
+resource "aws_iam_user" "deployer" {
+  name = "beta-cc-app-deployer"
+  path = "/beta/"
+}
+
+resource "aws_iam_user_policy_attachment" "deployer_deploys_api" {
+  user = aws_iam_user.deployer.name
+  policy_arn = module.api.api_deployer_policy_arn
+}
+
 # AWS provider config, controls used for everything
 provider "aws" {
   region = "us-east-1"
