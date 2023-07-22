@@ -23,6 +23,7 @@ import { s3Config } from "./s3/s3Config.js";
 import { objectMap } from "./util/objectMap.js";
 import { handleJsonBufferBody } from "./http-middleware/handleJsonBufferBody.js";
 import { createRequestContainer } from "./http-middleware/createRequestContainer.js";
+import { build } from "./awilix/build.js";
 export interface ServerOptions {
   db: {
     host?: string;
@@ -145,7 +146,18 @@ export const createCloverCoinAppServer = async (options: ServerOptions) => {
           }
         )
       )
-    );
+    )
+    .use(async (ctx, next) => {
+      build(ctx.state.requestContainer, ({ logger }) => {
+        logger.info({
+          message: "request finished",
+          path: ctx.path,
+          method: ctx.method,
+          responseStatus: ctx.status,
+        });
+      });
+      await next();
+    });
 
   return { rootContainer, koa };
 };
