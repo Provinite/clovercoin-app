@@ -8,16 +8,19 @@ terraform {
   }
 }
 
+# Create the IAM user used to deploy these apps from CI/CD
 resource "aws_iam_user" "deployer" {
   name = "beta-cc-app-deployer"
   path = "/beta/"
 }
 
+# Grant permissions to deploy the API
 resource "aws_iam_user_policy_attachment" "deployer_deploys_api" {
   user = aws_iam_user.deployer.name
   policy_arn = module.api.api_deployer_policy_arn
 }
 
+# Grant permissions to deploy the client
 resource "aws_iam_user_policy_attachment" "deployer_deploys_client" {
   user = aws_iam_user.deployer.name
   policy_arn = module.client.deployer_policy_arn

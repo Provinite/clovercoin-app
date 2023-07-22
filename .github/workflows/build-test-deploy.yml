@@ -88,8 +88,12 @@ jobs:
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.ECR_DOMAIN }}
           docker tag ${{ vars.ENV_NAME }}-cc-api:${{ github.sha }} ${{ secrets.ECR_DOMAIN }}/${{ vars.ENV_NAME }}-cc-api:${{ github.sha }}
           docker push ${{ secrets.ECR_DOMAIN }}/${{ vars.ENV_NAME }}-cc-api:${{ github.sha }}
-      # - name: Deploy API
-      #   run:
+      - name: Deploy API
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
+          AWS_DEFAULT_REGION: us-east-1
+        run: aws lambda update-function-code --name "${{ vars.ENV_NAME }}-cc-api-fn" --image-uri "${{ secrets.ECR_DOMAIN }}/${{ vars.ENV_NAME }}-cc-api:${{ github.sha }}"
       - name: Deploy Client
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
