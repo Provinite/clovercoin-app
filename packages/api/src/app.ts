@@ -3,7 +3,7 @@ import { logger } from "./util/logger.js";
 import {
   SecretsManagerClient,
   GetSecretValueCommand,
-} from "@aws-sdk/client-secrets-manager"; // ES Modules import
+} from "@aws-sdk/client-secrets-manager";
 import { NodeHttpHandler } from "@aws-sdk/node-http-handler";
 import serverless from "@vendia/serverless-express";
 import { build } from "./awilix/build.js";

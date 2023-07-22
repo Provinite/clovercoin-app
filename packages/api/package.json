@@ -8,7 +8,7 @@
   "scripts": {
     "clean": "rm -rf ./dist/* && rm -rf ./build/*",
     "build": "tsc && ts-node build.mts",
-    "start": "nodemon src/app.ts",
+    "start": "nodemon src/app.ts -e ts,mts,cts --watch src",
     "test-unit": "jest --config jest.unit.config.ts",
     "test-integration": "node --experimental-vm-modules $(yarn bin jest) --config jest.integration.config.ts",
     "tf": "docker run --rm -it -v $PWD:/data -w /data -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker:/var/lib/docker hashicorp/terraform:1.5"

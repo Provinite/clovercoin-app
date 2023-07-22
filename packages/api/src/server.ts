@@ -120,34 +120,7 @@ export const createCloverCoinAppServer = async (options: ServerOptions) => {
     .use(createRequestContainer(rootContainer))
     .use(handleJsonBufferBody)
     .use(async (ctx, next) => {
-      // TODO: NO!
       await next();
-      if (ctx.status === 500) {
-        ctx.status = 200;
-      }
-    })
-    .use(
-      mount(
-        "/",
-        graphqlHTTP(
-          (
-            _request: Request,
-            _response: Response,
-            ctx: Context,
-            _params?: GraphQLParams
-          ): OptionsResult => {
-            const { requestContainer } = ctx.state;
-
-            return {
-              schema,
-              graphiql: true,
-              context: requestContainer.cradle,
-            };
-          }
-        )
-      )
-    )
-    .use(async (ctx, next) => {
       build(ctx.state.requestContainer, ({ logger }) => {
         logger.info({
           message: "request finished",
@@ -156,8 +129,33 @@ export const createCloverCoinAppServer = async (options: ServerOptions) => {
           responseStatus: ctx.status,
         });
       });
+    })
+    .use(async (ctx, next) => {
+      console.log(ctx.headerSent);
       await next();
-    });
+      console.log(ctx.headerSent);
+    })
+    // .use(async (ctx, next) => {
+    //   // TODO: NO!
+    //   await next();
+    //   if (ctx.status === 500) {
+    //     ctx.status = 200;
+    //   }
+    // })
+    .use(
+      mount(
+        "/",
+        graphqlHTTP((_request, _response, ctx, _params?): OptionsResult => {
+          const { requestContainer } = ctx.state;
+
+          return {
+            schema,
+            graphiql: true,
+            context: requestContainer.cradle,
+          };
+        })
+      )
+    );
 
   return { rootContainer, koa };
 };
@@ -201,5 +199,5 @@ const loggingMiddleware: MiddlewareFn<AppGraphqlContext> = async (
       fieldName: info.fieldName,
     });
   }
-  return next();
+  await next();
 };
