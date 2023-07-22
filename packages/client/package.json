@@ -5,6 +5,7 @@
   "scripts": {
     "start": "parcel --no-autoinstall src/index.html",
     "storybook": "start-storybook -p 6006",
+    "build": "parcel build --no-autoinstall src/index.html",
     "build-storybook": "build-storybook -o built-storybook/",
     "gen": "ts-node ./tools/generate.ts",
     "postinstall": "rm -rf node_modules/@mui/system/styleFunctionSx; find node_modules/@mui/styled-engine -name '*.d.ts' -delete; sed -i 's/ComponentPropsWithRef/ComponentProps/' node_modules/@mui/material/OverridableComponent.d.ts",
