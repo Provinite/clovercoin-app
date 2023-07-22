@@ -1,9 +1,8 @@
 import "reflect-metadata";
-import Koa, { Context, Request, Response } from "koa";
+import Koa from "koa";
 import mount from "koa-mount";
 import { graphqlHTTP, OptionsResult } from "koa-graphql";
 import { buildSchema, MiddlewareFn, NonEmptyArray } from "type-graphql";
-import { GraphQLParams } from "express-graphql";
 import cors from "@koa/cors";
 import type { AppGraphqlContext } from "./graphql/AppGraphqlContext.js";
 import { asClass, asFunction, asValue } from "awilix";

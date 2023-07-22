@@ -50,7 +50,7 @@ export const createRequestContainer =
 
     ctx.state.requestContainer = requestContainer;
 
-    next();
+    await next();
   };
 
 declare module "koa" {
