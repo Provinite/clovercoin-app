@@ -222,6 +222,8 @@ module "api" {
   domain_name  = var.domain_name
   acm_cert_arn = var.acm_cert_arn
 
+  jwt_secret_arn = aws_secretsmanager_secret.jwt_secret.arn
+
   db_endpoint   = module.db.endpoint
   db_name       = module.db.rds_db.db_name
   db_secret_arn = module.db.master_secret_arn
