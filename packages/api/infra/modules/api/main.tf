@@ -11,20 +11,6 @@ resource "aws_lambda_function_url" "api_url" {
   }
 }
 
-resource "aws_secretsmanager_secret" "jwt_secret" {
-  name_prefix = "${var.prefix}-cc-api-jwt-secret-"
-}
-
-resource "random_password" "jwt_secret" {
-  length  = 32
-  special = true
-}
-
-resource "aws_secretsmanager_secret_version" "jwt_secret" {
-  secret_id     = aws_secretsmanager_secret.jwt_secret.id
-  secret_string = random_password.jwt_secret.result
-}
-
 
 resource "aws_lambda_function" "api" {
   function_name = "${var.prefix}-cc-api-fn"
@@ -37,7 +23,7 @@ resource "aws_lambda_function" "api" {
     variables = {
       CC_DB_HOST     = var.db_endpoint
       DB_SECRET_ARN  = var.db_secret_arn
-      JWT_SECRET_ARN = aws_secretsmanager_secret.jwt_secret.arn
+      JWT_SECRET_ARN = var.jwt_secret_arn
       DB_NAME        = var.db_name
       DB_SSL         = "true"
     }

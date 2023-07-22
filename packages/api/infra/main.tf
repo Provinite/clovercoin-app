@@ -33,6 +33,22 @@ resource "aws_ecr_repository" "app_repo" {
   }
 }
 
+
+resource "aws_secretsmanager_secret" "jwt_secret" {
+  name_prefix = "${var.prefix}-cc-api-jwt-secret-"
+}
+
+resource "random_password" "jwt_secret" {
+  length  = 32
+  special = true
+}
+
+resource "aws_secretsmanager_secret_version" "jwt_secret" {
+  secret_id     = aws_secretsmanager_secret.jwt_secret.id
+  secret_string = random_password.jwt_secret.result
+}
+
+
 resource "aws_iam_policy" "api_deployer" {
   name   = "${var.prefix}-cc-api-deploy"
   policy = data.aws_iam_policy_document.api_deployer.json
@@ -87,7 +103,7 @@ data "aws_iam_policy_document" "ecs_executor_policy" {
     actions = [
       "secretsmanager:GetSecretValue",
     ]
-    resources = [module.db.master_secret_arn]
+    resources = [module.db.master_secret_arn, aws_secretsmanager_secret.jwt_secret.arn]
   }
   statement {
     effect = "Allow"

@@ -52,3 +52,8 @@ variable "acm_cert_arn" {
   description = "ARN for the ACM SSL cert to use with the API cloudfront distribution"
   type = string
 }
+
+variable "jwt_secret_arn" {
+  description = "ARN for the secrets-manager secret that stores the JWT secret"
+  type = string
+}
