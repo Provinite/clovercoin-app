@@ -36,8 +36,12 @@ jobs:
           docker push ${{ secrets.ECR_DOMAIN }}/${{ vars.ENV_NAME }}-cc-api:${{ github.sha }}
       # - name: Deploy API
       #   run:
-      # - name: Deploy Client
-      #   run:
+      - name: Deploy Client
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
+        run: aws s3 sync . s3://${{ secrets.AWS_CLIENT_BUCKET }}/ --delete
+        working-directory: ./packages/client/dist
       # # Build & deploy storybook if client has changed (main only)
       # - name: Build Storybook
       #   if: ${{ github.ref == 'refs/heads/main' && contains(steps.files.outputs.all, 'packages/client/') }}
