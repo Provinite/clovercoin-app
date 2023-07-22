@@ -61,10 +61,6 @@ if (listen) {
     })
   );
 }
-const cb = serverless.configure({
+export const handler = serverless.configure({
   app: koa.callback(),
 });
-export const handler = (...args: any[]) => {
-  logger.info(args);
-  return cb(...args);
-};
