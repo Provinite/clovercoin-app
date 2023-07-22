@@ -37,16 +37,16 @@ resource "aws_lambda_function" "api" {
 }
 
 resource "aws_cloudfront_distribution" "cf_dist" {
-  enabled             = true
-  aliases             = [var.domain_name]
+  enabled = true
+  aliases = [var.domain_name]
   origin {
-    domain_name = replace(aws_lambda_function_url.api_url.function_url,"/^https?://([^/]+).*/", "$1")
+    domain_name = replace(aws_lambda_function_url.api_url.function_url, "/^https?://([^/]+).*/", "$1")
     origin_id   = aws_lambda_function_url.api_url.function_url
     custom_origin_config {
-      http_port=80
-      https_port=443
-      origin_ssl_protocols = ["TLSv1.2"]
-      origin_read_timeout = 60
+      http_port              = 80
+      https_port             = 443
+      origin_ssl_protocols   = ["TLSv1.2"]
+      origin_read_timeout    = 60
       origin_protocol_policy = "https-only"
     }
   }
@@ -55,13 +55,8 @@ resource "aws_cloudfront_distribution" "cf_dist" {
     cached_methods         = ["GET", "HEAD", "OPTIONS"]
     target_origin_id       = aws_lambda_function_url.api_url.function_url
     viewer_protocol_policy = "redirect-to-https" # other options - https only, http
-    forwarded_values {
-      headers      = ["*"]
-      query_string = true
-      cookies {
-        forward = "all"
-      }
-    }
+    cache_policy_id = aws_cloudfront_cache_policy.api_cache_policy.id
+    origin_request_policy_id = aws_cloudfront_origin_request_policy.api_origin_request_policy.id
   }
   restrictions {
     geo_restriction {
@@ -73,4 +68,41 @@ resource "aws_cloudfront_distribution" "cf_dist" {
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.2_2018"
   }
+}
+
+resource "aws_cloudfront_cache_policy" "api_cache_policy" {
+  name        = "${var.prefix}-api-cache-policy"
+  min_ttl     = 0
+  max_ttl     = 0
+  default_ttl = 0
+  parameters_in_cache_key_and_forwarded_to_origin {
+    headers_config {
+      header_behavior = "none"
+    }
+    query_strings_config {
+      query_string_behavior = "none"
+    }
+    cookies_config {
+      cookie_behavior = "none"
+    }
+  }
+}
+
+resource "aws_cloudfront_origin_request_policy" "api_origin_request_policy" {
+    name        = "${var.prefix}-api-origin-request-policy"
+    headers_config {
+      header_behavior = "allExcept"
+      # If the host header is forwarded to the lambda URL, it breaks. This policy
+      # forces cloudfront to send the origin host in the host header instead 
+      # so that the lambda service can properly tell what lambda we're invoking
+      headers {
+        items = [ "Host" ]
+      }
+    }
+    query_strings_config {
+      query_string_behavior = "all"
+    }
+    cookies_config {
+      cookie_behavior = "none"
+    }
 }
