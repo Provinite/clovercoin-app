@@ -18,6 +18,11 @@ resource "aws_iam_user_policy_attachment" "deployer_deploys_api" {
   policy_arn = module.api.api_deployer_policy_arn
 }
 
+resource "aws_iam_user_policy_attachment" "deployer_deploys_client" {
+  user = aws_iam_user.deployer.name
+  policy_arn = module.client.deployer_policy_arn
+}
+
 # AWS provider config, controls used for everything
 provider "aws" {
   region = "us-east-1"

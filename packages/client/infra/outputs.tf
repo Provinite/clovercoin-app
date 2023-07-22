@@ -9,3 +9,7 @@ output "cloudfront_domain" {
 output "domain_name" {
   value = var.domain_name
 }
+
+output "deployer_policy_arn" {
+  value = aws_iam_policy.client_deployer.arn
+}

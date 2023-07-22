@@ -32,6 +32,33 @@ resource "aws_cloudfront_origin_access_identity" "oai" {
   comment = "OAI for ${var.domain_name}"
 }
 
+resource "aws_iam_policy" "client_deployer" {
+  name   = "${var.prefix}-cc-client-deploy"
+  policy = data.aws_iam_policy_document.client_deployer.json
+}
+
+data "aws_iam_policy_document" "client_deployer" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:ListBucket",
+      "s3:DeleteObject",
+      "s3:PutObject",
+    ]
+    resources = [aws_s3_bucket.client.arn, "${aws_s3_bucket.client.arn}/*"]
+  }
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "ecr:GetAuthorizationToken"
+    ]
+    resources = ["*"]
+  }
+}
+
+
 data "aws_iam_policy_document" "bucket_policy_document" {
   statement {
     actions = ["s3:GetObject", "s3:ListBucket"]
