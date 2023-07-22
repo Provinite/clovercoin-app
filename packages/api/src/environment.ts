@@ -10,6 +10,7 @@
  * @returns The environment variable
  * @throws if the env var is not set, or is empty ""
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function required(varName: string): string {
   const val = process.env[varName];
   if (!val) {
@@ -68,7 +69,8 @@ export const getHttpEnvironment = () => ({
 
 export const getJwtConfig = () => ({
   /**
-   * The secret to use to encode and verify JWTs for authentication. Required.
+   * The secret to use to encode and verify JWTs for authentication.
    */
-  secret: required("CC_JWT_SECRET"),
+  secret: optional("CC_JWT_SECRET"),
+  secretArn: optional("JWT_SECRET_ARN"),
 });

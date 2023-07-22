@@ -11,6 +11,21 @@ resource "aws_lambda_function_url" "api_url" {
   }
 }
 
+resource "aws_secretsmanager_secret" "jwt_secret" {
+  name_prefix = "${var.prefix}-cc-api-jwt-secret-"
+}
+
+resource "random_password" "jwt_secret" {
+  length  = 32
+  special = true
+}
+
+resource "aws_secretsmanager_secret_version" "jwt_secret" {
+  secret_id     = aws_secretsmanager_secret.jwt_secret.id
+  secret_string = random_password.jwt_secret.result
+}
+
+
 resource "aws_lambda_function" "api" {
   function_name = "${var.prefix}-cc-api-fn"
   image_uri     = "${var.ecr_repo_url}:DUMMY"
@@ -20,10 +35,11 @@ resource "aws_lambda_function" "api" {
   timeout       = 5
   environment {
     variables = {
-      CC_DB_HOST    = var.db_endpoint
-      DB_SECRET_ARN = var.db_secret_arn
-      DB_NAME       = var.db_name
-      DB_SSL        = "true"
+      CC_DB_HOST     = var.db_endpoint
+      DB_SECRET_ARN  = var.db_secret_arn
+      JWT_SECRET_ARN = aws_secretsmanager_secret.jwt_secret.arn
+      DB_NAME        = var.db_name
+      DB_SSL         = "true"
     }
   }
   vpc_config {
@@ -51,11 +67,11 @@ resource "aws_cloudfront_distribution" "cf_dist" {
     }
   }
   default_cache_behavior {
-    allowed_methods        = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
-    cached_methods         = ["GET", "HEAD", "OPTIONS"]
-    target_origin_id       = aws_lambda_function_url.api_url.function_url
-    viewer_protocol_policy = "redirect-to-https" # other options - https only, http
-    cache_policy_id = aws_cloudfront_cache_policy.api_cache_policy.id
+    allowed_methods          = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
+    cached_methods           = ["GET", "HEAD", "OPTIONS"]
+    target_origin_id         = aws_lambda_function_url.api_url.function_url
+    viewer_protocol_policy   = "redirect-to-https" # other options - https only, http
+    cache_policy_id          = aws_cloudfront_cache_policy.api_cache_policy.id
     origin_request_policy_id = aws_cloudfront_origin_request_policy.api_origin_request_policy.id
   }
   restrictions {
@@ -89,20 +105,20 @@ resource "aws_cloudfront_cache_policy" "api_cache_policy" {
 }
 
 resource "aws_cloudfront_origin_request_policy" "api_origin_request_policy" {
-    name        = "${var.prefix}-api-origin-request-policy"
-    headers_config {
-      header_behavior = "allExcept"
-      # If the host header is forwarded to the lambda URL, it breaks. This policy
-      # forces cloudfront to send the origin host in the host header instead 
-      # so that the lambda service can properly tell what lambda we're invoking
-      headers {
-        items = [ "Host" ]
-      }
+  name = "${var.prefix}-api-origin-request-policy"
+  headers_config {
+    header_behavior = "allExcept"
+    # If the host header is forwarded to the lambda URL, it breaks. This policy
+    # forces cloudfront to send the origin host in the host header instead 
+    # so that the lambda service can properly tell what lambda we're invoking
+    headers {
+      items = ["Host"]
     }
-    query_strings_config {
-      query_string_behavior = "all"
-    }
-    cookies_config {
-      cookie_behavior = "none"
-    }
+  }
+  query_strings_config {
+    query_string_behavior = "all"
+  }
+  cookies_config {
+    cookie_behavior = "none"
+  }
 }

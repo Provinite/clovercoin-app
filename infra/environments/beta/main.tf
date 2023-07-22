@@ -31,6 +31,8 @@ provider "aws" {
   region = "us-east-1"
 }
 
+provider "random" {}
+
 module "vpc" {
   prefix = "beta"
   source = "../../modules/vpc"
