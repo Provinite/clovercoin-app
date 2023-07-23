@@ -54,7 +54,7 @@ resource "aws_cloudfront_distribution" "cf_dist" {
   }
   default_cache_behavior {
     allowed_methods            = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
-    cached_methods             = ["GET", "HEAD", "OPTIONS"]
+    cached_methods             = ["GET", "HEAD"]
     target_origin_id           = aws_lambda_function_url.api_url.function_url
     viewer_protocol_policy     = "redirect-to-https" # other options - https only, http
     cache_policy_id            = aws_cloudfront_cache_policy.api_cache_policy.id
