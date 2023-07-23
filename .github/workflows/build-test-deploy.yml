@@ -100,7 +100,13 @@ jobs:
 
       # Create API docker image
       - name: Create API image
-        run: docker build . -t ${{ vars.ENV_NAME || 'dev' }}-cc-api:${{ steps.versions.outputs.api }}
+        id: api-image
+        run: |
+          CC_API_IMG_NAME="${{ vars.ENV_NAME || 'dev' }}-cc-api"
+          CC_API_IMG_TAG="${{ vars.ENV_NAME && steps.versions.outputs.api || github.sha}}"
+          docker build . -t "$CC_API_IMG_NAME:$CC_API_IMG_TAG"
+          echo "{image}={$CC_API_IMG_NAME}" >> "$GITHUB_OUTPUT"
+          echo "{tag}={$CC_API_IMG_TAG}" >> "$GITHUB_OUTPUT"
         working-directory: ./packages/api
 
       # Push API image to ECR
@@ -111,8 +117,8 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
         run: |
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.ECR_DOMAIN }}
-          docker tag ${{ vars.ENV_NAME }}-cc-api:${{ steps.versions.outputs.api }} ${{ secrets.ECR_DOMAIN }}/${{ vars.ENV_NAME }}-cc-api:${{ steps.versions.outputs.api }}
-          docker push ${{ secrets.ECR_DOMAIN }}/${{ vars.ENV_NAME }}-cc-api:${{ steps.versions.outputs.api }}
+          docker tag ${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }} ${{ secrets.ECR_DOMAIN }}/${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}
+          docker push ${{ secrets.ECR_DOMAIN }}/${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}
 
       # Deploy API image to lambda task
       - name: Deploy API
@@ -121,7 +127,10 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
           AWS_DEFAULT_REGION: us-east-1
-        run: aws lambda update-function-code --function-name "${{ vars.ENV_NAME }}-cc-api-fn" --image-uri "${{ secrets.ECR_DOMAIN }}/${{ vars.ENV_NAME }}-cc-api:${{ steps.versions.outputs.api }}"
+        run: |
+          aws lambda update-function-code \
+          --function-name "${{ vars.ENV_NAME }}-cc-api-fn" \
+          --image-uri "${{ secrets.ECR_DOMAIN }}/${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}"
 
       # Deploy client to s3
       - name: Deploy Client
