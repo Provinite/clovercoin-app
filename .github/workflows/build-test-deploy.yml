@@ -5,6 +5,7 @@ on: push
 jobs:
   build-and-deploy:
     environment: beta
+    if: github.ref_name == 'dev'
     runs-on: ubuntu-latest
     steps:
       # Git checkout
@@ -12,6 +13,8 @@ jobs:
         uses: actions/checkout@v3
         with:
           persist-credentials: false
+
+      # Configure node version and yarn cache
       - name: Setup
         uses: actions/setup-node@v3
         with:
@@ -71,30 +74,58 @@ jobs:
           # Set always-auth option in npmrc file.
           # Default: ''
           always-auth: ""
-      - run: yarn install
-      # Run tests, all the time
+
+      # Get package versions
+      - name: Determine package versions
+        id: versions
+        run: |
+          PACKAGE_VERSION=$(cat packages/api/package.json \
+          | grep version \
+          | head -1 \
+          | awk -F: '{ print $2 }' \
+          | sed 's/[",]//g')
+          echo "{api}={$PACKAGE_VERSION}" >> "$GITHUB_OUTPUT"
+
+      # Install npm dependencies
+      - name: Install Dependencies
+        run: yarn
+
+      # Run tests
       - name: Test
         run: yarn workspaces foreach run test
+
+      # Build packages
       - name: Build
         run: yarn workspaces foreach --topological-dev run build
+
+      # Create API docker image
       - name: Create API image
-        run: docker build . -t ${{ vars.ENV_NAME }}-cc-api:${{ github.sha }}
+        run: docker build . -t ${{ vars.ENV_NAME }}-cc-api:${{ steps.versions.outputs.api }}
         working-directory: ./packages/api
+
+      # Push API image to ECR
       - name: Push API image to ECR
+        if: github.ref_name == 'dev'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
         run: |
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.ECR_DOMAIN }}
-          docker tag ${{ vars.ENV_NAME }}-cc-api:${{ github.sha }} ${{ secrets.ECR_DOMAIN }}/${{ vars.ENV_NAME }}-cc-api:${{ github.sha }}
-          docker push ${{ secrets.ECR_DOMAIN }}/${{ vars.ENV_NAME }}-cc-api:${{ github.sha }}
+          docker tag ${{ vars.ENV_NAME }}-cc-api:${{ steps.versions.outputs.api }} ${{ secrets.ECR_DOMAIN }}/${{ vars.ENV_NAME }}-cc-api:${{ steps.versions.outputs.api }}
+          docker push ${{ secrets.ECR_DOMAIN }}/${{ vars.ENV_NAME }}-cc-api:${{ steps.versions.outputs.api }}
+
+      # Deploy API image to lambda task
       - name: Deploy API
+        if: github.ref_name == 'dev'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
           AWS_DEFAULT_REGION: us-east-1
-        run: aws lambda update-function-code --function-name "${{ vars.ENV_NAME }}-cc-api-fn" --image-uri "${{ secrets.ECR_DOMAIN }}/${{ vars.ENV_NAME }}-cc-api:${{ github.sha }}"
+        run: aws lambda update-function-code --function-name "${{ vars.ENV_NAME }}-cc-api-fn" --image-uri "${{ secrets.ECR_DOMAIN }}/${{ vars.ENV_NAME }}-cc-api:${{ steps.versions.outputs.api }}"
+
+      # Deploy client to s3
       - name: Deploy Client
+        if: github.ref_name == 'dev'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}

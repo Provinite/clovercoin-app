@@ -10,7 +10,7 @@ data "aws_ecr_authorization_token" "token" {}
 # ECR repository for API images
 resource "aws_ecr_repository" "app_repo" {
   name                 = "${var.prefix}-cc-api"
-  image_tag_mutability = "MUTABLE"
+  image_tag_mutability = "IMMUTABLE"
   force_delete         = true
   image_scanning_configuration {
     scan_on_push = true
