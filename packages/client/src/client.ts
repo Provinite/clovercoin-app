@@ -22,8 +22,6 @@ const getApiUrl = () => {
   }
 };
 
-console.log(getApiUrl());
-
 /**
  * GraphQL client to use throughout the application.
  * This should not generally be used directly. Prefer
