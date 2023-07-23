@@ -1,14 +1,7 @@
 resource "aws_lambda_function_url" "api_url" {
   function_name      = aws_lambda_function.api.function_name
   authorization_type = "NONE"
-  cors {
-    allow_credentials = true
-    allow_origins     = ["*"]
-    allow_methods     = ["*"]
-    allow_headers     = ["date", "keep-alive"]
-    expose_headers    = ["keep-alive", "date"]
-    max_age           = 86400
-  }
+
 }
 
 
@@ -38,6 +31,32 @@ resource "aws_lambda_function" "api" {
   }
 }
 
+resource "aws_s3_bucket" "api_cf_logs" {
+  bucket_prefix = "${var.prefix}-cc-api-cloudfront-"
+  force_destroy = true
+}
+resource "aws_s3_bucket_ownership_controls" "enable_acls" {
+  bucket = aws_s3_bucket.api_cf_logs.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+resource "aws_s3_bucket_acl" "bucket_acl" {
+  bucket     = aws_s3_bucket.api_cf_logs.id
+  acl        = "private"
+  depends_on = [aws_s3_bucket_ownership_controls.enable_acls]
+}
+
+resource "aws_s3_bucket_public_access_block" "public_block" {
+  bucket                  = aws_s3_bucket.api_cf_logs.id
+  block_public_acls       = true
+  block_public_policy     = true
+  restrict_public_buckets = true
+  ignore_public_acls      = true
+}
+
+
 resource "aws_cloudfront_distribution" "cf_dist" {
   enabled = true
   aliases = [var.domain_name]
@@ -59,7 +78,7 @@ resource "aws_cloudfront_distribution" "cf_dist" {
     viewer_protocol_policy     = "redirect-to-https" # other options - https only, http
     cache_policy_id            = aws_cloudfront_cache_policy.api_cache_policy.id
     origin_request_policy_id   = aws_cloudfront_origin_request_policy.api_origin_request_policy.id
-    response_headers_policy_id = aws_cloudfront_response_headers_policy.api_response_policy.id
+    response_headers_policy_id ="5cc3b908-e619-4b99-88e5-2cf7f45965bd" #aws_cloudfront_response_headers_policy.api_response_policy.id
   }
   restrictions {
     geo_restriction {
@@ -71,23 +90,27 @@ resource "aws_cloudfront_distribution" "cf_dist" {
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.2_2018"
   }
+  logging_config {
+    bucket = aws_s3_bucket.api_cf_logs.bucket_domain_name
+    prefix = "${var.prefix}/cc-api-cloudfront/"
+  }
 }
 
 resource "aws_cloudfront_response_headers_policy" "api_response_policy" {
   name = "${var.prefix}-api-response-headers-policy"
   cors_config {
-    access_control_allow_credentials = true
+    access_control_allow_credentials = false
 
     access_control_allow_headers {
-      items = ["Authorization"]
+      items = ["*"]
     }
 
     access_control_allow_methods {
-      items = ["POST"]
+      items = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     }
 
     access_control_allow_origins {
-      items = ["example.com"]
+      items = ["*"]
     }
 
     origin_override = false
