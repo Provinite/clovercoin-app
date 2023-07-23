@@ -100,7 +100,8 @@ jobs:
 
       # Create API docker image
       - name: Create API image
-        run: docker build . -t ${{ vars.ENV_NAME }}-cc-api:${{ steps.versions.outputs.api }}
+        if: github.ref_name == 'dev'
+        run: docker build . -t ${{ vars.ENV_NAME || 'dev' }}-cc-api:${{ steps.versions.outputs.api }}
         working-directory: ./packages/api
 
       # Push API image to ECR
