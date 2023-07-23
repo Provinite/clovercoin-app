@@ -4,7 +4,8 @@ name: Build, Test, Deploy Everything
 on: push
 jobs:
   build-and-deploy:
-    environment: beta
+    environment:
+      name: ${{ github.ref_name == 'dev' && 'beta'}}
     runs-on: ubuntu-latest
     steps:
       # Git checkout
