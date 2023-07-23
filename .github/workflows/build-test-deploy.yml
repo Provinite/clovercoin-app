@@ -100,7 +100,6 @@ jobs:
 
       # Create API docker image
       - name: Create API image
-        if: github.ref_name == 'dev'
         run: docker build . -t ${{ vars.ENV_NAME || 'dev' }}-cc-api:${{ steps.versions.outputs.api }}
         working-directory: ./packages/api
 
