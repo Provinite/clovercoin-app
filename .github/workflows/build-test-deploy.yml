@@ -83,7 +83,7 @@ jobs:
           | grep version \
           | head -1 \
           | awk -F: '{ print $2 }' \
-          | sed 's/[",]//g')
+          | sed 's/[", ]//g')
           echo "{api}={$PACKAGE_VERSION}" >> "$GITHUB_OUTPUT"
           echo "api=$PACKAGE_VERSION"
       # Install npm dependencies
