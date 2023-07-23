@@ -53,12 +53,13 @@ resource "aws_cloudfront_distribution" "cf_dist" {
     }
   }
   default_cache_behavior {
-    allowed_methods          = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
-    cached_methods           = ["GET", "HEAD", "OPTIONS"]
-    target_origin_id         = aws_lambda_function_url.api_url.function_url
-    viewer_protocol_policy   = "redirect-to-https" # other options - https only, http
-    cache_policy_id          = aws_cloudfront_cache_policy.api_cache_policy.id
-    origin_request_policy_id = aws_cloudfront_origin_request_policy.api_origin_request_policy.id
+    allowed_methods            = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
+    cached_methods             = ["GET", "HEAD", "OPTIONS"]
+    target_origin_id           = aws_lambda_function_url.api_url.function_url
+    viewer_protocol_policy     = "redirect-to-https" # other options - https only, http
+    cache_policy_id            = aws_cloudfront_cache_policy.api_cache_policy.id
+    origin_request_policy_id   = aws_cloudfront_origin_request_policy.api_origin_request_policy.id
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.api_response_policy.id
   }
   restrictions {
     geo_restriction {
@@ -69,6 +70,27 @@ resource "aws_cloudfront_distribution" "cf_dist" {
     acm_certificate_arn      = var.acm_cert_arn
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.2_2018"
+  }
+}
+
+resource "aws_cloudfront_response_headers_policy" "api_response_policy" {
+  name = "${var.prefix}-api-response-headers-policy"
+  cors_config {
+    access_control_allow_credentials = true
+
+    access_control_allow_headers {
+      items = ["Authorization"]
+    }
+
+    access_control_allow_methods {
+      items = ["POST"]
+    }
+
+    access_control_allow_origins {
+      items = ["example.com"]
+    }
+
+    origin_override = false
   }
 }
 

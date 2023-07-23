@@ -3,7 +3,6 @@ import Koa from "koa";
 import mount from "koa-mount";
 import { graphqlHTTP, OptionsResult } from "koa-graphql";
 import { buildSchema, MiddlewareFn, NonEmptyArray } from "type-graphql";
-import cors from "@koa/cors";
 import type { AppGraphqlContext } from "./graphql/AppGraphqlContext.js";
 import { asClass, asFunction, asValue } from "awilix";
 import { register } from "./awilix/register.js";
@@ -23,6 +22,7 @@ import { objectMap } from "./util/objectMap.js";
 import { handleJsonBufferBody } from "./http-middleware/handleJsonBufferBody.js";
 import { createRequestContainer } from "./http-middleware/createRequestContainer.js";
 import { build } from "./awilix/build.js";
+import { cors } from "./http-middleware/cors.js";
 export interface ServerOptions {
   db: {
     host?: string;
@@ -115,7 +115,7 @@ export const createCloverCoinAppServer = async (options: ServerOptions) => {
   registerControllers(rootContainer);
 
   koa
-    .use(cors())
+    .use(cors)
     .use(createRequestContainer(rootContainer))
     .use(handleJsonBufferBody)
     .use(async (ctx, next) => {
