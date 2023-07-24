@@ -1,4 +1,4 @@
-import { Repository } from "typeorm/index.js";
+import { Repository } from "typeorm";
 import { EntityController } from "../../business/EntityController.js";
 import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
 import { TraitList } from "./TraitList.js";

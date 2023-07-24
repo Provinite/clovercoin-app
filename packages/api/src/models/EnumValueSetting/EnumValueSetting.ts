@@ -7,7 +7,7 @@ import {
   ManyToOne,
   type Relation,
   Unique,
-} from "typeorm/index.js";
+} from "typeorm";
 import { EnumValue } from "../EnumValue/EnumValue.js";
 import { IdField, ManyToOneField } from "../relationFieldDecorators.js";
 import { TraitList } from "../TraitList/TraitList.js";

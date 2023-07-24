@@ -1,12 +1,6 @@
 import { Field, ID, ObjectType } from "type-graphql";
 import { TypeormLoader } from "type-graphql-dataloader";
-import {
-  Column,
-  Entity,
-  OneToMany,
-  type Relation,
-  Unique,
-} from "typeorm/index.js";
+import { Column, Entity, OneToMany, type Relation, Unique } from "typeorm";
 import { EnumValueSetting } from "../EnumValueSetting/EnumValueSetting.js";
 import { IdField, ManyToOneField } from "../relationFieldDecorators.js";
 import { Species } from "../Species/Species.js";

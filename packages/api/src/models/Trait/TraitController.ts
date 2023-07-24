@@ -1,4 +1,4 @@
-import { DeleteResult, Repository } from "typeorm/index.js";
+import { DeleteResult, Repository } from "typeorm";
 import { EntityController } from "../../business/EntityController.js";
 import { TransactionProvider } from "../../db/TransactionProvider.js";
 import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";

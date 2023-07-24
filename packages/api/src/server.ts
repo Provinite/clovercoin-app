@@ -129,11 +129,6 @@ export const createCloverCoinAppServer = async (options: ServerOptions) => {
         });
       });
     })
-    .use(async (ctx, next) => {
-      console.log(ctx.headerSent);
-      await next();
-      console.log(ctx.headerSent);
-    })
     // .use(async (ctx, next) => {
     //   // TODO: NO!
     //   await next();

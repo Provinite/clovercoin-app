@@ -64,3 +64,23 @@ if (listen) {
 export const handler = serverless.configure({
   app: koa.callback(),
 });
+
+export const migrate = async () => {
+  await build(rootContainer, async ({ db, logger }) => {
+    const migrationCount = db.migrations.length;
+    logger.info({
+      message: "Running migrations",
+      count: migrationCount,
+    });
+    await db.showMigrations();
+    const migrations = await db.runMigrations({
+      transaction: "all",
+    });
+    logger.info({
+      message: "Completed migrations",
+      count: migrations.length,
+    });
+  });
+};
+
+await migrate();

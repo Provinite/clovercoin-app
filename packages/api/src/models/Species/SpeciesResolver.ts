@@ -13,7 +13,7 @@ import {
   Resolver,
   Root,
 } from "type-graphql";
-import { FindManyOptions, ILike } from "typeorm/index.js";
+import { FindManyOptions, ILike } from "typeorm";
 import { DuplicateError } from "../../errors/DuplicateError.js";
 import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
 import { NotFoundError } from "../../errors/NotFoundError.js";

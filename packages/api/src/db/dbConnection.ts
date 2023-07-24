@@ -1,6 +1,7 @@
-import { DataSource } from "typeorm/index.js";
+import { DataSource } from "typeorm";
 import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConnectionOptions.js";
 import { ModelsArray } from "../models/index.js";
+import { migrationsArray } from "../migrations/_index.js";
 
 export function configureDataSource(
   options: Partial<PostgresConnectionOptions> = {}
@@ -15,6 +16,7 @@ export const dataSource = new DataSource({
   database: "postgres",
   username: "postgres",
   password: "password",
-  synchronize: true,
+  synchronize: false,
   entities: [...ModelsArray],
+  migrations: [...migrationsArray],
 });

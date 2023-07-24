@@ -1,5 +1,5 @@
 import type { AwilixContainer } from "awilix";
-import type { DataSource, EntityManager } from "typeorm/index.js";
+import type { DataSource, EntityManager } from "typeorm";
 import type { ControllerContext } from "../business/registerControllers.js";
 import type { TransactionProvider } from "../db/TransactionProvider.js";
 import type { RepositoryContext } from "../models/registerRepositories.js";

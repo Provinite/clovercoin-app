@@ -1,6 +1,6 @@
 import { Field, Int, ObjectType } from "type-graphql";
 import { TypeormLoader } from "type-graphql-dataloader";
-import { Column, Entity, OneToMany } from "typeorm/index.js";
+import { Column, Entity, OneToMany } from "typeorm";
 import { EnumValueSetting } from "../EnumValueSetting/EnumValueSetting.js";
 import {
   IdField,

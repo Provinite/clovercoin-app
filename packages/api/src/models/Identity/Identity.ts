@@ -1,5 +1,5 @@
 import { Field, ObjectType } from "type-graphql";
-import { Column, Entity } from "typeorm/index.js";
+import { Column, Entity } from "typeorm";
 import { IdField } from "../relationFieldDecorators.js";
 
 @ObjectType()

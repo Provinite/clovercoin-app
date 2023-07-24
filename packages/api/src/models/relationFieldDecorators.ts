@@ -9,7 +9,7 @@ import {
   PrimaryGeneratedColumn,
   RelationId,
   RelationOptions,
-} from "typeorm/index.js";
+} from "typeorm";
 
 export type ManyToOneFieldOptions<
   U = any,

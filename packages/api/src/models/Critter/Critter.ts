@@ -1,5 +1,5 @@
 import { Field, ObjectType } from "type-graphql";
-import { Column, Entity } from "typeorm/index.js";
+import { Column, Entity } from "typeorm";
 import { Species } from "../Species/Species.js";
 import {
   IdField,

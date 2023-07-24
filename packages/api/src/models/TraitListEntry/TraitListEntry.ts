@@ -1,5 +1,5 @@
 import { Field, ID, Int, ObjectType } from "type-graphql";
-import { Column, Entity, type Relation } from "typeorm/index.js";
+import { Column, Entity, type Relation } from "typeorm";
 import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes.js";
 import { IdField, ManyToOneField } from "../relationFieldDecorators.js";
 import { Trait } from "../Trait/Trait.js";
