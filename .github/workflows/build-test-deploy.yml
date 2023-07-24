@@ -107,6 +107,9 @@ jobs:
           docker build . -t "$CC_API_IMG_NAME:$CC_API_IMG_TAG"
           echo "{image}={$CC_API_IMG_NAME}" >> "$GITHUB_OUTPUT"
           echo "{tag}={$CC_API_IMG_TAG}" >> "$GITHUB_OUTPUT"
+          echo "image=$CC_API_IMG_NAME"
+          echo "tag=$CC_API_IMG_TAG"
+          echo "GH_OUTPUT=$GITHUB_OUTPUT"
         working-directory: ./packages/api
 
       # Push API image to ECR
