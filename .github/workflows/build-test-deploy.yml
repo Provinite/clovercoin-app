@@ -116,6 +116,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
         run: |
+          echo "pushing ${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}"
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.ECR_DOMAIN }}
           docker tag ${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }} ${{ secrets.ECR_DOMAIN }}/${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}
           docker push ${{ secrets.ECR_DOMAIN }}/${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}
