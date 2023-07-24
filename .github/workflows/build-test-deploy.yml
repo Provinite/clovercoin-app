@@ -84,7 +84,7 @@ jobs:
           | head -1 \
           | awk -F: '{ print $2 }' \
           | sed 's/[", ]//g')
-          echo "{api}={$PACKAGE_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "api=$PACKAGE_VERSION" >> "$GITHUB_OUTPUT"
           echo "api=$PACKAGE_VERSION"
       # Install npm dependencies
       - name: Install Dependencies
@@ -105,8 +105,8 @@ jobs:
           CC_API_IMG_NAME="${{ vars.ENV_NAME || 'dev' }}-cc-api"
           CC_API_IMG_TAG="${{ vars.ENV_NAME && steps.versions.outputs.api || github.sha}}"
           docker build . -t "$CC_API_IMG_NAME:$CC_API_IMG_TAG"
-          echo "{image}={$CC_API_IMG_NAME}" >> "$GITHUB_OUTPUT"
-          echo "{tag}={$CC_API_IMG_TAG}" >> "$GITHUB_OUTPUT"
+          echo "image={$CC_API_IMG_NAME}" >> "$GITHUB_OUTPUT"
+          echo "tag={$CC_API_IMG_TAG}" >> "$GITHUB_OUTPUT"
           echo "image=$CC_API_IMG_NAME"
           echo "tag=$CC_API_IMG_TAG"
           echo "GH_OUTPUT=$GITHUB_OUTPUT"
