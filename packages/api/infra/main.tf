@@ -79,7 +79,7 @@ data "aws_iam_policy_document" "api_deployer" {
   statement {
     effect    = "Allow"
     actions   = ["lambda:UpdateFunctionCode"]
-    resources = [module.api.lambda_arn]
+    resources = [module.api.lambda_arn, module.api.migrate_lambda_arn]
   }
 }
 

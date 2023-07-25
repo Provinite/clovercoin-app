@@ -57,3 +57,4 @@ variable "jwt_secret_arn" {
   description = "ARN for the secrets-manager secret that stores the JWT secret"
   type = string
 }
+
