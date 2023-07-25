@@ -1,6 +1,6 @@
 import * as esbuild from "esbuild";
 await esbuild.build({
-  entryPoints: ["./build/app.js"],
+  entryPoints: ["./build/src/app.js"],
   bundle: true,
   format: "esm",
   platform: "node",
