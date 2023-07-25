@@ -81,6 +81,11 @@ data "aws_iam_policy_document" "api_deployer" {
     actions   = ["lambda:UpdateFunctionCode"]
     resources = [module.api.lambda_arn, module.api.migrate_lambda_arn]
   }
+    statement {
+    effect    = "Allow"
+    actions   = ["lambda:InvokeFunction"]
+    resources = [module.api.migrate_lambda_arn]
+  }
 }
 
 
