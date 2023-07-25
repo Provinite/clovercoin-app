@@ -135,8 +135,32 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
         run: |
           aws lambda update-function-code \
-          --function-name "${{ vars.ENV_NAME }}-cc-api-fn" \
-          --image-uri "${{ secrets.ECR_DOMAIN }}/${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}"
+            --function-name "${{ vars.ENV_NAME }}-cc-api-fn" \
+            --image-uri "${{ secrets.ECR_DOMAIN }}/${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}"
+
+      - name: Deploy API Migrate
+        if: github.ref_name == 'dev'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
+          AWS_DEFAULT_REGION: us-east-1
+        run: |
+          aws lambda update-function-code \
+            --function-name "${{ vars.ENV_NAME }}-cc-api-migrate-fn" \
+            --image-uri "${{ secrets.ECR_DOMAIN }}/${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}"
+      # Execute migration lambda
+      - name: Execute Migrate
+        if: github.ref_name == 'dev'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
+          AWS_DEFAULT_REGION: us-east-1
+        run: |
+          aws lambda invoke \
+            --function-name "${{ vars.ENV_NAME }}-cc-api-migrate-fn" \
+            --payload "{}" \
+            migrationresult.json
+          cat migrationresult.json
 
       # Deploy client to s3
       - name: Deploy Client

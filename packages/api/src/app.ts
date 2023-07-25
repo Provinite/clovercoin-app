@@ -66,21 +66,47 @@ export const handler = serverless.configure({
 });
 
 export const migrate = async () => {
-  await build(rootContainer, async ({ db, logger }) => {
-    const migrationCount = db.migrations.length;
-    logger.info({
-      message: "Running migrations",
-      count: migrationCount,
-    });
-    await db.showMigrations();
-    const migrations = await db.runMigrations({
-      transaction: "all",
-    });
-    logger.info({
-      message: "Completed migrations",
-      count: migrations.length,
-    });
+  return build(rootContainer, async ({ db, logger }) => {
+    try {
+      const migrationCount = db.migrations.length;
+      logger.info({
+        message: "Running migrations",
+        count: migrationCount,
+      });
+      await db.showMigrations();
+      const migrations = await db.runMigrations({
+        transaction: "all",
+      });
+      for (const migration of migrations) {
+        logger.info({
+          message: "Completed migration",
+          migrationId: migration.id,
+          migrationName: migration.name,
+        });
+      }
+      logger.info({
+        message: "Completed migrations",
+        count: migrations.length,
+      });
+      return {
+        status: 200,
+        migrationCont: migrationCount,
+        migrations: migrations.map(({ id, name }) => ({
+          id,
+          name,
+        })),
+      };
+    } catch (err: any) {
+      logger.error({
+        message: "Failed to run migrations",
+        error: err,
+      });
+      return {
+        status: 500,
+        error: err.name,
+        message: err.message,
+        stack: err.stack,
+      };
+    }
   });
 };
-
-await migrate();

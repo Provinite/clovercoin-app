@@ -11,7 +11,7 @@ resource "aws_lambda_function" "api" {
   role          = var.execution_role_arn
   package_type  = "Image"
   memory_size   = 512
-  timeout       = 5
+  timeout       = 30
   environment {
     variables = {
       CC_DB_HOST     = var.db_endpoint
@@ -31,6 +31,37 @@ resource "aws_lambda_function" "api" {
   }
 }
 
+# Migration lambda
+resource "aws_lambda_function" "migrate" {
+  function_name = "${var.prefix}-cc-api-migrate-fn"
+  image_uri     = "${var.ecr_repo_url}:DUMMY"
+  image_config {
+    command = ["app.migrate"]
+  }
+  role         = var.execution_role_arn
+  package_type = "Image"
+  memory_size  = 512
+  timeout      = 900 # 15 minutes
+  environment {
+    variables = {
+      CC_DB_HOST     = var.db_endpoint
+      DB_SECRET_ARN  = var.db_secret_arn
+      JWT_SECRET_ARN = var.jwt_secret_arn
+      DB_NAME        = var.db_name
+      DB_SSL         = "true"
+    }
+  }
+  vpc_config {
+    subnet_ids         = [var.public_subnet_id]
+    security_group_ids = [var.api_security_group_id]
+  }
+
+  lifecycle {
+    ignore_changes = [image_uri]
+  }
+}
+
+# bucket for cloudfront logs
 resource "aws_s3_bucket" "api_cf_logs" {
   bucket_prefix = "${var.prefix}-cc-api-cloudfront-"
   force_destroy = true
@@ -78,7 +109,7 @@ resource "aws_cloudfront_distribution" "cf_dist" {
     viewer_protocol_policy     = "redirect-to-https" # other options - https only, http
     cache_policy_id            = aws_cloudfront_cache_policy.api_cache_policy.id
     origin_request_policy_id   = aws_cloudfront_origin_request_policy.api_origin_request_policy.id
-    response_headers_policy_id ="5cc3b908-e619-4b99-88e5-2cf7f45965bd" #aws_cloudfront_response_headers_policy.api_response_policy.id
+    response_headers_policy_id = "5cc3b908-e619-4b99-88e5-2cf7f45965bd" #aws_cloudfront_response_headers_policy.api_response_policy.id
   }
   restrictions {
     geo_restriction {
