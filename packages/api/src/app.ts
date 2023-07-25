@@ -89,7 +89,7 @@ export const migrate = async () => {
         count: migrations.length,
       });
       return {
-        status: 200,
+        statusCode: 200,
         migrationCont: migrationCount,
         migrations: migrations.map(({ id, name }) => ({
           id,
@@ -102,7 +102,7 @@ export const migrate = async () => {
         error: err,
       });
       return {
-        status: 500,
+        statusCode: 500,
         error: err.name,
         message: err.message,
         stack: err.stack,
