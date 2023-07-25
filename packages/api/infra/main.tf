@@ -241,7 +241,7 @@ resource "aws_security_group" "bastion_sg" {
   }
 }
 resource "aws_key_pair" "bastion_skrolk" {
-  key_name   = "cc-api-bastion-skrolk"
+  key_name   = "${var.prefix}-cc-api-bastion"
   public_key = file(var.key_file)
 }
 
@@ -252,6 +252,10 @@ resource "aws_instance" "bastion" {
   vpc_security_group_ids = [aws_security_group.bastion_sg.id]
 
   key_name = aws_key_pair.bastion_skrolk.key_name
+
+  tags = {
+    Name = "${var.prefix}-cc-api-bastion"
+  }
 }
 
 module "db" {
