@@ -160,6 +160,15 @@ resource "aws_vpc_security_group_ingress_rule" "rds_allow_from_api" {
   ip_protocol                  = "tcp"
 }
 
+resource "aws_vpc_security_group_ingress_rule" "rds_allow_from_bastion" {
+  from_port                    = 5432
+  to_port                      = 5432
+  referenced_security_group_id = aws_security_group.bastion_sg.id
+  security_group_id            = aws_security_group.rds_sg.id
+  ip_protocol                  = "tcp"
+}
+
+
 # Security group for API instances. These are internet-facing instances
 # Use Cases:
 # Egress:
@@ -205,6 +214,39 @@ resource "aws_security_group" "api_web_sg" {
     protocol        = "tcp"
     security_groups = [aws_security_group.rds_sg.id]
   }
+}
+
+resource "aws_security_group" "bastion_sg" {
+  description = "Security group for bastion server"
+  name        = "${var.prefix}-api-bastion-sg"
+  vpc_id      = var.vpc_id
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress {
+    description     = "Postgres"
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.rds_sg.id]
+  }
+}
+resource "aws_key_pair" "bastion_skrolk" {
+  key_name   = "cc-api-bastion-skrolk"
+  public_key = file(var.key_file)
+}
+
+resource "aws_instance" "bastion" {
+  ami           = "ami-0af9d24bd5539d7af"
+  instance_type = "t2.micro"
+  subnet_id = var.public_subnet_id
+  vpc_security_group_ids = [aws_security_group.bastion_sg.id]
+
+  key_name = aws_key_pair.bastion_skrolk.key_name
 }
 
 module "db" {

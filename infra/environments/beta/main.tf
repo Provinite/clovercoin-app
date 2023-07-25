@@ -16,13 +16,13 @@ resource "aws_iam_user" "deployer" {
 
 # Grant permissions to deploy the API
 resource "aws_iam_user_policy_attachment" "deployer_deploys_api" {
-  user = aws_iam_user.deployer.name
+  user       = aws_iam_user.deployer.name
   policy_arn = module.api.api_deployer_policy_arn
 }
 
 # Grant permissions to deploy the client
 resource "aws_iam_user_policy_attachment" "deployer_deploys_client" {
-  user = aws_iam_user.deployer.name
+  user       = aws_iam_user.deployer.name
   policy_arn = module.client.deployer_policy_arn
 }
 
@@ -46,6 +46,8 @@ module "vpc" {
 # Create the API app
 module "api" {
   source = "../../../packages/api/infra"
+
+  key_file = var.key_file
 
   acm_cert_arn = "arn:aws:acm:us-east-1:439703963905:certificate/a2bd2066-7790-4840-b067-5c45396393b9"
   domain_name  = "beta-api.clovercoin.com"

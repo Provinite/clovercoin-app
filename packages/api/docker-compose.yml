@@ -15,7 +15,7 @@ services:
   # PGAdmin container for dev work on postgres db
   pgadmin:
     container_name: pgadmin4_container
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:latest
     restart: always
     volumes:
       - ${PWD}/servers.json:/pgadmin4/servers.json

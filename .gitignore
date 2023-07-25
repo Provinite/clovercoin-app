@@ -13,3 +13,4 @@ built-storybook
 terraform.env
 .terraform/providers
 .terraform
+bastion-key-*

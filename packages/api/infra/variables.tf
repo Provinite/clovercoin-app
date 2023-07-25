@@ -1,3 +1,8 @@
+variable "key_file" {
+  description = "Public key for the aws key pair"
+  type = string
+}
+
 variable "prefix" {
   description = "The prefix to apply to resource identifiers."
   type        = string
