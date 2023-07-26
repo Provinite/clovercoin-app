@@ -163,7 +163,7 @@ jobs:
 
       # Push API image to ECR
       - name: Push API image to ECR
-        if: github.ref_name == env.beta_branch
+        if: github.ref_name == env.beta_branch && contains('"packages/api/', steps.changed-files.outputs.files)
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
@@ -175,7 +175,7 @@ jobs:
 
       # Deploy API image to lambda task
       - name: Deploy API
-        if: github.ref_name == env.beta_branch
+        if: github.ref_name == env.beta_branch && contains('"packages/api/', steps.changed-files.outputs.files)
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
@@ -186,7 +186,7 @@ jobs:
             --image-uri "${{ secrets.ECR_DOMAIN }}/${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}"
 
       - name: Deploy API Migrate
-        if: github.ref_name == env.beta_branch
+        if: github.ref_name == env.beta_branch && contains('"packages/api/', steps.changed-files.outputs.files)
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
@@ -197,7 +197,7 @@ jobs:
             --image-uri "${{ secrets.ECR_DOMAIN }}/${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}"
       # Execute migration lambda
       - name: Execute Migrate
-        if: github.ref_name == env.beta_branch
+        if: github.ref_name == env.beta_branch && contains('"packages/api/', steps.changed-files.outputs.files)
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
@@ -211,7 +211,7 @@ jobs:
 
       # Deploy client to s3
       - name: Deploy Client
-        if: github.ref_name == env.beta_branch
+        if: github.ref_name == env.beta_branch && contains('"packages/client/', steps.changed-files.outputs.files)
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
