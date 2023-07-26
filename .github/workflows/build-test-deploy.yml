@@ -7,7 +7,7 @@ env:
 jobs:
   build-and-deploy:
     environment:
-      name: ${{ github.ref_name == github.env.beta_branch && 'beta' || ''}}
+      name: ${{ github.ref_name == 'infra2' && 'beta' || ''}}
     runs-on: ubuntu-latest
     steps:
       # Git checkout
@@ -118,7 +118,7 @@ jobs:
 
       # Push API image to ECR
       - name: Push API image to ECR
-        if: github.ref_name == 'dev'
+        if: github.ref_name == env.beta_branch
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
@@ -130,7 +130,7 @@ jobs:
 
       # Deploy API image to lambda task
       - name: Deploy API
-        if: github.ref_name == 'dev'
+        if: github.ref_name == env.beta_branch
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
@@ -141,7 +141,7 @@ jobs:
             --image-uri "${{ secrets.ECR_DOMAIN }}/${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}"
 
       - name: Deploy API Migrate
-        if: github.ref_name == 'dev'
+        if: github.ref_name == env.beta_branch
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
@@ -152,7 +152,7 @@ jobs:
             --image-uri "${{ secrets.ECR_DOMAIN }}/${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}"
       # Execute migration lambda
       - name: Execute Migrate
-        if: github.ref_name == 'dev'
+        if: github.ref_name == env.beta_branch
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
@@ -166,7 +166,7 @@ jobs:
 
       # Deploy client to s3
       - name: Deploy Client
-        if: github.ref_name == 'dev'
+        if: github.ref_name == env.beta_branch
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
