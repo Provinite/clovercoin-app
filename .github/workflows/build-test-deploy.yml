@@ -136,7 +136,7 @@ jobs:
 
       # Push API image to ECR
       - name: Push API image to ECR
-        if: github.ref_name == env.beta_branch && contains('"packages/api/', steps.changed-files.outputs.files)
+        if: github.ref_name == env.beta_branch && contains(steps.changed-files.outputs.files, '"packages/api/',)
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
