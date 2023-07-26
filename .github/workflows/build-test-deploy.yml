@@ -91,7 +91,7 @@ jobs:
       - name: Determine changed files
         id: changed-files
         run: |
-          CHANGED_FILES=$(git diff --name-only HEAD $NX_BASE | paste -s -d " ")"
+          CHANGED_FILES="$(git diff --name-only HEAD $NX_BASE | sed "s/\(.*\)/\"\1\"/" | paste -s -d " ")"
           echo "files=$CHANGED_FILES" >> "$GITHUB_OUTPUT"
           echo "files=$CHANGED_FILES"
 
