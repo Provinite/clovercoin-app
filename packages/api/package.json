@@ -1,6 +1,6 @@
 {
   "name": "@clovercoin/api",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "main": "dist/app.js",
   "license": "MIT",
   "source": "src/app.ts",

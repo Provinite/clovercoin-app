@@ -136,6 +136,7 @@ jobs:
 
       # Push API image to ECR
       - name: Push API image to ECR
+        id: push-api-image
         if: github.ref_name == env.beta_branch && contains(steps.changed-files.outputs.files, '"packages/api/')
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
@@ -148,7 +149,7 @@ jobs:
 
       # Deploy API image to lambda task
       - name: Deploy API
-        if: github.ref_name == env.beta_branch && contains('"packages/api/', steps.changed-files.outputs.files)
+        if: steps.push-api-image.outcome != 'skipped'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
@@ -159,7 +160,7 @@ jobs:
             --image-uri "${{ secrets.ECR_DOMAIN }}/${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}"
 
       - name: Deploy API Migrate
-        if: github.ref_name == env.beta_branch && contains('"packages/api/', steps.changed-files.outputs.files)
+        if: steps.push-api-image.outcome != 'skipped'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
@@ -170,7 +171,7 @@ jobs:
             --image-uri "${{ secrets.ECR_DOMAIN }}/${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}"
       # Execute migration lambda
       - name: Execute Migrate
-        if: github.ref_name == env.beta_branch && contains('"packages/api/', steps.changed-files.outputs.files)
+        if: steps.push-api-image.outcome != 'skipped'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
@@ -184,7 +185,7 @@ jobs:
 
       # Deploy client to s3
       - name: Deploy Client
-        if: github.ref_name == env.beta_branch && contains('"packages/client/', steps.changed-files.outputs.files)
+        if: github.ref_name == env.beta_branch && contains(steps.changed-files.outputs.files, '"packages/client/')
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
