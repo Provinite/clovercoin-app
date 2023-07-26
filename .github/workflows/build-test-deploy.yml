@@ -116,12 +116,6 @@ jobs:
         #
         # workflow-id: ""
 
-      - name: Info
-        run: |
-          echo NX_BASE=$NX_BASE
-          echo NX_HEAD=$NX_HEAD
-          echo FILES=${{ steps.changed-files.outputs.files }}
-          exit 1
       # Read package versions from package.json files
       - name: Determine package versions
         id: versions
