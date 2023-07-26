@@ -2,10 +2,12 @@
 # https://github.com/github/docs/blob/main/content/actions/learn-github-actions/expressions.md
 name: Build, Test, Deploy Everything
 on: push
+env:
+  beta_branch: infra2
 jobs:
   build-and-deploy:
     environment:
-      name: ${{ github.ref_name == 'dev' && 'beta' || ''}}
+      name: ${{ github.ref_name == github.env.beta_branch && 'beta' || ''}}
     runs-on: ubuntu-latest
     steps:
       # Git checkout
