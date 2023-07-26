@@ -90,7 +90,7 @@ jobs:
           main-branch-name: ${{ github.ref_name }}
       - name: Determine changed files
         id: changed-files
-        run: echo "files=$(git diff --name-only HEAD $NX_BASE | paste -s -d " ")" >> "$GH_OUTPUT"
+        run: echo "files=$(git diff --name-only HEAD $NX_BASE | paste -s -d " ")" >> "$GITHUB_OUTPUT"
         # Applies the derived SHAs for base and head as NX_BASE and NX_HEAD environment variables within the current Job.
         #
         # Default: true
