@@ -82,12 +82,12 @@ jobs:
           always-auth: ""
       - name: Determine commit range
         uses: nrwl/nx-set-shas@v3
-        # with:
-        # The "main" branch of your repository (the base branch which you target with PRs).
-        # Common names for this branch include main and master.
-        #
-        # Default: main
-        # main-branch-name: ""
+        with:
+          # The "main" branch of your repository (the base branch which you target with PRs).
+          # Common names for this branch include main and master.
+          #
+          # Default: main
+          main-branch-name: ${{ github.ref_name }}
 
         # Applies the derived SHAs for base and head as NX_BASE and NX_HEAD environment variables within the current Job.
         #
