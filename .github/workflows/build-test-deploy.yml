@@ -2,15 +2,13 @@
 # https://github.com/github/docs/blob/main/content/actions/learn-github-actions/expressions.md
 name: Build, Test, Deploy Everything
 on: push
-env:
-  beta_branch: dev
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
   build-and-deploy:
     environment:
-      name: ${{ github.ref_name == 'dev' && 'beta' || ''}}
+      name: ${{ github.ref_name == vars.beta_branch && 'beta' || ''}}
     runs-on: ubuntu-latest
     steps:
       # Git checkout
@@ -138,7 +136,7 @@ jobs:
       # Push API image to ECR
       - name: Push API image to ECR
         id: push-api-image
-        if: github.ref_name == env.beta_branch && contains(steps.changed-files.outputs.files, '"packages/api/')
+        if: github.ref_name == vars.beta_branch && contains(steps.changed-files.outputs.files, '"packages/api/')
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
@@ -188,7 +186,7 @@ jobs:
 
       # Deploy client to s3
       - name: Deploy Client
-        if: github.ref_name == env.beta_branch && contains(steps.changed-files.outputs.files, '"packages/client/')
+        if: github.ref_name == vars.beta_branch && contains(steps.changed-files.outputs.files, '"packages/client/')
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
