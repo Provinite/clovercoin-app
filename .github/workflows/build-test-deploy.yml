@@ -80,6 +80,7 @@ jobs:
           # Set always-auth option in npmrc file.
           # Default: ''
           always-auth: ""
+      # Find the last push, or pr base to determine where to look for file changes
       - name: Determine commit range
         uses: nrwl/nx-set-shas@v3
         with:
@@ -158,6 +159,7 @@ jobs:
           aws lambda update-function-code \
             --function-name "${{ vars.ENV_NAME }}-cc-api-fn" \
             --image-uri "${{ secrets.ECR_DOMAIN }}/${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}"
+
       # Deploy API migrate image to lambda
       - name: Deploy API Migrate
         if: steps.push-api-image.outcome != 'skipped' && contains(steps.changed-files.outputs.files, '"packages/api/migrate/src/migrations/')
@@ -169,6 +171,7 @@ jobs:
           aws lambda update-function-code \
             --function-name "${{ vars.ENV_NAME }}-cc-api-migrate-fn" \
             --image-uri "${{ secrets.ECR_DOMAIN }}/${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}"
+
       # Execute migration lambda
       - name: Execute Migrate
         if: steps.push-api-image.outcome != 'skipped'
