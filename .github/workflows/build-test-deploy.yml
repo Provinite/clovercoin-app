@@ -10,7 +10,7 @@ concurrency:
 jobs:
   build-and-deploy:
     environment:
-      name: ${{ github.ref_name == env.beta_branch && 'beta' || ''}}
+      name: ${{ github.ref_name == 'dev' && 'beta' || ''}}
     runs-on: ubuntu-latest
     steps:
       # Git checkout
