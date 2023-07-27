@@ -3,14 +3,14 @@
 name: Build, Test, Deploy Everything
 on: push
 env:
-  beta_branch: infra2
+  beta_branch: dev
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
   build-and-deploy:
     environment:
-      name: ${{ github.ref_name == 'infra2' && 'beta' || ''}}
+      name: ${{ github.ref_name == 'dev' && 'beta' || ''}}
     runs-on: ubuntu-latest
     steps:
       # Git checkout
@@ -147,7 +147,7 @@ jobs:
           docker tag ${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }} ${{ secrets.ECR_DOMAIN }}/${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}
           docker push ${{ secrets.ECR_DOMAIN }}/${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}
 
-      # Deploy API image to lambda task
+      # Deploy API image to lambda
       - name: Deploy API
         if: steps.push-api-image.outcome != 'skipped'
         env:
@@ -158,9 +158,9 @@ jobs:
           aws lambda update-function-code \
             --function-name "${{ vars.ENV_NAME }}-cc-api-fn" \
             --image-uri "${{ secrets.ECR_DOMAIN }}/${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}"
-
+      # Deploy API migrate image to lambda
       - name: Deploy API Migrate
-        if: steps.push-api-image.outcome != 'skipped'
+        if: steps.push-api-image.outcome != 'skipped' && contains(steps.changed-files.outputs.files, '"packages/api/migrate/src/migrations/')
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
