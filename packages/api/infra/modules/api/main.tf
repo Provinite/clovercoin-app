@@ -18,7 +18,7 @@ resource "aws_lambda_function" "api" {
       JWT_SECRET_ARN = var.jwt_secret_arn
       DB_NAME        = var.db_name
       DB_SSL         = "true"
-      CC_IMG_BUCKET = aws_s3_bucket.image_bucket.name
+      CC_IMG_BUCKET = aws_s3_bucket.image_bucket.id
     }
   }
   vpc_config {
@@ -43,13 +43,13 @@ resource "aws_s3_bucket_ownership_controls" "enable_image_bucket_acls" {
     object_ownership = "BucketOwnerPreferred"
   }
 }
-resource "aws_s3_bucket_acl" "bucket_acl" {
+resource "aws_s3_bucket_acl" "image_bucket_acl" {
   bucket     = aws_s3_bucket.image_bucket.id
   acl        = "private"
   depends_on = [aws_s3_bucket_ownership_controls.enable_image_bucket_acls]
 }
 
-resource "aws_s3_bucket_public_access_block" "public_block" {
+resource "aws_s3_bucket_public_access_block" "no_public_img_access" {
   bucket                  = aws_s3_bucket.image_bucket.id
   block_public_acls       = true
   block_public_policy     = true
@@ -76,7 +76,7 @@ resource "aws_lambda_function" "migrate" {
       JWT_SECRET_ARN = var.jwt_secret_arn
       DB_NAME        = var.db_name
       DB_SSL         = "true"
-      CC_IMG_BUCKET = aws_s3_bucket.image_bucket.name
+      CC_IMG_BUCKET = aws_s3_bucket.image_bucket.id
     }
   }
   vpc_config {
