@@ -1,8 +1,8 @@
-import { TransactionProvider } from "../db/TransactionProvider";
-import { AppGraphqlContext } from "../graphql/AppGraphqlContext";
-import { Account } from "../models/Account/Account";
-import { Identity } from "../models/Identity/Identity";
-import { createJwt } from "../util/jwt/createJwt";
+import { TransactionProvider } from "../db/TransactionProvider.js";
+import type { AppGraphqlContext } from "../graphql/AppGraphqlContext.js";
+import { Account } from "../models/Account/Account.js";
+import { Identity } from "../models/Identity/Identity.js";
+import { createJwt } from "../util/jwt/createJwt.js";
 
 export type LoggedInResult =
   | { success: false }

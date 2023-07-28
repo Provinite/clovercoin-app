@@ -1,11 +1,11 @@
 import { Field, ObjectType } from "type-graphql";
 import { Column, Entity } from "typeorm";
-import { Identity } from "../Identity/Identity";
+import { Identity } from "../Identity/Identity.js";
 import {
   IdField,
   ManyToOneField,
   RelationIdField,
-} from "../relationFieldDecorators";
+} from "../relationFieldDecorators.js";
 
 @Entity()
 @ObjectType()

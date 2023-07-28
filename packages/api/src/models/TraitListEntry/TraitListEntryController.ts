@@ -1,10 +1,10 @@
 import { Repository } from "typeorm";
-import { EntityController } from "../../business/EntityController";
-import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { TraitController } from "../Trait/TraitController";
-import { TraitListEntry } from "./TraitListEntry";
+import { EntityController } from "../../business/EntityController.js";
+import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { TraitController } from "../Trait/TraitController.js";
+import { TraitListEntry } from "./TraitListEntry.js";
 import { SetOptional } from "type-fest";
-import { InvalidArgumentError } from "../../errors/InvalidArgumentError";
+import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
 
 export interface TraitListEntryCreate
   extends SetOptional<

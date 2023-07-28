@@ -1,9 +1,16 @@
 import { Field, ID, ObjectType } from "type-graphql";
 import { TypeormLoader } from "type-graphql-dataloader";
-import { Column, Entity, JoinColumn, ManyToOne, Unique } from "typeorm";
-import { EnumValue } from "../EnumValue/EnumValue";
-import { IdField, ManyToOneField } from "../relationFieldDecorators";
-import { TraitList } from "../TraitList/TraitList";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  type Relation,
+  Unique,
+} from "typeorm";
+import { EnumValue } from "../EnumValue/EnumValue.js";
+import { IdField, ManyToOneField } from "../relationFieldDecorators.js";
+import { TraitList } from "../TraitList/TraitList.js";
 
 @Entity()
 @ObjectType()
@@ -21,7 +28,7 @@ export class EnumValueSetting {
     referencedColumnName: "id",
   })
   @TypeormLoader()
-  traitList!: TraitList;
+  traitList!: Relation<TraitList>;
 
   @ManyToOneField({
     columnName: "enumValueId",

@@ -1,13 +1,13 @@
 import { Field, ObjectType } from "type-graphql";
 import { Column, Entity } from "typeorm";
-import { Species } from "../Species/Species";
+import { Species } from "../Species/Species.js";
 import {
   IdField,
   ManyToOneField,
   RelationIdField,
-} from "../relationFieldDecorators";
-import { Identity } from "../Identity/Identity";
-import { TraitList } from "../TraitList/TraitList";
+} from "../relationFieldDecorators.js";
+import { Identity } from "../Identity/Identity.js";
+import { TraitList } from "../TraitList/TraitList.js";
 
 @Entity()
 @ObjectType()

@@ -1,5 +1,7 @@
 describe("AccountController", () => {
   describe("register", () => {
-    it("works", () => {});
+    it("works", () => {
+      // noop
+    });
   });
 });

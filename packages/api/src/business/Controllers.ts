@@ -1,16 +1,16 @@
-import { AccountController } from "../models/Account/AccountController";
-import { CommunityController } from "../models/Community/CommunityController";
-import { CommunityMemberController } from "../models/CommunityMember/CommunityMemberController";
-import { CritterController } from "../models/Critter/CritterController";
-import { CritterOwnershipChangeController } from "../models/CritterOwnershipChange/CritterOwnershipChangeController";
-import { EnumValueController } from "../models/EnumValue/EnumValueController";
-import { EnumValueSettingController } from "../models/EnumValueSetting/EnumValueSettingController";
-import { IdentityController } from "../models/Identity/IdentityController";
-import { SpeciesController } from "../models/Species/SpeciesController";
-import { TraitController } from "../models/Trait/TraitController";
-import { TraitListController } from "../models/TraitList/TraitListController";
-import { TraitListEntryController } from "../models/TraitListEntry/TraitListEntryController";
-import { LoginController } from "./LoginController";
+import { AccountController } from "../models/Account/AccountController.js";
+import { CommunityController } from "../models/Community/CommunityController.js";
+import { CommunityMemberController } from "../models/CommunityMember/CommunityMemberController.js";
+import { CritterController } from "../models/Critter/CritterController.js";
+import { CritterOwnershipChangeController } from "../models/CritterOwnershipChange/CritterOwnershipChangeController.js";
+import { EnumValueController } from "../models/EnumValue/EnumValueController.js";
+import { EnumValueSettingController } from "../models/EnumValueSetting/EnumValueSettingController.js";
+import { IdentityController } from "../models/Identity/IdentityController.js";
+import { SpeciesController } from "../models/Species/SpeciesController.js";
+import { TraitController } from "../models/Trait/TraitController.js";
+import { TraitListController } from "../models/TraitList/TraitListController.js";
+import { TraitListEntryController } from "../models/TraitListEntry/TraitListEntryController.js";
+import { LoginController } from "./LoginController.js";
 
 /**
  * Add controllers here when they are created to make them available

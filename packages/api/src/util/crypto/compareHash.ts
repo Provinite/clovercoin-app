@@ -1,9 +1,9 @@
 import { compare } from "bcrypt";
-import { getBytesInString } from "../stringUtils";
+import { getBytesInString } from "../stringUtils.js";
 import {
   BcryptMaxStringSizeExceededError,
   BCRYPT_MAX_STR_BYTES,
-} from "./BcryptMaxStringSizeExceededError";
+} from "./BcryptMaxStringSizeExceededError.js";
 
 /**
  * Compare a plain text password with a secure hashed password.

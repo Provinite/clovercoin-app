@@ -14,12 +14,13 @@ import {
   Root,
 } from "type-graphql";
 import { FindManyOptions, ILike } from "typeorm";
-import { DuplicateError } from "../../errors/DuplicateError";
-import { InvalidArgumentError } from "../../errors/InvalidArgumentError";
-import { NotFoundError } from "../../errors/NotFoundError";
-import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { ImageContentType } from "../ImageContentType";
-import { Species } from "./Species";
+import { ImageTarget } from "../../business/ImageController.js";
+import { DuplicateError } from "../../errors/DuplicateError.js";
+import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
+import { NotFoundError } from "../../errors/NotFoundError.js";
+import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { ImageContentType } from "../ImageContentType.js";
+import { Species } from "./Species.js";
 
 @InputType()
 export class SpeciesCreateInput {
@@ -124,15 +125,10 @@ export class SpeciesResolver {
   })
   async iconUrl(
     @Root() species: Species,
-    @Ctx() { presignedUrlService }: AppGraphqlContext
+    @Ctx() { imageController }: AppGraphqlContext
   ): Promise<string | null> {
     if (species.hasImage) {
-      return presignedUrlService.getPresignedUrl({
-        object: {
-          Bucket: "images",
-          Key: `species-${species.id}`,
-        },
-      });
+      return imageController.getGetUrl(ImageTarget.Species, species.id);
     }
     return null;
   }
@@ -153,24 +149,16 @@ export class SpeciesResolver {
     @Ctx() { transactionProvider }: AppGraphqlContext
   ): Promise<UrlResponse> {
     return transactionProvider.runTransaction(
-      async ({ presignedUrlService, speciesController }) => {
+      async ({ speciesController, imageController }) => {
         const species = await speciesController.findOneById(input.speciesId);
         if (!species) {
           throw new NotFoundError();
-        }
-        if (!species.hasImage) {
-          await speciesController.updateOneById(species.id, { hasImage: true });
         }
         await speciesController.updateOneById(input.speciesId, {
           hasImage: true,
         });
         return new UrlResponse(
-          await presignedUrlService.putPresignedUrl({
-            object: {
-              Bucket: "images",
-              Key: `species-${input.speciesId}`,
-            },
-          })
+          await imageController.getPutUrl(ImageTarget.Species, input.speciesId)
         );
       }
     );

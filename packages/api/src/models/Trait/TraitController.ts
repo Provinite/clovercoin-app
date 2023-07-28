@@ -1,8 +1,8 @@
 import { DeleteResult, Repository } from "typeorm";
-import { EntityController } from "../../business/EntityController";
-import { TransactionProvider } from "../../db/TransactionProvider";
-import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { Trait } from "./Trait";
+import { EntityController } from "../../business/EntityController.js";
+import { TransactionProvider } from "../../db/TransactionProvider.js";
+import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { Trait } from "./Trait.js";
 
 export type TraitCreate = Pick<Trait, "name" | "valueType" | "speciesId">;
 export type TraitModify = Pick<Partial<Trait>, "name" | "valueType">;

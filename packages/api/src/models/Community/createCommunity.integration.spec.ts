@@ -1,5 +1,4 @@
-import { testClient } from "../../test/testClient";
-import { expect, describe, it } from "@jest/globals";
+import { testClient } from "../../test/testClient.js";
 import {
   isCommunity,
   isDuplicateError,

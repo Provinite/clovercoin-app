@@ -1,15 +1,15 @@
-import { Account } from "./Account/Account";
-import { Community } from "./Community/Community";
-import { CommunityMember } from "./CommunityMember/CommunityMember";
-import { Critter } from "./Critter/Critter";
-import { CritterOwnershipChange } from "./CritterOwnershipChange/CritterOwnershipChange";
-import { EnumValue } from "./EnumValue/EnumValue";
-import { EnumValueSetting } from "./EnumValueSetting/EnumValueSetting";
-import { Identity } from "./Identity/Identity";
-import { Species } from "./Species/Species";
-import { Trait } from "./Trait/Trait";
-import { TraitList } from "./TraitList/TraitList";
-import { TraitListEntry } from "./TraitListEntry/TraitListEntry";
+import { Account } from "./Account/Account.js";
+import { Community } from "./Community/Community.js";
+import { CommunityMember } from "./CommunityMember/CommunityMember.js";
+import { Critter } from "./Critter/Critter.js";
+import { CritterOwnershipChange } from "./CritterOwnershipChange/CritterOwnershipChange.js";
+import { EnumValue } from "./EnumValue/EnumValue.js";
+import { EnumValueSetting } from "./EnumValueSetting/EnumValueSetting.js";
+import { Identity } from "./Identity/Identity.js";
+import { Species } from "./Species/Species.js";
+import { Trait } from "./Trait/Trait.js";
+import { TraitList } from "./TraitList/TraitList.js";
+import { TraitListEntry } from "./TraitListEntry/TraitListEntry.js";
 
 /**
  * Model classes mapped by their name.

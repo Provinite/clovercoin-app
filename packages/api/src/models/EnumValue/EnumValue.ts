@@ -1,13 +1,13 @@
 import { Field, Int, ObjectType } from "type-graphql";
 import { TypeormLoader } from "type-graphql-dataloader";
 import { Column, Entity, OneToMany } from "typeorm";
-import { EnumValueSetting } from "../EnumValueSetting/EnumValueSetting";
+import { EnumValueSetting } from "../EnumValueSetting/EnumValueSetting.js";
 import {
   IdField,
   ManyToOneField,
   RelationIdField,
-} from "../relationFieldDecorators";
-import { Trait } from "../Trait/Trait";
+} from "../relationFieldDecorators.js";
+import { Trait } from "../Trait/Trait.js";
 
 @Entity()
 @ObjectType()

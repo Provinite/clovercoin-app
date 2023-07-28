@@ -8,3 +8,9 @@ built-storybook
 .yarn/cache
 .yarn/install-state.gz
 .yarn/unplugged
+*.tfvars
+*.tfstate
+terraform.env
+.terraform/providers
+.terraform
+bastion-key-*

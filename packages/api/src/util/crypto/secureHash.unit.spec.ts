@@ -1,5 +1,5 @@
-import { BCRYPT_MAX_STR_BYTES } from "./BcryptMaxStringSizeExceededError";
-import { secureHash } from "./secureHash";
+import { BCRYPT_MAX_STR_BYTES } from "./BcryptMaxStringSizeExceededError.js";
+import { secureHash } from "./secureHash.js";
 
 describe("secureHash", () => {
   describe("error handling", () => {

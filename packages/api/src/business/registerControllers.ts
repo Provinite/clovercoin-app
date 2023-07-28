@@ -1,7 +1,11 @@
 import { asClass, AwilixContainer } from "awilix";
-import { register } from "../awilix/register";
-import { uncapitalize } from "../util/stringUtils";
-import { ControllerClass, ControllerName, ControllersMap } from "./Controllers";
+import { register } from "../awilix/register.js";
+import { uncapitalize } from "../util/stringUtils.js";
+import {
+  ControllerClass,
+  ControllerName,
+  ControllersMap,
+} from "./Controllers.js";
 
 export type ControllerContext = {
   [controllerName in Uncapitalize<ControllerName>]: InstanceType<

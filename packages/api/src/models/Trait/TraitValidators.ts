@@ -3,7 +3,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from "class-validator";
-import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes";
+import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes.js";
 
 @ValidatorConstraint({
   async: false,

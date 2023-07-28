@@ -1,5 +1,6 @@
-import { sign } from "jsonwebtoken";
-import { jwtSecret } from "./jwtSecret";
+import jsonwebtoken from "jsonwebtoken";
+const { sign } = jsonwebtoken;
+import { jwtSecret } from "./jwtSecret.js";
 
 export function createJwt<T extends object>(payload: T): Promise<string> {
   return new Promise((res, rej) => {
