@@ -1,6 +1,6 @@
 {
   "name": "@clovercoin/api",
-  "version": "1.1.8",
+  "version": "1.1.9",
   "main": "dist/app.js",
   "license": "MIT",
   "source": "src/app.ts",
@@ -16,6 +16,7 @@
     "migration:register": "ts-node bin/registerMigration.ts",
     "migration:create": "./bin/create-migration.sh",
     "migration:auto": "./bin/generate-automigration.sh",
+    "migrate": "yarn typeorm migration:run -d src/db/migrationDataSource.ts",
     "lint": "eslint ."
   },
   "dependencies": {
