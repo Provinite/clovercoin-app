@@ -1,7 +1,6 @@
 resource "aws_lambda_function_url" "api_url" {
   function_name      = aws_lambda_function.api.function_name
   authorization_type = "NONE"
-
 }
 
 
@@ -19,6 +18,7 @@ resource "aws_lambda_function" "api" {
       JWT_SECRET_ARN = var.jwt_secret_arn
       DB_NAME        = var.db_name
       DB_SSL         = "true"
+      CC_IMG_BUCKET = aws_s3_bucket.image_bucket.name
     }
   }
   vpc_config {
@@ -30,6 +30,33 @@ resource "aws_lambda_function" "api" {
     ignore_changes = [image_uri]
   }
 }
+
+# bucket for cloudfront logs
+resource "aws_s3_bucket" "image_bucket" {
+  bucket_prefix = "${var.prefix}-cc-api-cloudfront-"
+  force_destroy = true
+}
+resource "aws_s3_bucket_ownership_controls" "enable_image_bucket_acls" {
+  bucket = aws_s3_bucket.image_bucket.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+resource "aws_s3_bucket_acl" "bucket_acl" {
+  bucket     = aws_s3_bucket.image_bucket.id
+  acl        = "private"
+  depends_on = [aws_s3_bucket_ownership_controls.enable_image_bucket_acls]
+}
+
+resource "aws_s3_bucket_public_access_block" "public_block" {
+  bucket                  = aws_s3_bucket.image_bucket.id
+  block_public_acls       = true
+  block_public_policy     = true
+  restrict_public_buckets = true
+  ignore_public_acls      = true
+}
+
 
 # Migration lambda
 resource "aws_lambda_function" "migrate" {
@@ -49,6 +76,7 @@ resource "aws_lambda_function" "migrate" {
       JWT_SECRET_ARN = var.jwt_secret_arn
       DB_NAME        = var.db_name
       DB_SSL         = "true"
+      CC_IMG_BUCKET = aws_s3_bucket.image_bucket.name
     }
   }
   vpc_config {
@@ -66,7 +94,7 @@ resource "aws_s3_bucket" "api_cf_logs" {
   bucket_prefix = "${var.prefix}-cc-api-cloudfront-"
   force_destroy = true
 }
-resource "aws_s3_bucket_ownership_controls" "enable_acls" {
+resource "aws_s3_bucket_ownership_controls" "enable_api_cf_logs_acls" {
   bucket = aws_s3_bucket.api_cf_logs.id
 
   rule {
@@ -76,7 +104,7 @@ resource "aws_s3_bucket_ownership_controls" "enable_acls" {
 resource "aws_s3_bucket_acl" "bucket_acl" {
   bucket     = aws_s3_bucket.api_cf_logs.id
   acl        = "private"
-  depends_on = [aws_s3_bucket_ownership_controls.enable_acls]
+  depends_on = [aws_s3_bucket_ownership_controls.enable_api_cf_logs_acls]
 }
 
 resource "aws_s3_bucket_public_access_block" "public_block" {

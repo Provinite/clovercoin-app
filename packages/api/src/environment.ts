@@ -76,6 +76,6 @@ export const getJwtConfig = () => ({
 });
 
 export const getS3Environment = () => ({
-  endpoint: optional("CC_AWS_ENDPOINT"),
+  endpoint: optional("CC_AWS_S3_ENDPOINT"),
   bucket: required("CC_IMG_BUCKET"),
 });
