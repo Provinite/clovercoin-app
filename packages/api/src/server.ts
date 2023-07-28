@@ -23,6 +23,8 @@ import { handleJsonBufferBody } from "./http-middleware/handleJsonBufferBody.js"
 import { createRequestContainer } from "./http-middleware/createRequestContainer.js";
 import { build } from "./awilix/build.js";
 import { cors } from "./http-middleware/cors.js";
+import { getS3Environment } from "./environment.js";
+import { ImageController } from "./business/ImageController.js";
 export interface ServerOptions {
   db: {
     host?: string;
@@ -82,7 +84,8 @@ export const createCloverCoinAppServer = async (options: ServerOptions) => {
    */
   register(rootContainer, "s3Config", asFunction(s3Config));
   register(rootContainer, "presignedUrlService", asClass(PresignedUrlService));
-
+  register(rootContainer, "s3Environment", asFunction(getS3Environment));
+  register(rootContainer, "imageController", asClass(ImageController));
   /**
    * Logging
    */
@@ -195,3 +198,10 @@ const loggingMiddleware: MiddlewareFn<AppGraphqlContext> = async (
   }
   await next();
 };
+
+declare module "./graphql/AppGraphqlContext.js" {
+  export interface AppGraphqlContext {
+    s3Environment: ReturnType<typeof getS3Environment>;
+    imageController: ImageController;
+  }
+}

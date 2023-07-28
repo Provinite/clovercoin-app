@@ -74,3 +74,8 @@ export const getJwtConfig = () => ({
   secret: optional("CC_JWT_SECRET"),
   secretArn: optional("JWT_SECRET_ARN"),
 });
+
+export const getS3Environment = () => ({
+  endpoint: optional("CC_AWS_ENDPOINT"),
+  bucket: required("CC_IMG_BUCKET"),
+});
