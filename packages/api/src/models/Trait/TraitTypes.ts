@@ -11,11 +11,11 @@ import {
   MinLength,
 } from "class-validator";
 import { InputType, Field, ID, createUnionType } from "type-graphql";
-import { DuplicateError } from "../../errors/DuplicateError";
-import { InvalidArgumentError } from "../../errors/InvalidArgumentError";
-import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes";
-import { Trait } from "./Trait";
-import { TraitEnumOptionsLength } from "./TraitValidators";
+import { DuplicateError } from "../../errors/DuplicateError.js";
+import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
+import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes.js";
+import { Trait } from "./Trait.js";
+import { TraitEnumOptionsLength } from "./TraitValidators.js";
 
 @InputType()
 export class TraitModifyInput {

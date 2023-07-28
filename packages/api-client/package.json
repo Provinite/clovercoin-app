@@ -5,8 +5,7 @@
   "version": "1.0.3",
   "scripts": {
     "clean": "rm -rf ./dist/ ./src/generated/",
-    "build": "graphql-codegen --config codegen.yml && node ./dist/generate-services.js && eslint --fix ./src/generated && tsc",
-    "postinstall": "rm -rf ./src/generated && tsc && graphql-codegen --config codegen.yml && node ./dist/generate-services.js && eslint --fix ./src/generated && tsc"
+    "build": "tsc && graphql-codegen --config codegen.yml && node ./dist/generate-services.js && eslint --fix ./src/generated && tsc"
   },
   "devDependencies": {
     "@apollo/client": "3.7.1",

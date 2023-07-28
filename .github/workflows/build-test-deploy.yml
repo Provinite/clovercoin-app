@@ -2,36 +2,194 @@
 # https://github.com/github/docs/blob/main/content/actions/learn-github-actions/expressions.md
 name: Build, Test, Deploy Everything
 on: push
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   build-and-deploy:
+    environment:
+      name: ${{ github.ref_name == vars.beta_branch && 'beta' || ''}}
     runs-on: ubuntu-latest
     steps:
       # Git checkout
       - name: Checkout 🛎️
-        uses: actions/checkout@v2.3.1
+        uses: actions/checkout@v3
         with:
           persist-credentials: false
-      # Collect list of changed files for conditionals later
-      # use ${{ steps.files.outputs.all }} for a space-separated list of modified files
-      - id: files
-        uses: jitterbit/get-changed-files@v1
-      - name: Install
-        run: yarn install
-      # Run tests, all the time
-      - name: Test
-        id: test
-        run: yarn workspace client tsc --noEmit
-      # Build & deploy storybook if client has changed (main only)
-      - name: Build Storybook
-        if: ${{ github.ref == 'refs/heads/main' && contains(steps.files.outputs.all, 'packages/client/') }}
-        run: |
-          yarn workspace client build-storybook
-      - name: Deploy Storybook 🚀
-        if: ${{ github.ref == 'refs/heads/main' && contains(steps.files.outputs.all, 'packages/client/') }}
-        uses: JamesIves/github-pages-deploy-action@3.6.2
+          fetch-depth: 0
+
+      # Configure node version and yarn cache
+      - name: Setup
+        uses: actions/setup-node@v3
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages # The branch the action should deploy to.
-          FOLDER: packages/client/built-storybook # The folder that the build-storybook script generates files.
-          CLEAN: true # Automatically remove deleted files from the deploy branch
-          TARGET_FOLDER: / # The folder that we serve our Storybook files from
+          # Version Spec of the version to use in SemVer notation.
+          # It also emits such aliases as lts, latest, nightly and canary builds
+          # Examples: 12.x, 10.15.1, >=10.15.0, lts/Hydrogen, 16-nightly, latest, node
+          node-version: "18.12.1"
+
+          # File containing the version Spec of the version to use.  Examples: .nvmrc, .node-version, .tool-versions.
+          # If node-version and node-version-file are both provided the action will use version from node-version.
+          node-version-file: ""
+
+          # Set this option if you want the action to check for the latest available version
+          # that satisfies the version spec.
+          # It will only get affect for lts Nodejs versions (12.x, >=10.15.0, lts/Hydrogen).
+          # Default: false
+          check-latest: false
+
+          # Target architecture for Node to use. Examples: x86, x64. Will use system architecture by default.
+          # Default: ''. The action use system architecture by default
+          architecture: ""
+
+          # Used to pull node distributions from https://github.com/actions/node-versions.
+          # Since there's a default, this is typically not supplied by the user.
+          # When running this action on github.com, the default value is sufficient.
+          # When running on GHES, you can pass a personal access token for github.com if you are experiencing rate limiting.
+          #
+          # We recommend using a service account with the least permissions necessary. Also
+          # when generating a new PAT, select the least scopes necessary.
+          #
+          # [Learn more about creating and using encrypted secrets](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets)
+          #
+          # Default: ${{ github.server_url == 'https://github.com' && github.token || '' }}
+          # token: ""
+
+          # Used to specify a package manager for caching in the default directory. Supported values: npm, yarn, pnpm.
+          # Package manager should be pre-installed
+          # Default: ''
+          cache: "yarn"
+
+          # Used to specify the path to a dependency file: package-lock.json, yarn.lock, etc.
+          # It will generate hash from the target file for primary key. It works only If cache is specified.
+          # Supports wildcards or a list of file names for caching multiple dependencies.
+          # Default: ''
+          cache-dependency-path: "./yarn.lock"
+
+          # Optional registry to set up for auth. Will set the registry in a project level .npmrc and .yarnrc file,
+          # and set up auth to read in from env.NODE_AUTH_TOKEN.
+          # Default: ''
+          registry-url: ""
+
+          # Optional scope for authenticating against scoped registries.
+          # Will fall back to the repository owner when using the GitHub Packages registry (https://npm.pkg.github.com/).
+          # Default: ''
+          scope: ""
+
+          # Set always-auth option in npmrc file.
+          # Default: ''
+          always-auth: ""
+      # Find the last push, or pr base to determine where to look for file changes
+      - name: Determine commit range
+        uses: nrwl/nx-set-shas@v3
+        with:
+          # The "main" branch of your repository (the base branch which you target with PRs).
+          # Common names for this branch include main and master.
+          #
+          # Default: main
+          main-branch-name: ${{ github.ref_name }}
+      - name: Determine changed files
+        id: changed-files
+        run: |
+          CHANGED_FILES="$(git diff --name-only HEAD $NX_BASE | sed "s/\(.*\)/\"\1\"/" | paste -s -d " ")"
+          echo "files=$CHANGED_FILES" >> "$GITHUB_OUTPUT"
+          echo "files=$CHANGED_FILES"
+
+      # Read package versions from package.json files
+      - name: Determine package versions
+        id: versions
+        run: |
+          PACKAGE_VERSION=$(cat packages/api/package.json \
+          | grep version \
+          | head -1 \
+          | awk -F: '{ print $2 }' \
+          | sed 's/[", ]//g')
+          echo "api=$PACKAGE_VERSION" >> "$GITHUB_OUTPUT"
+          echo "api=$PACKAGE_VERSION"
+
+      # Install npm dependencies
+      - name: Install Dependencies
+        run: yarn
+
+      # Lint
+      - name: Lint
+        run: yarn workspaces foreach run lint
+
+      # Run tests
+      - name: Test
+        run: yarn workspaces foreach run test
+
+      # Build packages
+      - name: Build
+        run: yarn workspaces foreach --topological-dev run build
+
+      # Create API docker image
+      - name: Create API image
+        id: api-image
+        run: |
+          CC_API_IMG_NAME="${{ vars.ENV_NAME || 'dev' }}-cc-api"
+          CC_API_IMG_TAG="${{ vars.ENV_NAME && steps.versions.outputs.api || github.sha}}"
+          docker build . -t "$CC_API_IMG_NAME:$CC_API_IMG_TAG"
+          echo "image=$CC_API_IMG_NAME" >> "$GITHUB_OUTPUT"
+          echo "tag=$CC_API_IMG_TAG" >> "$GITHUB_OUTPUT"
+        working-directory: ./packages/api
+
+      # Push API image to ECR
+      - name: Push API image to ECR
+        id: push-api-image
+        if: github.ref_name == vars.beta_branch && contains(steps.changed-files.outputs.files, '"packages/api/')
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
+        run: |
+          echo "pushing ${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}"
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.ECR_DOMAIN }}
+          docker tag ${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }} ${{ secrets.ECR_DOMAIN }}/${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}
+          docker push ${{ secrets.ECR_DOMAIN }}/${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}
+
+      # Deploy API image to lambda
+      - name: Deploy API
+        if: steps.push-api-image.outcome != 'skipped'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
+          AWS_DEFAULT_REGION: us-east-1
+        run: |
+          aws lambda update-function-code \
+            --function-name "${{ vars.ENV_NAME }}-cc-api-fn" \
+            --image-uri "${{ secrets.ECR_DOMAIN }}/${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}"
+
+      # Deploy API migrate image to lambda
+      - name: Deploy API Migrate
+        if: steps.push-api-image.outcome != 'skipped' && contains(steps.changed-files.outputs.files, '"packages/api/src/migrations/')
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
+          AWS_DEFAULT_REGION: us-east-1
+        run: |
+          aws lambda update-function-code \
+            --function-name "${{ vars.ENV_NAME }}-cc-api-migrate-fn" \
+            --image-uri "${{ secrets.ECR_DOMAIN }}/${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}"
+
+      # Execute migration lambda
+      - name: Execute Migrate
+        if: steps.push-api-image.outcome != 'skipped'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
+          AWS_DEFAULT_REGION: us-east-1
+        run: |
+          aws lambda invoke \
+            --function-name "${{ vars.ENV_NAME }}-cc-api-migrate-fn" \
+            --payload "{}" \
+            migrationresult.json
+          cat migrationresult.json
+
+      # Deploy client to s3
+      - name: Deploy Client
+        if: github.ref_name == vars.beta_branch && contains(steps.changed-files.outputs.files, '"packages/client/')
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
+          AWS_DEFAULT_REGION: us-east-1
+        run: aws s3 sync . s3://${{ secrets.AWS_CLIENT_BUCKET }}/ --delete
+        working-directory: ./packages/client/dist

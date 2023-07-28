@@ -1,7 +1,7 @@
 import { Repository } from "typeorm";
-import { EntityController } from "../../business/EntityController";
-import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { Community } from "./Community";
+import { EntityController } from "../../business/EntityController.js";
+import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { Community } from "./Community.js";
 
 export type CommunityCreate = Pick<Community, "name">;
 

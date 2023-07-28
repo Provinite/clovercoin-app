@@ -1,7 +1,7 @@
 import { Repository } from "typeorm";
-import { EntityController } from "../../business/EntityController";
-import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { CritterOwnershipChange } from "./CritterOwnershipChange";
+import { EntityController } from "../../business/EntityController.js";
+import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { CritterOwnershipChange } from "./CritterOwnershipChange.js";
 
 export type CritterOwnershipChangeCreate = Pick<
   CritterOwnershipChange,

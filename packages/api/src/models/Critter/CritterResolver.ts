@@ -7,8 +7,8 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { Critter } from "./Critter";
+import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { Critter } from "./Critter.js";
 
 @InputType()
 export class CritterCreateInput {

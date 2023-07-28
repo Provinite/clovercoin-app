@@ -9,10 +9,10 @@ import {
   Mutation,
   Resolver,
 } from "type-graphql";
-import { DuplicateError } from "../../errors/DuplicateError";
-import { InvalidArgumentError } from "../../errors/InvalidArgumentError";
-import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { TraitList } from "./TraitList";
+import { DuplicateError } from "../../errors/DuplicateError.js";
+import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
+import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { TraitList } from "./TraitList.js";
 
 @InputType()
 export class TraitListCreateInput {

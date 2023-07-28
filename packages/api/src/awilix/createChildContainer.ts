@@ -1,6 +1,6 @@
 import { asValue, AwilixContainer } from "awilix";
-import { BaseCradleType } from "./BaseCradleType";
-import { register } from "./register";
+import { BaseCradleType } from "./BaseCradleType.js";
+import { register } from "./register.js";
 
 export function createChildContainer<
   P extends BaseCradleType<P>,

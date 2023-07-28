@@ -1,10 +1,10 @@
 import { asClass, asFunction, AwilixContainer, Lifetime } from "awilix";
-import { Repository } from "typeorm";
-import { register } from "../awilix/register";
-import { TransactionProvider } from "../db/TransactionProvider";
-import { AppGraphqlContext } from "../graphql/AppGraphqlContext";
-import { uncapitalize } from "../util/stringUtils";
-import { ModelClassName, ModelsMap, ModelByName } from "./index";
+import { Repository } from "typeorm/repository/Repository.js";
+import { register } from "../awilix/register.js";
+import { TransactionProvider } from "../db/TransactionProvider.js";
+import type { AppGraphqlContext } from "../graphql/AppGraphqlContext.js";
+import { uncapitalize } from "../util/stringUtils.js";
+import { ModelClassName, ModelsMap, ModelByName } from "./index.js";
 
 /**
  * Register model repositories onto an awilix container

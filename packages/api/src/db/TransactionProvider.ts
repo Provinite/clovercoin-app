@@ -1,9 +1,9 @@
 import { asValue, AwilixContainer } from "awilix";
-import { EntityManager } from "typeorm";
+import { EntityManager } from "typeorm/entity-manager/EntityManager.js";
 import { v4 } from "uuid";
-import { createChildContainer } from "../awilix/createChildContainer";
-import { register } from "../awilix/register";
-import { AppGraphqlContext } from "../graphql/AppGraphqlContext";
+import { createChildContainer } from "../awilix/createChildContainer.js";
+import { register } from "../awilix/register.js";
+import type { AppGraphqlContext } from "../graphql/AppGraphqlContext.js";
 
 export class TransactionProvider {
   #container: AwilixContainer;

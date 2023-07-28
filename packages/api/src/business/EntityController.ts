@@ -5,7 +5,7 @@ import {
   ObjectLiteral,
   Repository,
 } from "typeorm";
-import { ensureArray } from "../util/ensureArray";
+import { ensureArray } from "../util/ensureArray.js";
 
 export class EntityController<
   Model extends ObjectLiteral,

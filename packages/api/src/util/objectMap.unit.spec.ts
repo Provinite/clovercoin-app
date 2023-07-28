@@ -1,4 +1,4 @@
-import { objectMap } from "./objectMap";
+import { objectMap } from "./objectMap.js";
 
 describe("util:objectMap", () => {
   it.each([

@@ -1,6 +1,6 @@
 import { ValidationError } from "class-validator";
 import { ArgumentValidationError, Field, ObjectType } from "type-graphql";
-import { BaseError } from "./BaseError";
+import { BaseError } from "./BaseError.js";
 
 @ObjectType({ implements: BaseError })
 export class InvalidArgumentError extends BaseError {

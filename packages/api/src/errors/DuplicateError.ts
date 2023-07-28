@@ -1,6 +1,6 @@
 import { ObjectType, Field } from "type-graphql";
-import { QueryFailedError } from "typeorm";
-import { BaseError } from "./BaseError";
+import { QueryFailedError } from "typeorm/error/QueryFailedError.js";
+import { BaseError } from "./BaseError.js";
 
 const pattern = /\((?<field>.*?)\)=\((?<value>.*?)\)/g;
 
