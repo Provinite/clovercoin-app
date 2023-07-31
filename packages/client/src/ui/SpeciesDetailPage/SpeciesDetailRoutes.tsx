@@ -25,10 +25,7 @@ import { getLoaderData, makeAction, makeLoader } from "../../utils/loaderUtils";
 import { isFiniteNumber } from "../util/isFiniteNumber";
 import gql from "graphql-tag";
 import { SpeciesIndex } from "./SpeciesIndex/SpeciesIndex";
-import {
-  AddCritterCard,
-  ConnectedAddCritterCard,
-} from "./AddCritterCard/AddCritterCard";
+import { ConnectedAddCritterCard } from "./AddCritterCard/AddCritterCard";
 
 /**
  * Species detail route configuration. Intended to be registered
@@ -50,6 +47,7 @@ export const SpeciesDetailRoutes = () =>
       {
         id: "root.community.species.add-critter",
         path: "add",
+        action: critterCreateAction,
         element: <ConnectedAddCritterCard />,
       },
       {
@@ -318,6 +316,37 @@ const speciesDetailAction = makeAction(
 
     // actually upload the image
     await uploadService.put(url, iconUrl);
+  }
+);
+
+/**
+ * Action for creating a critter
+ */
+const critterCreateAction = makeAction(
+  {
+    allowedMethods: ["POST"],
+    slugs: {
+      speciesId: true,
+    },
+    form: {
+      name: true,
+      traits: {
+        all: true,
+      },
+      values: {
+        all: true,
+      },
+    },
+  },
+  async ({ form: { name, traits: _traits }, ids: { speciesId } }) => {
+    await graphqlService.createCritter({
+      variables: {
+        input: {
+          name,
+          speciesId,
+        },
+      },
+    });
   }
 );
 

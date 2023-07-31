@@ -1,3 +1,4 @@
+import { IsEmail, IsStrongPassword, MinLength } from "class-validator";
 import {
   Arg,
   Ctx,
@@ -26,12 +27,25 @@ export class LoginResponse {
 @InputType()
 export class RegisterArgs {
   @Field(() => String)
+  @MinLength(1)
   username: string = "";
 
   @Field(() => String)
+  @IsStrongPassword({
+    minLength: 12,
+    minLowercase: 1,
+    minNumbers: 1,
+    minSymbols: 1,
+    minUppercase: 1,
+  })
   password: string = "";
 
   @Field(() => String)
+  @IsEmail({
+    allow_display_name: false,
+    allow_ip_domain: true,
+    require_tld: true,
+  })
   email: string = "";
 }
 

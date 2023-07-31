@@ -82,9 +82,9 @@ export const createCloverCoinAppServer = async (options: ServerOptions) => {
   /**
    * S3
    */
-  register(rootContainer, "s3Config", asFunction(s3Config));
   register(rootContainer, "presignedUrlService", asClass(PresignedUrlService));
   register(rootContainer, "s3Environment", asFunction(getS3Environment));
+  register(rootContainer, "s3Config", asValue(build(rootContainer, s3Config)));
   register(rootContainer, "imageController", asClass(ImageController));
   /**
    * Logging

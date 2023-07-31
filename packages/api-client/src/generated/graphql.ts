@@ -72,6 +72,11 @@ export type CreateCommunityResponse =
   | DuplicateError
   | InvalidArgumentError;
 
+export type CreateCritterResponse =
+  | Critter
+  | DuplicateError
+  | InvalidArgumentError;
+
 export interface Critter {
   __typename?: "Critter";
   id: Scalars["ID"];
@@ -177,7 +182,7 @@ export interface Mutation {
   __typename?: "Mutation";
   /** Create a new community */
   createCommunity: CreateCommunityResponse;
-  createCritter: Critter;
+  createCritter: CreateCritterResponse;
   createEnumValueSetting: EnumValueSettingCreateResponse;
   createSpecies: SpeciesCreateResponse;
   createSpeciesImageUploadUrl: UrlResponse;
@@ -655,6 +660,34 @@ export type ModifyTraitListEntryMutation = {
             name: string;
           }>;
         };
+      };
+};
+
+export type CreateCritterMutationVariables = Exact<{
+  input: CritterCreateInput;
+}>;
+
+export type CreateCritterMutation = {
+  __typename?: "Mutation";
+  createCritter:
+    | { __typename?: "Critter"; id: string }
+    | {
+        __typename: "DuplicateError";
+        duplicateKeys: Array<string>;
+        message: string;
+      }
+    | {
+        __typename?: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
       };
 };
 
@@ -1671,6 +1704,27 @@ export const ModifyTraitListEntryDocument = gql`
   ${InvalidArgumentErrorFragmentFragmentDoc}
   ${BaseErrorFragmentFragmentDoc}
 `;
+export const CreateCritterDocument = gql`
+  mutation createCritter($input: CritterCreateInput!) {
+    createCritter(input: $input) {
+      ... on Critter {
+        id
+      }
+      ... on DuplicateError {
+        ...DuplicateErrorFragment
+      }
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+      ... on BaseError {
+        ...BaseErrorFragment
+      }
+    }
+  }
+  ${DuplicateErrorFragmentFragmentDoc}
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+  ${BaseErrorFragmentFragmentDoc}
+`;
 export const CreateEnumValueSettingDocument = gql`
   mutation createEnumValueSetting($input: EnumValueSettingCreateInput!) {
     createEnumValueSetting(input: $input) {
@@ -2012,6 +2066,16 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
         options
       ) as Promise<ModifyTraitListEntryMutation>;
     },
+    createCritter(
+      variables: CreateCritterMutationVariables,
+      options?: C
+    ): Promise<CreateCritterMutation> {
+      return requester<CreateCritterMutation, CreateCritterMutationVariables>(
+        CreateCritterDocument,
+        variables,
+        options
+      ) as Promise<CreateCritterMutation>;
+    },
     createEnumValueSetting(
       variables: CreateEnumValueSettingMutationVariables,
       options?: C
@@ -2351,6 +2415,38 @@ export class GraphqlService {
     const result = await this.client.mutate<
       ModifyTraitListEntryMutation,
       ModifyTraitListEntryMutationVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
+  async createCritter(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").MutationOptions<
+          CreateCritterMutation,
+          CreateCritterMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: CreateCritterMutationVariables;
+    }
+  ): Promise<
+    Omit<
+      import("@apollo/client/core").FetchResult<CreateCritterMutation>,
+      "data"
+    > & { data: CreateCritterMutation }
+  > {
+    const finalOptions = {
+      ...options,
+      mutation: CreateCritterDocument,
+    };
+    const result = await this.client.mutate<
+      CreateCritterMutation,
+      CreateCritterMutationVariables
     >(finalOptions);
     if (!hasData(result)) {
       throw new Error("Unknown request failure");

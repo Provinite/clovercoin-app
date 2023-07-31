@@ -108,7 +108,6 @@ export const appRoute = (id: RouteId): string => {
     },
     routes
   );
-  console.log(routeToFullPath);
   return routeToFullPath[id];
 };
 

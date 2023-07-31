@@ -38,6 +38,8 @@ union CommunityResponse = Community | InvalidArgumentError | NotFoundError
 
 union CreateCommunityResponse = Community | DuplicateError | InvalidArgumentError
 
+union CreateCritterResponse = Critter | DuplicateError | InvalidArgumentError
+
 type Critter {
   id: ID!
   name: String!
@@ -53,6 +55,13 @@ type Critter {
 input CritterCreateInput {
   name: String!
   speciesId: String!
+  traitListId: String!
+  traitValues: [CritterCreateTraitInput!]!
+}
+
+input CritterCreateTraitInput {
+  traitId: String!
+  value: String!
 }
 
 """Critter trait value types"""
@@ -132,7 +141,7 @@ type LoginResponse {
 type Mutation {
   """Create a new community"""
   createCommunity(input: CommunityCreateInput!): CreateCommunityResponse!
-  createCritter(input: CritterCreateInput!): Critter!
+  createCritter(input: CritterCreateInput!): CreateCritterResponse!
   createEnumValueSetting(input: EnumValueSettingCreateInput!): enumValueSettingCreateResponse!
   createSpecies(input: SpeciesCreateInput!): SpeciesCreateResponse!
   createSpeciesImageUploadUrl(input: SpeciesImageUrlCreateInput!): UrlResponse!

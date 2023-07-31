@@ -5,23 +5,44 @@ import { CritterTraitValueType } from "@clovercoin/api-client";
 export interface TraitInputProps {
   name: string;
   type: CritterTraitValueType;
-  enumOptions?: string[];
+  enumOptions?: string[] | TraitEnumOption[];
   fieldProps?: TextFieldProps;
 }
+
+export interface TraitEnumOption {
+  label: string;
+  value: string;
+  disabled?: boolean;
+}
+
 export const TraitInput: FC<TraitInputProps> = ({
   name,
   type,
   enumOptions,
   fieldProps,
 }) => {
+  console.log({ enumOptions });
   const results: Record<CritterTraitValueType, () => ReactElement> = {
     [CritterTraitValueType.Enum]: () => (
       <TextField {...fieldProps} select label={name}>
-        {enumOptions?.map((name, i) => (
-          <MenuItem value={name} key={i}>
-            {name}
-          </MenuItem>
-        ))}
+        {enumOptions?.map((config, i) => {
+          if (typeof config === "string") {
+            config = {
+              label: config,
+              value: config,
+              disabled: false,
+            };
+          }
+          return (
+            <MenuItem
+              disabled={config.disabled ?? false}
+              value={config.value}
+              key={i}
+            >
+              {config.label}
+            </MenuItem>
+          );
+        })}
       </TextField>
     ),
     [CritterTraitValueType.Integer]: () => (

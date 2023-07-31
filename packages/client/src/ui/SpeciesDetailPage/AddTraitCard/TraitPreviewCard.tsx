@@ -1,7 +1,7 @@
 import { Card, CardHeader, CardContent, FormControl } from "@mui/material";
 import { FC, useState } from "react";
 import { TraitFormState } from "./TraitForm/TraitFormState";
-import { TraitInput } from "./TraitInput";
+import { TraitInput } from "../../common/TraitInput";
 
 export const TraitPreviewCard: FC<{ form: TraitFormState }> = ({ form }) => {
   const [previewValue, setPreviewValue] = useState<any>("");

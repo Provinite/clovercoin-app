@@ -23,11 +23,20 @@ export class EntityController<
     const unwrap = !Array.isArray(createBody);
     const createModel = this.createBodyToModel.bind(this);
     const models = await Promise.all(ensureArray(createBody).map(createModel));
-    const result = this.repository.save(models);
+    const result = this.insert(models);
     if (unwrap) {
       return (await result)[0];
     }
     return result;
+  }
+
+  /**
+   * Insert new models into the database.
+   * @param models
+   * @returns The created models
+   */
+  async insert(models: Model[]): Promise<Model[]> {
+    return this.repository.save(models);
   }
 
   /**
