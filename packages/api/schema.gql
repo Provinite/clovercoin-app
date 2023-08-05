@@ -49,19 +49,26 @@ type Critter {
   speciesId: ID!
   traitList: TraitList!
   traitListId: ID!
-  traitValues: [String!]!
+  traitValues: [CritterTraitValue!]!
 }
 
 input CritterCreateInput {
   name: String!
-  speciesId: String!
-  traitListId: String!
+  ownerId: ID = null
+  speciesId: ID!
+  traitListId: ID!
   traitValues: [CritterCreateTraitInput!]!
 }
 
 input CritterCreateTraitInput {
-  traitId: String!
+  traitId: ID!
   value: String!
+}
+
+type CritterTraitValue {
+  dataType: CritterTraitValueType!
+  traitId: ID!
+  value: String
 }
 
 """Critter trait value types"""

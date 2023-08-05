@@ -1,3 +1,9 @@
+/**
+ * @file This migration modifies the "critter"."traitValues" column. It changes
+ * it from a jsonb array to a normal jsonb field (that will contain an array
+ * in practice). I don't know if this is actually preferable, but it is necessary
+ * to make TypeORM happy. It doesn't seem to work properly with jsonb array columns.
+ */
 import type { MigrationInterface, QueryRunner } from "typeorm";
 
 export class ChangeCritterTraitsToJsonb1690779921209

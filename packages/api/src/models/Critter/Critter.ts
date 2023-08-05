@@ -1,4 +1,4 @@
-import { createUnionType, Field, ID, ObjectType } from "type-graphql";
+import { Field, ID, ObjectType } from "type-graphql";
 import { Column, Entity } from "typeorm";
 import { Species } from "../Species/Species.js";
 import {
@@ -63,19 +63,16 @@ export class Critter {
   traitListId!: string;
 
   @Column("jsonb", { default: [], nullable: false })
-  @Field(() => [String], { nullable: false })
+  @Field(() => [CritterTraitValue], { nullable: false })
   traitValues!: CritterTraitValue[];
 }
-export const CritterTraitValuePrimitive = createUnionType({
-  name: "CritterTraitValuePrimitive",
-  types: () => [Number, Boolean, String],
-});
 
+@ObjectType()
 export class CritterTraitValue {
   @Field(() => ID, { nullable: false })
   traitId!: string;
 
-  @Field(() => CritterTraitValuePrimitive, { nullable: true })
+  @Field(() => String, { nullable: true })
   value!: string | boolean | number | null;
 
   @Field(() => CritterTraitValueTypes, { nullable: false })

@@ -1,9 +1,10 @@
-import { IsArray, IsUUID, MinLength } from "class-validator";
+import { IsArray, IsOptional, IsUUID, MinLength } from "class-validator";
 import {
   Arg,
   createUnionType,
   Ctx,
   Field,
+  ID,
   InputType,
   Mutation,
   Query,
@@ -16,11 +17,15 @@ import { Critter } from "./Critter.js";
 
 @InputType()
 export class CritterCreateInput {
+  @Field(() => ID, { nullable: true })
+  @IsOptional()
+  ownerId: string | null = null;
+
   @Field({ nullable: false })
   @MinLength(1)
   name!: string;
 
-  @Field({ nullable: false })
+  @Field(() => ID, { nullable: false })
   @IsUUID(4)
   speciesId!: string;
 
@@ -28,16 +33,14 @@ export class CritterCreateInput {
   @IsArray()
   traitValues!: CritterCreateTraitInput[];
 
-  @Field({ nullable: false })
+  @Field(() => ID, { nullable: false })
   @IsUUID(4)
   traitListId!: string;
-
-  ownerId!: string;
 }
 
 @InputType()
 export class CritterCreateTraitInput {
-  @Field({ nullable: false })
+  @Field(() => ID, { nullable: false })
   @IsUUID(4)
   traitId!: string;
 
@@ -61,8 +64,15 @@ export class CritterResolver {
     @Arg("input") input: CritterCreateInput,
     @Ctx() { critterController }: AppGraphqlContext
   ): Promise<Critter> {
-    input.ownerId = "97a43d75-5bc3-4bdc-9dd5-70bacd51c36f";
-    return critterController.create(input);
+    if (!input.ownerId) {
+      throw new Error("OwnerId Optional: NOT IMPLEMENTED");
+    }
+    // TODO: Look up owner from auth token
+    // only allow creation under other owners by admins
+    return critterController.create({
+      ...input,
+      ownerId: input.ownerId,
+    });
   }
 
   @Query(() => [Critter])
