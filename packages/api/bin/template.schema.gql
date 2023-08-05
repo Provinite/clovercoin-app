@@ -1,0 +1,22 @@
+union MutationResponse = DuplicateError | InvalidArgumentError
+
+type Mutation {
+  _mutationName_: MutationResponse
+}
+
+type DuplicateError implements BaseError {
+  duplicateKeys: [String!]!
+  message: String!
+}
+
+interface BaseError {
+  message: String!
+}
+
+type InvalidArgumentError implements BaseError {
+  message: String!
+}
+
+type Query {
+  empty: String
+}

@@ -17,6 +17,7 @@
     "migration:auto": "./bin/generate-automigration.sh",
     "migrate": "yarn typeorm migration:run -d src/db/migrationDataSource.ts",
     "seed": "ts-node src/seeds/gql/_seed.mts",
+    "seed:create": "./bin/create-seed.sh",
     "db:drop": "ts-node bin/drop-db.mts",
     "db:refresh": "ts-node bin/drop-db.mts && yarn migrate",
     "lint": "eslint ."

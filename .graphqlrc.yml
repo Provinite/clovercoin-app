@@ -1,6 +1,10 @@
 projects:
   server:
     schema: packages/api/schema.gql
+  template:
+    schema: packages/api/bin/template.schema.gql
+    documents:
+      - packages/api/bin/seed-template.mts
   web-client:
     schema: packages/api/schema.gql
     documents:

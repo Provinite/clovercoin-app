@@ -5,14 +5,14 @@ import { gql } from "graphql-tag";
 import { GetResultFn } from "../src/seeds/gql/_seeds.mjs";
 import { logger } from "../src/util/logger.js";
 
-export default class __className__ {
+export default class _className_ {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async up(client: GraphQLClient, getResult: GetResultFn) {
     // eslint-disable-next-line @typescript-eslint/ban-types
     type MutationVars = {};
     type MutationResult = {
-      __mutationName__: // eslint-disable-next-line @typescript-eslint/ban-types
-      | {
+      _mutationName_:
+        | {
             __typename: "TODO";
           }
         | {
@@ -21,9 +21,8 @@ export default class __className__ {
           };
     };
     const query: TypedDocumentNode<MutationResult, MutationVars> = gql`
-      mutation __mutationName__() {
-        __mutationName__
-       {
+      mutation _mutationName_ {
+        _mutationName_ {
           __typename
           ... on DuplicateError {
             message
@@ -37,18 +36,18 @@ export default class __className__ {
         }
       }
     `;
-    const { __mutationName__ } = await client.request(query);
+    const { _mutationName_ } = await client.request(query);
 
-    if (isBaseError(__mutationName__)) {
+    if (isBaseError(_mutationName_)) {
       logger.error({
         message: "Error during seed",
-        errorName: __mutationName__.__typename,
-        errorMessage: __mutationName__.message,
-        query: "__mutationName__",
-        error: __mutationName__,
+        errorName: _mutationName_.__typename,
+        errorMessage: _mutationName_.message,
+        query: "_mutationName_",
+        error: _mutationName_,
       });
-      throw __mutationName__;
+      throw _mutationName_;
     }
-    return { __mutationName__ };
+    return { _mutationName_ };
   }
 }

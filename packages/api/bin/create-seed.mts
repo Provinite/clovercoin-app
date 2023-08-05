@@ -2,9 +2,9 @@
  * @file This file is executed to create a new seed script.
  */
 
-import { readdirSync, readFileSync, writeFileSync } from "fs";
-import { join, relative, resolve } from "path";
-import { Project, SyntaxKind } from "ts-morph";
+import { readdirSync, readFileSync } from "fs";
+import { join, relative } from "path";
+import { Project, SyntaxKind, Node } from "ts-morph";
 
 const seedPath = "./src/seeds/gql";
 const seedFileRegex = /^(?<number>\d+)-.*?.mts$/;
@@ -34,7 +34,7 @@ transformTemplate(getTemplate(), vars);
 
 // replace __variables__ in the template
 // rewrite relative imports
-// remove
+// remove eslint comments
 function transformTemplate(
   fileContents: string,
   variables: Record<string, string>
@@ -59,7 +59,24 @@ function transformTemplate(
   });
 
   // remove eslint-disable comments
-  // seedFile.getStatementsWithComments().forEach((statement) => {});
+  const commentNodes: Node[] = [];
+  seedFile.forEachDescendant((node) => {
+    const ranges = node.getLeadingCommentRanges();
+    if (ranges.length) {
+      ranges.forEach((r) =>
+        commentNodes.push(seedFile.getDescendantAtPos(r.getPos())!)
+      );
+    }
+  });
+  commentNodes.forEach((n: any) => {
+    try {
+      if (n.getText().includes("eslint-disable")) {
+        n.remove();
+      }
+    } catch (err) {
+      // swallow
+    }
+  });
   const seedsFile = project.addSourceFileAtPath(seedsFilePath);
 
   // register seed in seeds file
@@ -72,19 +89,13 @@ function transformTemplate(
   declaration
     .getInitializerIfKindOrThrow(SyntaxKind.ArrayLiteralExpression)
     .addElement(className);
+
+  // commit changes to disk
   project.saveSync();
 }
 
 function getTemplate() {
   return readFileSync(join(sourcePath, "seed-template.mts")).toString();
-}
-
-function replaceMap(replacements: Record<string, string>, str: string): string {
-  for (const [replace, value] of Object.entries(replacements)) {
-    str = str.replaceAll(`__${replace}__`, value);
-  }
-
-  return str;
 }
 
 function rewriteRelativePath(
@@ -108,6 +119,14 @@ function getNextSeedNumber(): number {
     .map((str) => Number(str))
     .reduce((max, val) => Math.max(max, val), 0);
   return maxSeed + 1;
+}
+
+function replaceMap(replacements: Record<string, string>, str: string): string {
+  for (const [replace, value] of Object.entries(replacements)) {
+    str = str.replaceAll(`_${replace}_`, value);
+  }
+
+  return str;
 }
 
 function kebabCaseToPascalCase(kebabStr: string): string {
