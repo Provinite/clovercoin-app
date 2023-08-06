@@ -170,8 +170,6 @@ export function makeLoader<
   ) => Promise<R>
 ): (opts: LoaderFunctionArgs | ActionFunctionArgs) => Promise<R> {
   return async (data) => {
-    const id = options.name + "-" + v4();
-    console.time(id);
     if (
       options.allowedMethods &&
       !options.allowedMethods.some(
@@ -184,11 +182,9 @@ export function makeLoader<
       const result = loader(
         await getLoaderData({ data, ...options, form: undefined })
       );
-      console.timeEnd(id);
       return result;
     }
     const result = loader(await getLoaderData({ data, ...options }));
-    console.timeEnd(id);
     return result;
   };
 }
