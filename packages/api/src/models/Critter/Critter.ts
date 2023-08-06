@@ -20,11 +20,12 @@ export class Critter {
   @Column({ nullable: false })
   name: string = "";
 
-  @ManyToOneField({
+  @ManyToOneField<Species, typeof Species>({
     columnName: "speciesId",
     foreignColumnName: "id",
     nullable: false,
     type: () => Species,
+    inverseSide: (species) => species.critters,
   })
   species!: Species;
 

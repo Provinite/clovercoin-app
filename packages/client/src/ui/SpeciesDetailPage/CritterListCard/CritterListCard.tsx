@@ -1,29 +1,31 @@
-import { Community, Species } from "@clovercoin/api-client";
+import { Community, Critter, Species } from "@clovercoin/api-client";
 import {
+  Box,
   Button,
   Card,
   CardContent,
   CardHeader,
   CardProps,
-  List,
-  ListItem,
+  Grid,
+  Typography,
 } from "@mui/material";
 import { FC } from "react";
-import { appRoute, AppRoutes } from "../../AppRoutes";
+import { AppRoutes } from "../../AppRoutes";
+import { GridRow } from "../../lib/GridRow";
 import { Link } from "../../Link/Link";
 
 export interface CritterListCardProps extends CardProps {
   species: Pick<Species, "name" | "id">;
   community: Pick<Community, "id">;
+  critters: Pick<Critter, "id" | "name">[];
 }
 
 export const CritterListCard: FC<CritterListCardProps> = ({
   species,
   community,
+  critters,
   ...props
 }) => {
-  appRoute("root.community.species.trait-add");
-
   return (
     <Card {...props}>
       <CardHeader
@@ -36,9 +38,24 @@ export const CritterListCard: FC<CritterListCardProps> = ({
         subheader={`Find specific ${species.name} here`}
       />
       <CardContent>
-        <List>
-          <ListItem>This is where a species list would go</ListItem>
-        </List>
+        <Grid container component={Box}>
+          <GridRow xs={[10, 2]}>
+            <Typography p={1} variant="body1">
+              Name
+            </Typography>
+            <Typography p={1} variant="body1">
+              Actions
+            </Typography>
+          </GridRow>
+          {critters.map((critter) => (
+            <GridRow key={critter.id} xs={[10, 2]}>
+              <Typography p={2} variant="body1">
+                {critter.name}
+              </Typography>
+              <></>
+            </GridRow>
+          ))}
+        </Grid>
       </CardContent>
     </Card>
   );

@@ -87,12 +87,38 @@ export interface Critter {
   speciesId: Scalars["ID"];
   traitList: TraitList;
   traitListId: Scalars["ID"];
-  traitValues: Array<Scalars["String"]>;
+  traitValues: Array<CritterTraitValue>;
 }
 
 export interface CritterCreateInput {
   name: Scalars["String"];
-  speciesId: Scalars["String"];
+  ownerId?: InputMaybe<Scalars["ID"]>;
+  speciesId: Scalars["ID"];
+  traitListId: Scalars["ID"];
+  traitValues: Array<CritterCreateTraitInput>;
+}
+
+export interface CritterCreateTraitInput {
+  traitId: Scalars["ID"];
+  value: Scalars["String"];
+}
+
+export interface CritterFilters {
+  speciesId: Scalars["ID"];
+}
+
+export interface CritterList {
+  __typename?: "CritterList";
+  list: Array<Critter>;
+}
+
+export type CritterListResponse = CritterList | InvalidArgumentError;
+
+export interface CritterTraitValue {
+  __typename?: "CritterTraitValue";
+  dataType: CritterTraitValueType;
+  traitId: Scalars["ID"];
+  value?: Maybe<Scalars["String"]>;
 }
 
 /** Critter trait value types */
@@ -274,7 +300,7 @@ export interface Query {
   communities: CommunitiesResponse;
   /** Fetch a community by id and/or name */
   community: CommunityResponse;
-  critters: Array<Critter>;
+  critters: CritterListResponse;
   species: SpeciesResponse;
   traits: Array<Trait>;
 }
@@ -285,6 +311,10 @@ export interface QueryCommunitiesArgs {
 
 export interface QueryCommunityArgs {
   filters: CommunityFilters;
+}
+
+export interface QueryCrittersArgs {
+  filters: CritterFilters;
 }
 
 export interface QuerySpeciesArgs {
@@ -511,22 +541,50 @@ export type GetCommunityQuery = {
     | { __typename: "NotFoundError"; message: string };
 };
 
-export type GetCrittersQueryVariables = Exact<{ [key: string]: never }>;
+export type GetCrittersQueryVariables = Exact<{
+  filters: CritterFilters;
+}>;
 
 export type GetCrittersQuery = {
   __typename?: "Query";
-  critters: Array<{
-    __typename?: "Critter";
-    id: string;
-    name: string;
-    traitValues: Array<string>;
-    species: {
-      __typename?: "Species";
-      id: string;
-      name: string;
-      traitLists: Array<{ __typename?: "TraitList"; id: string; name: string }>;
-    };
-  }>;
+  critters:
+    | {
+        __typename?: "CritterList";
+        list: Array<{
+          __typename?: "Critter";
+          id: string;
+          name: string;
+          traitValues: Array<{
+            __typename?: "CritterTraitValue";
+            dataType: CritterTraitValueType;
+            traitId: string;
+            value?: string | null;
+          }>;
+          species: {
+            __typename?: "Species";
+            id: string;
+            name: string;
+            traitLists: Array<{
+              __typename?: "TraitList";
+              id: string;
+              name: string;
+            }>;
+          };
+        }>;
+      }
+    | {
+        __typename?: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      };
 };
 
 export type GetCommunityListViewQueryVariables = Exact<{
@@ -1120,6 +1178,21 @@ export type CritterFieldPolicy = {
   traitListId?: FieldPolicy<any> | FieldReadFunction<any>;
   traitValues?: FieldPolicy<any> | FieldReadFunction<any>;
 };
+export type CritterListKeySpecifier = ("list" | CritterListKeySpecifier)[];
+export type CritterListFieldPolicy = {
+  list?: FieldPolicy<any> | FieldReadFunction<any>;
+};
+export type CritterTraitValueKeySpecifier = (
+  | "dataType"
+  | "traitId"
+  | "value"
+  | CritterTraitValueKeySpecifier
+)[];
+export type CritterTraitValueFieldPolicy = {
+  dataType?: FieldPolicy<any> | FieldReadFunction<any>;
+  traitId?: FieldPolicy<any> | FieldReadFunction<any>;
+  value?: FieldPolicy<any> | FieldReadFunction<any>;
+};
 export type DeleteResponseKeySpecifier = ("ok" | DeleteResponseKeySpecifier)[];
 export type DeleteResponseFieldPolicy = {
   ok?: FieldPolicy<any> | FieldReadFunction<any>;
@@ -1391,6 +1464,20 @@ export type StrictTypedTypePolicies = {
       | (() => undefined | CritterKeySpecifier);
     fields?: CritterFieldPolicy;
   };
+  CritterList?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | CritterListKeySpecifier
+      | (() => undefined | CritterListKeySpecifier);
+    fields?: CritterListFieldPolicy;
+  };
+  CritterTraitValue?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | CritterTraitValueKeySpecifier
+      | (() => undefined | CritterTraitValueKeySpecifier);
+    fields?: CritterTraitValueFieldPolicy;
+  };
   DeleteResponse?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
       | false
@@ -1585,21 +1672,37 @@ export const GetCommunityDocument = gql`
   ${BaseErrorFragmentFragmentDoc}
 `;
 export const GetCrittersDocument = gql`
-  query getCritters {
-    critters {
-      id
-      name
-      traitValues
-      species {
-        id
-        name
-        traitLists {
+  query getCritters($filters: CritterFilters!) {
+    critters(filters: $filters) {
+      ... on CritterList {
+        list {
           id
           name
+          traitValues {
+            dataType
+            traitId
+            value
+          }
+          species {
+            id
+            name
+            traitLists {
+              id
+              name
+            }
+          }
         }
+      }
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+      ... on BaseError {
+        ...BaseErrorFragment
       }
     }
   }
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+  ${BaseErrorFragmentFragmentDoc}
 `;
 export const GetCommunityListViewDocument = gql`
   query getCommunityListView($filters: CommunityFilters!) {
@@ -2005,7 +2108,7 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
       ) as Promise<GetCommunityQuery>;
     },
     getCritters(
-      variables?: GetCrittersQueryVariables,
+      variables: GetCrittersQueryVariables,
       options?: C
     ): Promise<GetCrittersQuery> {
       return requester<GetCrittersQuery, GetCrittersQueryVariables>(
@@ -2836,6 +2939,28 @@ export function isCritter(val: unknown): val is { __typename: "Critter" } {
 }
 
 export type NarrowToCritter<T> = T extends { __typename?: "Critter" }
+  ? T
+  : never;
+
+export function isCritterList(
+  val: unknown
+): val is { __typename: "CritterList" } {
+  return hasTypeName(val, "CritterList");
+}
+
+export type NarrowToCritterList<T> = T extends { __typename?: "CritterList" }
+  ? T
+  : never;
+
+export function isCritterTraitValue(
+  val: unknown
+): val is { __typename: "CritterTraitValue" } {
+  return hasTypeName(val, "CritterTraitValue");
+}
+
+export type NarrowToCritterTraitValue<T> = T extends {
+  __typename?: "CritterTraitValue";
+}
   ? T
   : never;
 

@@ -7,6 +7,7 @@ import {
   ID,
   InputType,
   Mutation,
+  ObjectType,
   Query,
   Resolver,
 } from "type-graphql";
@@ -48,14 +49,36 @@ export class CritterCreateTraitInput {
   value!: string;
 }
 
-/**
- * CreateCommunity mutation response type with all
- * known errors.
- */
-const CreateCritterResponse = createUnionType({
-  name: "CreateCritterResponse",
-  types: () => [Critter, DuplicateError, InvalidArgumentError],
+@InputType()
+export class CritterFilters {
+  @Field(() => ID, { nullable: false })
+  @IsUUID(4)
+  speciesId!: string;
+}
+
+@ObjectType()
+export class CritterList {
+  constructor(critters: Critter[]) {
+    this.list = critters;
+  }
+
+  @Field(() => [Critter])
+  list: Critter[];
+}
+
+const CritterListResponse = createUnionType({
+  name: "CritterListResponse",
+  types: () => [CritterList, InvalidArgumentError],
 });
+
+const /**
+   * CreateCommunity mutation response type with all
+   * known errors.
+   */
+  CreateCritterResponse = createUnionType({
+    name: "CreateCritterResponse",
+    types: () => [Critter, DuplicateError, InvalidArgumentError],
+  });
 
 @Resolver(() => Critter)
 export class CritterResolver {
@@ -75,10 +98,17 @@ export class CritterResolver {
     });
   }
 
-  @Query(() => [Critter])
+  @Query(() => CritterListResponse)
   async critters(
+    @Arg("filters") filters: CritterFilters,
     @Ctx() { critterRepository }: AppGraphqlContext
-  ): Promise<Critter[]> {
-    return await critterRepository.find();
+  ): Promise<CritterList> {
+    const result = await critterRepository.find({
+      where: {
+        speciesId: filters.speciesId,
+      },
+    });
+
+    return new CritterList(result);
   }
 }

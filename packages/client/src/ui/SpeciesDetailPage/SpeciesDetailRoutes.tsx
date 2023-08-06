@@ -10,8 +10,6 @@ import {
   isBaseError,
   isDeleteResponse,
   isEnumValueSetting,
-  isInvalidArgumentError,
-  isSpeciesList,
   isTrait,
 } from "@clovercoin/api-client";
 import { typedRouteConfig } from "../../routes";
@@ -42,6 +40,7 @@ export const SpeciesDetailRoutes = () =>
       {
         id: "root.community.species.index",
         index: true,
+        loader: speciesDetailIndexLoader,
         element: <SpeciesIndex />,
       },
       {
@@ -244,6 +243,7 @@ const variantDetailAction = makeAction(
  */
 const speciesDetailLoader = makeLoader(
   {
+    name: "speciesDetailLoader",
     slugs: { communityId: true, speciesId: true },
   },
   async ({ ids: { communityId, speciesId } }) => {
@@ -255,14 +255,11 @@ const speciesDetailLoader = makeLoader(
         },
       },
     });
+    if (isBaseError(data.species)) {
+      throw new Error(data.species.message);
+    }
 
-    if (isSpeciesList(data.species)) {
-      return data.species.list[0];
-    }
-    if (isInvalidArgumentError(data.species)) {
-      throw new Error("404");
-    }
-    throw new Error(data.species.__typename);
+    return data.species.list[0];
   }
 );
 
@@ -319,6 +316,24 @@ const speciesDetailAction = makeAction(
   }
 );
 
+const speciesDetailIndexLoader = makeLoader(
+  { name: "speciesDetailIndexLoader", slugs: { speciesId: true } },
+  async ({ ids: { speciesId } }) => {
+    const { data } = await graphqlService.getCritters({
+      variables: {
+        filters: {
+          speciesId,
+        },
+      },
+    });
+    if (isBaseError(data.critters)) {
+      throw new Error(data.critters.message);
+    }
+
+    return data.critters.list;
+  }
+);
+
 /**
  * Action for creating a critter
  */
@@ -330,6 +345,7 @@ const critterCreateAction = makeAction(
     },
     form: {
       name: true,
+      traitListId: true,
       traits: {
         all: true,
       },
@@ -338,12 +354,17 @@ const critterCreateAction = makeAction(
       },
     },
   },
-  async ({ form: { name, traits: _traits }, ids: { speciesId } }) => {
+  async ({
+    form: { name, traits: _traits, traitListId },
+    ids: { speciesId },
+  }) => {
     await graphqlService.createCritter({
       variables: {
         input: {
           name,
           speciesId,
+          traitListId,
+          traitValues: [],
         },
       },
     });
@@ -355,6 +376,7 @@ const critterCreateAction = makeAction(
  */
 const traitListLoader = makeLoader(
   {
+    name: "traitListLoader",
     slugs: { speciesId: true },
   },
   async ({ ids: { speciesId } }) => {
