@@ -9,6 +9,7 @@ import {
 import { Identity } from "../Identity/Identity.js";
 import { TraitList } from "../TraitList/TraitList.js";
 import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes.js";
+import { TypeormLoader } from "type-graphql-dataloader";
 
 @Entity()
 @ObjectType()
@@ -49,12 +50,14 @@ export class Critter {
   })
   ownerId!: string;
 
-  @ManyToOneField({
+  @ManyToOneField<TraitList, typeof TraitList>({
     columnName: "traitListId",
     foreignColumnName: "id",
     nullable: false,
     type: () => TraitList,
+    inverseSide: (traitList) => traitList.critters,
   })
+  @TypeormLoader()
   traitList!: TraitList;
 
   @RelationIdField<Critter>({

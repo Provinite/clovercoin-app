@@ -7,6 +7,7 @@ export const critterDetailAction = makeAction(
     slugs: {
       critterSlug: true,
     },
+    allowedMethods: ["PUT"],
   },
   async () => {
     // noop

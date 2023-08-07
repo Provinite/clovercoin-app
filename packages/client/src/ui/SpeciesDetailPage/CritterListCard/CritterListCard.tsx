@@ -15,10 +15,11 @@ import { GridRow } from "../../lib/GridRow";
 import { Link } from "../../Link/Link";
 import { EditButton } from "../../EditButton/EditButton";
 import { useInView } from "react-intersection-observer";
+import { DeepPick } from "../../../typing/types";
 export interface CritterListCardProps extends CardProps {
   species: Pick<Species, "name" | "id">;
   community: Pick<Community, "id">;
-  critters: Pick<Critter, "id" | "name">[];
+  critters: DeepPick<Critter, "id" | "name" | "traitList.name">[];
 }
 
 // TODO:
@@ -52,10 +53,13 @@ export const CritterListCard: FC<CritterListCardProps> = ({
         <GridRow
           key={critter.id}
           ref={i === crittersToDisplay.length - 1 ? lastElementRef : undefined}
-          xs={[10, 2]}
+          xs={[6, 4, 2]}
         >
           <Typography p={2} variant="body1">
             {critter.name}
+          </Typography>
+          <Typography p={2} variant="body1">
+            {critter.traitList.name}
           </Typography>
           <EditButton
             to={AppRoutes.critterDetail(community.id, species.id, critter.id)}
@@ -77,11 +81,13 @@ export const CritterListCard: FC<CritterListCardProps> = ({
       />
       <CardContent>
         <Grid container component={Box}>
-          <GridRow xs={[10, 2]}>
+          <GridRow xs={[6, 4]}>
             <Typography p={1} variant="body1">
               Name
             </Typography>
-            <></>
+            <Typography p={2} variant="body1">
+              Variant
+            </Typography>
           </GridRow>
           {...rows}
         </Grid>

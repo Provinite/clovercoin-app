@@ -9,19 +9,14 @@ export const getCrittersQuery = gql`
         list {
           id
           name
-          traitListId
+          traitList {
+            name
+            id
+          }
           traitValues {
             dataType
             traitId
             value
-          }
-          species {
-            id
-            name
-            traitLists {
-              id
-              name
-            }
           }
         }
       }

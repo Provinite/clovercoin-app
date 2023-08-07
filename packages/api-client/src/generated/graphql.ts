@@ -555,23 +555,13 @@ export type GetCrittersQuery = {
           __typename?: "Critter";
           id: string;
           name: string;
-          traitListId: string;
+          traitList: { __typename?: "TraitList"; name: string; id: string };
           traitValues: Array<{
             __typename?: "CritterTraitValue";
             dataType: CritterTraitValueType;
             traitId: string;
             value?: string | null;
           }>;
-          species: {
-            __typename?: "Species";
-            id: string;
-            name: string;
-            traitLists: Array<{
-              __typename?: "TraitList";
-              id: string;
-              name: string;
-            }>;
-          };
         }>;
       }
     | {
@@ -1680,19 +1670,14 @@ export const GetCrittersDocument = gql`
         list {
           id
           name
-          traitListId
+          traitList {
+            name
+            id
+          }
           traitValues {
             dataType
             traitId
             value
-          }
-          species {
-            id
-            name
-            traitLists {
-              id
-              name
-            }
           }
         }
       }

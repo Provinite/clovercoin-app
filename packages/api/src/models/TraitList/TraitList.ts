@@ -1,6 +1,7 @@
 import { Field, ID, ObjectType } from "type-graphql";
 import { TypeormLoader } from "type-graphql-dataloader";
 import { Column, Entity, OneToMany, type Relation, Unique } from "typeorm";
+import { Critter } from "../Critter/Critter.js";
 import { EnumValueSetting } from "../EnumValueSetting/EnumValueSetting.js";
 import { IdField, ManyToOneField } from "../relationFieldDecorators.js";
 import { Species } from "../Species/Species.js";
@@ -48,4 +49,7 @@ export class TraitList {
   @Field(() => [EnumValueSetting])
   @TypeormLoader()
   enumValueSettings!: EnumValueSetting[];
+
+  @OneToMany(() => Critter, (critter) => critter.traitList)
+  critters!: Critter[];
 }
