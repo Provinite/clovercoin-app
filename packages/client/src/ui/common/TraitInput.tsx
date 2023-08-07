@@ -21,7 +21,6 @@ export const TraitInput: FC<TraitInputProps> = ({
   enumOptions,
   fieldProps,
 }) => {
-  console.log({ enumOptions });
   const results: Record<CritterTraitValueType, () => ReactElement> = {
     [CritterTraitValueType.Enum]: () => (
       <TextField {...fieldProps} select label={name}>

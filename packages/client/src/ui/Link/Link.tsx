@@ -2,6 +2,7 @@ import { PropsOf } from "@emotion/react";
 import { Link as MuiLink } from "@mui/material";
 import { FunctionComponent } from "react";
 import { Link as RouterLink } from "react-router-dom";
+import { stylesheet } from "../../utils/emotion";
 
 /**
  * Component for most standard link use cases. Renders a {@link MuiLink}
@@ -10,6 +11,9 @@ import { Link as RouterLink } from "react-router-dom";
  */
 export const Link: FunctionComponent<
   PropsOf<typeof MuiLink> & PropsOf<typeof RouterLink>
-> = (props) => (
-  <MuiLink component={RouterLink} {...props} css={{ textDecoration: "none" }} />
-);
+> = (props) => <MuiLink component={RouterLink} {...props} css={ss.link} />;
+const ss = stylesheet({
+  link: {
+    textDecoration: "none",
+  },
+});

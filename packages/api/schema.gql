@@ -66,7 +66,8 @@ input CritterCreateTraitInput {
 }
 
 input CritterFilters {
-  speciesId: ID!
+  id: ID = null
+  speciesId: ID = null
 }
 
 type CritterList {

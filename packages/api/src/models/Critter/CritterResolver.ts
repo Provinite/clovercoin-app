@@ -1,4 +1,10 @@
-import { IsArray, IsOptional, IsUUID, MinLength } from "class-validator";
+import {
+  IsArray,
+  IsOptional,
+  IsUUID,
+  MinLength,
+  ValidateIf,
+} from "class-validator";
 import {
   Arg,
   createUnionType,
@@ -51,9 +57,15 @@ export class CritterCreateTraitInput {
 
 @InputType()
 export class CritterFilters {
-  @Field(() => ID, { nullable: false })
+  @Field(() => ID, { nullable: true })
   @IsUUID(4)
-  speciesId!: string;
+  @IsOptional()
+  speciesId: string | null = null;
+
+  @Field(() => ID, { nullable: true })
+  @ValidateIf((filters) => !filters.id)
+  @IsUUID(4)
+  id: string | null = null;
 }
 
 @ObjectType()
@@ -105,7 +117,8 @@ export class CritterResolver {
   ): Promise<CritterList> {
     const result = await critterRepository.find({
       where: {
-        speciesId: filters.speciesId,
+        speciesId: filters.speciesId ?? undefined,
+        id: filters.id ?? undefined,
       },
     });
 

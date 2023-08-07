@@ -104,7 +104,8 @@ export interface CritterCreateTraitInput {
 }
 
 export interface CritterFilters {
-  speciesId: Scalars["ID"];
+  id?: InputMaybe<Scalars["ID"]>;
+  speciesId?: InputMaybe<Scalars["ID"]>;
 }
 
 export interface CritterList {
@@ -554,6 +555,7 @@ export type GetCrittersQuery = {
           __typename?: "Critter";
           id: string;
           name: string;
+          traitListId: string;
           traitValues: Array<{
             __typename?: "CritterTraitValue";
             dataType: CritterTraitValueType;
@@ -1678,6 +1680,7 @@ export const GetCrittersDocument = gql`
         list {
           id
           name
+          traitListId
           traitValues {
             dataType
             traitId

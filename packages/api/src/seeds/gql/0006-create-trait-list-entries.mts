@@ -6,9 +6,7 @@ import { logger } from "../../util/logger.js";
 import Seed0004CreateSpeciesTraits, {
   Seed0004TraitName,
 } from "./0004-create-species-traits.mjs";
-import Seed0005CreateSpeciesTraitLists, {
-  Seed0005SpeciesTraitListName,
-} from "./0005-create-species-trait-lists.mjs";
+import Seed0005CreateSpeciesTraitLists from "./0005-create-species-trait-lists.mjs";
 import { GetResultFn } from "./_seeds.mjs";
 
 export default class Seed0006CreateSpeciesTraits {
@@ -67,63 +65,66 @@ export default class Seed0006CreateSpeciesTraits {
 
     // add all traits to all trait lists
     for (const traitList of Object.values(traitLists)) {
-      await client.request(makeTraitListEntryQuery, {
-        order: 0,
-        traitId: traits[Seed0004TraitName.Size].id,
-        traitListId: traitList.id,
-        required: true,
-      });
-      await client.request(makeTraitListEntryQuery, {
-        order: 1,
-        traitId: traits[Seed0004TraitName.Length].id,
-        traitListId: traitList.id,
-        required: false,
-      });
-      await client.request(makeTraitListEntryQuery, {
-        order: 2,
-        traitId: traits[Seed0004TraitName.AdditionalBodyMods].id,
-        traitListId: traitList.id,
-        required: false,
-      });
-    }
-
-    const traitListEntryDefinitions: MakeTraitListEntryVars[] = [
-      {
-        order: 0,
-        traitId: traits[Seed0004TraitName.Size].id,
-        traitListId: traitLists[Seed0005SpeciesTraitListName.Common].id,
-      },
-      {
-        order: 0,
-        traitId: traits[Seed0004TraitName.Size].id,
-        traitListId: traitLists[Seed0005SpeciesTraitListName.Common].id,
-      },
-      {
-        order: 0,
-        traitId: traits[Seed0004TraitName.Size].id,
-        traitListId: traitLists[Seed0005SpeciesTraitListName.Common].id,
-      },
-    ];
-    for (const definition of traitListEntryDefinitions) {
-      const { createTraitListEntry: traitListEntry } = await client.request(
+      let { createTraitListEntry } = await client.request(
         makeTraitListEntryQuery,
         {
-          ...definition,
+          order: 0,
+          traitId: traits[Seed0004TraitName.Size].id,
+          traitListId: traitList.id,
+          required: true,
         }
       );
-      if (isBaseError(traitListEntry)) {
+      if (isBaseError(createTraitListEntry)) {
         logger.error({
           message: "Error during seed",
-          errorName: traitListEntry.__typename,
-          errorMessage: traitListEntry.message,
+          errorName: createTraitListEntry.__typename,
+          errorMessage: createTraitListEntry.message,
           query: "makeTraitListEntry",
-          error: traitListEntry,
+          error: createTraitListEntry,
         });
-        throw traitListEntry;
+        throw createTraitListEntry;
+      }
+
+      ({ createTraitListEntry } = await client.request(
+        makeTraitListEntryQuery,
+        {
+          order: 1,
+          traitId: traits[Seed0004TraitName.Length].id,
+          traitListId: traitList.id,
+          required: false,
+        }
+      ));
+      if (isBaseError(createTraitListEntry)) {
+        logger.error({
+          message: "Error during seed",
+          errorName: createTraitListEntry.__typename,
+          errorMessage: createTraitListEntry.message,
+          query: "makeTraitListEntry",
+          error: createTraitListEntry,
+        });
+        throw createTraitListEntry;
+      }
+
+      ({ createTraitListEntry } = await client.request(
+        makeTraitListEntryQuery,
+        {
+          order: 2,
+          traitId: traits[Seed0004TraitName.AdditionalBodyMods].id,
+          traitListId: traitList.id,
+          required: false,
+        }
+      ));
+      if (isBaseError(createTraitListEntry)) {
+        logger.error({
+          message: "Error during seed",
+          errorName: createTraitListEntry.__typename,
+          errorMessage: createTraitListEntry.message,
+          query: "makeTraitListEntry",
+          error: createTraitListEntry,
+        });
+        throw createTraitListEntry;
       }
     }
-
-    return {};
   }
 }
 

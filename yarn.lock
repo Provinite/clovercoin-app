@@ -3857,6 +3857,7 @@ __metadata:
     react-dnd-html5-backend: ^16.0.1
     react-dom: ^17.0.2
     react-icons: ^4.3.1
+    react-intersection-observer: ^9.5.2
     react-placeholder-loading: ^0.5.29
     react-query: ^3.34.19
     react-router-dom: 6.4.3
@@ -24522,6 +24523,15 @@ __metadata:
   peerDependencies:
     react: ^16.8.4 || ^17.0.0
   checksum: ca9e4c1fedb94e4e956dd3142838c5a25a9d61375aee5e8a74dd623bae09a263098a93f220e8d84c7fd39e569e1fa4297d363ddbc91b15bca91baeb7281d7f4f
+  languageName: node
+  linkType: hard
+
+"react-intersection-observer@npm:^9.5.2":
+  version: 9.5.2
+  resolution: "react-intersection-observer@npm:9.5.2"
+  peerDependencies:
+    react: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+  checksum: cdbe40544930d59fc3820bce017fb688910cbecd7baaf382387a3d60d98a36e1d1e4bc27a876775e99b2a9f86762286a29d7bca21f3345f653cff29850c2641d
   languageName: node
   linkType: hard
 

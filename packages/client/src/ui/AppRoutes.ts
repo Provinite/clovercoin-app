@@ -90,6 +90,15 @@ export const AppRouteParts = {
     ...AppRouteParts.community(communityId),
     "species",
   ],
+  critterDetail: (
+    communityId: string,
+    speciesId: string,
+    critterId: string
+  ) => [
+    ...AppRouteParts.speciesDetail(communityId, speciesId),
+    "critter",
+    uuidToSlug(critterId),
+  ],
 };
 
 export const appRoute = (id: RouteId): string => {

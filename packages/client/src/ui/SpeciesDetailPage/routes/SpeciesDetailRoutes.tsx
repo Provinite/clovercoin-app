@@ -2,7 +2,7 @@
  * @file Route configuration and loaders/actions for species
  * detail routes.
  */
-import { graphqlService, uploadService } from "../../client";
+import { graphqlService, uploadService } from "../../../client";
 import {
   CritterTraitValueType,
   EnumValueSetting,
@@ -12,18 +12,24 @@ import {
   isEnumValueSetting,
   isTrait,
 } from "@clovercoin/api-client";
-import { typedRouteConfig } from "../../routes";
-import { AddTraitCard } from "./AddTraitCard/AddTraitCard";
-import { EditTraitCard } from "./AddTraitCard/EditTraitCard";
-import { SpeciesDetailPageProvider } from "./SpeciesDetailPageProvider";
-import { TraitListCard } from "./TraitListCard/TraitListCard";
-import { TraitListDetailCard } from "./TraitListDetailCard/TraitListDetailCard";
-import { VariantListCard } from "./VariantListCard/VariantListCard";
-import { getLoaderData, makeAction, makeLoader } from "../../utils/loaderUtils";
-import { isFiniteNumber } from "../util/isFiniteNumber";
+import { typedRouteConfig } from "../../../routes";
+import { AddTraitCard } from "../AddTraitCard/AddTraitCard";
+import { EditTraitCard } from "../AddTraitCard/EditTraitCard";
+import { SpeciesDetailPageProvider } from "../SpeciesDetailPageProvider";
+import { TraitListCard } from "../TraitListCard/TraitListCard";
+import { TraitListDetailCard } from "../TraitListDetailCard/TraitListDetailCard";
+import { VariantListCard } from "../VariantListCard/VariantListCard";
+import {
+  getLoaderData,
+  makeAction,
+  makeLoader,
+} from "../../../utils/loaderUtils";
+import { isFiniteNumber } from "../../util/isFiniteNumber";
 import gql from "graphql-tag";
-import { SpeciesIndex } from "./SpeciesIndex/SpeciesIndex";
-import { ConnectedAddCritterCard } from "./AddCritterCard/AddCritterCard";
+import { SpeciesIndex } from "../SpeciesIndex/SpeciesIndex";
+import { ConnectedAddCritterCard } from "../AddCritterCard/AddCritterCard";
+import { EditCritterCard } from "../EditCritterCard/EditCritterCard";
+import { critterDetailAction, critterDetailLoader } from "./critterDetail";
 
 /**
  * Species detail route configuration. Intended to be registered
@@ -42,6 +48,13 @@ export const SpeciesDetailRoutes = () =>
         index: true,
         loader: speciesDetailIndexLoader,
         element: <SpeciesIndex />,
+      },
+      {
+        id: "root.community.species.critter",
+        path: "critter/:critterSlug",
+        action: critterDetailAction,
+        loader: critterDetailLoader,
+        element: <EditCritterCard />,
       },
       {
         id: "root.community.species.add-critter",

@@ -9,6 +9,7 @@ export const getCrittersQuery = gql`
         list {
           id
           name
+          traitListId
           traitValues {
             dataType
             traitId
