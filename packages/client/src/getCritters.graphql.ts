@@ -14,7 +14,6 @@ export const getCrittersQuery = gql`
             id
           }
           traitValues {
-            dataType
             traitId
             value
           }

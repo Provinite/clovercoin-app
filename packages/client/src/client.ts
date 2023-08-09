@@ -3,9 +3,9 @@
  * as well as an imperative service to interact with it
  * outside of `useQuery`/`useMutation` hooks.
  */
-import { ApolloClient, InMemoryCache } from "@apollo/client";
+import { ApolloClient, InMemoryCache, createHttpLink } from "@apollo/client";
 import { GraphqlService, UploadService } from "@clovercoin/api-client";
-
+import { setContext } from "@apollo/client/link/context";
 const host = window.location.host;
 const isDev = !host.includes(".com");
 
@@ -22,6 +22,23 @@ const getApiUrl = () => {
   }
 };
 
+let token: string = "";
+export const setToken = (newToken: string) => {
+  token = newToken;
+};
+
+const httpLink = createHttpLink({ uri: getApiUrl() });
+const authLink = setContext((_, { headers }) => {
+  return token
+    ? {
+        headers: {
+          ...headers,
+          authorization: `Bearer ${token}`,
+        },
+      }
+    : { headers };
+});
+
 /**
  * GraphQL client to use throughout the application.
  * This should not generally be used directly. Prefer
@@ -30,7 +47,7 @@ const getApiUrl = () => {
  * style graphql operations.
  */
 export const client = new ApolloClient({
-  uri: getApiUrl(),
+  link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
 });
 

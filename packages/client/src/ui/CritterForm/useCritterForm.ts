@@ -13,7 +13,6 @@ export const useCritterForm = (critter?: CritterWithFormValues) => {
     Reducer<CritterFormState, CritterFormStateAction>
   >(
     (state, action) => {
-      console.log({ state, action });
       if (action.type === "set") {
         return {
           ...state,

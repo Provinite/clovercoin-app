@@ -76,8 +76,15 @@ type CritterList {
 
 union CritterListResponse = CritterList | InvalidArgumentError
 
+input CritterModifyInput {
+  id: ID!
+  name: String
+  traitValues: [CritterCreateTraitInput!]
+}
+
+union CritterModifyResponse = Critter | InvalidArgumentError | NotFoundError
+
 type CritterTraitValue {
-  dataType: CritterTraitValueType!
   traitId: ID!
   value: String
 }
@@ -150,7 +157,9 @@ input LoginArgs {
   username: String = ""
 }
 
-type LoginResponse {
+union LoginResponse = InvalidArgumentError | LoginSuccessResponse
+
+type LoginSuccessResponse {
   account: Account!
   identity: Identity!
   token: String!
@@ -178,6 +187,7 @@ type Mutation {
 
   """Log in using local credentials and receive an auth token"""
   login(input: LoginArgs!): LoginResponse!
+  modifyCritter(input: CritterModifyInput!): CritterModifyResponse!
   modifyTrait(input: TraitModifyInput!): TraitModifyResponse!
 
   """Update an entry on a variant's trait list"""

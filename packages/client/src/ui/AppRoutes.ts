@@ -3,6 +3,8 @@ import { uuidToSlug } from "../utils/uuidUtils";
 
 export const AppRouteParts = {
   admin: () => ["admin"],
+  login: () => ["login"],
+  register: () => ["register"],
   community: (communityId: string) => ["community", uuidToSlug(communityId)],
   communityList: () => ["communities"],
   addCritter: (communityId: string, speciesId: string) => [

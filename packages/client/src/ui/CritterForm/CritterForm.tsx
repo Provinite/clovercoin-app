@@ -71,6 +71,7 @@ export const CritterForm: FC<CritterFormProps> = ({
       <Stack spacing={2} direction="row">
         <TextField
           label="Name"
+          name="name"
           value={name}
           onChange={({ target: { value } }) => setName(value)}
           helperText="This can be changed at any time"
@@ -85,12 +86,11 @@ export const CritterForm: FC<CritterFormProps> = ({
         <TextField
           select
           label="Variant"
-          value={variant?.id || ""}
-          onChange={(e) =>
-            setVariantId(
-              species.traitLists.find((tl) => tl.id === e.target.value)!.id
-            )
-          }
+          value={variantId ?? ""}
+          name="variantId"
+          onChange={(e) => {
+            setVariantId(e.target.value || null);
+          }}
           helperText="The critter's variant determines what traits and values are available."
         >
           <MenuItem value={""}>Choose a variant</MenuItem>
@@ -144,6 +144,16 @@ export const CritterForm: FC<CritterFormProps> = ({
                     },
                     fullWidth: true,
                   }}
+                />
+                <input
+                  type="hidden"
+                  name="traitIds"
+                  value={traitListEntry.trait.id}
+                />
+                <input
+                  type="hidden"
+                  name="traitValues"
+                  value={traitValues[traitListEntry.trait.id] ?? ""}
                 />
               </ListItem>
             ))}

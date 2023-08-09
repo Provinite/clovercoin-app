@@ -8,7 +8,6 @@ import {
 } from "../relationFieldDecorators.js";
 import { Identity } from "../Identity/Identity.js";
 import { TraitList } from "../TraitList/TraitList.js";
-import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes.js";
 import { TypeormLoader } from "type-graphql-dataloader";
 
 @Entity()
@@ -78,9 +77,6 @@ export class CritterTraitValue {
 
   @Field(() => String, { nullable: true })
   value!: string | boolean | number | null;
-
-  @Field(() => CritterTraitValueTypes, { nullable: false })
-  dataType!: CritterTraitValueTypes;
 }
 
 export type CritterRequiredFieldKeys = "speciesId";

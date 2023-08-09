@@ -1,6 +1,7 @@
 import { IsEmail, IsStrongPassword, MinLength } from "class-validator";
 import {
   Arg,
+  createUnionType,
   Ctx,
   Field,
   InputType,
@@ -8,12 +9,13 @@ import {
   ObjectType,
   Resolver,
 } from "type-graphql";
+import { InvalidArgumentError } from "../errors/InvalidArgumentError.js";
 import type { AppGraphqlContext } from "../graphql/AppGraphqlContext.js";
 import { Account } from "../models/Account/Account.js";
 import { Identity } from "../models/Identity/Identity.js";
 
 @ObjectType()
-export class LoginResponse {
+export class LoginSuccessResponse {
   @Field(() => String)
   token: string = "";
 
@@ -52,11 +54,18 @@ export class RegisterArgs {
 @InputType()
 export class LoginArgs {
   @Field(() => String)
+  @MinLength(1)
   username: string = "";
 
   @Field(() => String)
+  @MinLength(1)
   password: string = "";
 }
+
+const LoginResponse = createUnionType({
+  name: "LoginResponse",
+  types: () => [LoginSuccessResponse, InvalidArgumentError],
+});
 
 @Resolver()
 export class LoginResolver {
@@ -64,9 +73,10 @@ export class LoginResolver {
     description: "Create a new account and receive an auth token",
   })
   async register(
-    @Arg("input") { username, password, email }: RegisterArgs,
+    @Arg("input", { nullable: false })
+    { username, password, email }: RegisterArgs,
     @Ctx() { loginController }: AppGraphqlContext
-  ): Promise<LoginResponse> {
+  ): Promise<LoginSuccessResponse> {
     const result = await loginController.register(username, password, email);
     if (!result.success) {
       throw new Error("Registration failed");
@@ -79,9 +89,9 @@ export class LoginResolver {
     description: "Log in using local credentials and receive an auth token",
   })
   async login(
-    @Arg("input") { username, password }: LoginArgs,
+    @Arg("input", { nullable: false }) { username, password }: LoginArgs,
     @Ctx() { loginController }: AppGraphqlContext
-  ): Promise<LoginResponse> {
+  ): Promise<LoginSuccessResponse> {
     const result = await loginController.login(username, password);
     if (!result.success) {
       throw new Error("Login failed");

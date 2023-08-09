@@ -1,16 +1,66 @@
 import { isBaseError } from "@clovercoin/api-client";
+import gql from "graphql-tag";
 import { graphqlService } from "../../../client";
 import { makeAction, makeLoader } from "../../../utils/loaderUtils";
 
+// TODO: This cache modification probably kind of invalidates some
+// sorting in the character list. Need to be able to reimplement sort?
+// Or just delete the entire list.
 export const critterDetailAction = makeAction(
   {
     slugs: {
       critterSlug: true,
     },
+    form: {
+      name: true,
+      variantId: true,
+      traitIds: {
+        all: true,
+        required: false,
+      },
+      traitValues: {
+        all: true,
+        required: false,
+      },
+    },
     allowedMethods: ["PUT"],
   },
-  async () => {
-    // noop
+  async ({ form: { name, traitIds, traitValues }, ids: { critterId } }) => {
+    const finalValues = traitIds.map((traitId, i) => ({
+      traitId,
+      value: traitValues[i],
+    }));
+    await graphqlService.modifyCritter({
+      variables: {
+        input: {
+          id: critterId,
+          name,
+          traitValues: finalValues.length ? finalValues : undefined,
+        },
+      },
+      update: (cache, result) => {
+        const newCritter = result.data?.modifyCritter;
+        if (isBaseError(newCritter) || !newCritter) {
+          return;
+        }
+        cache.updateFragment(
+          {
+            id: cache.identify({ __typename: "Critter", id: critterId }),
+            fragment: gql`
+              fragment Update on Critter {
+                id
+                name
+                traitValues {
+                  traitId
+                  value
+                }
+              }
+            `,
+          },
+          () => newCritter
+        );
+      },
+    });
   }
 );
 export const critterDetailLoader = makeLoader(

@@ -7,10 +7,15 @@ export interface CritterCreate
   extends Pick<Critter, "name" | "speciesId" | "ownerId" | "traitListId"> {
   traitValues: Pick<CritterTraitValue, "traitId" | "value">[];
 }
+
+export interface CritterModify
+  extends Pick<Critter, "id">,
+    Partial<Pick<Critter, "name" | "traitValues" | "traitListId">> {}
 export class CritterController extends EntityController<
   Critter,
   Repository<Critter>,
-  CritterCreate
+  CritterCreate,
+  CritterModify
 > {
   traitRepository: AppGraphqlContext["traitRepository"];
   constructor({ critterRepository, traitRepository }: AppGraphqlContext) {
@@ -25,7 +30,7 @@ export class CritterController extends EntityController<
     };
 
     for (const { traitId, value } of createBody.traitValues) {
-      const trait = await this.traitRepository.findOneOrFail({
+      await this.traitRepository.findOneOrFail({
         where: {
           id: traitId,
         },
@@ -33,7 +38,6 @@ export class CritterController extends EntityController<
       finalBody.traitValues.push({
         traitId,
         value,
-        dataType: trait.valueType,
       });
     }
 

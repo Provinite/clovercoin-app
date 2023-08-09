@@ -19,6 +19,7 @@ import {
 } from "type-graphql";
 import { DuplicateError } from "../../errors/DuplicateError.js";
 import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
+import { NotFoundError } from "../../errors/NotFoundError.js";
 import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
 import { Critter } from "./Critter.js";
 
@@ -78,19 +79,37 @@ export class CritterList {
   list: Critter[];
 }
 
+@InputType()
+export class CritterModifyInput {
+  @Field(() => ID, { nullable: false })
+  @IsUUID(4)
+  id!: string;
+
+  @Field(() => String, { nullable: true })
+  @MinLength(2)
+  @IsOptional()
+  name?: string;
+
+  @Field(() => [CritterCreateTraitInput], { nullable: true })
+  @IsArray()
+  @IsOptional()
+  traitValues?: CritterCreateTraitInput[];
+}
+
 const CritterListResponse = createUnionType({
   name: "CritterListResponse",
   types: () => [CritterList, InvalidArgumentError],
 });
 
-const /**
-   * CreateCommunity mutation response type with all
-   * known errors.
-   */
-  CreateCritterResponse = createUnionType({
-    name: "CreateCritterResponse",
-    types: () => [Critter, DuplicateError, InvalidArgumentError],
-  });
+const CritterModifyResponse = createUnionType({
+  name: "CritterModifyResponse",
+  types: () => [Critter, InvalidArgumentError, NotFoundError],
+});
+
+const CreateCritterResponse = createUnionType({
+  name: "CreateCritterResponse",
+  types: () => [Critter, DuplicateError, InvalidArgumentError],
+});
 
 @Resolver(() => Critter)
 export class CritterResolver {
@@ -120,8 +139,20 @@ export class CritterResolver {
         speciesId: filters.speciesId ?? undefined,
         id: filters.id ?? undefined,
       },
+      order: {
+        name: "DESC",
+      },
     });
 
     return new CritterList(result);
+  }
+
+  // TODO: Permissions, need to limit owners to editing their own
+  @Mutation(() => CritterModifyResponse)
+  async modifyCritter(
+    @Arg("input") input: CritterModifyInput,
+    @Ctx() { critterController }: AppGraphqlContext
+  ) {
+    return critterController.updateOneById(input.id, input);
   }
 }
