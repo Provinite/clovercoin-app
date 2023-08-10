@@ -200,17 +200,7 @@ jobs:
         working-directory: ./packages/client/dist
 
       # Discord notification
-      - name: Generate condensed changelog
-        id: changelog
-        run: |
-          {
-            echo "changelog<<EOF"
-            ./bin/latest-changelogs.sh
-            echo EOF 
-          } >> "$GITHUB_OUTPUT"
       - name: Discord notification
         env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        uses: Ilshidur/action-discord@master
-        with:
-          args: "[TEST] Latest Changes: ${{steps.changelog.outputs.changelog}}"
+          WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: ./bin/discord-notification.sh
