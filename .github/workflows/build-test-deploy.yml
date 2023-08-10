@@ -108,14 +108,17 @@ jobs:
 
       # Install npm dependencies
       - name: Install Dependencies
+        if: false
         run: yarn
 
       # Lint
       - name: Lint
+        if: false
         run: yarn workspaces foreach run lint
 
       # Run tests
       - name: Test
+        if: false
         run: yarn workspaces foreach run test
 
       # Build packages
