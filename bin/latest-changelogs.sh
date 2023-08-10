@@ -1,3 +1,4 @@
+#!/bin/bash
 echo "# New Release!"
 echo "A new version of the clovercoin app has been pushed to the beta site.\n"
 echo "Here is a summary of the latest changes!"
