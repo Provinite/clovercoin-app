@@ -1,5 +1,6 @@
-import { Drawer, Paper, Toolbar } from "@mui/material";
+import { Drawer, Paper } from "@mui/material";
 import { FunctionComponent, ReactNode } from "react";
+import { HeaderBarSpacer } from "../HeaderBar/HeaderBar";
 
 export const SideBar: FunctionComponent<{
   children?: ReactNode;
@@ -14,7 +15,7 @@ export const SideBar: FunctionComponent<{
     }}
     className={className}
   >
-    <Toolbar />
+    <HeaderBarSpacer />
     <Paper css={{ flexGrow: 1 }}>{children}</Paper>
   </Drawer>
 );

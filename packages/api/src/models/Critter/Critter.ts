@@ -1,5 +1,5 @@
-import { Field, ObjectType } from "type-graphql";
-import { Column, Entity } from "typeorm";
+import { Field, ID, ObjectType } from "type-graphql";
+import { Column, Entity, Index } from "typeorm";
 import { Species } from "../Species/Species.js";
 import {
   IdField,
@@ -8,9 +8,11 @@ import {
 } from "../relationFieldDecorators.js";
 import { Identity } from "../Identity/Identity.js";
 import { TraitList } from "../TraitList/TraitList.js";
+import { TypeormLoader } from "type-graphql-dataloader";
 
 @Entity()
 @ObjectType()
+@Index("critter_traitvalues_gin_idx", { synchronize: false })
 export class Critter {
   @IdField
   id: string | undefined;
@@ -19,11 +21,12 @@ export class Critter {
   @Column({ nullable: false })
   name: string = "";
 
-  @ManyToOneField({
+  @ManyToOneField<Species, typeof Species>({
     columnName: "speciesId",
     foreignColumnName: "id",
     nullable: false,
     type: () => Species,
+    inverseSide: (species) => species.critters,
   })
   species!: Species;
 
@@ -47,12 +50,14 @@ export class Critter {
   })
   ownerId!: string;
 
-  @ManyToOneField({
+  @ManyToOneField<TraitList, typeof TraitList>({
     columnName: "traitListId",
     foreignColumnName: "id",
     nullable: false,
     type: () => TraitList,
+    inverseSide: (traitList) => traitList.critters,
   })
+  @TypeormLoader()
   traitList!: TraitList;
 
   @RelationIdField<Critter>({
@@ -61,9 +66,18 @@ export class Critter {
   })
   traitListId!: string;
 
-  @Column("jsonb", { default: [], array: true, nullable: false })
-  @Field(() => [String], { nullable: false })
-  traitValues!: string[];
+  @Column("jsonb", { default: [], nullable: false })
+  @Field(() => [CritterTraitValue], { nullable: false })
+  traitValues!: CritterTraitValue[];
+}
+
+@ObjectType()
+export class CritterTraitValue {
+  @Field(() => ID, { nullable: false })
+  traitId!: string;
+
+  @Field(() => String, { nullable: true })
+  value!: string | boolean | number | null;
 }
 
 export type CritterRequiredFieldKeys = "speciesId";

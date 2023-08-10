@@ -3,10 +3,9 @@ import {
   GetSpeciesDetailQuery,
   NarrowToSpeciesList,
 } from "@clovercoin/api-client";
-import { HeaderBar } from "../HeaderBar/HeaderBar";
+import { HeaderBar, HeaderBarSpacer } from "../HeaderBar/HeaderBar";
 import { HeaderBarProps } from "../HeaderBar/HeaderBarProps";
 import { useRouteCommunity } from "../../useRouteCommunity";
-import { Toolbar } from "@mui/material";
 import { NavItem, SideNav } from "../SideNav/SideNav";
 import { AppRoutes } from "../AppRoutes";
 import InterestsIcon from "@mui/icons-material/Interests";
@@ -102,7 +101,7 @@ export const SpeciesDetailPage: FC<SpeciesDetailPageProps> = ({
       >
         <SideNav navItems={navGroups} />
         <div css={{ flexGrow: 1 }}>
-          <Toolbar />
+          <HeaderBarSpacer />
           <div css={(theme) => ({ padding: theme.spacing(2) })}>{children}</div>
         </div>
       </div>

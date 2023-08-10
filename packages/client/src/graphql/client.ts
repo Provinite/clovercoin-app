@@ -3,9 +3,8 @@
  * as well as an imperative service to interact with it
  * outside of `useQuery`/`useMutation` hooks.
  */
-import { ApolloClient, InMemoryCache } from "@apollo/client";
-import { GraphqlService, UploadService } from "@clovercoin/api-client";
-
+import { UploadService } from "@clovercoin/api-client";
+import { ClientGraphqlService } from "./ClientGraphqlService";
 const host = window.location.host;
 const isDev = !host.includes(".com");
 
@@ -28,16 +27,10 @@ const getApiUrl = () => {
  * `useQuery`/`useMutation` for data fetching in react
  * components, and {@link graphqlService} for imperative
  * style graphql operations.
- */
-export const client = new ApolloClient({
-  uri: getApiUrl(),
-  cache: new InMemoryCache(),
-});
-
-/**
  * Service for imperative interaction with the
  * GraphQL API.
  */
-export const graphqlService = new GraphqlService(client);
+export const graphqlService = new ClientGraphqlService(getApiUrl());
+graphqlService.loadClientAuthToken();
 
 export const uploadService = new UploadService();

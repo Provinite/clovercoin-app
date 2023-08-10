@@ -1,4 +1,5 @@
 import { ActionFunctionArgs, LoaderFunctionArgs } from "react-router-dom";
+import { v4 } from "uuid";
 import { isNullish } from "../ui/util/isNullish";
 import {
   getAllStrings,
@@ -157,7 +158,10 @@ export async function getLoaderData<T extends GetDataArgs>({
  * @returns
  */
 export function makeLoader<
-  T extends Omit<GetDataArgs, "data"> & { allowedMethods?: string[] },
+  T extends Omit<GetDataArgs, "data"> & {
+    allowedMethods?: string[];
+    name?: string;
+  },
   R
 >(
   options: T,
@@ -175,9 +179,13 @@ export function makeLoader<
       throw new Error("405");
     }
     if (data.request.method.toLowerCase() === "delete") {
-      return loader(await getLoaderData({ data, ...options, form: undefined }));
+      const result = loader(
+        await getLoaderData({ data, ...options, form: undefined })
+      );
+      return result;
     }
-    return loader(await getLoaderData({ data, ...options }));
+    const result = loader(await getLoaderData({ data, ...options }));
+    return result;
   };
 }
 

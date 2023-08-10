@@ -1,4 +1,5 @@
 import { asFunction, asValue, AwilixContainer } from "awilix";
+import { isJWT } from "class-validator";
 import { Middleware } from "koa";
 import { Connection } from "typeorm/connection/Connection.js";
 import { v4 } from "uuid";
@@ -24,6 +25,17 @@ export const createRequestContainer =
     );
 
     register(requestContainer, "requestId", asValue(requestId));
+
+    const authHeader = ctx.headers.authorization;
+    let authToken: string | null = null;
+    if (authHeader && /^Bearer [a-zA-Z0-9_.-]+$/.test(authHeader)) {
+      authToken = authHeader.replace("Bearer ", "");
+    }
+    if (authToken === null || isJWT(authToken)) {
+      register(requestContainer, "authToken", asValue(authToken));
+    } else {
+      throw new Error("Invalid auth token");
+    }
 
     /**
      * Typegraphql Data Loader (tgd) required context.
@@ -72,5 +84,7 @@ declare module "../graphql/AppGraphqlContext.js" {
     };
     /** HTTP request uuid */
     requestId: string;
+    /** Authorization token (if present) */
+    authToken: string | null;
   }
 }

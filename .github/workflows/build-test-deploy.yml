@@ -148,6 +148,7 @@ jobs:
 
       # Deploy API image to lambda
       - name: Deploy API
+        id: deploy-api
         if: steps.push-api-image.outcome != 'skipped'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
@@ -186,6 +187,7 @@ jobs:
 
       # Deploy client to s3
       - name: Deploy Client
+        id: deploy-client
         if: github.ref_name == vars.beta_branch && contains(steps.changed-files.outputs.files, '"packages/client/')
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
@@ -193,3 +195,11 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
         run: aws s3 sync . s3://${{ secrets.AWS_CLIENT_BUCKET }}/ --delete
         working-directory: ./packages/client/dist
+
+      # Discord notification
+      - name: Discord notification
+        if: steps.deploy-api.outcome == 'success' || steps.deploy-client.outcome == 'success'
+        env:
+          WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          CC_ENV_NAME: ${{ vars.ENV_NAME || 'dev' }}
+        run: ./bin/discord-notification.sh

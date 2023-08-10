@@ -38,6 +38,8 @@ union CommunityResponse = Community | InvalidArgumentError | NotFoundError
 
 union CreateCommunityResponse = Community | DuplicateError | InvalidArgumentError
 
+union CreateCritterResponse = Critter | DuplicateError | InvalidArgumentError
+
 type Critter {
   id: ID!
   name: String!
@@ -47,12 +49,45 @@ type Critter {
   speciesId: ID!
   traitList: TraitList!
   traitListId: ID!
-  traitValues: [String!]!
+  traitValues: [CritterTraitValue!]!
 }
 
 input CritterCreateInput {
   name: String!
-  speciesId: String!
+  ownerId: ID = null
+  speciesId: ID!
+  traitListId: ID!
+  traitValues: [CritterCreateTraitInput!]!
+}
+
+input CritterCreateTraitInput {
+  traitId: ID!
+  value: String!
+}
+
+input CritterFilters {
+  id: ID = null
+  speciesId: ID = null
+}
+
+type CritterList {
+  list: [Critter!]!
+}
+
+union CritterListResponse = CritterList | InvalidArgumentError
+
+input CritterModifyInput {
+  id: ID!
+  name: String
+  traitListId: ID
+  traitValues: [CritterCreateTraitInput!]
+}
+
+union CritterModifyResponse = Critter | InvalidArgumentError | NotFoundError
+
+type CritterTraitValue {
+  traitId: ID!
+  value: String
 }
 
 """Critter trait value types"""
@@ -123,7 +158,13 @@ input LoginArgs {
   username: String = ""
 }
 
-type LoginResponse {
+type LoginFailureResponse {
+  message: String!
+}
+
+union LoginResponse = InvalidArgumentError | LoginFailureResponse | LoginSuccessResponse
+
+type LoginSuccessResponse {
   account: Account!
   identity: Identity!
   token: String!
@@ -132,7 +173,7 @@ type LoginResponse {
 type Mutation {
   """Create a new community"""
   createCommunity(input: CommunityCreateInput!): CreateCommunityResponse!
-  createCritter(input: CritterCreateInput!): Critter!
+  createCritter(input: CritterCreateInput!): CreateCritterResponse!
   createEnumValueSetting(input: EnumValueSettingCreateInput!): enumValueSettingCreateResponse!
   createSpecies(input: SpeciesCreateInput!): SpeciesCreateResponse!
   createSpeciesImageUploadUrl(input: SpeciesImageUrlCreateInput!): UrlResponse!
@@ -151,13 +192,14 @@ type Mutation {
 
   """Log in using local credentials and receive an auth token"""
   login(input: LoginArgs!): LoginResponse!
+  modifyCritter(input: CritterModifyInput!): CritterModifyResponse!
   modifyTrait(input: TraitModifyInput!): TraitModifyResponse!
 
   """Update an entry on a variant's trait list"""
   modifyTraitListEntry(input: TraitListEntryModifyInput!): TraitListEntryModifyResponse!
 
   """Create a new account and receive an auth token"""
-  register(input: RegisterArgs!): LoginResponse!
+  register(input: RegisterArgs!): RegisterResponse!
 }
 
 type NotFoundError implements BaseError {
@@ -170,7 +212,7 @@ type Query {
 
   """Fetch a community by id and/or name"""
   community(filters: CommunityFilters!): CommunityResponse!
-  critters: [Critter!]!
+  critters(filters: CritterFilters!): CritterListResponse!
   species(filters: SpeciesFilters): SpeciesResponse!
   traits(filters: TraitFilters!): [Trait!]!
 }
@@ -180,6 +222,8 @@ input RegisterArgs {
   password: String = ""
   username: String = ""
 }
+
+union RegisterResponse = DuplicateError | InvalidArgumentError | LoginSuccessResponse
 
 """
 Model representing an arbitrarily broad class of characters that use common variants and administration.

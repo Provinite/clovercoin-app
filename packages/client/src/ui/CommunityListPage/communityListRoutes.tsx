@@ -1,6 +1,6 @@
 import { isCommunity, isCommunityList } from "@clovercoin/api-client";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "react-router-dom";
-import { graphqlService } from "../../client";
+import { graphqlService } from "../../graphql/client";
 import { typedRouteConfig } from "../../routes";
 import { CommunityListPage } from "./CommunityListPage";
 

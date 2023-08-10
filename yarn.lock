@@ -14,7 +14,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apollo/client@npm:3.7.1, @apollo/client@npm:^3.7.1, @apollo/client@npm:~3.2.5 || ~3.3.0 || ~3.4.0 || ~3.5.0 || ~3.6.0 || ~3.7.0":
+"@apollo/client@npm:3.7.1, @apollo/client@npm:~3.2.5 || ~3.3.0 || ~3.4.0 || ~3.5.0 || ~3.6.0 || ~3.7.0":
   version: 3.7.1
   resolution: "@apollo/client@npm:3.7.1"
   dependencies:
@@ -3730,7 +3730,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@clovercoin/api@workspace:packages/api"
   dependencies:
-    "@apollo/client": ^3.7.1
+    "@apollo/client": 3.7.1
     "@aws-sdk/client-s3": ^3.282.0
     "@aws-sdk/client-secrets-manager": ^3.363.0
     "@aws-sdk/node-http-handler": ^3.360.0
@@ -3738,6 +3738,7 @@ __metadata:
     "@aws-sdk/types": ^3.272.0
     "@clovercoin/api-client": "workspace:packages/api-client"
     "@graphql-codegen/cli": ^2.6.2
+    "@graphql-typed-document-node/core": ^3.2.0
     "@hyrious/esbuild-plugin-commonjs": ^0.2.2
     "@koa/cors": ^3.3.0
     "@swc/helpers": ^0.5.1
@@ -3761,6 +3762,7 @@ __metadata:
     eslint-plugin-prettier: ^4.0.0
     express-graphql: ^0.12.0
     graphql: ^15.5.0
+    graphql-request: ^6.1.0
     graphql-tag: ^2.12.6
     http-errors: ^2.0.0
     jest: ^29.6.1
@@ -3783,6 +3785,7 @@ __metadata:
     type-graphql-dataloader: ^0.5.0
     typeorm: ^0.3.17
     typescript: 4.8.4
+    unique-names-generator: ^4.7.1
     uuid: ^8.3.2
     winston: ^3.8.2
   languageName: unknown
@@ -3847,6 +3850,7 @@ __metadata:
     graphql-tag: ^2.12.6
     jest: ^27.5.1
     jest-specific-snapshot: ^5.0.0
+    jwt-decode: ^3.1.2
     lorem-ipsum: ^2.0.4
     parcel: 2.9.3
     react: ^17.0.2
@@ -3854,6 +3858,7 @@ __metadata:
     react-dnd-html5-backend: ^16.0.1
     react-dom: ^17.0.2
     react-icons: ^4.3.1
+    react-intersection-observer: ^9.5.2
     react-placeholder-loading: ^0.5.29
     react-query: ^3.34.19
     react-router-dom: 6.4.3
@@ -5072,6 +5077,15 @@ __metadata:
   peerDependencies:
     graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
   checksum: 87ff4cee308f1075f4472b80f9f9409667979940f8f701e87f0aa35ce5cf104d94b41258ea8192d05a0893475cd0f086a3929a07663b4fe8d0e805a277f07ed5
+  languageName: node
+  linkType: hard
+
+"@graphql-typed-document-node/core@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "@graphql-typed-document-node/core@npm:3.2.0"
+  peerDependencies:
+    graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
+  checksum: fa44443accd28c8cf4cb96aaaf39d144a22e8b091b13366843f4e97d19c7bfeaf609ce3c7603a4aeffe385081eaf8ea245d078633a7324c11c5ec4b2011bb76d
   languageName: node
   linkType: hard
 
@@ -17364,6 +17378,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"graphql-request@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "graphql-request@npm:6.1.0"
+  dependencies:
+    "@graphql-typed-document-node/core": ^3.2.0
+    cross-fetch: ^3.1.5
+  peerDependencies:
+    graphql: 14 - 16
+  checksum: 6d62630a0169574442320651c1f7626c0c602025c3c46b19e09417c9579bb209306ee63de9793a03be2e1701bb7f13971f8545d99bc6573e340f823af0ad35b2
+  languageName: node
+  linkType: hard
+
 "graphql-sse@npm:^1.0.1":
   version: 1.1.0
   resolution: "graphql-sse@npm:1.1.0"
@@ -20536,6 +20562,13 @@ __metadata:
     jwa: ^1.4.1
     safe-buffer: ^5.0.1
   checksum: f0213fe5b79344c56cd443428d8f65c16bf842dc8cb8f5aed693e1e91d79c20741663ad6eff07a6d2c433d1831acc9814e8d7bada6a0471fbb91d09ceb2bf5c2
+  languageName: node
+  linkType: hard
+
+"jwt-decode@npm:^3.1.2":
+  version: 3.1.2
+  resolution: "jwt-decode@npm:3.1.2"
+  checksum: 20a4b072d44ce3479f42d0d2c8d3dabeb353081ba4982e40b83a779f2459a70be26441be6c160bfc8c3c6eadf9f6380a036fbb06ac5406b5674e35d8c4205eeb
   languageName: node
   linkType: hard
 
@@ -24501,6 +24534,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-intersection-observer@npm:^9.5.2":
+  version: 9.5.2
+  resolution: "react-intersection-observer@npm:9.5.2"
+  peerDependencies:
+    react: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+  checksum: cdbe40544930d59fc3820bce017fb688910cbecd7baaf382387a3d60d98a36e1d1e4bc27a876775e99b2a9f86762286a29d7bca21f3345f653cff29850c2641d
+  languageName: node
+  linkType: hard
+
 "react-is@npm:17.0.2, react-is@npm:^17.0.1":
   version: 17.0.2
   resolution: "react-is@npm:17.0.2"
@@ -28065,6 +28107,13 @@ __metadata:
   dependencies:
     unique-slug: ^2.0.0
   checksum: cf4998c9228cc7647ba7814e255dec51be43673903897b1786eff2ac2d670f54d4d733357eb08dea969aa5e6875d0e1bd391d668fbdb5a179744e7c7551a6f80
+  languageName: node
+  linkType: hard
+
+"unique-names-generator@npm:^4.7.1":
+  version: 4.7.1
+  resolution: "unique-names-generator@npm:4.7.1"
+  checksum: 81b58efee72458fd0c84f54a89d731b2570305d331ce62c4156273e54ece77b6488fc6c607169f4b8f6644fa48b42aef8689dbe7e310ae2c4bafbd5c0a625354
   languageName: node
   linkType: hard
 

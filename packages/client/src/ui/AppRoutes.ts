@@ -3,6 +3,9 @@ import { uuidToSlug } from "../utils/uuidUtils";
 
 export const AppRouteParts = {
   admin: () => ["admin"],
+  login: () => ["login"],
+  logout: () => ["logout"],
+  register: () => ["register"],
   community: (communityId: string) => ["community", uuidToSlug(communityId)],
   communityList: () => ["communities"],
   addCritter: (communityId: string, speciesId: string) => [
@@ -90,6 +93,15 @@ export const AppRouteParts = {
     ...AppRouteParts.community(communityId),
     "species",
   ],
+  critterDetail: (
+    communityId: string,
+    speciesId: string,
+    critterId: string
+  ) => [
+    ...AppRouteParts.speciesDetail(communityId, speciesId),
+    "critter",
+    uuidToSlug(critterId),
+  ],
 };
 
 export const appRoute = (id: RouteId): string => {
@@ -108,7 +120,6 @@ export const appRoute = (id: RouteId): string => {
     },
     routes
   );
-  console.log(routeToFullPath);
   return routeToFullPath[id];
 };
 

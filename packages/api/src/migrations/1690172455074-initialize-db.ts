@@ -1,3 +1,7 @@
+/**
+ * @file This migration creates the original schema for the database, including
+ * all database elements defined by typeorm.
+ */
 import type { MigrationInterface, QueryRunner } from "typeorm";
 export class initializeDb1690172455074 implements MigrationInterface {
   name = "initializeDb1690172455074";

@@ -9,11 +9,10 @@ import {
   IconButton,
   Stack,
   TextField,
-  Toolbar,
 } from "@mui/material";
 import { FunctionComponent, useEffect, useState } from "react";
 import { AppRoutes } from "../AppRoutes";
-import { HeaderBar } from "../HeaderBar/HeaderBar";
+import { HeaderBar, HeaderBarSpacer } from "../HeaderBar/HeaderBar";
 import { useHeaderBarProps } from "../HeaderBar/HeaderBarContext";
 import { SideNav } from "../SideNav/SideNav";
 import SpaIcon from "@mui/icons-material/Spa";
@@ -75,7 +74,6 @@ export const AdminPage: FunctionComponent<AdminPageProps> = () => {
       });
     }
   }, [fetcher.state]);
-
   return (
     <>
       <SequentialSnackbar queue={snackbarQueue} />
@@ -96,7 +94,7 @@ export const AdminPage: FunctionComponent<AdminPageProps> = () => {
           ]}
         />
         <Stack flexGrow={1}>
-          <Toolbar />
+          <HeaderBarSpacer />
           <Grid container rowSpacing={2} padding={2}>
             <Grid item xs={12}>
               <Card elevation={1}>

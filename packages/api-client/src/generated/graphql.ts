@@ -72,6 +72,11 @@ export type CreateCommunityResponse =
   | DuplicateError
   | InvalidArgumentError;
 
+export type CreateCritterResponse =
+  | Critter
+  | DuplicateError
+  | InvalidArgumentError;
+
 export interface Critter {
   __typename?: "Critter";
   id: Scalars["ID"];
@@ -82,12 +87,50 @@ export interface Critter {
   speciesId: Scalars["ID"];
   traitList: TraitList;
   traitListId: Scalars["ID"];
-  traitValues: Array<Scalars["String"]>;
+  traitValues: Array<CritterTraitValue>;
 }
 
 export interface CritterCreateInput {
   name: Scalars["String"];
-  speciesId: Scalars["String"];
+  ownerId?: InputMaybe<Scalars["ID"]>;
+  speciesId: Scalars["ID"];
+  traitListId: Scalars["ID"];
+  traitValues: Array<CritterCreateTraitInput>;
+}
+
+export interface CritterCreateTraitInput {
+  traitId: Scalars["ID"];
+  value: Scalars["String"];
+}
+
+export interface CritterFilters {
+  id?: InputMaybe<Scalars["ID"]>;
+  speciesId?: InputMaybe<Scalars["ID"]>;
+}
+
+export interface CritterList {
+  __typename?: "CritterList";
+  list: Array<Critter>;
+}
+
+export type CritterListResponse = CritterList | InvalidArgumentError;
+
+export interface CritterModifyInput {
+  id: Scalars["ID"];
+  name?: InputMaybe<Scalars["String"]>;
+  traitListId?: InputMaybe<Scalars["ID"]>;
+  traitValues?: InputMaybe<Array<CritterCreateTraitInput>>;
+}
+
+export type CritterModifyResponse =
+  | Critter
+  | InvalidArgumentError
+  | NotFoundError;
+
+export interface CritterTraitValue {
+  __typename?: "CritterTraitValue";
+  traitId: Scalars["ID"];
+  value?: Maybe<Scalars["String"]>;
 }
 
 /** Critter trait value types */
@@ -166,8 +209,18 @@ export interface LoginArgs {
   username?: InputMaybe<Scalars["String"]>;
 }
 
-export interface LoginResponse {
-  __typename?: "LoginResponse";
+export interface LoginFailureResponse {
+  __typename?: "LoginFailureResponse";
+  message: Scalars["String"];
+}
+
+export type LoginResponse =
+  | InvalidArgumentError
+  | LoginFailureResponse
+  | LoginSuccessResponse;
+
+export interface LoginSuccessResponse {
+  __typename?: "LoginSuccessResponse";
   account: Account;
   identity: Identity;
   token: Scalars["String"];
@@ -177,7 +230,7 @@ export interface Mutation {
   __typename?: "Mutation";
   /** Create a new community */
   createCommunity: CreateCommunityResponse;
-  createCritter: Critter;
+  createCritter: CreateCritterResponse;
   createEnumValueSetting: EnumValueSettingCreateResponse;
   createSpecies: SpeciesCreateResponse;
   createSpeciesImageUploadUrl: UrlResponse;
@@ -191,11 +244,12 @@ export interface Mutation {
   deleteTraitListEntry: TraitListEntryDeleteResponse;
   /** Log in using local credentials and receive an auth token */
   login: LoginResponse;
+  modifyCritter: CritterModifyResponse;
   modifyTrait: TraitModifyResponse;
   /** Update an entry on a variant's trait list */
   modifyTraitListEntry: TraitListEntryModifyResponse;
   /** Create a new account and receive an auth token */
-  register: LoginResponse;
+  register: RegisterResponse;
 }
 
 export interface MutationCreateCommunityArgs {
@@ -246,6 +300,10 @@ export interface MutationLoginArgs {
   input: LoginArgs;
 }
 
+export interface MutationModifyCritterArgs {
+  input: CritterModifyInput;
+}
+
 export interface MutationModifyTraitArgs {
   input: TraitModifyInput;
 }
@@ -269,7 +327,7 @@ export interface Query {
   communities: CommunitiesResponse;
   /** Fetch a community by id and/or name */
   community: CommunityResponse;
-  critters: Array<Critter>;
+  critters: CritterListResponse;
   species: SpeciesResponse;
   traits: Array<Trait>;
 }
@@ -280,6 +338,10 @@ export interface QueryCommunitiesArgs {
 
 export interface QueryCommunityArgs {
   filters: CommunityFilters;
+}
+
+export interface QueryCrittersArgs {
+  filters: CritterFilters;
 }
 
 export interface QuerySpeciesArgs {
@@ -295,6 +357,11 @@ export interface RegisterArgs {
   password?: InputMaybe<Scalars["String"]>;
   username?: InputMaybe<Scalars["String"]>;
 }
+
+export type RegisterResponse =
+  | DuplicateError
+  | InvalidArgumentError
+  | LoginSuccessResponse;
 
 /** Model representing an arbitrarily broad class of characters that use common variants and administration. */
 export interface Species {
@@ -506,22 +573,40 @@ export type GetCommunityQuery = {
     | { __typename: "NotFoundError"; message: string };
 };
 
-export type GetCrittersQueryVariables = Exact<{ [key: string]: never }>;
+export type GetCrittersQueryVariables = Exact<{
+  filters: CritterFilters;
+}>;
 
 export type GetCrittersQuery = {
   __typename?: "Query";
-  critters: Array<{
-    __typename?: "Critter";
-    id: string;
-    name: string;
-    traitValues: Array<string>;
-    species: {
-      __typename?: "Species";
-      id: string;
-      name: string;
-      traitLists: Array<{ __typename?: "TraitList"; id: string; name: string }>;
-    };
-  }>;
+  critters:
+    | {
+        __typename?: "CritterList";
+        list: Array<{
+          __typename?: "Critter";
+          id: string;
+          name: string;
+          traitList: { __typename?: "TraitList"; name: string; id: string };
+          traitValues: Array<{
+            __typename?: "CritterTraitValue";
+            traitId: string;
+            value?: string | null;
+          }>;
+        }>;
+      }
+    | {
+        __typename?: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      };
 };
 
 export type GetCommunityListViewQueryVariables = Exact<{
@@ -547,6 +632,66 @@ export type GetCommunityListViewQuery = {
             description: string;
           }>;
         }>;
+      };
+};
+
+export type LoginMutationVariables = Exact<{
+  input: LoginArgs;
+}>;
+
+export type LoginMutation = {
+  __typename?: "Mutation";
+  login:
+    | {
+        __typename: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      }
+    | { __typename: "LoginFailureResponse" }
+    | {
+        __typename: "LoginSuccessResponse";
+        token: string;
+        identity: { __typename?: "Identity"; displayName: string; id: string };
+      };
+};
+
+export type RegisterMutationVariables = Exact<{
+  input: RegisterArgs;
+}>;
+
+export type RegisterMutation = {
+  __typename?: "Mutation";
+  register:
+    | {
+        __typename: "DuplicateError";
+        duplicateKeys: Array<string>;
+        message: string;
+      }
+    | {
+        __typename: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      }
+    | {
+        __typename: "LoginSuccessResponse";
+        token: string;
+        identity: { __typename?: "Identity"; id: string; displayName: string };
       };
 };
 
@@ -655,6 +800,34 @@ export type ModifyTraitListEntryMutation = {
             name: string;
           }>;
         };
+      };
+};
+
+export type CreateCritterMutationVariables = Exact<{
+  input: CritterCreateInput;
+}>;
+
+export type CreateCritterMutation = {
+  __typename?: "Mutation";
+  createCritter:
+    | { __typename?: "Critter"; id: string }
+    | {
+        __typename: "DuplicateError";
+        duplicateKeys: Array<string>;
+        message: string;
+      }
+    | {
+        __typename?: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
       };
 };
 
@@ -860,6 +1033,41 @@ export type GetSpeciesTraitsQuery = {
     valueType: CritterTraitValueType;
     enumValues: Array<{ __typename?: "EnumValue"; id: string; name: string }>;
   }>;
+};
+
+export type ModifyCritterMutationVariables = Exact<{
+  input: CritterModifyInput;
+}>;
+
+export type ModifyCritterMutation = {
+  __typename?: "Mutation";
+  modifyCritter:
+    | {
+        __typename: "Critter";
+        id: string;
+        name: string;
+        traitListId: string;
+        traitValues: Array<{
+          __typename?: "CritterTraitValue";
+          traitId: string;
+          value?: string | null;
+        }>;
+        traitList: { __typename?: "TraitList"; id: string; name: string };
+      }
+    | {
+        __typename: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      }
+    | { __typename: "NotFoundError"; message: string };
 };
 
 export type ModifySpeciesTraitMutationVariables = Exact<{
@@ -1087,6 +1295,19 @@ export type CritterFieldPolicy = {
   traitListId?: FieldPolicy<any> | FieldReadFunction<any>;
   traitValues?: FieldPolicy<any> | FieldReadFunction<any>;
 };
+export type CritterListKeySpecifier = ("list" | CritterListKeySpecifier)[];
+export type CritterListFieldPolicy = {
+  list?: FieldPolicy<any> | FieldReadFunction<any>;
+};
+export type CritterTraitValueKeySpecifier = (
+  | "traitId"
+  | "value"
+  | CritterTraitValueKeySpecifier
+)[];
+export type CritterTraitValueFieldPolicy = {
+  traitId?: FieldPolicy<any> | FieldReadFunction<any>;
+  value?: FieldPolicy<any> | FieldReadFunction<any>;
+};
 export type DeleteResponseKeySpecifier = ("ok" | DeleteResponseKeySpecifier)[];
 export type DeleteResponseFieldPolicy = {
   ok?: FieldPolicy<any> | FieldReadFunction<any>;
@@ -1152,13 +1373,20 @@ export type InvalidArgumentErrorFieldPolicy = {
   message?: FieldPolicy<any> | FieldReadFunction<any>;
   validationErrors?: FieldPolicy<any> | FieldReadFunction<any>;
 };
-export type LoginResponseKeySpecifier = (
+export type LoginFailureResponseKeySpecifier = (
+  | "message"
+  | LoginFailureResponseKeySpecifier
+)[];
+export type LoginFailureResponseFieldPolicy = {
+  message?: FieldPolicy<any> | FieldReadFunction<any>;
+};
+export type LoginSuccessResponseKeySpecifier = (
   | "account"
   | "identity"
   | "token"
-  | LoginResponseKeySpecifier
+  | LoginSuccessResponseKeySpecifier
 )[];
-export type LoginResponseFieldPolicy = {
+export type LoginSuccessResponseFieldPolicy = {
   account?: FieldPolicy<any> | FieldReadFunction<any>;
   identity?: FieldPolicy<any> | FieldReadFunction<any>;
   token?: FieldPolicy<any> | FieldReadFunction<any>;
@@ -1176,6 +1404,7 @@ export type MutationKeySpecifier = (
   | "deleteTrait"
   | "deleteTraitListEntry"
   | "login"
+  | "modifyCritter"
   | "modifyTrait"
   | "modifyTraitListEntry"
   | "register"
@@ -1194,6 +1423,7 @@ export type MutationFieldPolicy = {
   deleteTrait?: FieldPolicy<any> | FieldReadFunction<any>;
   deleteTraitListEntry?: FieldPolicy<any> | FieldReadFunction<any>;
   login?: FieldPolicy<any> | FieldReadFunction<any>;
+  modifyCritter?: FieldPolicy<any> | FieldReadFunction<any>;
   modifyTrait?: FieldPolicy<any> | FieldReadFunction<any>;
   modifyTraitListEntry?: FieldPolicy<any> | FieldReadFunction<any>;
   register?: FieldPolicy<any> | FieldReadFunction<any>;
@@ -1358,6 +1588,20 @@ export type StrictTypedTypePolicies = {
       | (() => undefined | CritterKeySpecifier);
     fields?: CritterFieldPolicy;
   };
+  CritterList?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | CritterListKeySpecifier
+      | (() => undefined | CritterListKeySpecifier);
+    fields?: CritterListFieldPolicy;
+  };
+  CritterTraitValue?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | CritterTraitValueKeySpecifier
+      | (() => undefined | CritterTraitValueKeySpecifier);
+    fields?: CritterTraitValueFieldPolicy;
+  };
   DeleteResponse?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
       | false
@@ -1400,12 +1644,19 @@ export type StrictTypedTypePolicies = {
       | (() => undefined | InvalidArgumentErrorKeySpecifier);
     fields?: InvalidArgumentErrorFieldPolicy;
   };
-  LoginResponse?: Omit<TypePolicy, "fields" | "keyFields"> & {
+  LoginFailureResponse?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
       | false
-      | LoginResponseKeySpecifier
-      | (() => undefined | LoginResponseKeySpecifier);
-    fields?: LoginResponseFieldPolicy;
+      | LoginFailureResponseKeySpecifier
+      | (() => undefined | LoginFailureResponseKeySpecifier);
+    fields?: LoginFailureResponseFieldPolicy;
+  };
+  LoginSuccessResponse?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | LoginSuccessResponseKeySpecifier
+      | (() => undefined | LoginSuccessResponseKeySpecifier);
+    fields?: LoginSuccessResponseFieldPolicy;
   };
   Mutation?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
@@ -1552,21 +1803,32 @@ export const GetCommunityDocument = gql`
   ${BaseErrorFragmentFragmentDoc}
 `;
 export const GetCrittersDocument = gql`
-  query getCritters {
-    critters {
-      id
-      name
-      traitValues
-      species {
-        id
-        name
-        traitLists {
+  query getCritters($filters: CritterFilters!) {
+    critters(filters: $filters) {
+      ... on CritterList {
+        list {
           id
           name
+          traitList {
+            name
+            id
+          }
+          traitValues {
+            traitId
+            value
+          }
         }
+      }
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+      ... on BaseError {
+        ...BaseErrorFragment
       }
     }
   }
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+  ${BaseErrorFragmentFragmentDoc}
 `;
 export const GetCommunityListViewDocument = gql`
   query getCommunityListView($filters: CommunityFilters!) {
@@ -1588,6 +1850,46 @@ export const GetCommunityListViewDocument = gql`
   }
   ${BaseErrorFragmentFragmentDoc}
   ${InvalidArgumentErrorFragmentFragmentDoc}
+`;
+export const LoginDocument = gql`
+  mutation login($input: LoginArgs!) {
+    login(input: $input) {
+      __typename
+      ... on LoginSuccessResponse {
+        identity {
+          displayName
+          id
+        }
+        token
+      }
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+    }
+  }
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+`;
+export const RegisterDocument = gql`
+  mutation register($input: RegisterArgs!) {
+    register(input: $input) {
+      __typename
+      ... on LoginSuccessResponse {
+        identity {
+          id
+          displayName
+        }
+        token
+      }
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+      ... on DuplicateError {
+        ...DuplicateErrorFragment
+      }
+    }
+  }
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+  ${DuplicateErrorFragmentFragmentDoc}
 `;
 export const CreateTraitListEntryDocument = gql`
   mutation createTraitListEntry($input: TraitListEntryCreateInput!) {
@@ -1668,6 +1970,27 @@ export const ModifyTraitListEntryDocument = gql`
       }
     }
   }
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+  ${BaseErrorFragmentFragmentDoc}
+`;
+export const CreateCritterDocument = gql`
+  mutation createCritter($input: CritterCreateInput!) {
+    createCritter(input: $input) {
+      ... on Critter {
+        id
+      }
+      ... on DuplicateError {
+        ...DuplicateErrorFragment
+      }
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+      ... on BaseError {
+        ...BaseErrorFragment
+      }
+    }
+  }
+  ${DuplicateErrorFragmentFragmentDoc}
   ${InvalidArgumentErrorFragmentFragmentDoc}
   ${BaseErrorFragmentFragmentDoc}
 `;
@@ -1819,6 +2142,34 @@ export const GetSpeciesTraitsDocument = gql`
     }
   }
 `;
+export const ModifyCritterDocument = gql`
+  mutation modifyCritter($input: CritterModifyInput!) {
+    modifyCritter(input: $input) {
+      __typename
+      ... on Critter {
+        id
+        name
+        traitValues {
+          traitId
+          value
+        }
+        traitListId
+        traitList {
+          id
+          name
+        }
+      }
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+      ... on BaseError {
+        ...BaseErrorFragment
+      }
+    }
+  }
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+  ${BaseErrorFragmentFragmentDoc}
+`;
 export const ModifySpeciesTraitDocument = gql`
   mutation modifySpeciesTrait($input: TraitModifyInput!) {
     modifyTrait(input: $input) {
@@ -1951,7 +2302,7 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
       ) as Promise<GetCommunityQuery>;
     },
     getCritters(
-      variables?: GetCrittersQueryVariables,
+      variables: GetCrittersQueryVariables,
       options?: C
     ): Promise<GetCrittersQuery> {
       return requester<GetCrittersQuery, GetCrittersQueryVariables>(
@@ -1972,6 +2323,26 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
         variables,
         options
       ) as Promise<GetCommunityListViewQuery>;
+    },
+    login(
+      variables: LoginMutationVariables,
+      options?: C
+    ): Promise<LoginMutation> {
+      return requester<LoginMutation, LoginMutationVariables>(
+        LoginDocument,
+        variables,
+        options
+      ) as Promise<LoginMutation>;
+    },
+    register(
+      variables: RegisterMutationVariables,
+      options?: C
+    ): Promise<RegisterMutation> {
+      return requester<RegisterMutation, RegisterMutationVariables>(
+        RegisterDocument,
+        variables,
+        options
+      ) as Promise<RegisterMutation>;
     },
     createTraitListEntry(
       variables: CreateTraitListEntryMutationVariables,
@@ -2011,6 +2382,16 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
         variables,
         options
       ) as Promise<ModifyTraitListEntryMutation>;
+    },
+    createCritter(
+      variables: CreateCritterMutationVariables,
+      options?: C
+    ): Promise<CreateCritterMutation> {
+      return requester<CreateCritterMutation, CreateCritterMutationVariables>(
+        CreateCritterDocument,
+        variables,
+        options
+      ) as Promise<CreateCritterMutation>;
     },
     createEnumValueSetting(
       variables: CreateEnumValueSettingMutationVariables,
@@ -2103,6 +2484,16 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
         variables,
         options
       ) as Promise<GetSpeciesTraitsQuery>;
+    },
+    modifyCritter(
+      variables: ModifyCritterMutationVariables,
+      options?: C
+    ): Promise<ModifyCritterMutation> {
+      return requester<ModifyCritterMutation, ModifyCritterMutationVariables>(
+        ModifyCritterDocument,
+        variables,
+        options
+      ) as Promise<ModifyCritterMutation>;
     },
     modifySpeciesTrait(
       variables: ModifySpeciesTraitMutationVariables,
@@ -2262,6 +2653,69 @@ export class GraphqlService {
     return result;
   }
 
+  async login(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").MutationOptions<
+          LoginMutation,
+          LoginMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: LoginMutationVariables;
+    }
+  ): Promise<
+    Omit<import("@apollo/client/core").FetchResult<LoginMutation>, "data"> & {
+      data: LoginMutation;
+    }
+  > {
+    const finalOptions = {
+      ...options,
+      mutation: LoginDocument,
+    };
+    const result = await this.client.mutate<
+      LoginMutation,
+      LoginMutationVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
+  async register(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").MutationOptions<
+          RegisterMutation,
+          RegisterMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: RegisterMutationVariables;
+    }
+  ): Promise<
+    Omit<
+      import("@apollo/client/core").FetchResult<RegisterMutation>,
+      "data"
+    > & { data: RegisterMutation }
+  > {
+    const finalOptions = {
+      ...options,
+      mutation: RegisterDocument,
+    };
+    const result = await this.client.mutate<
+      RegisterMutation,
+      RegisterMutationVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
   async createTraitListEntry(
     options: Omit<
       Partial<
@@ -2351,6 +2805,38 @@ export class GraphqlService {
     const result = await this.client.mutate<
       ModifyTraitListEntryMutation,
       ModifyTraitListEntryMutationVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
+  async createCritter(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").MutationOptions<
+          CreateCritterMutation,
+          CreateCritterMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: CreateCritterMutationVariables;
+    }
+  ): Promise<
+    Omit<
+      import("@apollo/client/core").FetchResult<CreateCritterMutation>,
+      "data"
+    > & { data: CreateCritterMutation }
+  > {
+    const finalOptions = {
+      ...options,
+      mutation: CreateCritterDocument,
+    };
+    const result = await this.client.mutate<
+      CreateCritterMutation,
+      CreateCritterMutationVariables
     >(finalOptions);
     if (!hasData(result)) {
       throw new Error("Unknown request failure");
@@ -2604,6 +3090,38 @@ export class GraphqlService {
     return result;
   }
 
+  async modifyCritter(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").MutationOptions<
+          ModifyCritterMutation,
+          ModifyCritterMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: ModifyCritterMutationVariables;
+    }
+  ): Promise<
+    Omit<
+      import("@apollo/client/core").FetchResult<ModifyCritterMutation>,
+      "data"
+    > & { data: ModifyCritterMutation }
+  > {
+    const finalOptions = {
+      ...options,
+      mutation: ModifyCritterDocument,
+    };
+    const result = await this.client.mutate<
+      ModifyCritterMutation,
+      ModifyCritterMutationVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
   async modifySpeciesTrait(
     options: Omit<
       Partial<
@@ -2743,6 +3261,28 @@ export type NarrowToCritter<T> = T extends { __typename?: "Critter" }
   ? T
   : never;
 
+export function isCritterList(
+  val: unknown
+): val is { __typename: "CritterList" } {
+  return hasTypeName(val, "CritterList");
+}
+
+export type NarrowToCritterList<T> = T extends { __typename?: "CritterList" }
+  ? T
+  : never;
+
+export function isCritterTraitValue(
+  val: unknown
+): val is { __typename: "CritterTraitValue" } {
+  return hasTypeName(val, "CritterTraitValue");
+}
+
+export type NarrowToCritterTraitValue<T> = T extends {
+  __typename?: "CritterTraitValue";
+}
+  ? T
+  : never;
+
 export function isDeleteResponse(
   val: unknown
 ): val is { __typename: "DeleteResponse" } {
@@ -2807,14 +3347,26 @@ export type NarrowToInvalidArgumentError<T> = T extends {
   ? T
   : never;
 
-export function isLoginResponse(
+export function isLoginFailureResponse(
   val: unknown
-): val is { __typename: "LoginResponse" } {
-  return hasTypeName(val, "LoginResponse");
+): val is { __typename: "LoginFailureResponse" } {
+  return hasTypeName(val, "LoginFailureResponse");
 }
 
-export type NarrowToLoginResponse<T> = T extends {
-  __typename?: "LoginResponse";
+export type NarrowToLoginFailureResponse<T> = T extends {
+  __typename?: "LoginFailureResponse";
+}
+  ? T
+  : never;
+
+export function isLoginSuccessResponse(
+  val: unknown
+): val is { __typename: "LoginSuccessResponse" } {
+  return hasTypeName(val, "LoginSuccessResponse");
+}
+
+export type NarrowToLoginSuccessResponse<T> = T extends {
+  __typename?: "LoginSuccessResponse";
 }
   ? T
   : never;

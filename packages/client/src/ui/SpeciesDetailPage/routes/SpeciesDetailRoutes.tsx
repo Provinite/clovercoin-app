@@ -2,33 +2,37 @@
  * @file Route configuration and loaders/actions for species
  * detail routes.
  */
-import { graphqlService, uploadService } from "../../client";
+import { graphqlService, uploadService } from "../../../graphql/client";
 import {
+  CritterCreateTraitInput,
+  CritterListResponse,
   CritterTraitValueType,
   EnumValueSetting,
   ImageContentType,
   isBaseError,
+  isCritterList,
   isDeleteResponse,
   isEnumValueSetting,
-  isInvalidArgumentError,
-  isSpeciesList,
   isTrait,
 } from "@clovercoin/api-client";
-import { typedRouteConfig } from "../../routes";
-import { AddTraitCard } from "./AddTraitCard/AddTraitCard";
-import { EditTraitCard } from "./AddTraitCard/EditTraitCard";
-import { SpeciesDetailPageProvider } from "./SpeciesDetailPageProvider";
-import { TraitListCard } from "./TraitListCard/TraitListCard";
-import { TraitListDetailCard } from "./TraitListDetailCard/TraitListDetailCard";
-import { VariantListCard } from "./VariantListCard/VariantListCard";
-import { getLoaderData, makeAction, makeLoader } from "../../utils/loaderUtils";
-import { isFiniteNumber } from "../util/isFiniteNumber";
-import gql from "graphql-tag";
-import { SpeciesIndex } from "./SpeciesIndex/SpeciesIndex";
+import { typedRouteConfig } from "../../../routes";
+import { AddTraitCard } from "../AddTraitCard/AddTraitCard";
+import { EditTraitCard } from "../AddTraitCard/EditTraitCard";
+import { SpeciesDetailPageProvider } from "../SpeciesDetailPageProvider";
+import { TraitListCard } from "../TraitListCard/TraitListCard";
+import { TraitListDetailCard } from "../TraitListDetailCard/TraitListDetailCard";
+import { VariantListCard } from "../VariantListCard/VariantListCard";
 import {
-  AddCritterCard,
-  ConnectedAddCritterCard,
-} from "./AddCritterCard/AddCritterCard";
+  getLoaderData,
+  makeAction,
+  makeLoader,
+} from "../../../utils/loaderUtils";
+import { isFiniteNumber } from "../../util/isFiniteNumber";
+import gql from "graphql-tag";
+import { SpeciesIndex } from "../SpeciesIndex/SpeciesIndex";
+import { ConnectedAddCritterCard } from "../AddCritterCard/AddCritterCard";
+import { EditCritterCard } from "../EditCritterCard/EditCritterCard";
+import { critterDetailAction, critterDetailLoader } from "./critterDetail";
 
 /**
  * Species detail route configuration. Intended to be registered
@@ -45,11 +49,20 @@ export const SpeciesDetailRoutes = () =>
       {
         id: "root.community.species.index",
         index: true,
+        loader: speciesDetailIndexLoader,
         element: <SpeciesIndex />,
+      },
+      {
+        id: "root.community.species.critter",
+        path: "critter/:critterSlug",
+        action: critterDetailAction,
+        loader: critterDetailLoader,
+        element: <EditCritterCard />,
       },
       {
         id: "root.community.species.add-critter",
         path: "add",
+        action: critterCreateAction,
         element: <ConnectedAddCritterCard />,
       },
       {
@@ -246,6 +259,7 @@ const variantDetailAction = makeAction(
  */
 const speciesDetailLoader = makeLoader(
   {
+    name: "speciesDetailLoader",
     slugs: { communityId: true, speciesId: true },
   },
   async ({ ids: { communityId, speciesId } }) => {
@@ -257,14 +271,11 @@ const speciesDetailLoader = makeLoader(
         },
       },
     });
+    if (isBaseError(data.species)) {
+      throw new Error(data.species.message);
+    }
 
-    if (isSpeciesList(data.species)) {
-      return data.species.list[0];
-    }
-    if (isInvalidArgumentError(data.species)) {
-      throw new Error("404");
-    }
-    throw new Error(data.species.__typename);
+    return data.species.list[0];
   }
 );
 
@@ -321,11 +332,99 @@ const speciesDetailAction = makeAction(
   }
 );
 
+const speciesDetailIndexLoader = makeLoader(
+  { name: "speciesDetailIndexLoader", slugs: { speciesId: true } },
+  async ({ ids: { speciesId } }) => {
+    const { data } = await graphqlService.getCritters({
+      variables: {
+        filters: {
+          speciesId,
+        },
+      },
+    });
+    if (isBaseError(data.critters)) {
+      throw new Error(data.critters.message);
+    }
+
+    return data.critters.list;
+  }
+);
+
+/**
+ * Action for creating a critter
+ */
+const critterCreateAction = makeAction(
+  {
+    allowedMethods: ["POST"],
+    slugs: {
+      speciesId: true,
+      communityId: true,
+    },
+    form: {
+      name: true,
+      variantId: true,
+      traits: {
+        all: true,
+      },
+      values: {
+        all: true,
+      },
+    },
+  },
+  async ({
+    form: { name, traits, values, variantId },
+    ids: { speciesId, communityId },
+  }) => {
+    const traitValues = traits.map<CritterCreateTraitInput>((traitId, i) => ({
+      traitId,
+      value: values[i],
+    }));
+    await graphqlService.createCritter({
+      variables: {
+        input: {
+          name,
+          speciesId,
+          traitListId: variantId,
+          traitValues,
+          ownerId: graphqlService.getTokenPayload().identity.id,
+        },
+      },
+      update: (cache, result) => {
+        const newCritter = result.data?.createCritter;
+        if (isBaseError(newCritter) || !newCritter) {
+          return;
+        }
+        // delete critter lists that could possibly include the new critter
+        cache.modify({
+          fields: {
+            critters: (
+              data: CritterListResponse,
+              { DELETE, storeFieldName }
+            ) => {
+              if (!isCritterList(data)) {
+                return data;
+              }
+              if (
+                storeFieldName.includes(communityId) ||
+                storeFieldName.includes(speciesId)
+              ) {
+                return DELETE;
+              }
+              return data;
+            },
+          },
+        });
+      },
+    });
+  }
+);
+
 /**
  * Loader for species trait list
  */
 const traitListLoader = makeLoader(
   {
+    name: "traitListLoader",
     slugs: { speciesId: true },
   },
   async ({ ids: { speciesId } }) => {
