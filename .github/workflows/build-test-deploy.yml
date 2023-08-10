@@ -108,7 +108,6 @@ jobs:
 
       # Install npm dependencies
       - name: Install Dependencies
-        if: false
         run: yarn
 
       # Lint
