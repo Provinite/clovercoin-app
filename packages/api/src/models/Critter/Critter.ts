@@ -1,5 +1,5 @@
 import { Field, ID, ObjectType } from "type-graphql";
-import { Column, Entity } from "typeorm";
+import { Column, Entity, Index } from "typeorm";
 import { Species } from "../Species/Species.js";
 import {
   IdField,
@@ -12,6 +12,7 @@ import { TypeormLoader } from "type-graphql-dataloader";
 
 @Entity()
 @ObjectType()
+@Index("critter_traitvalues_gin_idx", { synchronize: false })
 export class Critter {
   @IdField
   id: string | undefined;
