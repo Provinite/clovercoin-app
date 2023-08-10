@@ -204,7 +204,7 @@ jobs:
         id: changelog
         run: |
           {
-            echo changelog<<EOF 
+            echo "changelog<<EOF"
             ./bin/latest-changelogs.sh
             echo EOF 
           } >> "$GITHUB_OUTPUT"
