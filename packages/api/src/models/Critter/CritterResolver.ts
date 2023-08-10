@@ -145,7 +145,7 @@ export class CritterResolver {
         id: filters.id ?? undefined,
       },
       order: {
-        name: "DESC",
+        name: "ASC",
       },
     });
 
