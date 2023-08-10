@@ -112,22 +112,18 @@ jobs:
 
       # Lint
       - name: Lint
-        if: false
         run: yarn workspaces foreach run lint
 
       # Run tests
       - name: Test
-        if: false
         run: yarn workspaces foreach run test
 
       # Build packages
       - name: Build
-        if: false
         run: yarn workspaces foreach --topological-dev run build
 
       # Create API docker image
       - name: Create API image
-        if: false
         id: api-image
         run: |
           CC_API_IMG_NAME="${{ vars.ENV_NAME || 'dev' }}-cc-api"
@@ -152,6 +148,7 @@ jobs:
 
       # Deploy API image to lambda
       - name: Deploy API
+        id: deploy-api
         if: steps.push-api-image.outcome != 'skipped'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
@@ -190,6 +187,7 @@ jobs:
 
       # Deploy client to s3
       - name: Deploy Client
+        id: deploy-client
         if: github.ref_name == vars.beta_branch && contains(steps.changed-files.outputs.files, '"packages/client/')
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
@@ -200,6 +198,8 @@ jobs:
 
       # Discord notification
       - name: Discord notification
+        if: steps.deploy-api.outcome == 'success' || steps.deploy-client.outcome == 'success'
         env:
           WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          CC_ENV_NAME: ${{ vars.ENV_NAME || 'dev' }}
         run: ./bin/discord-notification.sh
