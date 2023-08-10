@@ -120,10 +120,12 @@ jobs:
 
       # Build packages
       - name: Build
+        if: false
         run: yarn workspaces foreach --topological-dev run build
 
       # Create API docker image
       - name: Create API image
+        if: false
         id: api-image
         run: |
           CC_API_IMG_NAME="${{ vars.ENV_NAME || 'dev' }}-cc-api"
@@ -198,9 +200,11 @@ jobs:
       - name: Generate condensed changelog
         id: changelog
         run: |
-          echo changelog<<EOF >> "$GITHUB_OUTPUT"
-          ./bin/latest-changelogs.sh >> "$GITHUB_OUTPUT"
-          echo EOF >> "$GITHUB_OUTPUT"
+          {
+            echo changelog<<EOF 
+            ./bin/latest-changelogs.sh
+            echo EOF 
+          } >> "$GITHUB_OUTPUT"
       - name: Discord notification
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
