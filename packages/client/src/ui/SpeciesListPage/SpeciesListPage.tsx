@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { HeaderBar } from "../HeaderBar/HeaderBar";
+import { HeaderBar, HeaderBarSpacer } from "../HeaderBar/HeaderBar";
 import { HeaderBarProps } from "../HeaderBar/HeaderBarProps";
 import {
   GetSpeciesListViewQuery,
@@ -28,7 +28,6 @@ import {
   DialogTitle,
   Grid,
   TextField,
-  Toolbar,
   Typography,
 } from "@mui/material";
 import { SideNav } from "../SideNav/SideNav";
@@ -120,7 +119,7 @@ export const SpeciesListPage: FC<SpeciesListPageProps> = ({
           ]}
         />
         <div css={{ flexGrow: 1 }}>
-          <Toolbar />
+          <HeaderBarSpacer />
           <Grid container css={{ paddingTop: "18px" }} spacing={2}>
             {data.list.map((species) => (
               <Grid

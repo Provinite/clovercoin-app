@@ -1,8 +1,8 @@
-import { isBaseError } from "@clovercoin/api-client";
-import { redirect } from "react-router-dom";
-import { graphqlService, setToken } from "../../client";
+import { isBaseError, isLoginFailureResponse } from "@clovercoin/api-client";
+import { Navigate, redirect } from "react-router-dom";
+import { graphqlService } from "../../graphql/client";
 import { typedRouteConfig } from "../../routes";
-import { makeAction } from "../../utils/loaderUtils";
+import { makeAction, makeLoader } from "../../utils/loaderUtils";
 import { AppRoutes } from "../AppRoutes";
 import { LoginPage } from "./LoginPage";
 import { RegisterPage } from "./RegisterPage";
@@ -13,6 +13,12 @@ export const loginRoutes = () => [
     element: <LoginPage />,
     path: "login",
     action: loginAction,
+  }),
+  typedRouteConfig({
+    id: "root.logout",
+    path: "logout",
+    element: <Navigate to={AppRoutes.login()} replace={true} />,
+    loader: logoutLoader,
   }),
   typedRouteConfig({
     id: "root.register",
@@ -38,13 +44,13 @@ const loginAction = makeAction(
         },
       },
     });
-    if (isBaseError(result)) {
+    if (isBaseError(result) || isLoginFailureResponse(result)) {
       return result;
     }
-    setToken(result.token);
     return redirect(AppRoutes.communityList());
   }
 );
+
 const registerAction = makeAction(
   {
     allowedMethods: ["post"],
@@ -65,7 +71,10 @@ const registerAction = makeAction(
     if (isBaseError(result)) {
       return result;
     }
-    setToken(result.token);
     return redirect(AppRoutes.communityList());
   }
 );
+
+const logoutLoader = makeLoader({}, async () => {
+  graphqlService.setClientAuthToken("");
+});

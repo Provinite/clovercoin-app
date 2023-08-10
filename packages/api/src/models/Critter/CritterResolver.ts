@@ -94,6 +94,11 @@ export class CritterModifyInput {
   @IsArray()
   @IsOptional()
   traitValues?: CritterCreateTraitInput[];
+
+  @Field(() => ID, { nullable: true })
+  @IsUUID()
+  @IsOptional()
+  traitListId?: string;
 }
 
 const CritterListResponse = createUnionType({

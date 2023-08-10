@@ -68,7 +68,6 @@ export default class Seed0008CreateCritters {
             speciesId
             traitListId
             traitValues {
-              dataType
               traitId
               value
             }

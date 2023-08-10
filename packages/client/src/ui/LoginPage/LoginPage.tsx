@@ -1,16 +1,80 @@
+import { InvalidArgumentError } from "@clovercoin/api-client";
 import { LoadingButton } from "@mui/lab";
 import { Card, TextField, Typography } from "@mui/material";
-import { FC } from "react";
-import { useFetcher } from "react-router-dom";
+import { FC, useEffect, useState } from "react";
+import { Form } from "react-router-dom";
 import { stylesheet } from "../../utils/emotion";
+import { useRouteActionData } from "../../utils/loaderDataUtils";
 import { AppRoutes } from "../AppRoutes";
 import { Link } from "../Link/Link";
 
+export function exhaustiveSwitch<
+  Values extends string,
+  Handlers extends { [key in Values]: (val: key) => any }
+>(value: Values, handlers: Handlers) {
+  if (Object.prototype.hasOwnProperty.call(handlers, value)) {
+    return handlers[value](value);
+  }
+  throw new Error("Invariant violation: exhaustive switch is not.");
+}
+
 export const LoginPage: FC = () => {
-  const fetcher = useFetcher();
+  const error = useRouteActionData<"root.login">();
+
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    setFieldErrors((fieldErrors) => ({
+      ...fieldErrors,
+      username: "",
+      form: "",
+    }));
+  }, [username]);
+
+  useEffect(() => {
+    setFieldErrors((fieldErrors) => ({
+      ...fieldErrors,
+      password: "",
+      form: "",
+    }));
+  }, [password]);
+
+  type FieldNames = "username" | "password" | "form";
+  const [fieldErrors, setFieldErrors] = useState<
+    Record<FieldNames, string | undefined | null>
+  >(() => ({
+    username: null,
+    password: null,
+    form: null,
+  }));
+
+  useEffect(() => {
+    if (!error || error instanceof Response) {
+      return;
+    }
+    exhaustiveSwitch(error.__typename, {
+      InvalidArgumentError: () => {
+        const err = error as InvalidArgumentError;
+        for (const { field, constraints } of err.validationErrors) {
+          setFieldErrors((fieldErrors) => ({
+            ...fieldErrors,
+            [field]: constraints.join(", "),
+          }));
+        }
+      },
+      LoginFailureResponse: () => {
+        setFieldErrors((fieldErrors) => ({
+          ...fieldErrors,
+          form: "Login failed. Check your username and password.",
+        }));
+      },
+    });
+  }, [error]);
+
   return (
     <Card css={ss.root}>
-      <fetcher.Form>
+      <Form action={AppRoutes.login()} method="post">
         <Typography variant="h5">Welcome!</Typography>
         <Typography variant="body1" color="text.secondary">
           Log in with your username and password below to access your
@@ -20,20 +84,54 @@ export const LoginPage: FC = () => {
         <Typography variant="body1">
           New Here? <Link to={AppRoutes.register()}>Register</Link>
         </Typography>
+        {fieldErrors.form ? (
+          <Typography color="error.main" variant="body1">
+            {fieldErrors.form}
+          </Typography>
+        ) : (
+          <></>
+        )}
         <br />
-        <TextField label="Username" type="text" fullWidth css={ss.field} />
-        <TextField label="Password" type="password" fullWidth css={ss.field} />
+        <TextField
+          name="username"
+          label="Username"
+          type="text"
+          required
+          error={Boolean(fieldErrors.username)}
+          helperText={fieldErrors.username ?? ""}
+          fullWidth
+          value={username}
+          onChange={({ target: { value } }) => setUsername(value)}
+          css={ss.field}
+        />
+        <TextField
+          name="password"
+          label="Password"
+          type="password"
+          error={Boolean(fieldErrors.password)}
+          helperText={fieldErrors.password ?? ""}
+          fullWidth
+          required
+          value={password}
+          onChange={({ target: { value } }) => setPassword(value)}
+          css={ss.field}
+        />
         <LoadingButton
           css={ss.field}
           fullWidth
           type="submit"
-          loading={fetcher.state !== "idle"}
           variant="contained"
           color="primary"
+          disabled={
+            !username ||
+            !password ||
+            // if there are errors, disabled
+            Object.values(fieldErrors).some((val) => val)
+          }
         >
           Login
         </LoadingButton>
-      </fetcher.Form>
+      </Form>
     </Card>
   );
 };

@@ -1,6 +1,6 @@
 import { isBaseError } from "@clovercoin/api-client";
 import gql from "graphql-tag";
-import { graphqlService } from "../../../client";
+import { graphqlService } from "../../../graphql/client";
 import { makeAction, makeLoader } from "../../../utils/loaderUtils";
 
 // TODO: This cache modification probably kind of invalidates some
@@ -25,7 +25,10 @@ export const critterDetailAction = makeAction(
     },
     allowedMethods: ["PUT"],
   },
-  async ({ form: { name, traitIds, traitValues }, ids: { critterId } }) => {
+  async ({
+    form: { name, traitIds, traitValues, variantId },
+    ids: { critterId },
+  }) => {
     const finalValues = traitIds.map((traitId, i) => ({
       traitId,
       value: traitValues[i],
@@ -36,6 +39,7 @@ export const critterDetailAction = makeAction(
           id: critterId,
           name,
           traitValues: finalValues.length ? finalValues : undefined,
+          traitListId: variantId,
         },
       },
       update: (cache, result) => {
@@ -53,6 +57,11 @@ export const critterDetailAction = makeAction(
                 traitValues {
                   traitId
                   value
+                }
+                traitListId
+                traitList {
+                  id
+                  name
                 }
               }
             `,

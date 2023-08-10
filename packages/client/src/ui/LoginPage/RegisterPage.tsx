@@ -1,4 +1,7 @@
-import { isInvalidArgumentError } from "@clovercoin/api-client";
+import {
+  isDuplicateError,
+  isInvalidArgumentError,
+} from "@clovercoin/api-client";
 import { LoadingButton } from "@mui/lab";
 import { Card, TextField, Typography } from "@mui/material";
 import { FC, useEffect, useState } from "react";
@@ -9,7 +12,7 @@ import { AppRoutes } from "../AppRoutes";
 
 export const RegisterPage: FC = () => {
   const fetcher = useFetcher();
-  const error = useRouteActionData<"root.login">();
+  const error = useRouteActionData<"root.register">();
   const [fieldErrors, setFieldErrors] = useState({
     email: "",
     username: "",
@@ -30,6 +33,15 @@ export const RegisterPage: FC = () => {
           err.constraints.map(({ description }) => description).join(", ");
       }
       setFieldErrors((fieldErrors) => ({ ...fieldErrors, ...newFieldErrors }));
+    } else if (isDuplicateError(error)) {
+      for (const key of error.duplicateKeys) {
+        if (key in fieldErrors) {
+          setFieldErrors((fieldErrors) => ({
+            ...fieldErrors,
+            [key]: `This ${key} is already in use.`,
+          }));
+        }
+      }
     }
   }, [error]);
 

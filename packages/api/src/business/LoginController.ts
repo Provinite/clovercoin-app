@@ -8,6 +8,9 @@ export type LoggedInResult =
   | { success: false }
   | { success: true; account: Account; identity: Identity; token: string };
 
+export interface JwtPayload {
+  identity: Pick<Identity, "id" | "displayName">;
+}
 export class LoginController {
   #transactionProvider: TransactionProvider;
 
@@ -97,6 +100,11 @@ export class LoginController {
    * @returns
    */
   async #createToken(identity: Identity): Promise<string> {
-    return createJwt({ identity });
+    return createJwt<JwtPayload>({
+      identity: {
+        displayName: identity.displayName,
+        id: identity.id,
+      },
+    });
   }
 }

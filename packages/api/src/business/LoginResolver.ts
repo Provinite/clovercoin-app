@@ -9,6 +9,7 @@ import {
   ObjectType,
   Resolver,
 } from "type-graphql";
+import { DuplicateError } from "../errors/DuplicateError.js";
 import { InvalidArgumentError } from "../errors/InvalidArgumentError.js";
 import type { AppGraphqlContext } from "../graphql/AppGraphqlContext.js";
 import { Account } from "../models/Account/Account.js";
@@ -16,6 +17,16 @@ import { Identity } from "../models/Identity/Identity.js";
 
 @ObjectType()
 export class LoginSuccessResponse {
+  constructor(partial: Partial<LoginSuccessResponse> = {}) {
+    const copy = <T, K extends keyof T>(key: K, from: Partial<T>, to: T) => {
+      if (from[key]) {
+        to[key] = from[key]!;
+      }
+    };
+    for (const key of ["token", "identity", "account"] as const) {
+      copy(key, partial, this);
+    }
+  }
   @Field(() => String)
   token: string = "";
 
@@ -26,6 +37,12 @@ export class LoginSuccessResponse {
   account!: Account;
 }
 
+@ObjectType()
+export class LoginFailureResponse {
+  @Field(() => String)
+  message: string = "Invalid username or password";
+}
+
 @InputType()
 export class RegisterArgs {
   @Field(() => String)
@@ -33,13 +50,19 @@ export class RegisterArgs {
   username: string = "";
 
   @Field(() => String)
-  @IsStrongPassword({
-    minLength: 12,
-    minLowercase: 1,
-    minNumbers: 1,
-    minSymbols: 1,
-    minUppercase: 1,
-  })
+  @IsStrongPassword(
+    {
+      minLength: 8,
+      minLowercase: 1,
+      minUppercase: 1,
+      minNumbers: 0,
+      minSymbols: 0,
+    },
+    {
+      message:
+        "Password is not strong enough. Must be mixed case and at least 8 characters long.",
+    }
+  )
   password: string = "";
 
   @Field(() => String)
@@ -64,25 +87,33 @@ export class LoginArgs {
 
 const LoginResponse = createUnionType({
   name: "LoginResponse",
-  types: () => [LoginSuccessResponse, InvalidArgumentError],
+  types: () => [
+    LoginSuccessResponse,
+    LoginFailureResponse,
+    InvalidArgumentError,
+  ],
+});
+
+const RegisterResponse = createUnionType({
+  name: "RegisterResponse",
+  types: () => [LoginSuccessResponse, InvalidArgumentError, DuplicateError],
 });
 
 @Resolver()
 export class LoginResolver {
-  @Mutation(() => LoginResponse, {
+  @Mutation(() => RegisterResponse, {
     description: "Create a new account and receive an auth token",
   })
   async register(
     @Arg("input", { nullable: false })
     { username, password, email }: RegisterArgs,
     @Ctx() { loginController }: AppGraphqlContext
-  ): Promise<LoginSuccessResponse> {
+  ): Promise<LoginSuccessResponse | LoginFailureResponse> {
     const result = await loginController.register(username, password, email);
     if (!result.success) {
-      throw new Error("Registration failed");
+      return new LoginFailureResponse();
     }
-    const { token, identity, account } = result;
-    return { token, identity, account };
+    return new LoginSuccessResponse(result);
   }
 
   @Mutation(() => LoginResponse, {
@@ -91,12 +122,11 @@ export class LoginResolver {
   async login(
     @Arg("input", { nullable: false }) { username, password }: LoginArgs,
     @Ctx() { loginController }: AppGraphqlContext
-  ): Promise<LoginSuccessResponse> {
+  ): Promise<LoginSuccessResponse | LoginFailureResponse> {
     const result = await loginController.login(username, password);
     if (!result.success) {
-      throw new Error("Login failed");
+      return new LoginFailureResponse();
     }
-    const { token, identity, account } = result;
-    return { token, identity, account };
+    return new LoginSuccessResponse(result);
   }
 }

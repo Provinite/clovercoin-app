@@ -11,6 +11,11 @@ export const createCritterMutation = gql`
           traitId
           value
         }
+        traitListId
+        traitList {
+          id
+          name
+        }
       }
       ... on InvalidArgumentError {
         ...InvalidArgumentErrorFragment

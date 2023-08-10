@@ -25,6 +25,7 @@ import { build } from "./awilix/build.js";
 import { cors } from "./http-middleware/cors.js";
 import { getS3Environment } from "./environment.js";
 import { ImageController } from "./business/ImageController.js";
+import { authChecker } from "./business/auth/AuthChecker.js";
 export interface ServerOptions {
   db: {
     host?: string;
@@ -67,6 +68,7 @@ export const createCloverCoinAppServer = async (options: ServerOptions) => {
       typeof ResolversArray[number]
     >,
     emitSchemaFile: options?.schema.emitFile,
+    authChecker,
     globalMiddlewares: [errorHandler, loggingMiddleware],
   });
 

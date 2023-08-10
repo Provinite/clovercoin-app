@@ -21,7 +21,7 @@ export default class Seed0001Register {
           }
         ) {
           __typename
-          ... on LoginResponse {
+          ... on LoginSuccessResponse {
             identity {
               id
             }

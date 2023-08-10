@@ -118,6 +118,7 @@ export type CritterListResponse = CritterList | InvalidArgumentError;
 export interface CritterModifyInput {
   id: Scalars["ID"];
   name?: InputMaybe<Scalars["String"]>;
+  traitListId?: InputMaybe<Scalars["ID"]>;
   traitValues?: InputMaybe<Array<CritterCreateTraitInput>>;
 }
 
@@ -208,7 +209,15 @@ export interface LoginArgs {
   username?: InputMaybe<Scalars["String"]>;
 }
 
-export type LoginResponse = InvalidArgumentError | LoginSuccessResponse;
+export interface LoginFailureResponse {
+  __typename?: "LoginFailureResponse";
+  message: Scalars["String"];
+}
+
+export type LoginResponse =
+  | InvalidArgumentError
+  | LoginFailureResponse
+  | LoginSuccessResponse;
 
 export interface LoginSuccessResponse {
   __typename?: "LoginSuccessResponse";
@@ -240,7 +249,7 @@ export interface Mutation {
   /** Update an entry on a variant's trait list */
   modifyTraitListEntry: TraitListEntryModifyResponse;
   /** Create a new account and receive an auth token */
-  register: LoginResponse;
+  register: RegisterResponse;
 }
 
 export interface MutationCreateCommunityArgs {
@@ -348,6 +357,11 @@ export interface RegisterArgs {
   password?: InputMaybe<Scalars["String"]>;
   username?: InputMaybe<Scalars["String"]>;
 }
+
+export type RegisterResponse =
+  | DuplicateError
+  | InvalidArgumentError
+  | LoginSuccessResponse;
 
 /** Model representing an arbitrarily broad class of characters that use common variants and administration. */
 export interface Species {
@@ -641,6 +655,7 @@ export type LoginMutation = {
           }>;
         }>;
       }
+    | { __typename: "LoginFailureResponse" }
     | {
         __typename: "LoginSuccessResponse";
         token: string;
@@ -655,6 +670,11 @@ export type RegisterMutationVariables = Exact<{
 export type RegisterMutation = {
   __typename?: "Mutation";
   register:
+    | {
+        __typename: "DuplicateError";
+        duplicateKeys: Array<string>;
+        message: string;
+      }
     | {
         __typename: "InvalidArgumentError";
         message: string;
@@ -1026,11 +1046,13 @@ export type ModifyCritterMutation = {
         __typename: "Critter";
         id: string;
         name: string;
+        traitListId: string;
         traitValues: Array<{
           __typename?: "CritterTraitValue";
           traitId: string;
           value?: string | null;
         }>;
+        traitList: { __typename?: "TraitList"; id: string; name: string };
       }
     | {
         __typename: "InvalidArgumentError";
@@ -1351,6 +1373,13 @@ export type InvalidArgumentErrorFieldPolicy = {
   message?: FieldPolicy<any> | FieldReadFunction<any>;
   validationErrors?: FieldPolicy<any> | FieldReadFunction<any>;
 };
+export type LoginFailureResponseKeySpecifier = (
+  | "message"
+  | LoginFailureResponseKeySpecifier
+)[];
+export type LoginFailureResponseFieldPolicy = {
+  message?: FieldPolicy<any> | FieldReadFunction<any>;
+};
 export type LoginSuccessResponseKeySpecifier = (
   | "account"
   | "identity"
@@ -1615,6 +1644,13 @@ export type StrictTypedTypePolicies = {
       | (() => undefined | InvalidArgumentErrorKeySpecifier);
     fields?: InvalidArgumentErrorFieldPolicy;
   };
+  LoginFailureResponse?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | LoginFailureResponseKeySpecifier
+      | (() => undefined | LoginFailureResponseKeySpecifier);
+    fields?: LoginFailureResponseFieldPolicy;
+  };
   LoginSuccessResponse?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
       | false
@@ -1847,9 +1883,13 @@ export const RegisterDocument = gql`
       ... on InvalidArgumentError {
         ...InvalidArgumentErrorFragment
       }
+      ... on DuplicateError {
+        ...DuplicateErrorFragment
+      }
     }
   }
   ${InvalidArgumentErrorFragmentFragmentDoc}
+  ${DuplicateErrorFragmentFragmentDoc}
 `;
 export const CreateTraitListEntryDocument = gql`
   mutation createTraitListEntry($input: TraitListEntryCreateInput!) {
@@ -2112,6 +2152,11 @@ export const ModifyCritterDocument = gql`
         traitValues {
           traitId
           value
+        }
+        traitListId
+        traitList {
+          id
+          name
         }
       }
       ... on InvalidArgumentError {
@@ -3298,6 +3343,18 @@ export function isInvalidArgumentError(
 
 export type NarrowToInvalidArgumentError<T> = T extends {
   __typename?: "InvalidArgumentError";
+}
+  ? T
+  : never;
+
+export function isLoginFailureResponse(
+  val: unknown
+): val is { __typename: "LoginFailureResponse" } {
+  return hasTypeName(val, "LoginFailureResponse");
+}
+
+export type NarrowToLoginFailureResponse<T> = T extends {
+  __typename?: "LoginFailureResponse";
 }
   ? T
   : never;

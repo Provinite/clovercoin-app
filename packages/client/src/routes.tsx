@@ -10,9 +10,10 @@ import {
   IndexRouteObject,
   LoaderFunctionArgs,
   Navigate,
+  redirect,
 } from "react-router-dom";
 import { Application } from "./Application";
-import { graphqlService } from "./client";
+import { graphqlService } from "./graphql/client";
 import { adminRoutes } from "./ui/admin/adminRoutes";
 import { AppRoutes } from "./ui/AppRoutes";
 import { communityListRoutes } from "./ui/CommunityListPage/communityListRoutes";
@@ -37,39 +38,49 @@ export const routes = [
     element: <Application />,
     errorElement: <PrintError />,
     children: [
-      communityListRoutes,
-      adminRoutes,
       ...loginRoutes(),
-      {
-        index: true,
-        id: "root.index",
-        element: <Navigate to={AppRoutes.communityList()} replace={true} />,
-      },
-      {
-        id: "root.community",
-        path: "community/:communityId",
-        loader: async ({ params: { communityId } }: LoaderFunctionArgs) => {
-          if (!communityId) {
-            throw new Error("Missing community id in route");
+      typedRouteConfig({
+        id: "root.authBarrier",
+        loader: async () => {
+          if (!graphqlService.isClientAuthenticated()) {
+            return redirect(AppRoutes.login());
           }
-          communityId = slugToUuid(communityId);
-          const result = await graphqlService.getCommunity({
-            variables: {
-              filters: {
-                id: communityId,
-              },
-            },
-          });
-
-          if (isCommunity(result.data.community)) {
-            return result.data.community;
-          }
-          throw new Error(
-            `${result.data.community.__typename}: ${result.data.community.message}`
-          );
         },
-        children: [SpeciesDetailRoutes(), speciesListRoutes],
-      },
+        children: [
+          communityListRoutes,
+          adminRoutes,
+          {
+            index: true,
+            id: "root.index",
+            element: <Navigate to={AppRoutes.communityList()} replace={true} />,
+          },
+          {
+            id: "root.community",
+            path: "community/:communityId",
+            loader: async ({ params: { communityId } }: LoaderFunctionArgs) => {
+              if (!communityId) {
+                throw new Error("Missing community id in route");
+              }
+              communityId = slugToUuid(communityId);
+              const result = await graphqlService.getCommunity({
+                variables: {
+                  filters: {
+                    id: communityId,
+                  },
+                },
+              });
+
+              if (isCommunity(result.data.community)) {
+                return result.data.community;
+              }
+              throw new Error(
+                `${result.data.community.__typename}: ${result.data.community.message}`
+              );
+            },
+            children: [SpeciesDetailRoutes(), speciesListRoutes],
+          },
+        ],
+      }),
     ],
   } as const),
 ];

@@ -1,4 +1,5 @@
 import { gql } from "graphql-request";
+import DuplicateErrorFragmentGraphql from "../../utils/error-fragments/DuplicateErrorFragment.graphql";
 import InvalidArgumentErrorFragmentGraphql from "../../utils/error-fragments/InvalidArgumentErrorFragment.graphql";
 
 export const registerMutation = gql`
@@ -15,7 +16,11 @@ export const registerMutation = gql`
       ... on InvalidArgumentError {
         ...InvalidArgumentErrorFragment
       }
+      ... on DuplicateError {
+        ...DuplicateErrorFragment
+      }
     }
   }
   ${InvalidArgumentErrorFragmentGraphql}
+  ${DuplicateErrorFragmentGraphql}
 `;

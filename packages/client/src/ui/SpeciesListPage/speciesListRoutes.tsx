@@ -1,6 +1,6 @@
 import { isSpeciesList, isBaseError } from "@clovercoin/api-client";
 import { LoaderFunctionArgs, ActionFunctionArgs } from "react-router-dom";
-import { graphqlService } from "../../client";
+import { graphqlService } from "../../graphql/client";
 import { typedRouteConfig } from "../../routes";
 import { slugToUuid } from "../../utils/uuidUtils";
 import { SpeciesListProvider } from "./SpeciesListProvider";

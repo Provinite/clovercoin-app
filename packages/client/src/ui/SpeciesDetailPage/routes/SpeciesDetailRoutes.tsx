@@ -2,12 +2,15 @@
  * @file Route configuration and loaders/actions for species
  * detail routes.
  */
-import { graphqlService, uploadService } from "../../../client";
+import { graphqlService, uploadService } from "../../../graphql/client";
 import {
+  CritterCreateTraitInput,
+  CritterListResponse,
   CritterTraitValueType,
   EnumValueSetting,
   ImageContentType,
   isBaseError,
+  isCritterList,
   isDeleteResponse,
   isEnumValueSetting,
   isTrait,
@@ -355,10 +358,11 @@ const critterCreateAction = makeAction(
     allowedMethods: ["POST"],
     slugs: {
       speciesId: true,
+      communityId: true,
     },
     form: {
       name: true,
-      traitListId: true,
+      variantId: true,
       traits: {
         all: true,
       },
@@ -368,17 +372,48 @@ const critterCreateAction = makeAction(
     },
   },
   async ({
-    form: { name, traits: _traits, traitListId },
-    ids: { speciesId },
+    form: { name, traits, values, variantId },
+    ids: { speciesId, communityId },
   }) => {
+    const traitValues = traits.map<CritterCreateTraitInput>((traitId, i) => ({
+      traitId,
+      value: values[i],
+    }));
     await graphqlService.createCritter({
       variables: {
         input: {
           name,
           speciesId,
-          traitListId,
-          traitValues: [],
+          traitListId: variantId,
+          traitValues,
+          ownerId: graphqlService.getTokenPayload().identity.id,
         },
+      },
+      update: (cache, result) => {
+        const newCritter = result.data?.createCritter;
+        if (isBaseError(newCritter) || !newCritter) {
+          return;
+        }
+        // delete critter lists that could possibly include the new critter
+        cache.modify({
+          fields: {
+            critters: (
+              data: CritterListResponse,
+              { DELETE, storeFieldName }
+            ) => {
+              if (!isCritterList(data)) {
+                return data;
+              }
+              if (
+                storeFieldName.includes(communityId) ||
+                storeFieldName.includes(speciesId)
+              ) {
+                return DELETE;
+              }
+              return data;
+            },
+          },
+        });
       },
     });
   }

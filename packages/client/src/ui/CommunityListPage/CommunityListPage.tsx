@@ -1,19 +1,12 @@
 import { FC } from "react";
 import { AppRoutes } from "../AppRoutes";
-import { HeaderBar } from "../HeaderBar/HeaderBar";
+import { HeaderBar, HeaderBarSpacer } from "../HeaderBar/HeaderBar";
 import { useHeaderBarProps } from "../HeaderBar/HeaderBarContext";
 import { SideNav } from "../SideNav/SideNav";
 import SpaIcon from "@mui/icons-material/Spa";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 
-import {
-  Box,
-  Card,
-  CardContent,
-  CardHeader,
-  Grid,
-  Toolbar,
-} from "@mui/material";
+import { Box, Card, CardContent, CardHeader, Grid } from "@mui/material";
 import { useRouteLoaderData } from "../../utils/loaderDataUtils";
 import { GridRow } from "../lib/GridRow";
 import { Link } from "../Link/Link";
@@ -46,7 +39,7 @@ export const CommunityListPage: FC = () => {
           ]}
         />
         <div css={{ flexGrow: 1 }}>
-          <Toolbar />
+          <HeaderBarSpacer />
           <div css={(theme) => ({ padding: theme.spacing(2) })}>
             <Card elevation={1}>
               <CardHeader title={`Communities`} />

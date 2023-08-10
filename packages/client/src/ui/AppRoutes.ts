@@ -4,6 +4,7 @@ import { uuidToSlug } from "../utils/uuidUtils";
 export const AppRouteParts = {
   admin: () => ["admin"],
   login: () => ["login"],
+  logout: () => ["logout"],
   register: () => ["register"],
   community: (communityId: string) => ["community", uuidToSlug(communityId)],
   communityList: () => ["communities"],

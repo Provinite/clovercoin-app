@@ -79,6 +79,7 @@ union CritterListResponse = CritterList | InvalidArgumentError
 input CritterModifyInput {
   id: ID!
   name: String
+  traitListId: ID
   traitValues: [CritterCreateTraitInput!]
 }
 
@@ -157,7 +158,11 @@ input LoginArgs {
   username: String = ""
 }
 
-union LoginResponse = InvalidArgumentError | LoginSuccessResponse
+type LoginFailureResponse {
+  message: String!
+}
+
+union LoginResponse = InvalidArgumentError | LoginFailureResponse | LoginSuccessResponse
 
 type LoginSuccessResponse {
   account: Account!
@@ -194,7 +199,7 @@ type Mutation {
   modifyTraitListEntry(input: TraitListEntryModifyInput!): TraitListEntryModifyResponse!
 
   """Create a new account and receive an auth token"""
-  register(input: RegisterArgs!): LoginResponse!
+  register(input: RegisterArgs!): RegisterResponse!
 }
 
 type NotFoundError implements BaseError {
@@ -217,6 +222,8 @@ input RegisterArgs {
   password: String = ""
   username: String = ""
 }
+
+union RegisterResponse = DuplicateError | InvalidArgumentError | LoginSuccessResponse
 
 """
 Model representing an arbitrarily broad class of characters that use common variants and administration.

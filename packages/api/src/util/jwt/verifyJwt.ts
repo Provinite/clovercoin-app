@@ -1,4 +1,5 @@
-import { verify } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
+const { verify } = jwt;
 import { jwtSecret } from "./jwtSecret.js";
 
 export function verifyJwt<T>(jwt: string): Promise<T> {
