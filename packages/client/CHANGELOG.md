@@ -7,3 +7,7 @@
 - feat(client): implement login, registration flows
 - feat(client): add a basic critter list
 - feat(client): add slug conversion util script
+
+# 1.0.0
+
+- initial release

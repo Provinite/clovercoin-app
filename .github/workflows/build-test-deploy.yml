@@ -193,3 +193,16 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
         run: aws s3 sync . s3://${{ secrets.AWS_CLIENT_BUCKET }}/ --delete
         working-directory: ./packages/client/dist
+
+      # Discord notification
+      - name: Generate condensed changelog
+        id: changelog
+        run: |
+          CC_API_CHANGELOG_CONTENT=$(./bin/latest-changelogs.sh)
+          echo changelog="$CC_API_CHANGELOG_CONTENT" >> "$GITHUB_OUTPUT"
+      - name: Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: "[TEST] Latest Changes: ${{steps.changelog.outputs.changelog}}"
