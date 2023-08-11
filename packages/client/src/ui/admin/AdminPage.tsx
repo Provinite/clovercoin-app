@@ -26,6 +26,7 @@ import { ActionData, RouteType } from "../../routes";
 import CloseIcon from "@mui/icons-material/Close";
 import { Link } from "../Link/Link";
 import { isBaseError } from "@clovercoin/api-client";
+import { UserList } from "./UserList";
 
 export interface AdminPageProps {}
 export const AdminPage: FunctionComponent<AdminPageProps> = () => {
@@ -127,6 +128,14 @@ export const AdminPage: FunctionComponent<AdminPageProps> = () => {
                   </CardActions>
                 </Card>
               </fetcher.Form>
+            </Grid>
+            <Grid item xs={12}>
+              <Card>
+                <CardHeader title="Users" subheader="Just a list of users" />
+                <CardContent>
+                  <UserList />
+                </CardContent>
+              </Card>
             </Grid>
           </Grid>
         </Stack>
