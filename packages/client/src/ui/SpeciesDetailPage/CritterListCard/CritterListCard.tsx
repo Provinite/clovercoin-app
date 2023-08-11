@@ -82,7 +82,7 @@ export const CritterListCard: FC<CritterListCardProps> = ({
       <CardContent>
         <Grid container component={Box}>
           <GridRow xs={[6, 6]}>
-            <Typography p={1} variant="body1">
+            <Typography p={2} variant="body1">
               Name
             </Typography>
             <Typography p={2} variant="body1">

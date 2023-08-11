@@ -328,6 +328,7 @@ export interface Query {
   /** Fetch a community by id and/or name */
   community: CommunityResponse;
   critters: CritterListResponse;
+  identities: Array<Identity>;
   species: SpeciesResponse;
   traits: Array<Trait>;
 }
@@ -1206,6 +1207,18 @@ export type GetSpeciesListViewQuery = {
       };
 };
 
+export type GetIdentityListQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetIdentityListQuery = {
+  __typename?: "Query";
+  identities: Array<{
+    __typename?: "Identity";
+    displayName: string;
+    email: string;
+    id: string;
+  }>;
+};
+
 export type BaseErrorFragment_DuplicateError_Fragment = {
   __typename?: "DuplicateError";
   message: string;
@@ -1439,6 +1452,7 @@ export type QueryKeySpecifier = (
   | "communities"
   | "community"
   | "critters"
+  | "identities"
   | "species"
   | "traits"
   | QueryKeySpecifier
@@ -1447,6 +1461,7 @@ export type QueryFieldPolicy = {
   communities?: FieldPolicy<any> | FieldReadFunction<any>;
   community?: FieldPolicy<any> | FieldReadFunction<any>;
   critters?: FieldPolicy<any> | FieldReadFunction<any>;
+  identities?: FieldPolicy<any> | FieldReadFunction<any>;
   species?: FieldPolicy<any> | FieldReadFunction<any>;
   traits?: FieldPolicy<any> | FieldReadFunction<any>;
 };
@@ -2271,6 +2286,15 @@ export const GetSpeciesListViewDocument = gql`
   ${InvalidArgumentErrorFragmentFragmentDoc}
   ${BaseErrorFragmentFragmentDoc}
 `;
+export const GetIdentityListDocument = gql`
+  query getIdentityList {
+    identities {
+      displayName
+      email
+      id
+    }
+  }
+`;
 export type Requester<C = {}, E = unknown> = <R, V>(
   doc: DocumentNode,
   vars?: V,
@@ -2530,6 +2554,16 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
         variables,
         options
       ) as Promise<GetSpeciesListViewQuery>;
+    },
+    getIdentityList(
+      variables?: GetIdentityListQueryVariables,
+      options?: C
+    ): Promise<GetIdentityListQuery> {
+      return requester<GetIdentityListQuery, GetIdentityListQueryVariables>(
+        GetIdentityListDocument,
+        variables,
+        options
+      ) as Promise<GetIdentityListQuery>;
     },
   };
 }
@@ -3206,6 +3240,33 @@ export class GraphqlService {
     const result = await this.client.query<
       GetSpeciesListViewQuery,
       GetSpeciesListViewQueryVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
+  async getIdentityList(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").QueryOptions<
+          GetIdentityListQueryVariables,
+          GetIdentityListQuery
+        >
+      >,
+      "variables" | "query"
+    > & {
+      variables: GetIdentityListQueryVariables;
+    }
+  ) {
+    const finalOptions = {
+      ...options,
+      query: GetIdentityListDocument,
+    };
+    const result = await this.client.query<
+      GetIdentityListQuery,
+      GetIdentityListQueryVariables
     >(finalOptions);
     if (!hasData(result)) {
       throw new Error("Unknown request failure");

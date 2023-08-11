@@ -1,3 +1,7 @@
+# 2.1.0
+
+- feat(client/admin): add users list
+
 # 2.0.0
 
 - feat(client): add critter creation
