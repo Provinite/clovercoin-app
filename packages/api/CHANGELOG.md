@@ -1,3 +1,7 @@
+# 1.3.0
+
+- feat(api): add identities query
+
 # 1.2.0
 
 - feat(api): add seed scripts
