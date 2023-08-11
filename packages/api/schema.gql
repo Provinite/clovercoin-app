@@ -213,6 +213,7 @@ type Query {
   """Fetch a community by id and/or name"""
   community(filters: CommunityFilters!): CommunityResponse!
   critters(filters: CritterFilters!): CritterListResponse!
+  identities: [Identity!]!
   species(filters: SpeciesFilters): SpeciesResponse!
   traits(filters: TraitFilters!): [Trait!]!
 }

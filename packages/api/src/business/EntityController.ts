@@ -72,7 +72,10 @@ export class EntityController<
     });
   }
 
-  async find(where: FindOptionsWhere<Model>): Promise<Model[]> {
+  async find(where?: FindOptionsWhere<Model>): Promise<Model[]> {
+    if (!where) {
+      return this.repository.find();
+    }
     return this.repository.findBy(where);
   }
 }
