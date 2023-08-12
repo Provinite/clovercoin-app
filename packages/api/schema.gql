@@ -245,7 +245,8 @@ type Query {
 }
 
 input RegisterArgs {
-  email: String = ""
+  email: String!
+  inviteCodeId: String!
   password: String = ""
   username: String = ""
 }

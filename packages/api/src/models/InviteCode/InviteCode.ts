@@ -1,5 +1,5 @@
 import { Field, ID, Int, ObjectType } from "type-graphql";
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Check, Column, Entity, PrimaryColumn } from "typeorm";
 import { Identity } from "../Identity/Identity.js";
 import { ManyToOneField, RelationIdField } from "../relationFieldDecorators.js";
 
@@ -15,6 +15,7 @@ export class InviteCode {
 
   @Field(() => Int, { nullable: false })
   @Column("integer", { nullable: false })
+  @Check("chk_invite_code_not_over_used", '"claimCount" <= "maxClaims"')
   claimCount!: number;
 
   @Field(() => Int, { nullable: false })

@@ -1,4 +1,4 @@
-import { IsEmail, IsStrongPassword, MinLength } from "class-validator";
+import { IsEmail, IsStrongPassword, Matches, MinLength } from "class-validator";
 import {
   Arg,
   createUnionType,
@@ -65,13 +65,17 @@ export class RegisterArgs {
   )
   password: string = "";
 
-  @Field(() => String)
+  @Field(() => String, { nullable: false })
   @IsEmail({
     allow_display_name: false,
     allow_ip_domain: true,
     require_tld: true,
   })
-  email: string = "";
+  email!: string;
+
+  @Field(() => String, { nullable: false })
+  @Matches(/^[a-zA-Z0-9_-]/, { message: "Invalid invite code" })
+  inviteCodeId!: string;
 }
 
 @InputType()
@@ -106,10 +110,15 @@ export class LoginResolver {
   })
   async register(
     @Arg("input", { nullable: false })
-    { username, password, email }: RegisterArgs,
+    { username, password, email, inviteCodeId }: RegisterArgs,
     @Ctx() { loginController }: AppGraphqlContext
   ): Promise<LoginSuccessResponse | LoginFailureResponse> {
-    const result = await loginController.register(username, password, email);
+    const result = await loginController.register(
+      username,
+      password,
+      email,
+      inviteCodeId
+    );
     if (!result.success) {
       return new LoginFailureResponse();
     }
