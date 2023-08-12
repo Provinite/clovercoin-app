@@ -163,7 +163,9 @@ export const InviteCodeList: FC<InviteCodeListProps> = () => {
           <LoadingButton
             type="submit"
             variant="contained"
-            disabled={Object.values(fieldErrors).some((e) => e)}
+            disabled={
+              Object.values(fieldErrors).some((e) => e) || !maxClaims || !code
+            }
           >
             Add One
           </LoadingButton>
