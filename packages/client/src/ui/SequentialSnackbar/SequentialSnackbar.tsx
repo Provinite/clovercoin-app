@@ -1,19 +1,13 @@
 import { Snackbar, SnackbarCloseReason, SnackbarProps } from "@mui/material";
-import {
-  FC,
-  SyntheticEvent,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useInterval } from "../../utils/useInterval";
+import { SnackbarQueue } from "./SnackbarQueue";
 
 /**
  * Snackbar props that we allow to be customized when used
  * with the {@link SequentialSnackbar}
  */
-interface CustomizableSnackbarProps
+export interface CustomizableSnackbarProps
   extends Omit<SnackbarProps, "open" | "onClose" | "TransitionProps"> {}
 
 export interface SequentialSnackbarProps {
@@ -97,38 +91,6 @@ export const SequentialSnackbar: FC<SequentialSnackbarProps> = ({ queue }) => {
     />
   );
 };
-
-/**
- * Queue for use with the {@link SequentialSnackbar}
- */
-export interface SnackbarQueue {
-  /**
-   * The queue of snackbar props to display.
-   */
-  queue: CustomizableSnackbarProps[];
-  /**
-   * Add an item to the end of the queue.
-   * @param item The snackbar props to use
-   */
-  append(item: CustomizableSnackbarProps): void;
-  /**
-   * Remove the front item from the queue.
-   */
-  shift(): void;
-  /**
-   * A boolean indicating whether there is currently a snackbar
-   * being displayed.
-   */
-  isOpen: boolean;
-  /**
-   * Open the snackbar
-   */
-  open: () => void;
-  /**
-   * Close the snackbar
-   */
-  close: (event?: Event | SyntheticEvent, reason?: SnackbarCloseReason) => void;
-}
 
 /**
  * Create a queue for use with the {@link SequentialSnackbar} component

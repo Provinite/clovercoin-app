@@ -7,12 +7,22 @@ import {
   isInvalidArgumentError,
 } from "@clovercoin/api-client";
 import { LoadingButton } from "@mui/lab";
-import { Grid, Stack, TextField, Typography } from "@mui/material";
-import { FC, useEffect, useState } from "react";
+import {
+  Alert,
+  Grid,
+  IconButton,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { FC, useContext, useEffect, useState } from "react";
 import { useFetcher } from "react-router-dom";
 import { ActionData, RouteType } from "../../routes";
 import { AppRoutes } from "../AppRoutes";
 import { GridRow } from "../lib/GridRow";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import { stylesheet } from "../../utils/emotion";
+import { SequentialSnackbarContext } from "../SequentialSnackbar/SequentialSnackbarContext";
 
 export interface InviteCodeListProps {}
 export const InviteCodeList: FC<InviteCodeListProps> = () => {
@@ -30,6 +40,8 @@ export const InviteCodeList: FC<InviteCodeListProps> = () => {
     id: "",
     maxClaims: "",
   });
+
+  const snackbarQueue = useContext(SequentialSnackbarContext);
 
   useEffect(() => {
     if (isDuplicateError(fetcher.data)) {
@@ -95,9 +107,35 @@ export const InviteCodeList: FC<InviteCodeListProps> = () => {
       </Grid>
       {data.inviteCodes.list.map((inviteCode) => (
         <GridRow key={inviteCode.id} xs={[3, 3, 3, 3]}>
-          <Typography variant="body1" p={2}>
-            {inviteCode.id}
-          </Typography>
+          <Stack alignItems="center" direction="row" p={2}>
+            <IconButton
+              color="primary"
+              css={ss.copyButton}
+              onClick={() => {
+                navigator.clipboard.writeText(
+                  new URL(
+                    `${AppRoutes.register()}?code=${inviteCode.id}`,
+                    window.location.href
+                  ).toString()
+                );
+                snackbarQueue.append({
+                  children: (
+                    <Alert
+                      css={{ width: "100%" }}
+                      variant="filled"
+                      severity="success"
+                      onClose={snackbarQueue.close}
+                    >
+                      Link copied: {inviteCode.id}
+                    </Alert>
+                  ),
+                });
+              }}
+            >
+              <ContentCopyIcon />
+            </IconButton>
+            <Typography variant="body1">{inviteCode.id}</Typography>
+          </Stack>
           <Typography variant="body1" p={2}>
             {inviteCode.creator.displayName}
           </Typography>
@@ -174,3 +212,9 @@ export const InviteCodeList: FC<InviteCodeListProps> = () => {
     </Grid>
   );
 };
+
+export const ss = stylesheet({
+  copyButton: (theme) => ({
+    marginRight: theme.spacing(2),
+  }),
+});

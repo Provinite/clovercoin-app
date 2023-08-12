@@ -28,6 +28,7 @@ import { Link } from "../Link/Link";
 import { isBaseError } from "@clovercoin/api-client";
 import { UserList } from "./UserList";
 import { InviteCodeList } from "./InviteCodeList";
+import { SequentialSnackbarContext } from "../SequentialSnackbar/SequentialSnackbarContext";
 
 export interface AdminPageProps {}
 export const AdminPage: FunctionComponent<AdminPageProps> = () => {
@@ -77,7 +78,7 @@ export const AdminPage: FunctionComponent<AdminPageProps> = () => {
     }
   }, [fetcher.state]);
   return (
-    <>
+    <SequentialSnackbarContext.Provider value={snackbarQueue}>
       <SequentialSnackbar queue={snackbarQueue} />
       <HeaderBar {...headerBarProps} title="Site Administration" />
       <Stack direction="row">
@@ -149,6 +150,6 @@ export const AdminPage: FunctionComponent<AdminPageProps> = () => {
           </Grid>
         </Stack>
       </Stack>
-    </>
+    </SequentialSnackbarContext.Provider>
   );
 };
