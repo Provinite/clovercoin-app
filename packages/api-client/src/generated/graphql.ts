@@ -204,6 +204,33 @@ export interface InvalidArgumentError extends BaseError {
   validationErrors: Array<ValidationError>;
 }
 
+export interface InviteCode {
+  __typename?: "InviteCode";
+  claimCount: Scalars["Int"];
+  creator: Identity;
+  creatorId: Scalars["ID"];
+  id: Scalars["ID"];
+  maxClaims: Scalars["Int"];
+}
+
+export interface InviteCodeCreateInput {
+  creatorId: Scalars["ID"];
+  id: Scalars["ID"];
+  maxClaims: Scalars["Int"];
+}
+
+export type InviteCodeCreateResponse =
+  | DuplicateError
+  | InvalidArgumentError
+  | InviteCode;
+
+export interface InviteCodeList {
+  __typename?: "InviteCodeList";
+  list: Array<InviteCode>;
+}
+
+export type InviteCodeResponse = InviteCodeList;
+
 export interface LoginArgs {
   password?: InputMaybe<Scalars["String"]>;
   username?: InputMaybe<Scalars["String"]>;
@@ -232,6 +259,7 @@ export interface Mutation {
   createCommunity: CreateCommunityResponse;
   createCritter: CreateCritterResponse;
   createEnumValueSetting: EnumValueSettingCreateResponse;
+  createInviteCode: InviteCodeCreateResponse;
   createSpecies: SpeciesCreateResponse;
   createSpeciesImageUploadUrl: UrlResponse;
   createTrait: TraitCreateResponse;
@@ -262,6 +290,10 @@ export interface MutationCreateCritterArgs {
 
 export interface MutationCreateEnumValueSettingArgs {
   input: EnumValueSettingCreateInput;
+}
+
+export interface MutationCreateInviteCodeArgs {
+  input: InviteCodeCreateInput;
 }
 
 export interface MutationCreateSpeciesArgs {
@@ -329,6 +361,8 @@ export interface Query {
   community: CommunityResponse;
   critters: CritterListResponse;
   identities: Array<Identity>;
+  /** Fetch invite codes */
+  inviteCodes: InviteCodeResponse;
   species: SpeciesResponse;
   traits: Array<Trait>;
 }
@@ -1207,6 +1241,40 @@ export type GetSpeciesListViewQuery = {
       };
 };
 
+export type CreateInviteCodeMutationVariables = Exact<{
+  input: InviteCodeCreateInput;
+}>;
+
+export type CreateInviteCodeMutation = {
+  __typename?: "Mutation";
+  createInviteCode:
+    | {
+        __typename: "DuplicateError";
+        duplicateKeys: Array<string>;
+        message: string;
+      }
+    | {
+        __typename: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      }
+    | {
+        __typename: "InviteCode";
+        id: string;
+        claimCount: number;
+        maxClaims: number;
+        creator: { __typename?: "Identity"; displayName: string };
+      };
+};
+
 export type GetIdentityListQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetIdentityListQuery = {
@@ -1217,6 +1285,22 @@ export type GetIdentityListQuery = {
     email: string;
     id: string;
   }>;
+};
+
+export type GetInviteCodeListQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetInviteCodeListQuery = {
+  __typename?: "Query";
+  inviteCodes: {
+    __typename: "InviteCodeList";
+    list: Array<{
+      __typename?: "InviteCode";
+      claimCount: number;
+      id: string;
+      maxClaims: number;
+      creator: { __typename?: "Identity"; displayName: string };
+    }>;
+  };
 };
 
 export type BaseErrorFragment_DuplicateError_Fragment = {
@@ -1386,6 +1470,28 @@ export type InvalidArgumentErrorFieldPolicy = {
   message?: FieldPolicy<any> | FieldReadFunction<any>;
   validationErrors?: FieldPolicy<any> | FieldReadFunction<any>;
 };
+export type InviteCodeKeySpecifier = (
+  | "claimCount"
+  | "creator"
+  | "creatorId"
+  | "id"
+  | "maxClaims"
+  | InviteCodeKeySpecifier
+)[];
+export type InviteCodeFieldPolicy = {
+  claimCount?: FieldPolicy<any> | FieldReadFunction<any>;
+  creator?: FieldPolicy<any> | FieldReadFunction<any>;
+  creatorId?: FieldPolicy<any> | FieldReadFunction<any>;
+  id?: FieldPolicy<any> | FieldReadFunction<any>;
+  maxClaims?: FieldPolicy<any> | FieldReadFunction<any>;
+};
+export type InviteCodeListKeySpecifier = (
+  | "list"
+  | InviteCodeListKeySpecifier
+)[];
+export type InviteCodeListFieldPolicy = {
+  list?: FieldPolicy<any> | FieldReadFunction<any>;
+};
 export type LoginFailureResponseKeySpecifier = (
   | "message"
   | LoginFailureResponseKeySpecifier
@@ -1408,6 +1514,7 @@ export type MutationKeySpecifier = (
   | "createCommunity"
   | "createCritter"
   | "createEnumValueSetting"
+  | "createInviteCode"
   | "createSpecies"
   | "createSpeciesImageUploadUrl"
   | "createTrait"
@@ -1427,6 +1534,7 @@ export type MutationFieldPolicy = {
   createCommunity?: FieldPolicy<any> | FieldReadFunction<any>;
   createCritter?: FieldPolicy<any> | FieldReadFunction<any>;
   createEnumValueSetting?: FieldPolicy<any> | FieldReadFunction<any>;
+  createInviteCode?: FieldPolicy<any> | FieldReadFunction<any>;
   createSpecies?: FieldPolicy<any> | FieldReadFunction<any>;
   createSpeciesImageUploadUrl?: FieldPolicy<any> | FieldReadFunction<any>;
   createTrait?: FieldPolicy<any> | FieldReadFunction<any>;
@@ -1453,6 +1561,7 @@ export type QueryKeySpecifier = (
   | "community"
   | "critters"
   | "identities"
+  | "inviteCodes"
   | "species"
   | "traits"
   | QueryKeySpecifier
@@ -1462,6 +1571,7 @@ export type QueryFieldPolicy = {
   community?: FieldPolicy<any> | FieldReadFunction<any>;
   critters?: FieldPolicy<any> | FieldReadFunction<any>;
   identities?: FieldPolicy<any> | FieldReadFunction<any>;
+  inviteCodes?: FieldPolicy<any> | FieldReadFunction<any>;
   species?: FieldPolicy<any> | FieldReadFunction<any>;
   traits?: FieldPolicy<any> | FieldReadFunction<any>;
 };
@@ -1658,6 +1768,20 @@ export type StrictTypedTypePolicies = {
       | InvalidArgumentErrorKeySpecifier
       | (() => undefined | InvalidArgumentErrorKeySpecifier);
     fields?: InvalidArgumentErrorFieldPolicy;
+  };
+  InviteCode?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | InviteCodeKeySpecifier
+      | (() => undefined | InviteCodeKeySpecifier);
+    fields?: InviteCodeFieldPolicy;
+  };
+  InviteCodeList?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | InviteCodeListKeySpecifier
+      | (() => undefined | InviteCodeListKeySpecifier);
+    fields?: InviteCodeListFieldPolicy;
   };
   LoginFailureResponse?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
@@ -2286,12 +2410,52 @@ export const GetSpeciesListViewDocument = gql`
   ${InvalidArgumentErrorFragmentFragmentDoc}
   ${BaseErrorFragmentFragmentDoc}
 `;
+export const CreateInviteCodeDocument = gql`
+  mutation createInviteCode($input: InviteCodeCreateInput!) {
+    createInviteCode(input: $input) {
+      __typename
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+      ... on DuplicateError {
+        ...DuplicateErrorFragment
+      }
+      ... on InviteCode {
+        id
+        creator {
+          displayName
+        }
+        claimCount
+        maxClaims
+      }
+    }
+  }
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+  ${DuplicateErrorFragmentFragmentDoc}
+`;
 export const GetIdentityListDocument = gql`
   query getIdentityList {
     identities {
       displayName
       email
       id
+    }
+  }
+`;
+export const GetInviteCodeListDocument = gql`
+  query getInviteCodeList {
+    inviteCodes {
+      __typename
+      ... on InviteCodeList {
+        list {
+          claimCount
+          id
+          maxClaims
+          creator {
+            displayName
+          }
+        }
+      }
     }
   }
 `;
@@ -2555,6 +2719,19 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
         options
       ) as Promise<GetSpeciesListViewQuery>;
     },
+    createInviteCode(
+      variables: CreateInviteCodeMutationVariables,
+      options?: C
+    ): Promise<CreateInviteCodeMutation> {
+      return requester<
+        CreateInviteCodeMutation,
+        CreateInviteCodeMutationVariables
+      >(
+        CreateInviteCodeDocument,
+        variables,
+        options
+      ) as Promise<CreateInviteCodeMutation>;
+    },
     getIdentityList(
       variables?: GetIdentityListQueryVariables,
       options?: C
@@ -2564,6 +2741,16 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
         variables,
         options
       ) as Promise<GetIdentityListQuery>;
+    },
+    getInviteCodeList(
+      variables?: GetInviteCodeListQueryVariables,
+      options?: C
+    ): Promise<GetInviteCodeListQuery> {
+      return requester<GetInviteCodeListQuery, GetInviteCodeListQueryVariables>(
+        GetInviteCodeListDocument,
+        variables,
+        options
+      ) as Promise<GetInviteCodeListQuery>;
     },
   };
 }
@@ -3247,6 +3434,38 @@ export class GraphqlService {
     return result;
   }
 
+  async createInviteCode(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").MutationOptions<
+          CreateInviteCodeMutation,
+          CreateInviteCodeMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: CreateInviteCodeMutationVariables;
+    }
+  ): Promise<
+    Omit<
+      import("@apollo/client/core").FetchResult<CreateInviteCodeMutation>,
+      "data"
+    > & { data: CreateInviteCodeMutation }
+  > {
+    const finalOptions = {
+      ...options,
+      mutation: CreateInviteCodeDocument,
+    };
+    const result = await this.client.mutate<
+      CreateInviteCodeMutation,
+      CreateInviteCodeMutationVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
   async getIdentityList(
     options: Omit<
       Partial<
@@ -3267,6 +3486,33 @@ export class GraphqlService {
     const result = await this.client.query<
       GetIdentityListQuery,
       GetIdentityListQueryVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
+  async getInviteCodeList(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").QueryOptions<
+          GetInviteCodeListQueryVariables,
+          GetInviteCodeListQuery
+        >
+      >,
+      "variables" | "query"
+    > & {
+      variables: GetInviteCodeListQueryVariables;
+    }
+  ) {
+    const finalOptions = {
+      ...options,
+      query: GetInviteCodeListDocument,
+    };
+    const result = await this.client.query<
+      GetInviteCodeListQuery,
+      GetInviteCodeListQueryVariables
     >(finalOptions);
     if (!hasData(result)) {
       throw new Error("Unknown request failure");
@@ -3404,6 +3650,28 @@ export function isInvalidArgumentError(
 
 export type NarrowToInvalidArgumentError<T> = T extends {
   __typename?: "InvalidArgumentError";
+}
+  ? T
+  : never;
+
+export function isInviteCode(
+  val: unknown
+): val is { __typename: "InviteCode" } {
+  return hasTypeName(val, "InviteCode");
+}
+
+export type NarrowToInviteCode<T> = T extends { __typename?: "InviteCode" }
+  ? T
+  : never;
+
+export function isInviteCodeList(
+  val: unknown
+): val is { __typename: "InviteCodeList" } {
+  return hasTypeName(val, "InviteCodeList");
+}
+
+export type NarrowToInviteCodeList<T> = T extends {
+  __typename?: "InviteCodeList";
 }
   ? T
   : never;

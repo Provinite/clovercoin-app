@@ -27,6 +27,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Link } from "../Link/Link";
 import { isBaseError } from "@clovercoin/api-client";
 import { UserList } from "./UserList";
+import { InviteCodeList } from "./InviteCodeList";
 
 export interface AdminPageProps {}
 export const AdminPage: FunctionComponent<AdminPageProps> = () => {
@@ -134,6 +135,14 @@ export const AdminPage: FunctionComponent<AdminPageProps> = () => {
                 <CardHeader title="Users" subheader="Just a list of users" />
                 <CardContent>
                   <UserList />
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12}>
+              <Card>
+                <CardHeader title="Invite Codes" />
+                <CardContent>
+                  <InviteCodeList />
                 </CardContent>
               </Card>
             </Grid>

@@ -48,7 +48,7 @@ export const routes = [
         },
         children: [
           communityListRoutes,
-          adminRoutes,
+          ...adminRoutes(),
           {
             index: true,
             id: "root.index",

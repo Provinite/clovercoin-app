@@ -11,7 +11,7 @@ import { TraitController } from "../models/Trait/TraitController.js";
 import { TraitListController } from "../models/TraitList/TraitListController.js";
 import { TraitListEntryController } from "../models/TraitListEntry/TraitListEntryController.js";
 import { LoginController } from "./LoginController.js";
-import { InviteCodeController } from "../models/InviteCode/InvoteCodeController.js";
+import { InviteCodeController } from "../models/InviteCode/InviteCodeController.js";
 /**
  * Add controllers here when they are created to make them available
  * via graphql context etc. Handles typing as well.
