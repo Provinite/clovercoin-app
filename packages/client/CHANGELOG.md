@@ -1,3 +1,9 @@
+# 2.2.0
+
+- Adds a mandatory invitation code field to registration
+- Adds an invitation code list to the admin page
+- Adds the ability to create invite codes to the admin page
+
 # 2.1.0
 
 - feat(client/admin): add users list

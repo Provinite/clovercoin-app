@@ -1,3 +1,11 @@
+# 2.0.0
+
+- Adds support for invite codes
+- Makes invite codes mandatory when registering
+- Fixes a bug that caused "creates" to be conflated with "updates" on all actions
+- Adds a CC_ADMIN_EMAIL env var to assist in bootstrapping the first admin user in a new environment.
+- **Breaking Change** Updates seed scripts to require a CC_ADMIN_EMAIL
+
 # 1.3.0
 
 - feat(api): add identities query
