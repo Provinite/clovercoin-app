@@ -79,3 +79,7 @@ export const getS3Environment = () => ({
   endpoint: optional("CC_AWS_S3_ENDPOINT"),
   bucket: required("CC_IMG_BUCKET"),
 });
+
+export const getBootstrapEnvironment = () => ({
+  adminEmail: optional("CC_ADMIN_EMAIL"),
+});

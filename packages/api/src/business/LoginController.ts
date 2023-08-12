@@ -16,9 +16,14 @@ export interface JwtPayload {
 }
 export class LoginController {
   #transactionProvider: TransactionProvider;
+  #adminEmail: string;
 
-  constructor({ transactionProvider }: AppGraphqlContext) {
+  constructor({
+    transactionProvider,
+    bootstrapEnvironment,
+  }: AppGraphqlContext) {
     this.#transactionProvider = transactionProvider;
+    this.#adminEmail = bootstrapEnvironment.adminEmail;
   }
 
   /**
@@ -41,19 +46,22 @@ export class LoginController {
         accountController,
         inviteCodeController,
       }) => {
-        try {
-          await inviteCodeController.claimInviteCodeOrThrow(inviteCodeId);
-        } catch (err) {
-          if (err instanceof NotFoundError) {
-            throw InvalidArgumentError.fromFieldMap({
-              inviteCodeId: "Invite code not found",
-            });
-          } else if (err instanceof InviteCodeExhaustedError) {
-            throw InvalidArgumentError.fromFieldMap({
-              inviteCodeId: err.message,
-            });
+        // The bootstrap admin email can bypass invite requirements
+        if (email !== this.#adminEmail) {
+          try {
+            await inviteCodeController.claimInviteCodeOrThrow(inviteCodeId);
+          } catch (err) {
+            if (err instanceof NotFoundError) {
+              throw InvalidArgumentError.fromFieldMap({
+                inviteCodeId: "Invite code not found",
+              });
+            } else if (err instanceof InviteCodeExhaustedError) {
+              throw InvalidArgumentError.fromFieldMap({
+                inviteCodeId: err.message,
+              });
+            }
+            throw err;
           }
-          throw err;
         }
         const identity = await identityController.create({
           displayName: username,
