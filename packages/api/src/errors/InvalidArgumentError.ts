@@ -4,6 +4,22 @@ import { BaseError } from "./BaseError.js";
 
 @ObjectType({ implements: BaseError })
 export class InvalidArgumentError extends BaseError {
+  static fromFieldMap(fieldMap: Record<string, string>) {
+    const result = new InvalidArgumentError(
+      `Invalid ${Object.keys(fieldMap).join(", ")}`
+    );
+    result.validationErrors = Object.entries(fieldMap).map(
+      ([key, errorMessage]) =>
+        new ValidationErrorObject({
+          property: key,
+          constraints: {
+            isValid: errorMessage,
+          },
+        })
+    );
+
+    return result;
+  }
   static fromTypegraphqlValidationError(err: unknown) {
     if (err instanceof ArgumentValidationError) {
       const result = new InvalidArgumentError(err.message);
@@ -25,7 +41,7 @@ export class InvalidArgumentError extends BaseError {
 }
 
 @ObjectType("ValidationError")
-class ValidationErrorObject {
+export class ValidationErrorObject {
   constructor(validationError: ValidationError) {
     this.field = validationError.property;
     this.constraints = [];
@@ -43,7 +59,7 @@ class ValidationErrorObject {
 }
 
 @ObjectType()
-class ValidationConstraint {
+export class ValidationConstraint {
   constructor(key: string, description: string) {
     this.key = key;
     this.description = description;

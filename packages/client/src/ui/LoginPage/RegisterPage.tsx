@@ -5,10 +5,11 @@ import {
 import { LoadingButton } from "@mui/lab";
 import { Card, TextField, Typography } from "@mui/material";
 import { FC, useEffect, useState } from "react";
-import { Form, useFetcher } from "react-router-dom";
+import { Form, useFetcher, useSearchParams } from "react-router-dom";
 import { stylesheet } from "../../utils/emotion";
 import { useRouteActionData } from "../../utils/loaderDataUtils";
 import { AppRoutes } from "../AppRoutes";
+import { Link } from "../Link/Link";
 
 export const RegisterPage: FC = () => {
   const fetcher = useFetcher();
@@ -18,11 +19,22 @@ export const RegisterPage: FC = () => {
     username: "",
     password: "",
     repeatPassword: "",
+    inviteCodeId: "",
   });
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
+  const [inviteCodeId, setInviteCodeId] = useState("");
+
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const code = searchParams.get("code");
+    if (code) {
+      setInviteCodeId(code);
+    }
+  }, [searchParams.get("code")]);
 
   useEffect(() => {
     if (!error) return;
@@ -63,6 +75,13 @@ export const RegisterPage: FC = () => {
   useEffect(() => {
     setFieldErrors((fieldErrors) => ({
       ...fieldErrors,
+      inviteCodeId: "",
+    }));
+  }, [inviteCodeId]);
+
+  useEffect(() => {
+    setFieldErrors((fieldErrors) => ({
+      ...fieldErrors,
       username: "",
     }));
   }, [username]);
@@ -82,11 +101,16 @@ export const RegisterPage: FC = () => {
           Sign up to get started managing your species!
         </Typography>
         <br />
+        <Typography variant="body1">
+          <Link to={AppRoutes.login()}>Back to login</Link>
+        </Typography>
+        <br />
         <TextField
           label="Email"
           type="email"
           name="email"
           fullWidth
+          required
           css={ss.field}
           error={Boolean(fieldErrors.email)}
           helperText={fieldErrors.email}
@@ -98,6 +122,7 @@ export const RegisterPage: FC = () => {
           type="text"
           name="username"
           fullWidth
+          required
           css={ss.field}
           error={Boolean(fieldErrors.username)}
           helperText={fieldErrors.username}
@@ -109,6 +134,7 @@ export const RegisterPage: FC = () => {
           type="password"
           name="password"
           fullWidth
+          required
           css={ss.field}
           error={Boolean(fieldErrors.password)}
           helperText={fieldErrors.password}
@@ -120,10 +146,24 @@ export const RegisterPage: FC = () => {
           type="password"
           name="repeatPassword"
           fullWidth
+          required
           css={ss.field}
           error={Boolean(fieldErrors.repeatPassword)}
           helperText={fieldErrors.repeatPassword}
           onChange={({ target: { value } }) => setRepeatPassword(value)}
+          value={repeatPassword}
+        />
+        <TextField
+          label="Invite Code"
+          type="string"
+          name="inviteCodeId"
+          fullWidth
+          required
+          css={ss.field}
+          error={Boolean(fieldErrors.inviteCodeId)}
+          helperText={fieldErrors.inviteCodeId}
+          onChange={({ target: { value } }) => setInviteCodeId(value)}
+          value={inviteCodeId}
         />
         <LoadingButton
           css={ss.field}

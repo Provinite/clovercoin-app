@@ -5,6 +5,7 @@ import { CommunityResolver } from "../models/Community/CommunityResolver.js";
 import { CritterResolver } from "../models/Critter/CritterResolver.js";
 import { EnumValueSettingResolver } from "../models/EnumValueSetting/EnumValueSettingResolver.js";
 import { IdentityResolver } from "../models/Identity/IdentityResolver.js";
+import { InviteCodeResolver } from "../models/InviteCode/InviteCodeResolver.js";
 import { SpeciesResolver } from "../models/Species/SpeciesResolver.js";
 import { TraitResolver } from "../models/Trait/TraitResolver.js";
 import { TraitListResolver } from "../models/TraitList/TraitListResolver.js";
@@ -25,6 +26,7 @@ export const ResolversMap = {
   TraitListEntryResolver,
   EnumValueSettingResolver,
   IdentityResolver,
+  InviteCodeResolver,
 };
 
 export const ResolversArray = Object.values(ResolversMap);

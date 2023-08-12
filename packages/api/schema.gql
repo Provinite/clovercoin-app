@@ -153,6 +153,28 @@ type InvalidArgumentError implements BaseError {
   validationErrors: [ValidationError!]!
 }
 
+type InviteCode {
+  claimCount: Int!
+  creator: Identity!
+  creatorId: ID!
+  id: ID!
+  maxClaims: Int!
+}
+
+input InviteCodeCreateInput {
+  creatorId: ID!
+  id: ID!
+  maxClaims: Int!
+}
+
+union InviteCodeCreateResponse = DuplicateError | InvalidArgumentError | InviteCode
+
+type InviteCodeList {
+  list: [InviteCode!]!
+}
+
+union InviteCodeResponse = InviteCodeList
+
 input LoginArgs {
   password: String = ""
   username: String = ""
@@ -175,6 +197,7 @@ type Mutation {
   createCommunity(input: CommunityCreateInput!): CreateCommunityResponse!
   createCritter(input: CritterCreateInput!): CreateCritterResponse!
   createEnumValueSetting(input: EnumValueSettingCreateInput!): enumValueSettingCreateResponse!
+  createInviteCode(input: InviteCodeCreateInput!): InviteCodeCreateResponse!
   createSpecies(input: SpeciesCreateInput!): SpeciesCreateResponse!
   createSpeciesImageUploadUrl(input: SpeciesImageUrlCreateInput!): UrlResponse!
   createTrait(input: TraitCreateInput!): TraitCreateResponse!
@@ -214,12 +237,16 @@ type Query {
   community(filters: CommunityFilters!): CommunityResponse!
   critters(filters: CritterFilters!): CritterListResponse!
   identities: [Identity!]!
+
+  """Fetch invite codes"""
+  inviteCodes: InviteCodeResponse!
   species(filters: SpeciesFilters): SpeciesResponse!
   traits(filters: TraitFilters!): [Trait!]!
 }
 
 input RegisterArgs {
-  email: String = ""
+  email: String!
+  inviteCodeId: String!
   password: String = ""
   username: String = ""
 }

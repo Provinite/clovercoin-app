@@ -1,7 +1,7 @@
 import { Alert, AlertProps, Button, IconButton, Link } from "@mui/material";
 import { forwardRef } from "react";
 import { Link as RouteLink } from "react-router-dom";
-import { SnackbarQueue } from "../../SequentialSnackbar/SequentialSnackbar";
+import { SnackbarQueue } from "../../SequentialSnackbar/SnackbarQueue";
 import CloseIcon from "@mui/icons-material/Close";
 import { stylesheet } from "../../../utils/emotion";
 

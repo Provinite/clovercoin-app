@@ -1,6 +1,7 @@
 import { ObjectType, Field } from "type-graphql";
 import { QueryFailedError } from "typeorm/error/QueryFailedError.js";
 import { BaseError } from "./BaseError.js";
+import { PostgresErrorCodes } from "./PostgresErrorCodes.js";
 
 const pattern = /\((?<field>.*?)\)=\((?<value>.*?)\)/g;
 
@@ -15,7 +16,10 @@ export class DuplicateError extends BaseError {
 
   static fromPostgresError(err: any) {
     if (err instanceof QueryFailedError) {
-      if (err.driverError?.code?.toString() === "23505") {
+      if (
+        err.driverError?.code?.toString() ===
+        PostgresErrorCodes.UniqueConstraintViolation
+      ) {
         const errorDetail: string = err.driverError.detail ?? "";
 
         const keys: string[] = [];

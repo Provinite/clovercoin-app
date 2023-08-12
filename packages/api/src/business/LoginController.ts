@@ -1,7 +1,10 @@
 import { TransactionProvider } from "../db/TransactionProvider.js";
+import { InvalidArgumentError } from "../errors/InvalidArgumentError.js";
+import { NotFoundError } from "../errors/NotFoundError.js";
 import type { AppGraphqlContext } from "../graphql/AppGraphqlContext.js";
 import { Account } from "../models/Account/Account.js";
 import { Identity } from "../models/Identity/Identity.js";
+import { InviteCodeExhaustedError } from "../models/InviteCode/InviteCodeConsumedError.js";
 import { createJwt } from "../util/jwt/createJwt.js";
 
 export type LoggedInResult =
@@ -13,9 +16,14 @@ export interface JwtPayload {
 }
 export class LoginController {
   #transactionProvider: TransactionProvider;
+  #adminEmail: string;
 
-  constructor({ transactionProvider }: AppGraphqlContext) {
+  constructor({
+    transactionProvider,
+    bootstrapEnvironment,
+  }: AppGraphqlContext) {
     this.#transactionProvider = transactionProvider;
+    this.#adminEmail = bootstrapEnvironment.adminEmail;
   }
 
   /**
@@ -23,20 +31,42 @@ export class LoginController {
    * @param username
    * @param plaintextPassword
    * @param email
+   * @param inviteCodeId
    * @returns
    */
   async register(
     username: string,
     plaintextPassword: string,
-    email: string
+    email: string,
+    inviteCodeId: string
   ): Promise<LoggedInResult> {
     return this.#transactionProvider.runTransaction(
-      async ({ identityController, accountController }) => {
+      async ({
+        identityController,
+        accountController,
+        inviteCodeController,
+      }) => {
+        // The bootstrap admin email can bypass invite requirements
+        if (!this.#adminEmail || email !== this.#adminEmail) {
+          try {
+            await inviteCodeController.claimInviteCodeOrThrow(inviteCodeId);
+          } catch (err) {
+            if (err instanceof NotFoundError) {
+              throw InvalidArgumentError.fromFieldMap({
+                inviteCodeId: "Invite code not found",
+              });
+            } else if (err instanceof InviteCodeExhaustedError) {
+              throw InvalidArgumentError.fromFieldMap({
+                inviteCodeId: err.message,
+              });
+            }
+            throw err;
+          }
+        }
         const identity = await identityController.create({
           displayName: username,
           email,
         });
-        console.log(identity);
         const [account, token] = await Promise.all([
           accountController.create({
             username,

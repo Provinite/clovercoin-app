@@ -2,6 +2,7 @@ import {
   DeepPartial,
   DeleteResult,
   FindOptionsWhere,
+  In,
   ObjectLiteral,
   Repository,
 } from "typeorm";
@@ -36,7 +37,13 @@ export class EntityController<
    * @returns The created models
    */
   async insert(models: Model[]): Promise<Model[]> {
-    return this.repository.save(models);
+    const result = await this.repository.insert(models);
+    const createdModelResults: Model[] = result.identifiers as any;
+    return this.repository.find({
+      where: {
+        id: In(createdModelResults.map((model) => model.id)),
+      } as any,
+    });
   }
 
   /**

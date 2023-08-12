@@ -54,9 +54,9 @@ const loginAction = makeAction(
 const registerAction = makeAction(
   {
     allowedMethods: ["post"],
-    form: { username: true, password: true, email: true },
+    form: { username: true, password: true, email: true, inviteCodeId: true },
   },
-  async ({ form: { username, password, email } }) => {
+  async ({ form: { username, password, email, inviteCodeId } }) => {
     const {
       data: { register: result },
     } = await graphqlService.register({
@@ -65,6 +65,7 @@ const registerAction = makeAction(
           username,
           password,
           email,
+          inviteCodeId,
         },
       },
     });
