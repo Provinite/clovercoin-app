@@ -160,7 +160,11 @@ export const InviteCodeList: FC<InviteCodeListProps> = () => {
           alignContent="center"
           p={2}
         >
-          <LoadingButton type="submit" variant="contained">
+          <LoadingButton
+            type="submit"
+            variant="contained"
+            disabled={Object.values(fieldErrors).some((e) => e)}
+          >
             Add One
           </LoadingButton>
         </Grid>
