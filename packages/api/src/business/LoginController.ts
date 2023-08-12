@@ -47,7 +47,7 @@ export class LoginController {
         inviteCodeController,
       }) => {
         // The bootstrap admin email can bypass invite requirements
-        if (email !== this.#adminEmail) {
+        if (!this.#adminEmail || email !== this.#adminEmail) {
           try {
             await inviteCodeController.claimInviteCodeOrThrow(inviteCodeId);
           } catch (err) {
