@@ -1,6 +1,7 @@
 #!/bin/bash
 if [ -f CHANGELOG.md ]; then
   echo "# $npm_package_name"
-  sed -n -e '/#/,/#/ p' CHANGELOG.md | head -n -2
+  grep "# [0-9]" -m 1 CHANGELOG.md | head -1
+  awk '/^# [0-9]/ { if (p) { exit }; if ($3 == ver) { p=1; next } } p && NF' CHANGELOG.md
   echo ""
 fi;
