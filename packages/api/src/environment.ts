@@ -69,17 +69,60 @@ export const getHttpEnvironment = () => ({
 
 export const getJwtConfig = () => ({
   /**
-   * The secret to use to encode and verify JWTs for authentication.
+   * The secret to use to encode and verify JWTs for authentication. Must be provided
+   * if JWT_SECRET_ARN isn't.
    */
   secret: optional("CC_JWT_SECRET"),
+  /**
+   * The ARN of a secrets manager secret containing the JWT secret. Must be provided
+   * if CC_JWT_SECRET isn't.
+   */
   secretArn: optional("JWT_SECRET_ARN"),
 });
 
 export const getS3Environment = () => ({
+  /**
+   * The endpoint to use for S3. If not provided, defaults to production AWS
+   * s3.
+   */
   endpoint: optional("CC_AWS_S3_ENDPOINT"),
+  /**
+   * The name of the bucket to use for image uploads.
+   */
   bucket: required("CC_IMG_BUCKET"),
 });
 
 export const getBootstrapEnvironment = () => ({
+  /**
+   * A single account may be registered with this email without an invite code. Used
+   * to bootstrap new environments.
+   */
   adminEmail: optional("CC_ADMIN_EMAIL"),
+});
+
+export const getSesEnvironment = () => ({
+  /**
+   * The endpoint to use for SES. If not provided, defaults to production aws
+   * ses.
+   */
+  endpoint: optional("CC_AWS_SES_ENDPOINT"),
+  /**
+   * The "from" address to use in emails
+   */
+  fromAddress: required("CC_AWS_SES_FROM_ADDRESS"),
+});
+
+export const getAppEnvironment = () => ({
+  /**
+   * The user-friendly name for this environment. eg "Beta".
+   */
+  envName: optional("CC_ENV_NAME") || "Dev",
+  /**
+   * The name of the application. Used in user-facing messages to refer to the system.
+   */
+  appName: optional("CC_APP_NAME") || "CloverCoin Species",
+  /**
+   * The origin for the web client in this env. Used to generate links in emails.
+   */
+  webAppOrigin: required("CC_WEB_CLIENT_ORIGIN"),
 });

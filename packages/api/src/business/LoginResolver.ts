@@ -1,3 +1,4 @@
+import { SendEmailCommand, SESClient } from "@aws-sdk/client-ses";
 import { IsEmail, IsStrongPassword, Matches, MinLength } from "class-validator";
 import {
   Arg,
@@ -89,6 +90,29 @@ export class LoginArgs {
   password: string = "";
 }
 
+@InputType()
+export class RequestPasswordResetInput {
+  @Field(() => String, { nullable: false })
+  @IsEmail({
+    allow_display_name: false,
+    allow_ip_domain: true,
+    require_tld: true,
+  })
+  email!: string;
+}
+
+@ObjectType()
+export class RequestPasswordResetReceivedResponse {
+  @Field(() => String, { nullable: false })
+  message =
+    "If the email you provided matches an account, it will receive an email with next steps.";
+}
+
+const RequestPasswordResetResponse = createUnionType({
+  name: "RequestPasswordResetResponse",
+  types: () => [RequestPasswordResetReceivedResponse, InvalidArgumentError],
+});
+
 const LoginResponse = createUnionType({
   name: "LoginResponse",
   types: () => [
@@ -137,5 +161,44 @@ export class LoginResolver {
       return new LoginFailureResponse();
     }
     return new LoginSuccessResponse(result);
+  }
+
+  @Mutation(() => RequestPasswordResetResponse, { description: "" })
+  async requestPasswordReset(
+    @Arg("input", { nullable: false }) { email }: RequestPasswordResetInput,
+    @Ctx()
+    {
+      identityController,
+      sesConfig,
+      sesEnvironment,
+      appEnvironment,
+    }: AppGraphqlContext
+  ) {
+    const identities = await identityController.find({
+      email,
+    });
+    if (identities.length) {
+      const sesClient = new SESClient(sesConfig);
+      await sesClient.send(
+        new SendEmailCommand({
+          Destination: {
+            ToAddresses: [email],
+          },
+          Source: sesEnvironment.fromAddress,
+          Message: {
+            Subject: {
+              Data: "Password reset request",
+            },
+            Body: {
+              Html:
+                `A a password reset was requested for the ${appEnvironment.envName} ${appEnvironment.appName} account tied to this email address.\n` +
+                `\n`,
+                `If you requested this, visit the following URL to create a new password: <a href="`
+            },
+          },
+        })
+      );
+      sesClient.destroy();
+    }
   }
 }
