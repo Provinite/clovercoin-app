@@ -121,7 +121,6 @@ export const InviteCodeList: FC<InviteCodeListProps> = () => {
                 snackbarQueue.append({
                   children: (
                     <Alert
-                      css={{ width: "100%" }}
                       variant="filled"
                       severity="success"
                       onClose={snackbarQueue.close}
