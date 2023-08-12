@@ -74,7 +74,7 @@ export class RegisterArgs {
   email!: string;
 
   @Field(() => String, { nullable: false })
-  @Matches(/^[a-zA-Z0-9_-]/, { message: "Invalid invite code" })
+  @Matches(/^[a-zA-Z0-9_-]+$/, { message: "Invalid invite code" })
   inviteCodeId!: string;
 }
 

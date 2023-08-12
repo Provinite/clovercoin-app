@@ -41,7 +41,7 @@ export class InviteCodeList {
 export class InviteCodeCreateInput {
   @Field(() => ID, { nullable: false })
   @MinLength(1)
-  @Matches(/^[a-zA-Z0-9_-]/, {
+  @Matches(/^[a-zA-Z0-9_-]+$/, {
     message:
       "Invite code id may only contain numbers, letters, underscores, and hyphens",
   })

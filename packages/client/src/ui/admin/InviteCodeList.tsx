@@ -4,6 +4,7 @@ import {
   GetInviteCodeListQuery,
   GetInviteCodeListQueryVariables,
   isDuplicateError,
+  isInvalidArgumentError,
 } from "@clovercoin/api-client";
 import { LoadingButton } from "@mui/lab";
 import { Grid, Stack, TextField, Typography } from "@mui/material";
@@ -36,6 +37,13 @@ export const InviteCodeList: FC<InviteCodeListProps> = () => {
         setFieldErrors((fieldErrors) => ({
           ...fieldErrors,
           [key]: "Already in use",
+        }));
+      }
+    } else if (isInvalidArgumentError(fetcher.data)) {
+      for (const { field, constraints } of fetcher.data.validationErrors) {
+        setFieldErrors((fieldErrors) => ({
+          ...fieldErrors,
+          [field]: constraints.map((c) => c.description).join(", "),
         }));
       }
     }
@@ -86,7 +94,7 @@ export const InviteCodeList: FC<InviteCodeListProps> = () => {
         Total Uses
       </Grid>
       {data.inviteCodes.list.map((inviteCode) => (
-        <GridRow xs={[3, 3, 3, 3]}>
+        <GridRow key={inviteCode.id} xs={[3, 3, 3, 3]}>
           <Typography variant="body1" p={2}>
             {inviteCode.id}
           </Typography>
@@ -147,7 +155,7 @@ export const InviteCodeList: FC<InviteCodeListProps> = () => {
           item
           xs={2}
           component={Stack}
-          direction="column"
+          css={{ flexDirection: "column" }}
           justifyContent="center"
           alignContent="center"
           p={2}

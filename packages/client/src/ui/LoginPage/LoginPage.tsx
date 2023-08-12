@@ -59,7 +59,7 @@ export const LoginPage: FC = () => {
         for (const { field, constraints } of err.validationErrors) {
           setFieldErrors((fieldErrors) => ({
             ...fieldErrors,
-            [field]: constraints.join(", "),
+            [field]: constraints.map((c) => c.description).join(", "),
           }));
         }
       },
