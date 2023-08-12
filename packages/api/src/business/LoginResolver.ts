@@ -190,10 +190,12 @@ export class LoginResolver {
               Data: "Password reset request",
             },
             Body: {
-              Html:
-                `A a password reset was requested for the ${appEnvironment.envName} ${appEnvironment.appName} account tied to this email address.\n` +
-                `\n`,
-                `If you requested this, visit the following URL to create a new password: <a href="`
+              Html: {
+                Data:
+                  `A a password reset was requested for the ${appEnvironment.envName} ${appEnvironment.appName} account tied to this email address.\n\n` +
+                  `If you requested this, visit the following URL to create a new password: ` +
+                  `<a href="${appEnvironment.webAppOrigin}/reset-password?code=SOME_CODE">${appEnvironment.webAppOrigin}/reset-password?code=SOME_CODE</a>`,
+              },
             },
           },
         })

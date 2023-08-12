@@ -84,6 +84,10 @@ export const LoginPage: FC = () => {
         <Typography variant="body1">
           New Here? <Link to={AppRoutes.register()}>Register</Link>
         </Typography>
+        <br />
+        <Typography variant="body1">
+          <Link to={AppRoutes.forgotPassword()}>Forgot your password?</Link>
+        </Typography>
         {fieldErrors.form ? (
           <Typography color="error.main" variant="body1">
             {fieldErrors.form}

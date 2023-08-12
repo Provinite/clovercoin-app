@@ -26,6 +26,12 @@ export const loginRoutes = () => [
     path: "register",
     action: registerAction,
   }),
+  typedRouteConfig({
+    id: "root.forgotPassword",
+    element: <ForgotPasswordPage />,
+    path: "forgot-password",
+    action: forgotPasswordAction,
+  }),
 ];
 
 const loginAction = makeAction(
@@ -79,3 +85,11 @@ const registerAction = makeAction(
 const logoutLoader = makeLoader({}, async () => {
   graphqlService.setClientAuthToken("");
 });
+
+const forgotPasswordAction = makeAction(
+  {
+    allowedMethods: ["post"],
+    form: { email: true },
+  },
+  async ({ form: { email } }) => {}
+);

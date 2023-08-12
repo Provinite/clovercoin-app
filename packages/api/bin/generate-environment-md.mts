@@ -32,7 +32,12 @@ function getComment(node: Node<ts.Node> | undefined): string | undefined {
 let mdOutput = `Variable | Required | Description | \n`;
 mdOutput += `--- | --- | --- | \n`;
 const rows: string[][] = [];
-for (const usage of optionalUsages) {
+
+const usages = [...requiredUsages, ...optionalUsages].sort(
+  (a, b) => a.getPos() - b.getPos()
+);
+for (const usage of usages) {
+  const required = usage.getText().includes("required");
   const comment = getComment(usage) ?? "Undocumented";
   const variableName = usage
     .getFirstAncestorByKindOrThrow(SyntaxKind.CallExpression)
@@ -40,17 +45,8 @@ for (const usage of optionalUsages) {
     .asKindOrThrow(SyntaxKind.StringLiteral)
     .getLiteralText();
 
-  rows.push([variableName, "`false`", comment]);
+  rows.push([variableName, required ? "`true`" : "`false`", comment]);
 }
-for (const usage of requiredUsages) {
-  const comment = getComment(usage) ?? "Undocumented";
-  const variableName = usage
-    .getFirstAncestorByKindOrThrow(SyntaxKind.CallExpression)
-    .getArguments()[0]
-    .asKindOrThrow(SyntaxKind.StringLiteral)
-    .getLiteralText();
 
-  rows.push([variableName, "`true`", comment]);
-}
 mdOutput += rows.map((row) => row.join("|")).join("\n");
 console.log(mdOutput);

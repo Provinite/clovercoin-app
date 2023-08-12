@@ -4,6 +4,7 @@ import { uuidToSlug } from "../utils/uuidUtils";
 export const AppRouteParts = {
   admin: () => ["admin"],
   inviteCodeList: () => [...AppRouteParts.admin(), "inviteCodes"],
+  forgotPassword: () => ["forgot-password"],
   login: () => ["login"],
   logout: () => ["logout"],
   register: () => ["register"],
