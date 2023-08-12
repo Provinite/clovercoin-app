@@ -4,12 +4,12 @@ import { InviteCode } from "./InviteCode.js";
 
 export type InviteCodeCreate = Pick<
   InviteCode,
-  "id" | "claimCount" | "maxClaims" | "creatorId"
+  "id" | "maxClaims" | "creatorId"
 >;
 
 export class InviteCodeController extends EntityController<
   InviteCode,
   Repository<InviteCode>,
-  never,
+  InviteCodeCreate,
   never
 > {}
