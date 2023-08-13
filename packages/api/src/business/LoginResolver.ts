@@ -1,5 +1,6 @@
 import { SendEmailCommand, SESClient } from "@aws-sdk/client-ses";
 import { IsEmail, IsStrongPassword, Matches, MinLength } from "class-validator";
+import { randomUUID } from "crypto";
 import {
   Arg,
   createUnionType,
@@ -172,12 +173,19 @@ export class LoginResolver {
       sesConfig,
       sesEnvironment,
       appEnvironment,
+      logger,
     }: AppGraphqlContext
   ) {
     const identities = await identityController.find({
       email,
     });
+    const code = randomUUID();
     if (identities.length) {
+      logger.info({
+        message: "Sending password reset email",
+        from: sesEnvironment.fromAddress,
+        to: email,
+      });
       const sesClient = new SESClient(sesConfig);
       await sesClient.send(
         new SendEmailCommand({
@@ -202,5 +210,6 @@ export class LoginResolver {
       );
       sesClient.destroy();
     }
+    return new RequestPasswordResetReceivedResponse();
   }
 }

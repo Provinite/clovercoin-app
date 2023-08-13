@@ -4,6 +4,7 @@ import { graphqlService } from "../../graphql/client";
 import { typedRouteConfig } from "../../routes";
 import { makeAction, makeLoader } from "../../utils/loaderUtils";
 import { AppRoutes } from "../AppRoutes";
+import { ForgotPasswordPage } from "./ForgotPasswordPage";
 import { LoginPage } from "./LoginPage";
 import { RegisterPage } from "./RegisterPage";
 
@@ -91,5 +92,16 @@ const forgotPasswordAction = makeAction(
     allowedMethods: ["post"],
     form: { email: true },
   },
-  async ({ form: { email } }) => {}
+  async ({ form: { email } }) => {
+    const {
+      data: { requestPasswordReset },
+    } = await graphqlService.requestPasswordReset({
+      variables: {
+        input: {
+          email,
+        },
+      },
+    });
+    return requestPasswordReset;
+  }
 );
