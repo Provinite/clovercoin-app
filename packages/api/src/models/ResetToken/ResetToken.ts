@@ -11,6 +11,10 @@ import type { Relation } from "typeorm";
 import { Account } from "../Account/Account.js";
 
 @Entity()
+/**
+ * This index is intended to prevent there from ever being more than one valid token
+ * per account.
+ */
 @Index(
   "unique_reset_token_valid_per_account",
   ["accountId", "revokedAt", "claimedAt"],
@@ -39,4 +43,7 @@ export class ResetToken {
 
   @Column("boolean", { nullable: true })
   revokedAt: Date | null = null;
+
+  @Column("timestamptz", { nullable: false })
+  expiresAt!: Date;
 }
