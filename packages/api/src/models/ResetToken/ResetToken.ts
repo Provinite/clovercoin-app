@@ -36,7 +36,7 @@ export class ResetToken {
   @Column("timestamptz", { nullable: true })
   claimedAt: Date | null = null;
 
-  @Column("boolean", { nullable: true })
+  @Column("timestamptz", { nullable: true })
   revokedAt: Date | null = null;
 
   @CreateDateColumn({

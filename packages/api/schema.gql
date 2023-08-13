@@ -226,6 +226,7 @@ type Mutation {
 
   """"""
   requestPasswordReset(input: RequestPasswordResetInput!): RequestPasswordResetResponse!
+  resetPassword(input: ResetPasswordInput!): ResetPasswordResponse!
 }
 
 type NotFoundError implements BaseError {
@@ -265,6 +266,17 @@ type RequestPasswordResetReceivedResponse {
 }
 
 union RequestPasswordResetResponse = InvalidArgumentError | RequestPasswordResetReceivedResponse
+
+input ResetPasswordInput {
+  password: String!
+  token: ID!
+}
+
+union ResetPasswordResponse = InvalidArgumentError | ResetPasswordSuccessResponse
+
+type ResetPasswordSuccessResponse {
+  success: Boolean!
+}
 
 """
 Model representing an arbitrarily broad class of characters that use common variants and administration.
