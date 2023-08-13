@@ -1,7 +1,7 @@
 import {
-  Check,
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryColumn,
@@ -11,6 +11,14 @@ import type { Relation } from "typeorm";
 import { Account } from "../Account/Account.js";
 
 @Entity()
+@Index(
+  "unique_reset_token_valid_per_account",
+  ["accountId", "revokedAt", "claimedAt"],
+  {
+    where: '"revokedAt" IS NULL and "claimedAt" IS NULL',
+    unique: true,
+  }
+)
 export class ResetToken {
   @PrimaryColumn("uuid")
   id!: string;
@@ -26,10 +34,9 @@ export class ResetToken {
   })
   account?: Relation<Account>;
 
-  @Column("integer", { nullable: false })
-  @Check(
-    "chk_reset_token_is_not_over_claimed",
-    '"claimCount" <= 1 AND "claimCount" >= 0'
-  )
-  claimCount!: number;
+  @Column("timestamptz", { nullable: true })
+  claimedAt: Date | null = null;
+
+  @Column("boolean", { nullable: true })
+  revokedAt: Date | null = null;
 }

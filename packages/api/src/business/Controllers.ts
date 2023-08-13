@@ -12,12 +12,14 @@ import { TraitListController } from "../models/TraitList/TraitListController.js"
 import { TraitListEntryController } from "../models/TraitListEntry/TraitListEntryController.js";
 import { LoginController } from "./LoginController.js";
 import { InviteCodeController } from "../models/InviteCode/InviteCodeController.js";
+import { ResetTokenController } from "../models/ResetToken/ResetTokenController.js";
 /**
  * Add controllers here when they are created to make them available
  * via graphql context etc. Handles typing as well.
  */
 export const ControllersMap = {
   AccountController,
+  ResetTokenController,
 
   CommunityController,
   CommunityMemberController,

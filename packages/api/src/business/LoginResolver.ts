@@ -1,6 +1,5 @@
 import { SendEmailCommand, SESClient } from "@aws-sdk/client-ses";
 import { IsEmail, IsStrongPassword, Matches, MinLength } from "class-validator";
-import { randomUUID } from "crypto";
 import {
   Arg,
   createUnionType,
@@ -179,7 +178,6 @@ export class LoginResolver {
     const identities = await identityController.find({
       email,
     });
-    const code = randomUUID();
     if (identities.length) {
       logger.info({
         message: "Sending password reset email",
@@ -202,7 +200,9 @@ export class LoginResolver {
                 Data:
                   `A a password reset was requested for the ${appEnvironment.envName} ${appEnvironment.appName} account tied to this email address.\n\n` +
                   `If you requested this, visit the following URL to create a new password: ` +
-                  `<a href="${appEnvironment.webAppOrigin}/reset-password?code=SOME_CODE">${appEnvironment.webAppOrigin}/reset-password?code=SOME_CODE</a>`,
+                  `<a href="${appEnvironment.webAppOrigin}/reset-password?code=SOME_CODE">${appEnvironment.webAppOrigin}/reset-password?code=SOME_CODE</a>\n\n` +
+                  `=====\n` +
+                  `This message was automatically generated, and this mailbox is not monitored. Do not reply to this email.`,
               },
             },
           },
