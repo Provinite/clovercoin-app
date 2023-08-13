@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   Index,
   JoinColumn,
@@ -13,16 +14,10 @@ import { Account } from "../Account/Account.js";
 @Entity()
 /**
  * This index is intended to prevent there from ever being more than one valid token
- * per account.
+ * per account. This index is tracked manually by migrations because typeorm does
+ * not support the NULLS NOT DISTINCT clause on indexes yet.
  */
-@Index(
-  "unique_reset_token_valid_per_account",
-  ["accountId", "revokedAt", "claimedAt"],
-  {
-    where: '"revokedAt" IS NULL and "claimedAt" IS NULL',
-    unique: true,
-  }
-)
+@Index("unique_reset_token_valid_per_account", { synchronize: false })
 export class ResetToken {
   @PrimaryColumn("uuid")
   id!: string;
@@ -44,6 +39,9 @@ export class ResetToken {
   @Column("boolean", { nullable: true })
   revokedAt: Date | null = null;
 
-  @Column("timestamptz", { nullable: false })
-  expiresAt!: Date;
+  @CreateDateColumn({
+    type: "timestamptz",
+    nullable: false,
+  })
+  issuedAt!: Date;
 }

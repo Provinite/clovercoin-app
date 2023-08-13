@@ -18,6 +18,9 @@ export class ResetTokenController extends EntityController<
   async createBodyToModel(createBody: ResetTokenCreate): Promise<ResetToken> {
     return this.repository.create({
       accountId: createBody.accountId,
+      /**
+       * We create a UUID from node's CSPRNG here.
+       */
       id: randomUUID(),
       claimedAt: null,
       revokedAt: null,
