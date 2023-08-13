@@ -7,6 +7,7 @@ import { EnumValue } from "./EnumValue/EnumValue.js";
 import { EnumValueSetting } from "./EnumValueSetting/EnumValueSetting.js";
 import { Identity } from "./Identity/Identity.js";
 import { InviteCode } from "./InviteCode/InviteCode.js";
+import { ResetToken } from "./ResetToken/ResetToken.js";
 import { Species } from "./Species/Species.js";
 import { Trait } from "./Trait/Trait.js";
 import { TraitList } from "./TraitList/TraitList.js";
@@ -17,6 +18,7 @@ import { TraitListEntry } from "./TraitListEntry/TraitListEntry.js";
  */
 const modelsByName = {
   Account,
+  ResetToken,
 
   Community,
   CommunityMember,
