@@ -1,3 +1,10 @@
+# 3.1.0
+
+- Adds SMTP mail support and enables it in AWS
+  - This should resolve an issue that was preventing password reset emails from going out
+- Adds newly required env vars to API & Migrate lambdas
+- Adds a super light caching layer to secrets fetching to reduce calls to allow for lazy secrets
+
 # 3.0.1
 
 - Hotfix: Adds missing environment variables to migrate container

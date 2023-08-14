@@ -122,7 +122,6 @@ export class LoginResolver {
           });
 
           const url = `${appEnvironment.webAppOrigin}/reset-password?code=${resetToken.id}`;
-          const sesClient = new SESClient(sesConfig);
           if (sesEnvironment.useSmtp) {
             const options: SMTPTransport.Options = {
               host: sesEnvironment.smtpHost,
@@ -155,31 +154,33 @@ export class LoginResolver {
                 `This message was automatically generated, and this mailbox is not monitored. Do not reply to this email.`,
             });
             transport.close();
-          }
-          await sesClient.send(
-            new SendEmailCommand({
-              Destination: {
-                ToAddresses: [email],
-              },
-              Source: sesEnvironment.fromAddress,
-              Message: {
-                Subject: {
-                  Data: "Password reset request",
+          } else {
+            const sesClient = new SESClient(sesConfig);
+            await sesClient.send(
+              new SendEmailCommand({
+                Destination: {
+                  ToAddresses: [email],
                 },
-                Body: {
-                  Html: {
-                    Data:
-                      `A a password reset was requested for the ${appEnvironment.envName} ${appEnvironment.appName} account tied to this email address.<br /><br />` +
-                      `If you requested this, visit the following URL to create a new password: ` +
-                      `<a href="${url}">${url}</a><br /><br />` +
-                      `<hr />` +
-                      `This message was automatically generated, and this mailbox is not monitored. Do not reply to this email.`,
+                Source: sesEnvironment.fromAddress,
+                Message: {
+                  Subject: {
+                    Data: "Password reset request",
+                  },
+                  Body: {
+                    Html: {
+                      Data:
+                        `A a password reset was requested for the ${appEnvironment.envName} ${appEnvironment.appName} account tied to this email address.<br /><br />` +
+                        `If you requested this, visit the following URL to create a new password: ` +
+                        `<a href="${url}">${url}</a><br /><br />` +
+                        `<hr />` +
+                        `This message was automatically generated, and this mailbox is not monitored. Do not reply to this email.`,
+                    },
                   },
                 },
-              },
-            })
-          );
-          sesClient.destroy();
+              })
+            );
+            sesClient.destroy();
+          }
         }
         return new RequestPasswordResetReceivedResponse();
       }
