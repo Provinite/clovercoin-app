@@ -1,3 +1,7 @@
+# 3.0.1
+
+- Hotfix: Adds missing environment variables to migrate container
+
 # 3.0.0
 
 - Adds `requestPasswordReset` mutation
