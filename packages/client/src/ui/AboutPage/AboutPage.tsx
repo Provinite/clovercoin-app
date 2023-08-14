@@ -25,7 +25,9 @@ export const AboutPage: FC = () => {
        Some creators may choose to create characters in a species and provide
        licenses to use these characters. Many creators host events for their
        creative community to engage with eachother and the species creator
-       artistically!`,
+       artistically! We aim to provide the definitive tool for the unique needs of
+       species creators, allowing species communities to scale up to meet demand, 
+       without worrying about staying organized.`,
     ],
     [
       "What data do you collect?",
