@@ -1,4 +1,3 @@
-import * as React from "react";
 import { FC, ReactNode } from "react";
 import { StyleSheet, css } from "aphrodite";
 import { Typography } from "@mui/material";

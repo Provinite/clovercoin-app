@@ -14,6 +14,7 @@ import {
 } from "react-router-dom";
 import { Application } from "./Application";
 import { graphqlService } from "./graphql/client";
+import { aboutRoutes } from "./ui/AboutPage/aboutRoutes";
 import { adminRoutes } from "./ui/admin/adminRoutes";
 import { AppRoutes } from "./ui/AppRoutes";
 import { communityListRoutes } from "./ui/CommunityListPage/communityListRoutes";
@@ -38,6 +39,7 @@ export const routes = [
     element: <Application />,
     errorElement: <PrintError />,
     children: [
+      ...aboutRoutes(),
       ...loginRoutes(),
       typedRouteConfig({
         id: "root.authBarrier",

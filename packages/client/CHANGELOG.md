@@ -1,3 +1,7 @@
+# 2.4.0
+
+- Added an about page with a basic FAQ
+
 # 2.3.0
 
 - Users can now reset their passwords in the application
