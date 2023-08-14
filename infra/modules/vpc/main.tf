@@ -36,8 +36,15 @@ resource "aws_security_group" "endpoint_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-}
 
+  egress {
+    description = "SMTP"
+    from_port   = 587
+    to_port     = 587
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
 
 resource "aws_vpc_endpoint" "secrets_manager" {
   vpc_id            = aws_vpc.main.id
@@ -48,7 +55,15 @@ resource "aws_vpc_endpoint" "secrets_manager" {
   private_dns_enabled = true
   security_group_ids  = [aws_security_group.endpoint_sg.id]
 }
+resource "aws_vpc_endpoint" "ses" {
+  vpc_id       = aws_vpc.main.id
+  service_name = "com.amazonaws.us-east-1.email-smtp"
 
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = [aws_subnet.public.id]
+  private_dns_enabled = true
+  security_group_ids  = [aws_security_group.endpoint_sg.id]
+}
 # one public
 resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.main.id

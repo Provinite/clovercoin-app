@@ -1,13 +1,9 @@
 import { createCloverCoinAppServer, ServerOptions } from "./server.js";
 import { logger } from "./util/logger.js";
-import {
-  SecretsManagerClient,
-  GetSecretValueCommand,
-} from "@aws-sdk/client-secrets-manager";
-import { NodeHttpHandler } from "@aws-sdk/node-http-handler";
 import serverless from "@vendia/serverless-express";
 import { build } from "./awilix/build.js";
 import { getDbEnvironment, getHttpEnvironment } from "./environment.js";
+import { fetchSecret } from "./secrets/fetchSecret.js";
 
 const { listen } = getHttpEnvironment();
 const { host, database, ssl, secretArn } = getDbEnvironment();
@@ -22,20 +18,9 @@ const options: ServerOptions = {
 };
 
 if (secretArn) {
-  logger.info({
-    message: `Fetching secret: ${secretArn}`,
-  });
-  const result = await new SecretsManagerClient({
-    requestHandler: new NodeHttpHandler({
-      connectionTimeout: 3000,
-    }),
-  }).send(new GetSecretValueCommand({ SecretId: secretArn }));
-  logger.info({
-    message: `Got secret: ${secretArn}`,
-  });
-  const credentials: { username: string; password: string } = JSON.parse(
-    result.SecretString!
-  );
+  const result = await fetchSecret(secretArn, logger);
+  const credentials: { username: string; password: string } =
+    JSON.parse(result);
   options.db.username = credentials.username;
   options.db.password = credentials.password;
 }

@@ -13,16 +13,21 @@ resource "aws_lambda_function" "api" {
   timeout       = 30
   environment {
     variables = {
-      CC_DB_HOST              = var.db_endpoint
-      DB_SECRET_ARN           = var.db_secret_arn
-      JWT_SECRET_ARN          = var.jwt_secret_arn
-      DB_NAME                 = var.db_name
-      DB_SSL                  = "true"
-      CC_IMG_BUCKET           = aws_s3_bucket.image_bucket.id
-      CC_AWS_SES_FROM_ADDRESS = "${var.prefix}-no-reply@clovercoin.com"
-      CC_WEB_CLIENT_ORIGIN    = "https://${var.prefix}-app.clovercoin.com"
-      CC_ENV_NAME             = title(var.prefix)
-      CC_APP_NAME             = "Cloverse Species"
+      CC_DB_HOST                 = var.db_endpoint
+      DB_SECRET_ARN              = var.db_secret_arn
+      JWT_SECRET_ARN             = var.jwt_secret_arn
+      DB_NAME                    = var.db_name
+      DB_SSL                     = "true"
+      CC_IMG_BUCKET              = aws_s3_bucket.image_bucket.id
+      CC_AWS_SES_FROM_ADDRESS    = "${var.prefix}-no-reply@clovercoin.com"
+      CC_WEB_CLIENT_ORIGIN       = "https://${var.prefix}-app.clovercoin.com"
+      CC_ENV_NAME                = title(var.prefix)
+      CC_APP_NAME                = "Cloverse Species"
+      CC_AWS_SES_SMTP_SECRET_ARN = var.smtp_secret_arn
+      CC_AWS_SES_SMTP_SECURE     = "true"
+      CC_AWS_SES_USE_SMTP        = "true"
+      CC_AWS_SES_SMTP_HOST       = "email-smtp.us-east-1.amazonaws.com"
+      CC_AWS_SES_SMTP_PORT       = "587"
     }
   }
   vpc_config {

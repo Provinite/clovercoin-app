@@ -17,6 +17,9 @@ import { RegisterResponse } from "./auth/objects/RegisterResponse.js";
 import { ResetPasswordResponse } from "./auth/objects/ResetPasswordResponse.js";
 import { ResetPasswordSuccessResponse } from "./auth/objects/ResetPasswordSuccessResponse.js";
 import { ResetTokenNotRedeemedError } from "../models/Account/AccountController.js";
+import { createTransport } from "nodemailer";
+import { fetchSecret } from "../secrets/fetchSecret.js";
+import SMTPTransport from "nodemailer/lib/smtp-transport/index.js";
 
 @Resolver()
 export class LoginResolver {
@@ -120,6 +123,39 @@ export class LoginResolver {
 
           const url = `${appEnvironment.webAppOrigin}/reset-password?code=${resetToken.id}`;
           const sesClient = new SESClient(sesConfig);
+          if (sesEnvironment.useSmtp) {
+            const options: SMTPTransport.Options = {
+              host: sesEnvironment.smtpHost,
+              port: sesEnvironment.smtpPort,
+              secure: sesEnvironment.smtpSecure,
+            };
+            if (sesEnvironment.smtpCredentialsSecretArn) {
+              const smtpCredentials = JSON.parse(
+                await fetchSecret(
+                  sesEnvironment.smtpCredentialsSecretArn,
+                  logger
+                )
+              );
+
+              options.auth = {
+                user: smtpCredentials.username,
+                pass: smtpCredentials.password,
+              };
+            }
+            const transport = createTransport(options);
+            await transport.sendMail({
+              from: sesEnvironment.fromAddress,
+              to: [email],
+              subject: "Password reset request",
+              html:
+                `A a password reset was requested for the ${appEnvironment.envName} ${appEnvironment.appName} account tied to this email address.<br /><br />` +
+                `If you requested this, visit the following URL to create a new password: ` +
+                `<a href="${url}">${url}</a><br /><br />` +
+                `<hr />` +
+                `This message was automatically generated, and this mailbox is not monitored. Do not reply to this email.`,
+            });
+            transport.close();
+          }
           await sesClient.send(
             new SendEmailCommand({
               Destination: {
