@@ -75,12 +75,17 @@ resource "aws_lambda_function" "migrate" {
   timeout      = 900 # 15 minutes
   environment {
     variables = {
-      CC_DB_HOST     = var.db_endpoint
-      DB_SECRET_ARN  = var.db_secret_arn
-      JWT_SECRET_ARN = var.jwt_secret_arn
-      DB_NAME        = var.db_name
-      DB_SSL         = "true"
-      CC_IMG_BUCKET  = aws_s3_bucket.image_bucket.id
+      CC_DB_HOST              = var.db_endpoint
+      DB_SECRET_ARN           = var.db_secret_arn
+      JWT_SECRET_ARN          = var.jwt_secret_arn
+      DB_NAME                 = var.db_name
+      DB_SSL                  = "true"
+      CC_IMG_BUCKET           = aws_s3_bucket.image_bucket.id
+      CC_AWS_SES_FROM_ADDRESS = "${var.prefix}-no-reply@clovercoin.com"
+      CC_WEB_CLIENT_ORIGIN    = "https://${var.prefix}-app.clovercoin.com"
+      CC_ENV_NAME             = title(var.prefix)
+      CC_APP_NAME             = "Cloverse Species"
+
     }
   }
   vpc_config {
