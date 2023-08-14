@@ -102,6 +102,27 @@ export const getBootstrapEnvironment = () => ({
 
 export const getSesEnvironment = () => ({
   /**
+   * Controls whether SMTP or the SES API is used for email delivery. Should be
+   * either `"true"` or `"false"`
+   */
+  useSmtp: required("CC_AWS_SES_USE_SMTP") === "true" ? true : false,
+  /**
+   * The ARN of the secrets-manager secret to use to fetch SMTP credentials
+   */
+  smtpCredentialsSecretArn: optional("CC_AWS_SES_SMTP_SECRET_ARN"),
+  /**
+   * Whether to use SSL when sending SMTP messages
+   */
+  smtpSecure: optional("CC_AWS_SES_SMTP_SECURE") === "true" ? true : false,
+  /**
+   * The hostname of the SMTP server to use when sending emails
+   */
+  smtpHost: optional("CC_AWS_SES_SMTP_HOST"),
+  /**
+   * The port to connect to the SMTP server on
+   */
+  smtpPort: Number(optional("CC_AWS_SES_SMTP_PORT")),
+  /**
    * The endpoint to use for SES. If not provided, defaults to production aws
    * ses.
    */

@@ -81,7 +81,7 @@ data "aws_iam_policy_document" "api_deployer" {
     actions   = ["lambda:UpdateFunctionCode"]
     resources = [module.api.lambda_arn, module.api.migrate_lambda_arn]
   }
-    statement {
+  statement {
     effect    = "Allow"
     actions   = ["lambda:InvokeFunction"]
     resources = [module.api.migrate_lambda_arn]
@@ -108,7 +108,11 @@ data "aws_iam_policy_document" "ecs_executor_policy" {
     actions = [
       "secretsmanager:GetSecretValue",
     ]
-    resources = [module.db.master_secret_arn, aws_secretsmanager_secret.jwt_secret.arn]
+    resources = [
+      module.db.master_secret_arn,
+      aws_secretsmanager_secret.jwt_secret.arn,
+      aws_secretsmanager_secret.smtp_secret.arn
+    ]
   }
   statement {
     effect = "Allow"
@@ -127,9 +131,56 @@ data "aws_iam_policy_document" "ecs_executor_policy" {
     ]
     resources = ["*"]
     condition {
-      test = "StringEquals"
+      test     = "StringEquals"
       variable = "ses:FromAddress"
-      values = ["${var.prefix}-no-reply@clovercoin.com"]
+      values   = ["${var.prefix}-no-reply@clovercoin.com"]
+    }
+  }
+}
+
+resource "aws_iam_user" "smtp_user" {
+  name = "${var.prefix}-cc-api-mailer"
+}
+
+resource "aws_iam_access_key" "smtp_user" {
+  user = aws_iam_user.smtp_user.name
+}
+
+resource "aws_secretsmanager_secret" "smtp_secret" {
+  name_prefix = "${var.prefix}-cc-api-mailer-credentials"
+}
+
+resource "aws_secretsmanager_secret_version" "smtp_secret" {
+  secret_id = aws_secretsmanager_secret.smtp_secret.id
+  secret_string = jsonencode({
+    username = aws_iam_access_key.smtp_user.id,
+    password = aws_iam_access_key.smtp_user.ses_smtp_password_v4
+  })
+}
+
+resource "aws_iam_policy" "mailer" {
+  name_prefix = "${var.prefix}-cc-api-mailer"
+  description = "Policy allowing SES sending from do-not-reply email"
+  policy      = data.aws_iam_policy_document.mailer.json
+}
+
+resource "aws_iam_user_policy_attachment" "mailer" {
+  user       = aws_iam_user.smtp_user.name
+  policy_arn = aws_iam_policy.mailer.arn
+}
+
+data "aws_iam_policy_document" "mailer" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "ses:SendEmail",
+      "ses:SendRawEmail"
+    ]
+    resources = ["*"]
+    condition {
+      test     = "StringEquals"
+      variable = "ses:FromAddress"
+      values   = ["${var.prefix}-no-reply@clovercoin.com"]
     }
   }
 }
@@ -225,6 +276,13 @@ resource "aws_security_group" "api_web_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  egress {
+    description = "SMTP"
+    from_port   = 587
+    to_port     = 587
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   egress {
     description     = "Postgres"
@@ -260,9 +318,9 @@ resource "aws_key_pair" "bastion_skrolk" {
 }
 
 resource "aws_instance" "bastion" {
-  ami           = "ami-0af9d24bd5539d7af"
-  instance_type = "t2.micro"
-  subnet_id = var.public_subnet_id
+  ami                    = "ami-0af9d24bd5539d7af"
+  instance_type          = "t2.micro"
+  subnet_id              = var.public_subnet_id
   vpc_security_group_ids = [aws_security_group.bastion_sg.id]
 
   key_name = aws_key_pair.bastion_skrolk.key_name
@@ -287,7 +345,8 @@ module "api" {
   domain_name  = var.domain_name
   acm_cert_arn = var.acm_cert_arn
 
-  jwt_secret_arn = aws_secretsmanager_secret.jwt_secret.arn
+  jwt_secret_arn  = aws_secretsmanager_secret.jwt_secret.arn
+  smtp_secret_arn = aws_secretsmanager_secret.smtp_secret.arn
 
   db_endpoint   = module.db.endpoint
   db_name       = module.db.rds_db.db_name

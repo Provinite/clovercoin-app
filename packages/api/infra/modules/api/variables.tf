@@ -43,6 +43,11 @@ variable "db_secret_arn" {
   type = string
 }
 
+variable "smtp_secret_arn" {
+  description = "ARN of the secrets-manager secret that is used to access SES smtp"
+  type = string
+}
+
 variable "domain_name" {
   description = "API domain name for use in cloudfront alias"
   type = string
