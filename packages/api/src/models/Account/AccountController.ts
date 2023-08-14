@@ -4,6 +4,7 @@ import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
 import { canHashPassword } from "../../util/crypto/canHashPassword.js";
 import { compareHash } from "../../util/crypto/compareHash.js";
 import { secureHash, secureHashSync } from "../../util/crypto/secureHash.js";
+import { ResetToken } from "../ResetToken/ResetToken.js";
 import { Account } from "./Account.js";
 
 const mockHashedPassword = secureHashSync("password");
@@ -50,6 +51,20 @@ export class AccountController extends EntityController<
     });
   }
 
+  async resetPassword(resetToken: ResetToken, plainTextPassword: string) {
+    if (!resetToken.claimedAt) {
+      throw new ResetTokenNotRedeemedError(
+        "Reset token must be redeemed before resetting a password."
+      );
+    }
+    await this.repository.update(
+      { id: resetToken.accountId },
+      {
+        password: await secureHash(plainTextPassword),
+      }
+    );
+  }
+
   /**
    * Constant-time verification of user credentials
    * @param username
@@ -84,5 +99,11 @@ export class AccountController extends EntityController<
         success: false,
       };
     }
+  }
+}
+
+export class ResetTokenNotRedeemedError extends Error {
+  constructor(message = "Invalid reset token") {
+    super(message);
   }
 }

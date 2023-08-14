@@ -1,6 +1,6 @@
 {
   "name": "@clovercoin/api",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "main": "dist/app.js",
   "license": "MIT",
   "source": "src/app.ts",
@@ -20,12 +20,14 @@
     "seed:create": "./bin/create-seed.sh",
     "db:drop": "ts-node bin/drop-db.mts",
     "db:refresh": "ts-node bin/drop-db.mts && yarn migrate",
+    "docs:generate:env": "./bin/generate-environment-md.sh",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.282.0",
     "@aws-sdk/client-secrets-manager": "^3.363.0",
+    "@aws-sdk/client-ses": "^3.390.0",
     "@aws-sdk/node-http-handler": "^3.360.0",
     "@aws-sdk/s3-request-presigner": "^3.282.0",
     "@graphql-codegen/cli": "^2.6.2",

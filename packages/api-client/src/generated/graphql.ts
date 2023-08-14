@@ -278,6 +278,8 @@ export interface Mutation {
   modifyTraitListEntry: TraitListEntryModifyResponse;
   /** Create a new account and receive an auth token */
   register: RegisterResponse;
+  requestPasswordReset: RequestPasswordResetResponse;
+  resetPassword: ResetPasswordResponse;
 }
 
 export interface MutationCreateCommunityArgs {
@@ -348,6 +350,14 @@ export interface MutationRegisterArgs {
   input: RegisterArgs;
 }
 
+export interface MutationRequestPasswordResetArgs {
+  input: RequestPasswordResetInput;
+}
+
+export interface MutationResetPasswordArgs {
+  input: ResetPasswordInput;
+}
+
 export interface NotFoundError extends BaseError {
   __typename?: "NotFoundError";
   message: Scalars["String"];
@@ -398,6 +408,33 @@ export type RegisterResponse =
   | DuplicateError
   | InvalidArgumentError
   | LoginSuccessResponse;
+
+export interface RequestPasswordResetInput {
+  email: Scalars["String"];
+}
+
+export interface RequestPasswordResetReceivedResponse {
+  __typename?: "RequestPasswordResetReceivedResponse";
+  message: Scalars["String"];
+}
+
+export type RequestPasswordResetResponse =
+  | InvalidArgumentError
+  | RequestPasswordResetReceivedResponse;
+
+export interface ResetPasswordInput {
+  password: Scalars["String"];
+  token: Scalars["ID"];
+}
+
+export type ResetPasswordResponse =
+  | InvalidArgumentError
+  | ResetPasswordSuccessResponse;
+
+export interface ResetPasswordSuccessResponse {
+  __typename?: "ResetPasswordSuccessResponse";
+  success: Scalars["Boolean"];
+}
 
 /** Model representing an arbitrarily broad class of characters that use common variants and administration. */
 export interface Species {
@@ -729,6 +766,52 @@ export type RegisterMutation = {
         token: string;
         identity: { __typename?: "Identity"; id: string; displayName: string };
       };
+};
+
+export type RequestPasswordResetMutationVariables = Exact<{
+  input: RequestPasswordResetInput;
+}>;
+
+export type RequestPasswordResetMutation = {
+  __typename?: "Mutation";
+  requestPasswordReset:
+    | {
+        __typename: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      }
+    | { __typename: "RequestPasswordResetReceivedResponse"; message: string };
+};
+
+export type ResetPasswordMutationVariables = Exact<{
+  input: ResetPasswordInput;
+}>;
+
+export type ResetPasswordMutation = {
+  __typename?: "Mutation";
+  resetPassword:
+    | {
+        __typename: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      }
+    | { __typename: "ResetPasswordSuccessResponse" };
 };
 
 export type CreateTraitListEntryMutationVariables = Exact<{
@@ -1529,6 +1612,8 @@ export type MutationKeySpecifier = (
   | "modifyTrait"
   | "modifyTraitListEntry"
   | "register"
+  | "requestPasswordReset"
+  | "resetPassword"
   | MutationKeySpecifier
 )[];
 export type MutationFieldPolicy = {
@@ -1549,6 +1634,8 @@ export type MutationFieldPolicy = {
   modifyTrait?: FieldPolicy<any> | FieldReadFunction<any>;
   modifyTraitListEntry?: FieldPolicy<any> | FieldReadFunction<any>;
   register?: FieldPolicy<any> | FieldReadFunction<any>;
+  requestPasswordReset?: FieldPolicy<any> | FieldReadFunction<any>;
+  resetPassword?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type NotFoundErrorKeySpecifier = (
   | "message"
@@ -1575,6 +1662,20 @@ export type QueryFieldPolicy = {
   inviteCodes?: FieldPolicy<any> | FieldReadFunction<any>;
   species?: FieldPolicy<any> | FieldReadFunction<any>;
   traits?: FieldPolicy<any> | FieldReadFunction<any>;
+};
+export type RequestPasswordResetReceivedResponseKeySpecifier = (
+  | "message"
+  | RequestPasswordResetReceivedResponseKeySpecifier
+)[];
+export type RequestPasswordResetReceivedResponseFieldPolicy = {
+  message?: FieldPolicy<any> | FieldReadFunction<any>;
+};
+export type ResetPasswordSuccessResponseKeySpecifier = (
+  | "success"
+  | ResetPasswordSuccessResponseKeySpecifier
+)[];
+export type ResetPasswordSuccessResponseFieldPolicy = {
+  success?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type SpeciesKeySpecifier = (
   | "community"
@@ -1819,6 +1920,23 @@ export type StrictTypedTypePolicies = {
       | (() => undefined | QueryKeySpecifier);
     fields?: QueryFieldPolicy;
   };
+  RequestPasswordResetReceivedResponse?: Omit<
+    TypePolicy,
+    "fields" | "keyFields"
+  > & {
+    keyFields?:
+      | false
+      | RequestPasswordResetReceivedResponseKeySpecifier
+      | (() => undefined | RequestPasswordResetReceivedResponseKeySpecifier);
+    fields?: RequestPasswordResetReceivedResponseFieldPolicy;
+  };
+  ResetPasswordSuccessResponse?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | ResetPasswordSuccessResponseKeySpecifier
+      | (() => undefined | ResetPasswordSuccessResponseKeySpecifier);
+    fields?: ResetPasswordSuccessResponseFieldPolicy;
+  };
   Species?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
       | false
@@ -2030,6 +2148,31 @@ export const RegisterDocument = gql`
   }
   ${InvalidArgumentErrorFragmentFragmentDoc}
   ${DuplicateErrorFragmentFragmentDoc}
+`;
+export const RequestPasswordResetDocument = gql`
+  mutation requestPasswordReset($input: RequestPasswordResetInput!) {
+    requestPasswordReset(input: $input) {
+      __typename
+      ... on RequestPasswordResetReceivedResponse {
+        message
+      }
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+    }
+  }
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+`;
+export const ResetPasswordDocument = gql`
+  mutation resetPassword($input: ResetPasswordInput!) {
+    resetPassword(input: $input) {
+      __typename
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+    }
+  }
+  ${InvalidArgumentErrorFragmentFragmentDoc}
 `;
 export const CreateTraitListEntryDocument = gql`
   mutation createTraitListEntry($input: TraitListEntryCreateInput!) {
@@ -2533,6 +2676,29 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
         options
       ) as Promise<RegisterMutation>;
     },
+    requestPasswordReset(
+      variables: RequestPasswordResetMutationVariables,
+      options?: C
+    ): Promise<RequestPasswordResetMutation> {
+      return requester<
+        RequestPasswordResetMutation,
+        RequestPasswordResetMutationVariables
+      >(
+        RequestPasswordResetDocument,
+        variables,
+        options
+      ) as Promise<RequestPasswordResetMutation>;
+    },
+    resetPassword(
+      variables: ResetPasswordMutationVariables,
+      options?: C
+    ): Promise<ResetPasswordMutation> {
+      return requester<ResetPasswordMutation, ResetPasswordMutationVariables>(
+        ResetPasswordDocument,
+        variables,
+        options
+      ) as Promise<ResetPasswordMutation>;
+    },
     createTraitListEntry(
       variables: CreateTraitListEntryMutationVariables,
       options?: C
@@ -2931,6 +3097,70 @@ export class GraphqlService {
     const result = await this.client.mutate<
       RegisterMutation,
       RegisterMutationVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
+  async requestPasswordReset(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").MutationOptions<
+          RequestPasswordResetMutation,
+          RequestPasswordResetMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: RequestPasswordResetMutationVariables;
+    }
+  ): Promise<
+    Omit<
+      import("@apollo/client/core").FetchResult<RequestPasswordResetMutation>,
+      "data"
+    > & { data: RequestPasswordResetMutation }
+  > {
+    const finalOptions = {
+      ...options,
+      mutation: RequestPasswordResetDocument,
+    };
+    const result = await this.client.mutate<
+      RequestPasswordResetMutation,
+      RequestPasswordResetMutationVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
+  async resetPassword(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").MutationOptions<
+          ResetPasswordMutation,
+          ResetPasswordMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: ResetPasswordMutationVariables;
+    }
+  ): Promise<
+    Omit<
+      import("@apollo/client/core").FetchResult<ResetPasswordMutation>,
+      "data"
+    > & { data: ResetPasswordMutation }
+  > {
+    const finalOptions = {
+      ...options,
+      mutation: ResetPasswordDocument,
+    };
+    const result = await this.client.mutate<
+      ResetPasswordMutation,
+      ResetPasswordMutationVariables
     >(finalOptions);
     if (!hasData(result)) {
       throw new Error("Unknown request failure");
@@ -3726,6 +3956,30 @@ export function isQuery(val: unknown): val is { __typename: "Query" } {
 }
 
 export type NarrowToQuery<T> = T extends { __typename?: "Query" } ? T : never;
+
+export function isRequestPasswordResetReceivedResponse(
+  val: unknown
+): val is { __typename: "RequestPasswordResetReceivedResponse" } {
+  return hasTypeName(val, "RequestPasswordResetReceivedResponse");
+}
+
+export type NarrowToRequestPasswordResetReceivedResponse<T> = T extends {
+  __typename?: "RequestPasswordResetReceivedResponse";
+}
+  ? T
+  : never;
+
+export function isResetPasswordSuccessResponse(
+  val: unknown
+): val is { __typename: "ResetPasswordSuccessResponse" } {
+  return hasTypeName(val, "ResetPasswordSuccessResponse");
+}
+
+export type NarrowToResetPasswordSuccessResponse<T> = T extends {
+  __typename?: "ResetPasswordSuccessResponse";
+}
+  ? T
+  : never;
 
 export function isSpecies(val: unknown): val is { __typename: "Species" } {
   return hasTypeName(val, "Species");

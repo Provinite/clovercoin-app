@@ -1,110 +1,31 @@
-import { IsEmail, IsStrongPassword, Matches, MinLength } from "class-validator";
-import {
-  Arg,
-  createUnionType,
-  Ctx,
-  Field,
-  InputType,
-  Mutation,
-  ObjectType,
-  Resolver,
-} from "type-graphql";
-import { DuplicateError } from "../errors/DuplicateError.js";
+import { SendEmailCommand, SESClient } from "@aws-sdk/client-ses";
+import { Arg, Ctx, Mutation, Resolver } from "type-graphql";
 import { InvalidArgumentError } from "../errors/InvalidArgumentError.js";
+import { NotFoundError } from "../errors/NotFoundError.js";
 import type { AppGraphqlContext } from "../graphql/AppGraphqlContext.js";
-import { Account } from "../models/Account/Account.js";
-import { Identity } from "../models/Identity/Identity.js";
-
-@ObjectType()
-export class LoginSuccessResponse {
-  constructor(partial: Partial<LoginSuccessResponse> = {}) {
-    const copy = <T, K extends keyof T>(key: K, from: Partial<T>, to: T) => {
-      if (from[key]) {
-        to[key] = from[key]!;
-      }
-    };
-    for (const key of ["token", "identity", "account"] as const) {
-      copy(key, partial, this);
-    }
-  }
-  @Field(() => String)
-  token: string = "";
-
-  @Field(() => Identity)
-  identity!: Identity;
-
-  @Field(() => Account)
-  account!: Account;
-}
-
-@ObjectType()
-export class LoginFailureResponse {
-  @Field(() => String)
-  message: string = "Invalid username or password";
-}
-
-@InputType()
-export class RegisterArgs {
-  @Field(() => String)
-  @MinLength(1)
-  username: string = "";
-
-  @Field(() => String)
-  @IsStrongPassword(
-    {
-      minLength: 8,
-      minLowercase: 1,
-      minUppercase: 1,
-      minNumbers: 0,
-      minSymbols: 0,
-    },
-    {
-      message:
-        "Password is not strong enough. Must be mixed case and at least 8 characters long.",
-    }
-  )
-  password: string = "";
-
-  @Field(() => String, { nullable: false })
-  @IsEmail({
-    allow_display_name: false,
-    allow_ip_domain: true,
-    require_tld: true,
-  })
-  email!: string;
-
-  @Field(() => String, { nullable: false })
-  @Matches(/^[a-zA-Z0-9_-]+$/, { message: "Invalid invite code" })
-  inviteCodeId!: string;
-}
-
-@InputType()
-export class LoginArgs {
-  @Field(() => String)
-  @MinLength(1)
-  username: string = "";
-
-  @Field(() => String)
-  @MinLength(1)
-  password: string = "";
-}
-
-const LoginResponse = createUnionType({
-  name: "LoginResponse",
-  types: () => [
-    LoginSuccessResponse,
-    LoginFailureResponse,
-    InvalidArgumentError,
-  ],
-});
-
-const RegisterResponse = createUnionType({
-  name: "RegisterResponse",
-  types: () => [LoginSuccessResponse, InvalidArgumentError, DuplicateError],
-});
+import { ResetToken } from "../models/ResetToken/ResetToken.js";
+import { RequestPasswordResetReceivedResponse } from "./auth/objects/RequestPasswordResetReceivedResponse.js";
+import { LoginSuccessResponse } from "./auth/objects/LoginSuccessResponse.js";
+import { LoginFailureResponse } from "./auth/objects/LoginFailureResponse.js";
+import { RegisterArgs } from "./auth/objects/RegisterArgs.js";
+import { LoginArgs } from "./auth/objects/LoginArgs.js";
+import { ResetPasswordInput } from "./auth/objects/ResetPasswordInput.js";
+import { RequestPasswordResetInput } from "./auth/objects/RequestPasswordResetInput.js";
+import { RequestPasswordResetResponse } from "./auth/objects/RequestPasswordResetResponse.js";
+import { LoginResponse } from "./auth/objects/LoginResponse.js";
+import { RegisterResponse } from "./auth/objects/RegisterResponse.js";
+import { ResetPasswordResponse } from "./auth/objects/ResetPasswordResponse.js";
+import { ResetPasswordSuccessResponse } from "./auth/objects/ResetPasswordSuccessResponse.js";
+import { ResetTokenNotRedeemedError } from "../models/Account/AccountController.js";
 
 @Resolver()
 export class LoginResolver {
+  /**
+   *
+   * @param input Register graphql args
+   * @param context Graphql context
+   * @returns On success, a {@link LoginSuccessResponse}
+   */
   @Mutation(() => RegisterResponse, {
     description: "Create a new account and receive an auth token",
   })
@@ -125,6 +46,12 @@ export class LoginResolver {
     return new LoginSuccessResponse(result);
   }
 
+  /**
+   * Authenticate by username and password.
+   * @param input Login graphql args
+   * @param context Graphql context
+   * @returns On success, a {@link LoginSuccessResponse}
+   */
   @Mutation(() => LoginResponse, {
     description: "Log in using local credentials and receive an auth token",
   })
@@ -137,5 +64,134 @@ export class LoginResolver {
       return new LoginFailureResponse();
     }
     return new LoginSuccessResponse(result);
+  }
+
+  /**
+   * Request a password reset email.
+   * @param input Request password reset graphql input
+   * @param context Graphql context
+   * @returns
+   */
+  @Mutation(() => RequestPasswordResetResponse, { description: "" })
+  async requestPasswordReset(
+    @Arg("input", { nullable: false }) { email }: RequestPasswordResetInput,
+    @Ctx()
+    { transactionProvider }: AppGraphqlContext
+  ) {
+    return transactionProvider.runTransaction(
+      async ({
+        identityController,
+        accountController,
+        resetTokenController,
+        sesConfig,
+        sesEnvironment,
+        appEnvironment,
+        logger,
+      }: AppGraphqlContext) => {
+        const identities = await identityController.find({
+          email,
+        });
+        if (identities.length === 1) {
+          const [identity] = identities;
+          const [account] = await accountController.find({
+            identityId: identity.id,
+          });
+
+          if (!account) {
+            throw new Error("Account not found for identity");
+          }
+
+          // revoke existing tokens
+          await resetTokenController.revokeOutstandingResetTokensForAccount(
+            account.id
+          );
+
+          // create the new token
+          const resetToken = await resetTokenController.create({
+            accountId: account.id,
+          });
+
+          // send the token to the user
+          logger.info({
+            message: "Sending password reset email",
+            from: sesEnvironment.fromAddress,
+            to: email,
+          });
+
+          const url = `${appEnvironment.webAppOrigin}/reset-password?code=${resetToken.id}`;
+          const sesClient = new SESClient(sesConfig);
+          await sesClient.send(
+            new SendEmailCommand({
+              Destination: {
+                ToAddresses: [email],
+              },
+              Source: sesEnvironment.fromAddress,
+              Message: {
+                Subject: {
+                  Data: "Password reset request",
+                },
+                Body: {
+                  Html: {
+                    Data:
+                      `A a password reset was requested for the ${appEnvironment.envName} ${appEnvironment.appName} account tied to this email address.<br /><br />` +
+                      `If you requested this, visit the following URL to create a new password: ` +
+                      `<a href="${url}">${url}</a><br /><br />` +
+                      `<hr />` +
+                      `This message was automatically generated, and this mailbox is not monitored. Do not reply to this email.`,
+                  },
+                },
+              },
+            })
+          );
+          sesClient.destroy();
+        }
+        return new RequestPasswordResetReceivedResponse();
+      }
+    );
+  }
+
+  /**
+   * Change a user's password using a reset token.
+   * @param input The graphql input arg
+   * @param context The graphql context
+   */
+  @Mutation(() => ResetPasswordResponse)
+  async resetPassword(
+    @Arg("input", { nullable: false }) { password, token }: ResetPasswordInput,
+    @Ctx() { transactionProvider }: AppGraphqlContext
+  ): Promise<ResetPasswordSuccessResponse | InvalidArgumentError> {
+    return transactionProvider.runTransaction(
+      async ({
+        resetTokenController,
+        accountController,
+      }: AppGraphqlContext) => {
+        let resetToken: ResetToken;
+        try {
+          resetToken = await resetTokenController.redeemToken(token);
+        } catch (err) {
+          if (err instanceof NotFoundError) {
+            throw InvalidArgumentError.fromFieldMap({
+              token:
+                "There was a problem with your reset token. Please request a new one or contact support.",
+            });
+          }
+          throw err;
+        }
+
+        try {
+          await accountController.resetPassword(resetToken, password);
+        } catch (err) {
+          if (err instanceof ResetTokenNotRedeemedError) {
+            throw InvalidArgumentError.fromFieldMap({
+              token:
+                "There was a problem with your reset token. Please request a new one or contact support.",
+            });
+          }
+          throw err;
+        }
+
+        return new ResetPasswordSuccessResponse();
+      }
+    );
   }
 }

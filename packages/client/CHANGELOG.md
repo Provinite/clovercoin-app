@@ -1,3 +1,9 @@
+# 2.3.0
+
+- Users can now reset their passwords in the application
+  - Adds a `/forgot-password` route, can be used to request a password reset email
+  - Adds a `/reset-password` route, used to reset password, linked from your email
+
 # 2.2.0
 
 - Adds a mandatory invitation code field to registration

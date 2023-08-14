@@ -23,9 +23,15 @@ import { handleJsonBufferBody } from "./http-middleware/handleJsonBufferBody.js"
 import { createRequestContainer } from "./http-middleware/createRequestContainer.js";
 import { build } from "./awilix/build.js";
 import { cors } from "./http-middleware/cors.js";
-import { getBootstrapEnvironment, getS3Environment } from "./environment.js";
+import {
+  getAppEnvironment,
+  getBootstrapEnvironment,
+  getS3Environment,
+  getSesEnvironment,
+} from "./environment.js";
 import { ImageController } from "./business/ImageController.js";
 import { authChecker } from "./business/auth/AuthChecker.js";
+import { sesConfig } from "./ses/sesConfig.js";
 export interface ServerOptions {
   db: {
     host?: string;
@@ -77,6 +83,10 @@ export const createCloverCoinAppServer = async (options: ServerOptions) => {
   const db = await dataSource.initialize();
 
   /**
+   * General app environment
+   */
+  register(rootContainer, "appEnvironment", asValue(getAppEnvironment()));
+  /**
    * Postgres
    */
   register(rootContainer, "db", asValue(db));
@@ -94,6 +104,16 @@ export const createCloverCoinAppServer = async (options: ServerOptions) => {
   register(rootContainer, "s3Environment", asFunction(getS3Environment));
   register(rootContainer, "s3Config", asValue(build(rootContainer, s3Config)));
   register(rootContainer, "imageController", asClass(ImageController));
+
+  /**
+   * SES
+   */
+  register(
+    rootContainer,
+    "sesEnvironment",
+    asValue(build(rootContainer, getSesEnvironment))
+  );
+  register(rootContainer, "sesConfig", asFunction(sesConfig));
   /**
    * Logging
    */
@@ -212,5 +232,8 @@ declare module "./graphql/AppGraphqlContext.js" {
     s3Environment: ReturnType<typeof getS3Environment>;
     bootstrapEnvironment: ReturnType<typeof getBootstrapEnvironment>;
     imageController: ImageController;
+    sesEnvironment: ReturnType<typeof getSesEnvironment>;
+    sesConfig: ReturnType<typeof sesConfig>;
+    appEnvironment: ReturnType<typeof getAppEnvironment>;
   }
 }

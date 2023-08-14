@@ -1,4 +1,4 @@
-import { IsUUID, Matches, Max, Min, MinLength } from "class-validator";
+import { IsUUID, Max, Min, MinLength } from "class-validator";
 import {
   Arg,
   createUnionType,
@@ -12,6 +12,7 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
+import { IsValidInviteCode } from "../../business/validation/IsValidInviteCode.js";
 import { DuplicateError } from "../../errors/DuplicateError.js";
 import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
 import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
@@ -41,10 +42,7 @@ export class InviteCodeList {
 export class InviteCodeCreateInput {
   @Field(() => ID, { nullable: false })
   @MinLength(1)
-  @Matches(/^[a-zA-Z0-9_-]+$/, {
-    message:
-      "Invite code id may only contain numbers, letters, underscores, and hyphens",
-  })
+  @IsValidInviteCode()
   id!: string;
 
   @Field(() => Int, { nullable: false })

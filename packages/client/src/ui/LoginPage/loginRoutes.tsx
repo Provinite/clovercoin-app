@@ -4,8 +4,10 @@ import { graphqlService } from "../../graphql/client";
 import { typedRouteConfig } from "../../routes";
 import { makeAction, makeLoader } from "../../utils/loaderUtils";
 import { AppRoutes } from "../AppRoutes";
+import { ForgotPasswordPage } from "./ForgotPasswordPage";
 import { LoginPage } from "./LoginPage";
 import { RegisterPage } from "./RegisterPage";
+import { ResetPasswordPage } from "./ResetPasswordPage";
 
 export const loginRoutes = () => [
   typedRouteConfig({
@@ -25,6 +27,18 @@ export const loginRoutes = () => [
     element: <RegisterPage />,
     path: "register",
     action: registerAction,
+  }),
+  typedRouteConfig({
+    id: "root.forgotPassword",
+    element: <ForgotPasswordPage />,
+    path: "forgot-password",
+    action: forgotPasswordAction,
+  }),
+  typedRouteConfig({
+    id: "root.resetPassword",
+    element: <ResetPasswordPage />,
+    path: "reset-password",
+    action: resetPasswordAction,
   }),
 ];
 
@@ -79,3 +93,43 @@ const registerAction = makeAction(
 const logoutLoader = makeLoader({}, async () => {
   graphqlService.setClientAuthToken("");
 });
+
+const forgotPasswordAction = makeAction(
+  {
+    allowedMethods: ["post"],
+    form: { email: true },
+  },
+  async ({ form: { email } }) => {
+    const {
+      data: { requestPasswordReset },
+    } = await graphqlService.requestPasswordReset({
+      variables: {
+        input: {
+          email,
+        },
+      },
+    });
+    return requestPasswordReset;
+  }
+);
+
+const resetPasswordAction = makeAction(
+  {
+    allowedMethods: ["post"],
+    form: { token: true, password: true },
+  },
+  async ({ form: { token, password } }) => {
+    const {
+      data: { resetPassword },
+    } = await graphqlService.resetPassword({
+      variables: {
+        input: {
+          token,
+          password,
+        },
+      },
+    });
+
+    return resetPassword;
+  }
+);

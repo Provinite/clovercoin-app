@@ -118,6 +118,20 @@ data "aws_iam_policy_document" "ecs_executor_policy" {
     ]
     resources = [aws_cloudwatch_log_group.api_logs.arn]
   }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "ses:SendEmail",
+      "ses:SendRawEmail"
+    ]
+    resources = ["*"]
+    condition {
+      test = "StringEquals"
+      variable = "ses:FromAddress"
+      values = ["${var.prefix}-no-reply@clovercoin.com"]
+    }
+  }
 }
 
 

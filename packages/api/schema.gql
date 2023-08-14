@@ -223,6 +223,10 @@ type Mutation {
 
   """Create a new account and receive an auth token"""
   register(input: RegisterArgs!): RegisterResponse!
+
+  """"""
+  requestPasswordReset(input: RequestPasswordResetInput!): RequestPasswordResetResponse!
+  resetPassword(input: ResetPasswordInput!): ResetPasswordResponse!
 }
 
 type NotFoundError implements BaseError {
@@ -252,6 +256,27 @@ input RegisterArgs {
 }
 
 union RegisterResponse = DuplicateError | InvalidArgumentError | LoginSuccessResponse
+
+input RequestPasswordResetInput {
+  email: String!
+}
+
+type RequestPasswordResetReceivedResponse {
+  message: String!
+}
+
+union RequestPasswordResetResponse = InvalidArgumentError | RequestPasswordResetReceivedResponse
+
+input ResetPasswordInput {
+  password: String!
+  token: ID!
+}
+
+union ResetPasswordResponse = InvalidArgumentError | ResetPasswordSuccessResponse
+
+type ResetPasswordSuccessResponse {
+  success: Boolean!
+}
 
 """
 Model representing an arbitrarily broad class of characters that use common variants and administration.

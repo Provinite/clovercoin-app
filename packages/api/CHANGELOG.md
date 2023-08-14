@@ -1,3 +1,16 @@
+# 3.0.0
+
+- Adds `requestPasswordReset` mutation
+- Adds `resetPassword` mutation
+- **Breaking Change** Adds SES integration for email support.
+  - **Breaking Change** New required env var: `CC_AWS_SES_FROM_ADDRESS`
+  - **Breaking Change** New required env var: `CC_WEB_CLIENT_ORIGIN`
+  - Adds permissions for the API IAM user to send emails
+  - Adds `CC_AWS_SES_FROM_ADDRESS`, `CC_WEB_CLIENT_ORIGIN`, `CC_ENV_NAME`, `CC_APP_NAME` to terraform deployment
+- Adds auto-generated environment variable documentation
+- Adds support for password reset tokens via the aforementioned mutations
+- Adds email
+
 # 2.0.0
 
 - Adds support for invite codes
