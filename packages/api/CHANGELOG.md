@@ -1,3 +1,7 @@
+# DUMMY VERSION
+
+- Adds yumminess
+
 # 3.1.0
 
 - Adds SMTP mail support and enables it in AWS
