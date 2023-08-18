@@ -1,4 +1,5 @@
 #!/bin/bash
+NX_BASE=3b1947de70fee1de2e300150e4171968aa91c29c
 export YARN_ENABLE_COLORS=false
 git diff "$NX_BASE..HEAD" --name-only |
   grep CHANGELOG.md |
