@@ -24,7 +24,7 @@ resource "aws_lambda_function" "api" {
       CC_ENV_NAME                = title(var.prefix)
       CC_APP_NAME                = "Cloverse Species"
       CC_AWS_SES_SMTP_SECRET_ARN = var.smtp_secret_arn
-      CC_AWS_SES_SMTP_SECURE     = "true"
+      CC_AWS_SES_SMTP_SECURE     = "false"
       CC_AWS_SES_USE_SMTP        = "true"
       CC_AWS_SES_SMTP_HOST       = "email-smtp.us-east-1.amazonaws.com"
       CC_AWS_SES_SMTP_PORT       = "587"
@@ -91,7 +91,7 @@ resource "aws_lambda_function" "migrate" {
       CC_ENV_NAME                = title(var.prefix)
       CC_APP_NAME                = "Cloverse Species"
       CC_AWS_SES_SMTP_SECRET_ARN = var.smtp_secret_arn
-      CC_AWS_SES_SMTP_SECURE     = "true"
+      CC_AWS_SES_SMTP_SECURE     = "false"
       CC_AWS_SES_USE_SMTP        = "true"
       CC_AWS_SES_SMTP_HOST       = "email-smtp.us-east-1.amazonaws.com"
       CC_AWS_SES_SMTP_PORT       = "587"
