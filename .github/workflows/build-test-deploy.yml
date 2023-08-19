@@ -198,7 +198,7 @@ jobs:
 
       # Discord notification
       - name: Discord notification
-        #if: steps.deploy-api.outcome == 'success' || steps.deploy-client.outcome == 'success'
+        if: steps.deploy-api.outcome == 'success' || steps.deploy-client.outcome == 'success'
         env:
           WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           CC_ENV_NAME: ${{ vars.ENV_NAME || 'dev' }}
