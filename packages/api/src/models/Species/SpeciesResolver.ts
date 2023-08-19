@@ -14,6 +14,8 @@ import {
   Root,
 } from "type-graphql";
 import { FindManyOptions, ILike } from "typeorm";
+import { Authenticated } from "../../business/auth/Authenticated.js";
+import { NotAuthorizedError } from "../../business/auth/NotAuthorizedError.js";
 import { ImageTarget } from "../../business/ImageController.js";
 import { DuplicateError } from "../../errors/DuplicateError.js";
 import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
@@ -69,7 +71,12 @@ export class SpeciesFilters {
 
 const SpeciesCreateResponse = createUnionType({
   name: "SpeciesCreateResponse",
-  types: () => [Species, InvalidArgumentError, DuplicateError],
+  types: () => [
+    Species,
+    InvalidArgumentError,
+    DuplicateError,
+    NotAuthorizedError,
+  ],
 });
 
 @ObjectType()
@@ -90,13 +97,19 @@ class UrlResponse {
   }
 }
 
+export const CreateSpeciesImageUploadUrlResponse = createUnionType({
+  name: "CreateSpeciesImageUploadUrlResponse",
+  types: () => [UrlResponse, NotAuthorizedError],
+});
+
 const SpeciesResponse = createUnionType({
   name: "SpeciesResponse",
-  types: () => [SpeciesList, InvalidArgumentError],
+  types: () => [SpeciesList, InvalidArgumentError, NotAuthorizedError],
 });
 
 @Resolver(() => Species)
 export class SpeciesResolver {
+  @Authenticated()
   @Query(() => SpeciesResponse)
   async species(
     @Arg("filters", () => SpeciesFilters, { nullable: true })
@@ -133,6 +146,7 @@ export class SpeciesResolver {
     return null;
   }
 
+  @Authenticated()
   @Mutation(() => SpeciesCreateResponse)
   async createSpecies(
     @Arg("input") input: SpeciesCreateInput,
@@ -143,7 +157,8 @@ export class SpeciesResolver {
     });
   }
 
-  @Mutation(() => UrlResponse)
+  @Authenticated()
+  @Mutation(() => CreateSpeciesImageUploadUrlResponse)
   async createSpeciesImageUploadUrl(
     @Arg("input") input: SpeciesImageUrlCreateInput,
     @Ctx() { transactionProvider }: AppGraphqlContext
