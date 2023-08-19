@@ -1,19 +1,19 @@
 import { Arg, Ctx, ID, Mutation, Query, Resolver } from "type-graphql";
+import { Authenticated } from "../../business/auth/Authenticated.js";
 import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
 import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes.js";
 import { EnumValueCreate } from "../EnumValue/EnumValueController.js";
 import { Trait } from "./Trait.js";
 import { TraitCreate } from "./TraitController.js";
-import {
-  TraitCreateInput,
-  TraitCreateResponse,
-  TraitFilters,
-  TraitModifyInput,
-  TraitModifyResponse,
-} from "./TraitTypes.js";
+import { TraitModifyInput } from "./gql-types/TraitModifyInput.js";
+import { TraitCreateInput } from "./gql-types/TraitCreateInput.js";
+import { TraitCreateResponse } from "./gql-types/TraitCreateResponse.js";
+import { TraitModifyResponse } from "./gql-types/TraitModifyResponse.js";
+import { TraitFilters } from "./gql-types/TraitFilters.js";
 
 @Resolver(() => Trait)
 export class TraitResolver {
+  @Authenticated()
   @Mutation(() => TraitCreateResponse)
   async createTrait(
     @Arg("input") input: TraitCreateInput,
@@ -66,6 +66,7 @@ export class TraitResolver {
     return result;
   }
 
+  @Authenticated()
   @Mutation(() => String)
   async deleteTrait(
     @Arg("id", () => ID, { nullable: false }) id: string,
@@ -75,6 +76,7 @@ export class TraitResolver {
     return "deleted";
   }
 
+  @Authenticated()
   @Mutation(() => TraitModifyResponse)
   async modifyTrait(
     @Arg("input", () => TraitModifyInput, { nullable: false })
