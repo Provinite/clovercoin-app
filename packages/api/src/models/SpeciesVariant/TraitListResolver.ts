@@ -48,8 +48,8 @@ export class TraitListResolver {
   @Mutation(() => TraitListCreateResponse)
   async createTraitList(
     @Arg("input") input: TraitListCreateInput,
-    @Ctx() { traitListController }: AppGraphqlContext
+    @Ctx() { speciesVariantController }: AppGraphqlContext
   ): Promise<SpeciesVariant> {
-    return await traitListController.create(input);
+    return await speciesVariantController.create(input);
   }
 }

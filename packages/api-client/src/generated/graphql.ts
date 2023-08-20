@@ -92,7 +92,7 @@ export interface Critter {
   ownerId: Scalars["ID"];
   species: Species;
   speciesId: Scalars["ID"];
-  traitList: TraitList;
+  traitList: SpeciesVariant;
   traitListId: Scalars["ID"];
   traitValues: Array<CritterTraitValue>;
 }
@@ -182,7 +182,7 @@ export interface EnumValueSetting {
   enumValue: EnumValue;
   enumValueId: Scalars["ID"];
   id: Scalars["ID"];
-  traitList: Array<TraitList>;
+  traitList: Array<SpeciesVariant>;
   traitListId: Scalars["ID"];
 }
 
@@ -474,7 +474,7 @@ export interface Species {
   id: Scalars["ID"];
   /** Name of the species */
   name: Scalars["String"];
-  traitLists: Array<TraitList>;
+  traitLists: Array<SpeciesVariant>;
 }
 
 export interface SpeciesCreateInput {
@@ -509,6 +509,16 @@ export type SpeciesResponse =
   | NotAuthorizedError
   | SpeciesList;
 
+export interface SpeciesVariant {
+  __typename?: "SpeciesVariant";
+  enumValueSettings: Array<EnumValueSetting>;
+  id: Scalars["ID"];
+  name: Scalars["String"];
+  species: Species;
+  speciesId: Scalars["ID"];
+  traitListEntries: Array<TraitListEntry>;
+}
+
 export interface Trait {
   __typename?: "Trait";
   enumValues: Array<EnumValue>;
@@ -540,16 +550,6 @@ export interface TraitFilters {
   speciesId: Scalars["ID"];
 }
 
-export interface TraitList {
-  __typename?: "TraitList";
-  enumValueSettings: Array<EnumValueSetting>;
-  id: Scalars["ID"];
-  name: Scalars["String"];
-  species: Species;
-  speciesId: Scalars["ID"];
-  traitListEntries: Array<TraitListEntry>;
-}
-
 export interface TraitListCreateInput {
   name: Scalars["String"];
   speciesId: Scalars["ID"];
@@ -558,7 +558,7 @@ export interface TraitListCreateInput {
 export type TraitListCreateResponse =
   | DuplicateError
   | InvalidArgumentError
-  | TraitList;
+  | SpeciesVariant;
 
 export interface TraitListEntry {
   __typename?: "TraitListEntry";
@@ -568,7 +568,7 @@ export interface TraitListEntry {
   required: Scalars["Boolean"];
   trait: Trait;
   traitId: Scalars["ID"];
-  traitList: TraitList;
+  traitList: SpeciesVariant;
   traitListId: Scalars["ID"];
   valueType: CritterTraitValueType;
 }
@@ -697,7 +697,11 @@ export type GetCrittersQuery = {
           __typename?: "Critter";
           id: string;
           name: string;
-          traitList: { __typename?: "TraitList"; name: string; id: string };
+          traitList: {
+            __typename?: "SpeciesVariant";
+            name: string;
+            id: string;
+          };
           traitValues: Array<{
             __typename?: "CritterTraitValue";
             traitId: string;
@@ -1088,7 +1092,7 @@ export type CreateVariantMutation = {
           }>;
         }>;
       }
-    | { __typename?: "TraitList"; id: string; name: string };
+    | { __typename?: "SpeciesVariant"; id: string; name: string };
 };
 
 export type DeleteEnumValueSettingMutationVariables = Exact<{
@@ -1151,7 +1155,7 @@ export type GetSpeciesDetailQuery = {
           id: string;
           name: string;
           traitLists: Array<{
-            __typename?: "TraitList";
+            __typename?: "SpeciesVariant";
             id: string;
             name: string;
             enumValueSettings: Array<{
@@ -1215,7 +1219,7 @@ export type ModifyCritterMutation = {
           traitId: string;
           value?: string | null;
         }>;
-        traitList: { __typename?: "TraitList"; id: string; name: string };
+        traitList: { __typename?: "SpeciesVariant"; id: string; name: string };
       }
     | {
         __typename: "InvalidArgumentError";
@@ -1304,7 +1308,7 @@ export type CreateSpeciesMutation = {
         name: string;
         iconUrl?: string | null;
         traitLists: Array<{
-          __typename?: "TraitList";
+          __typename?: "SpeciesVariant";
           id: string;
           name: string;
           traitListEntries: Array<{
@@ -1353,7 +1357,7 @@ export type GetSpeciesListViewQuery = {
           name: string;
           iconUrl?: string | null;
           traitLists: Array<{
-            __typename?: "TraitList";
+            __typename?: "SpeciesVariant";
             id: string;
             name: string;
             traitListEntries: Array<{
@@ -1780,6 +1784,23 @@ export type SpeciesListKeySpecifier = ("list" | SpeciesListKeySpecifier)[];
 export type SpeciesListFieldPolicy = {
   list?: FieldPolicy<any> | FieldReadFunction<any>;
 };
+export type SpeciesVariantKeySpecifier = (
+  | "enumValueSettings"
+  | "id"
+  | "name"
+  | "species"
+  | "speciesId"
+  | "traitListEntries"
+  | SpeciesVariantKeySpecifier
+)[];
+export type SpeciesVariantFieldPolicy = {
+  enumValueSettings?: FieldPolicy<any> | FieldReadFunction<any>;
+  id?: FieldPolicy<any> | FieldReadFunction<any>;
+  name?: FieldPolicy<any> | FieldReadFunction<any>;
+  species?: FieldPolicy<any> | FieldReadFunction<any>;
+  speciesId?: FieldPolicy<any> | FieldReadFunction<any>;
+  traitListEntries?: FieldPolicy<any> | FieldReadFunction<any>;
+};
 export type TraitKeySpecifier = (
   | "enumValues"
   | "id"
@@ -1794,23 +1815,6 @@ export type TraitFieldPolicy = {
   name?: FieldPolicy<any> | FieldReadFunction<any>;
   species?: FieldPolicy<any> | FieldReadFunction<any>;
   valueType?: FieldPolicy<any> | FieldReadFunction<any>;
-};
-export type TraitListKeySpecifier = (
-  | "enumValueSettings"
-  | "id"
-  | "name"
-  | "species"
-  | "speciesId"
-  | "traitListEntries"
-  | TraitListKeySpecifier
-)[];
-export type TraitListFieldPolicy = {
-  enumValueSettings?: FieldPolicy<any> | FieldReadFunction<any>;
-  id?: FieldPolicy<any> | FieldReadFunction<any>;
-  name?: FieldPolicy<any> | FieldReadFunction<any>;
-  species?: FieldPolicy<any> | FieldReadFunction<any>;
-  speciesId?: FieldPolicy<any> | FieldReadFunction<any>;
-  traitListEntries?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type TraitListEntryKeySpecifier = (
   | "defaultDisplayValue"
@@ -2043,19 +2047,19 @@ export type StrictTypedTypePolicies = {
       | (() => undefined | SpeciesListKeySpecifier);
     fields?: SpeciesListFieldPolicy;
   };
+  SpeciesVariant?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | SpeciesVariantKeySpecifier
+      | (() => undefined | SpeciesVariantKeySpecifier);
+    fields?: SpeciesVariantFieldPolicy;
+  };
   Trait?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
       | false
       | TraitKeySpecifier
       | (() => undefined | TraitKeySpecifier);
     fields?: TraitFieldPolicy;
-  };
-  TraitList?: Omit<TypePolicy, "fields" | "keyFields"> & {
-    keyFields?:
-      | false
-      | TraitListKeySpecifier
-      | (() => undefined | TraitListKeySpecifier);
-    fields?: TraitListFieldPolicy;
   };
   TraitListEntry?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
@@ -2436,7 +2440,7 @@ export const CreateSpeciesTraitDocument = gql`
 export const CreateVariantDocument = gql`
   mutation createVariant($input: TraitListCreateInput!) {
     createTraitList(input: $input) {
-      ... on TraitList {
+      ... on SpeciesVariant {
         id
         name
       }
@@ -4136,19 +4140,23 @@ export type NarrowToSpeciesList<T> = T extends { __typename?: "SpeciesList" }
   ? T
   : never;
 
+export function isSpeciesVariant(
+  val: unknown
+): val is { __typename: "SpeciesVariant" } {
+  return hasTypeName(val, "SpeciesVariant");
+}
+
+export type NarrowToSpeciesVariant<T> = T extends {
+  __typename?: "SpeciesVariant";
+}
+  ? T
+  : never;
+
 export function isTrait(val: unknown): val is { __typename: "Trait" } {
   return hasTypeName(val, "Trait");
 }
 
 export type NarrowToTrait<T> = T extends { __typename?: "Trait" } ? T : never;
-
-export function isTraitList(val: unknown): val is { __typename: "TraitList" } {
-  return hasTypeName(val, "TraitList");
-}
-
-export type NarrowToTraitList<T> = T extends { __typename?: "TraitList" }
-  ? T
-  : never;
 
 export function isTraitListEntry(
   val: unknown

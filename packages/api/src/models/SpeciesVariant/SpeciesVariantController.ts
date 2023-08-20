@@ -3,16 +3,16 @@ import { EntityController } from "../../business/EntityController.js";
 import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
 import { SpeciesVariant } from "./SpeciesVariant.js";
 
-export type TraitListCreate = Pick<SpeciesVariant, "speciesId" | "name">;
-export type TraitListModify = Pick<
+export type SpeciesVariantCreate = Pick<SpeciesVariant, "speciesId" | "name">;
+export type SpeciesVariantModify = Pick<
   Partial<SpeciesVariant>,
   "name" | "traitListEntries"
 >;
-export class TraitListController extends EntityController<
+export class SpeciesVariantController extends EntityController<
   SpeciesVariant,
   Repository<SpeciesVariant>,
-  TraitListCreate,
-  TraitListModify
+  SpeciesVariantCreate,
+  SpeciesVariantModify
 > {
   constructor({ traitListRepository }: AppGraphqlContext) {
     super(traitListRepository);

@@ -8,7 +8,7 @@ import { EnumValueSettingController } from "../models/EnumValueSetting/EnumValue
 import { IdentityController } from "../models/Identity/IdentityController.js";
 import { SpeciesController } from "../models/Species/SpeciesController.js";
 import { TraitController } from "../models/Trait/TraitController.js";
-import { TraitListController } from "../models/SpeciesVariant/TraitListController.js";
+import { SpeciesVariantController } from "../models/SpeciesVariant/SpeciesVariantController.js";
 import { TraitListEntryController } from "../models/TraitListEntry/TraitListEntryController.js";
 import { LoginController } from "./LoginController.js";
 import { InviteCodeController } from "../models/InviteCode/InviteCodeController.js";
@@ -36,7 +36,7 @@ export const ControllersMap = {
   SpeciesController,
 
   TraitController,
-  TraitListController,
+  SpeciesVariantController,
   TraitListEntryController,
 
   InviteCodeController,
