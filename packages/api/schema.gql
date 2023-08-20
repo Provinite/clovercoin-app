@@ -209,7 +209,7 @@ type Mutation {
   createSpecies(input: SpeciesCreateInput!): SpeciesCreateResponse!
   createSpeciesImageUploadUrl(input: SpeciesImageUrlCreateInput!): CreateSpeciesImageUploadUrlResponse!
   createTrait(input: TraitCreateInput!): TraitCreateResponse!
-  createTraitList(input: TraitListCreateInput!): TraitListCreateResponse!
+  createTraitList(input: SpeciesVariantCreateInput!): SpeciesVariantCreateResponse!
 
   """Add a trait to a variant's trait list"""
   createTraitListEntry(input: TraitListEntryCreateInput!): TraitListEntryCreateResponse!
@@ -344,6 +344,13 @@ type SpeciesVariant {
   traitListEntries: [TraitListEntry!]!
 }
 
+input SpeciesVariantCreateInput {
+  name: String!
+  speciesId: ID!
+}
+
+union SpeciesVariantCreateResponse = DuplicateError | InvalidArgumentError | SpeciesVariant
+
 type Trait {
   enumValues: [EnumValue!]!
   id: ID!
@@ -369,13 +376,6 @@ union TraitCreateResponse = DuplicateError | InvalidArgumentError | NotAuthorize
 input TraitFilters {
   speciesId: ID!
 }
-
-input TraitListCreateInput {
-  name: String!
-  speciesId: ID!
-}
-
-union TraitListCreateResponse = DuplicateError | InvalidArgumentError | SpeciesVariant
 
 type TraitListEntry {
   defaultDisplayValue: String

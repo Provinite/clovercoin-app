@@ -34,7 +34,7 @@ const modelsByName = {
   Species,
 
   Trait,
-  TraitList: SpeciesVariant,
+  SpeciesVariant,
   TraitListEntry,
 
   InviteCode,

@@ -15,7 +15,7 @@ import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
 import { SpeciesVariant } from "./SpeciesVariant.js";
 
 @InputType()
-export class TraitListCreateInput {
+export class SpeciesVariantCreateInput {
   @Field(() => ID)
   @IsUUID(4)
   speciesId!: string;
@@ -26,7 +26,7 @@ export class TraitListCreateInput {
 }
 
 @InputType()
-export class TraitListModifyInput {
+export class SpeciesVariantModifyInput {
   @Field(() => ID)
   @IsUUID(4)
   traitListId!: string;
@@ -38,16 +38,16 @@ export class TraitListModifyInput {
   name: string | null = null;
 }
 
-const TraitListCreateResponse = createUnionType({
-  name: "TraitListCreateResponse",
+const SpeciesVariantCreateResponse = createUnionType({
+  name: "SpeciesVariantCreateResponse",
   types: () => [SpeciesVariant, DuplicateError, InvalidArgumentError],
 });
 
 @Resolver(() => SpeciesVariant)
-export class TraitListResolver {
-  @Mutation(() => TraitListCreateResponse)
+export class SpeciesVariantResolver {
+  @Mutation(() => SpeciesVariantCreateResponse)
   async createTraitList(
-    @Arg("input") input: TraitListCreateInput,
+    @Arg("input") input: SpeciesVariantCreateInput,
     @Ctx() { speciesVariantController }: AppGraphqlContext
   ): Promise<SpeciesVariant> {
     return await speciesVariantController.create(input);

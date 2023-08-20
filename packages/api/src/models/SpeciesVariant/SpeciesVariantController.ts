@@ -14,7 +14,7 @@ export class SpeciesVariantController extends EntityController<
   SpeciesVariantCreate,
   SpeciesVariantModify
 > {
-  constructor({ traitListRepository }: AppGraphqlContext) {
-    super(traitListRepository);
+  constructor({ speciesVariantRepository }: AppGraphqlContext) {
+    super(speciesVariantRepository);
   }
 }
