@@ -11,7 +11,7 @@ export const createEnumValueSettingMutation = gql`
       ... on EnumValueSetting {
         id
         enumValueId
-        traitListId
+        speciesVariantId
       }
       ... on DuplicateError {
         ...DuplicateErrorFragment

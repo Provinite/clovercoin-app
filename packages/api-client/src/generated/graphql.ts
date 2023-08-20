@@ -182,8 +182,8 @@ export interface EnumValueSetting {
   enumValue: EnumValue;
   enumValueId: Scalars["ID"];
   id: Scalars["ID"];
-  traitList: Array<SpeciesVariant>;
-  traitListId: Scalars["ID"];
+  speciesVariant: Array<SpeciesVariant>;
+  speciesVariantId: Scalars["ID"];
 }
 
 export interface EnumValueSettingCreateInput {
@@ -1006,7 +1006,7 @@ export type CreateEnumValueSettingMutation = {
         __typename: "EnumValueSetting";
         id: string;
         enumValueId: string;
-        traitListId: string;
+        speciesVariantId: string;
       }
     | {
         __typename: "InvalidArgumentError";
@@ -1157,7 +1157,7 @@ export type GetSpeciesDetailQuery = {
             enumValueSettings: Array<{
               __typename?: "EnumValueSetting";
               id: string;
-              traitListId: string;
+              speciesVariantId: string;
               enumValueId: string;
             }>;
             traitListEntries: Array<{
@@ -1590,16 +1590,16 @@ export type EnumValueSettingKeySpecifier = (
   | "enumValue"
   | "enumValueId"
   | "id"
-  | "traitList"
-  | "traitListId"
+  | "speciesVariant"
+  | "speciesVariantId"
   | EnumValueSettingKeySpecifier
 )[];
 export type EnumValueSettingFieldPolicy = {
   enumValue?: FieldPolicy<any> | FieldReadFunction<any>;
   enumValueId?: FieldPolicy<any> | FieldReadFunction<any>;
   id?: FieldPolicy<any> | FieldReadFunction<any>;
-  traitList?: FieldPolicy<any> | FieldReadFunction<any>;
-  traitListId?: FieldPolicy<any> | FieldReadFunction<any>;
+  speciesVariant?: FieldPolicy<any> | FieldReadFunction<any>;
+  speciesVariantId?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type IdentityKeySpecifier = (
   | "displayName"
@@ -2381,7 +2381,7 @@ export const CreateEnumValueSettingDocument = gql`
       ... on EnumValueSetting {
         id
         enumValueId
-        traitListId
+        speciesVariantId
       }
       ... on DuplicateError {
         ...DuplicateErrorFragment
@@ -2487,7 +2487,7 @@ export const GetSpeciesDetailDocument = gql`
             name
             enumValueSettings {
               id
-              traitListId
+              speciesVariantId
               enumValueId
             }
             traitListEntries {

@@ -22,7 +22,7 @@ import { CritterFormState, CritterFormStateDispatch } from "./useCritterForm";
 
 export type CritterFormStateVariant = Pick<SpeciesVariant, "id" | "name"> & {
   enumValueSettings: Array<
-    Pick<EnumValueSetting, "id" | "enumValueId" | "traitListId">
+    Pick<EnumValueSetting, "id" | "enumValueId" | "speciesVariantId">
   >;
   traitListEntries: Array<
     Pick<TraitListEntry, "id" | "order" | "required"> & {
