@@ -2,37 +2,46 @@ import { useQuery } from "@apollo/client";
 import {
   GetIdentityListDocument,
   GetIdentityListQuery,
+  isIdentityList,
+  isNotAuthorizedError,
 } from "@clovercoin/api-client";
 import { Box, Grid, Typography } from "@mui/material";
-import { FC } from "react";
+import { FC, useEffect } from "react";
+import { useBounceToLogin } from "../../hooks/useBounceToLogin";
 import { GridRow } from "../lib/GridRow";
 
 export interface UserListProps {}
 export const UserList: FC<UserListProps> = () => {
   const { data } = useQuery<GetIdentityListQuery>(GetIdentityListDocument);
-  if (!data) {
-    return <></>;
-  }
-  return (
-    <Grid container component={Box}>
-      <GridRow xs={[6, 6]}>
-        <Typography p={1} variant="body1" color="text.secondary">
-          Username
-        </Typography>
-        <Typography p={1} variant="body1" color="text.secondary">
-          Email
-        </Typography>
-      </GridRow>
-      {data.identities.map((identity) => (
-        <GridRow key={identity.id} xs={[6, 6]}>
-          <Typography p={2} variant="body1">
-            {identity.displayName}
+  const bounce = useBounceToLogin();
+  useEffect(() => {
+    if (isNotAuthorizedError(data?.identities)) {
+      bounce();
+    }
+  }, [data]);
+  if (data && isIdentityList(data.identities)) {
+    return (
+      <Grid container component={Box}>
+        <GridRow xs={[6, 6]}>
+          <Typography p={1} variant="body1" color="text.secondary">
+            Username
           </Typography>
-          <Typography p={2} variant="body1">
-            {identity.email}
+          <Typography p={1} variant="body1" color="text.secondary">
+            Email
           </Typography>
         </GridRow>
-      ))}
-    </Grid>
-  );
+        {data.identities.list.map((identity) => (
+          <GridRow key={identity.id} xs={[6, 6]}>
+            <Typography p={2} variant="body1">
+              {identity.displayName}
+            </Typography>
+            <Typography p={2} variant="body1">
+              {identity.email}
+            </Typography>
+          </GridRow>
+        ))}
+      </Grid>
+    );
+  }
+  return <></>;
 };

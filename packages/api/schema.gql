@@ -34,11 +34,13 @@ type CommunityList {
   list: [Community!]!
 }
 
-union CommunityResponse = Community | InvalidArgumentError | NotFoundError
+union CommunityResponse = Community | InvalidArgumentError | NotAuthorizedError | NotFoundError
 
-union CreateCommunityResponse = Community | DuplicateError | InvalidArgumentError
+union CreateCommunityResponse = Community | DuplicateError | InvalidArgumentError | NotAuthorizedError
 
-union CreateCritterResponse = Critter | DuplicateError | InvalidArgumentError
+union CreateCritterResponse = Critter | DuplicateError | InvalidArgumentError | NotAuthorizedError
+
+union CreateSpeciesImageUploadUrlResponse = NotAuthorizedError | UrlResponse
 
 type Critter {
   id: ID!
@@ -74,7 +76,7 @@ type CritterList {
   list: [Critter!]!
 }
 
-union CritterListResponse = CritterList | InvalidArgumentError
+union CritterListResponse = CritterList | InvalidArgumentError | NotAuthorizedError
 
 input CritterModifyInput {
   id: ID!
@@ -83,7 +85,7 @@ input CritterModifyInput {
   traitValues: [CritterCreateTraitInput!]
 }
 
-union CritterModifyResponse = Critter | InvalidArgumentError | NotFoundError
+union CritterModifyResponse = Critter | InvalidArgumentError | NotAuthorizedError | NotFoundError
 
 type CritterTraitValue {
   traitId: ID!
@@ -141,6 +143,12 @@ type Identity {
   id: ID!
 }
 
+type IdentityList {
+  list: [Identity!]!
+}
+
+union IdentitylistResponse = IdentityList | NotAuthorizedError
+
 """Acceptable MIME types for images"""
 enum ImageContentType {
   Gif
@@ -167,13 +175,13 @@ input InviteCodeCreateInput {
   maxClaims: Int!
 }
 
-union InviteCodeCreateResponse = DuplicateError | InvalidArgumentError | InviteCode
+union InviteCodeCreateResponse = DuplicateError | InvalidArgumentError | InviteCode | NotAuthorizedError
 
 type InviteCodeList {
   list: [InviteCode!]!
 }
 
-union InviteCodeResponse = InviteCodeList
+union InviteCodeResponse = InviteCodeList | NotAuthorizedError
 
 input LoginArgs {
   password: String = ""
@@ -199,7 +207,7 @@ type Mutation {
   createEnumValueSetting(input: EnumValueSettingCreateInput!): enumValueSettingCreateResponse!
   createInviteCode(input: InviteCodeCreateInput!): InviteCodeCreateResponse!
   createSpecies(input: SpeciesCreateInput!): SpeciesCreateResponse!
-  createSpeciesImageUploadUrl(input: SpeciesImageUrlCreateInput!): UrlResponse!
+  createSpeciesImageUploadUrl(input: SpeciesImageUrlCreateInput!): CreateSpeciesImageUploadUrlResponse!
   createTrait(input: TraitCreateInput!): TraitCreateResponse!
   createTraitList(input: TraitListCreateInput!): TraitListCreateResponse!
 
@@ -229,6 +237,10 @@ type Mutation {
   resetPassword(input: ResetPasswordInput!): ResetPasswordResponse!
 }
 
+type NotAuthorizedError implements BaseError {
+  message: String!
+}
+
 type NotFoundError implements BaseError {
   message: String!
 }
@@ -240,7 +252,7 @@ type Query {
   """Fetch a community by id and/or name"""
   community(filters: CommunityFilters!): CommunityResponse!
   critters(filters: CritterFilters!): CritterListResponse!
-  identities: [Identity!]!
+  identities: IdentitylistResponse!
 
   """Fetch invite codes"""
   inviteCodes: InviteCodeResponse!
@@ -304,7 +316,7 @@ input SpeciesCreateInput {
   name: String!
 }
 
-union SpeciesCreateResponse = DuplicateError | InvalidArgumentError | Species
+union SpeciesCreateResponse = DuplicateError | InvalidArgumentError | NotAuthorizedError | Species
 
 input SpeciesFilters {
   communityId: ID!
@@ -321,7 +333,7 @@ type SpeciesList {
   list: [Species!]!
 }
 
-union SpeciesResponse = InvalidArgumentError | SpeciesList
+union SpeciesResponse = InvalidArgumentError | NotAuthorizedError | SpeciesList
 
 type Trait {
   enumValues: [EnumValue!]!
@@ -343,7 +355,7 @@ input TraitCreateInput {
   valueType: CritterTraitValueType!
 }
 
-union TraitCreateResponse = DuplicateError | InvalidArgumentError | Trait
+union TraitCreateResponse = DuplicateError | InvalidArgumentError | NotAuthorizedError | Trait
 
 input TraitFilters {
   speciesId: ID!
@@ -411,7 +423,7 @@ input TraitModifyInput {
   valueType: CritterTraitValueType!
 }
 
-union TraitModifyResponse = DuplicateError | InvalidArgumentError | Trait
+union TraitModifyResponse = DuplicateError | InvalidArgumentError | NotAuthorizedError | Trait
 
 type UrlResponse {
   url: String!

@@ -1,4 +1,5 @@
 import gql from "graphql-tag";
+import BaseErrorFragmentGraphql from "../../utils/error-fragments/BaseErrorFragment.graphql";
 import InvalidArgumentErrorFragmentGraphql from "../../utils/error-fragments/InvalidArgumentErrorFragment.graphql";
 
 export const getSpeciesDetailQuery = gql`
@@ -38,7 +39,11 @@ export const getSpeciesDetailQuery = gql`
       ... on InvalidArgumentError {
         ...InvalidArgumentErrorFragment
       }
+      ... on BaseError {
+        ...BaseErrorFragment
+      }
     }
   }
   ${InvalidArgumentErrorFragmentGraphql}
+  ${BaseErrorFragmentGraphql}
 `;

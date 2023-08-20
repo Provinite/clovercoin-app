@@ -13,7 +13,9 @@ import {
   isCritterList,
   isDeleteResponse,
   isEnumValueSetting,
+  isNotAuthorizedError,
   isTrait,
+  isUrlResponse,
 } from "@clovercoin/api-client";
 import { typedRouteConfig } from "../../../routes";
 import { AddTraitCard } from "../AddTraitCard/AddTraitCard";
@@ -271,6 +273,9 @@ const speciesDetailLoader = makeLoader(
         },
       },
     });
+    if (isNotAuthorizedError(data.species)) {
+      return data.species;
+    }
     if (isBaseError(data.species)) {
       throw new Error(data.species.message);
     }
@@ -299,9 +304,7 @@ const speciesDetailAction = makeAction(
   },
   async ({ ids: { speciesId, communityId }, form: { iconUrl } }) => {
     const {
-      data: {
-        createSpeciesImageUploadUrl: { url },
-      },
+      data: { createSpeciesImageUploadUrl },
     } = await graphqlService.createSpeciesImageUploadUrl({
       variables: {
         input: {
@@ -309,7 +312,10 @@ const speciesDetailAction = makeAction(
           speciesId,
         },
       },
-      update: (cache) => {
+      update: (cache, { data }) => {
+        if (isBaseError(data?.createSpeciesImageUploadUrl)) {
+          return;
+        }
         // clear out this species list and any detail fetches
         cache.modify({
           fields: {
@@ -327,8 +333,13 @@ const speciesDetailAction = makeAction(
       },
     });
 
-    // actually upload the image
-    await uploadService.put(url, iconUrl);
+    if (isUrlResponse(createSpeciesImageUploadUrl)) {
+      // actually upload the image
+      await uploadService.put(createSpeciesImageUploadUrl.url, iconUrl);
+      return;
+    }
+
+    return createSpeciesImageUploadUrl;
   }
 );
 

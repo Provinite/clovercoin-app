@@ -3,12 +3,15 @@
  * for the entire application, as well as type utilities to improve
  * type-safety when interacting with react-router-dom.
  */
-import { isCommunity } from "@clovercoin/api-client";
+import {
+  isCommunity,
+  isNotAuthorizedError,
+  NotAuthorizedError,
+} from "@clovercoin/api-client";
 import {
   useRouteError,
   NonIndexRouteObject,
   IndexRouteObject,
-  LoaderFunctionArgs,
   Navigate,
   redirect,
 } from "react-router-dom";
@@ -22,7 +25,7 @@ import { loginRoutes } from "./ui/LoginPage/loginRoutes";
 import { SpeciesDetailRoutes } from "./ui/SpeciesDetailPage/routes/SpeciesDetailRoutes";
 import { speciesListRoutes } from "./ui/SpeciesListPage/speciesListRoutes";
 import { PrettyPrintJson } from "./ui/util/PrettyPrintJson";
-import { slugToUuid } from "./utils/uuidUtils";
+import { makeLoader } from "./utils/loaderUtils";
 
 const PrintError = () => {
   const error = useRouteError();
@@ -30,6 +33,30 @@ const PrintError = () => {
   return <PrettyPrintJson value={error} />;
 };
 
+const communityDetailLoader = makeLoader(
+  {
+    slugs: { communityId: true },
+  },
+  async ({ ids: { communityId } }) => {
+    const result = await graphqlService.getCommunity({
+      variables: {
+        filters: {
+          id: communityId,
+        },
+      },
+    });
+
+    if (isCommunity(result.data.community)) {
+      return result.data.community;
+    }
+    if (isNotAuthorizedError(result.data.community)) {
+      return result.data.community;
+    }
+    throw new Error(
+      `${result.data.community.__typename}: ${result.data.community.message}`
+    );
+  }
+);
 /**
  * Main react router dom configuration for the application.
  */
@@ -59,26 +86,7 @@ export const routes = [
           {
             id: "root.community",
             path: "community/:communityId",
-            loader: async ({ params: { communityId } }: LoaderFunctionArgs) => {
-              if (!communityId) {
-                throw new Error("Missing community id in route");
-              }
-              communityId = slugToUuid(communityId);
-              const result = await graphqlService.getCommunity({
-                variables: {
-                  filters: {
-                    id: communityId,
-                  },
-                },
-              });
-
-              if (isCommunity(result.data.community)) {
-                return result.data.community;
-              }
-              throw new Error(
-                `${result.data.community.__typename}: ${result.data.community.message}`
-              );
-            },
+            loader: communityDetailLoader,
             children: [SpeciesDetailRoutes(), speciesListRoutes],
           },
         ],
@@ -162,17 +170,28 @@ export type RouteType<R extends RouteId, T = typeof routes[number]> = WithId<
  */
 export type LoaderData<Route extends Record<string, any>> =
   Route["loader"] extends (...args: any[]) => any
-    ? Awaited<ReturnType<Route["loader"]>>
+    ? Exclude<
+        Awaited<ReturnType<Route["loader"]>>,
+        Response | NotAuthorizedError
+      >
     : never;
 
 /**
- * Type of the data returned by the action of the specified route
+ * Type of the data returned by the action of the specified route. The `Response`
+ * type is filtered out of this result, as that is generally not intended to be
+ * consumed by the app (and won't actually be returned into related hook calls).
+ * Additionally, {@link NotAuthorizedError} is handled by a global middleware
+ * in the `makeAction` utility, and will be converted to a redirect before being
+ * returned from an action.
  * @example
  * type T = LoaderData<RouteType<"root">>
  * */
 export type ActionData<Route extends Record<string, any>> =
   Route["action"] extends (...args: any[]) => any
-    ? Awaited<ReturnType<Route["action"]>>
+    ? Exclude<
+        Awaited<ReturnType<Route["action"]>>,
+        Response | NotAuthorizedError
+      >
     : never;
 
 /**
