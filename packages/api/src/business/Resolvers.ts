@@ -8,7 +8,7 @@ import { IdentityResolver } from "../models/Identity/IdentityResolver.js";
 import { InviteCodeResolver } from "../models/InviteCode/InviteCodeResolver.js";
 import { SpeciesResolver } from "../models/Species/SpeciesResolver.js";
 import { TraitResolver } from "../models/Trait/TraitResolver.js";
-import { TraitListResolver } from "../models/TraitList/TraitListResolver.js";
+import { TraitListResolver } from "../models/SpeciesVariant/TraitListResolver.js";
 import { TraitListEntryResolver } from "../models/TraitListEntry/TraitListEntryResolver.js";
 import { LoginResolver } from "./LoginResolver.js";
 

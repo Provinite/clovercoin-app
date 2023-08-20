@@ -10,7 +10,7 @@ import { InviteCode } from "./InviteCode/InviteCode.js";
 import { ResetToken } from "./ResetToken/ResetToken.js";
 import { Species } from "./Species/Species.js";
 import { Trait } from "./Trait/Trait.js";
-import { Variant } from "./TraitList/TraitList.js";
+import { Variant } from "./SpeciesVariant/TraitList.js";
 import { TraitListEntry } from "./TraitListEntry/TraitListEntry.js";
 
 /**

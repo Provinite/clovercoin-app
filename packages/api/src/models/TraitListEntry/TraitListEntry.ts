@@ -3,7 +3,7 @@ import { Column, Entity, type Relation } from "typeorm";
 import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes.js";
 import { IdField, ManyToOneField } from "../relationFieldDecorators.js";
 import { Trait } from "../Trait/Trait.js";
-import { Variant } from "../TraitList/TraitList.js";
+import { Variant } from "../SpeciesVariant/TraitList.js";
 
 /**
  * Model representing a single entry on a variant's trait list.

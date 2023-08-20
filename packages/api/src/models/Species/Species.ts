@@ -4,7 +4,7 @@ import { Column, Entity, OneToMany } from "typeorm";
 import { Community } from "../Community/Community.js";
 import { Critter } from "../Critter/Critter.js";
 import { IdField, ManyToOneField } from "../relationFieldDecorators.js";
-import { Variant } from "../TraitList/TraitList.js";
+import { Variant } from "../SpeciesVariant/TraitList.js";
 
 @Entity()
 @ObjectType({

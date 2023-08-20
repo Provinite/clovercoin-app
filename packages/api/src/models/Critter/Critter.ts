@@ -7,7 +7,7 @@ import {
   RelationIdField,
 } from "../relationFieldDecorators.js";
 import { Identity } from "../Identity/Identity.js";
-import { Variant } from "../TraitList/TraitList.js";
+import { Variant } from "../SpeciesVariant/TraitList.js";
 import { TypeormLoader } from "type-graphql-dataloader";
 
 @Entity()

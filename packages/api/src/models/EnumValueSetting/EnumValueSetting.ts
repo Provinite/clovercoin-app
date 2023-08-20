@@ -10,7 +10,7 @@ import {
 } from "typeorm";
 import { EnumValue } from "../EnumValue/EnumValue.js";
 import { IdField, ManyToOneField } from "../relationFieldDecorators.js";
-import { Variant } from "../TraitList/TraitList.js";
+import { Variant } from "../SpeciesVariant/TraitList.js";
 
 @Entity()
 @ObjectType()
