@@ -5,6 +5,7 @@ import { AddInviteCodes1691795618473 } from "./1691795618473-add-invite-codes.js
 import { AddInviteCodeCheckConstraint1691808450017 } from "./1691808450017-add-invite-code-check-constraint.js";
 import { AddResetTokensTable1691912368093 } from "./1691912368093-add-reset-tokens-table.js";
 import { RenameTraitListsTable1692510423335 } from "./1692510423335-rename-trait-lists-table.js";
+import { RemoveErroneousVariantUqIndex1692551564666 } from "./1692551564666-remove-erroneous-variant-uq-index.js";
 
 export const migrationsArray = [
   initializeDb1690172455074,
@@ -14,4 +15,5 @@ export const migrationsArray = [
   AddInviteCodeCheckConstraint1691808450017,
   AddResetTokensTable1691912368093,
   RenameTraitListsTable1692510423335,
+  RemoveErroneousVariantUqIndex1692551564666,
 ];

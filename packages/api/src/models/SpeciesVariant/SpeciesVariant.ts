@@ -1,6 +1,6 @@
 import { Field, ID, ObjectType } from "type-graphql";
 import { TypeormLoader } from "type-graphql-dataloader";
-import { Column, Entity, OneToMany, type Relation, Unique } from "typeorm";
+import { Column, Entity, OneToMany, type Relation } from "typeorm";
 import { Critter } from "../Critter/Critter.js";
 import { EnumValueSetting } from "../EnumValueSetting/EnumValueSetting.js";
 import { IdField, ManyToOneField } from "../relationFieldDecorators.js";
@@ -13,7 +13,6 @@ import { TraitListEntry } from "../TraitListEntry/TraitListEntry.js";
  */
 @Entity()
 @ObjectType()
-@Unique(["id", "speciesId"])
 export class SpeciesVariant {
   @IdField
   id!: string;
@@ -21,6 +20,9 @@ export class SpeciesVariant {
   @ManyToOneField({
     columnName: "speciesId",
     foreignColumnName: "id",
+    joinColumnOptions: {
+      foreignKeyConstraintName: "FK_7763bfcc4cea7dd7d063e1ccca2",
+    },
     nullable: false,
     type: () => Species,
   })
