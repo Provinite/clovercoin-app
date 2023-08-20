@@ -52,6 +52,6 @@ export class SpeciesVariant {
   @TypeormLoader()
   enumValueSettings!: EnumValueSetting[];
 
-  @OneToMany(() => Critter, (critter) => critter.traitList)
+  @OneToMany(() => Critter, (critter) => critter.variant)
   critters!: Critter[];
 }

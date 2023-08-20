@@ -45,7 +45,7 @@ export class CritterCreateInput {
 
   @Field(() => ID, { nullable: false })
   @IsUUID(4)
-  traitListId!: string;
+  variantId!: string;
 }
 
 @InputType()
@@ -100,7 +100,7 @@ export class CritterModifyInput {
   @Field(() => ID, { nullable: true })
   @IsUUID()
   @IsOptional()
-  traitListId?: string;
+  variantId?: string;
 }
 
 const CritterListResponse = createUnionType({

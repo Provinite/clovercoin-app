@@ -51,20 +51,20 @@ export class Critter {
   ownerId!: string;
 
   @ManyToOneField<SpeciesVariant, typeof SpeciesVariant>({
-    columnName: "traitListId",
+    columnName: "variantId",
     foreignColumnName: "id",
     nullable: false,
     type: () => SpeciesVariant,
     inverseSide: (traitList) => traitList.critters,
   })
   @TypeormLoader()
-  traitList!: SpeciesVariant;
+  variant!: SpeciesVariant;
 
   @RelationIdField<Critter>({
     nullable: false,
-    relation: (critter) => critter.traitList,
+    relation: (critter) => critter.variant,
   })
-  traitListId!: string;
+  variantId!: string;
 
   @Column("jsonb", { default: [], nullable: false })
   @Field(() => [CritterTraitValue], { nullable: false })

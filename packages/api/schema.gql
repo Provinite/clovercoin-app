@@ -49,17 +49,17 @@ type Critter {
   ownerId: ID!
   species: Species!
   speciesId: ID!
-  traitList: SpeciesVariant!
-  traitListId: ID!
   traitValues: [CritterTraitValue!]!
+  variant: SpeciesVariant!
+  variantId: ID!
 }
 
 input CritterCreateInput {
   name: String!
   ownerId: ID = null
   speciesId: ID!
-  traitListId: ID!
   traitValues: [CritterCreateTraitInput!]!
+  variantId: ID!
 }
 
 input CritterCreateTraitInput {
@@ -81,8 +81,8 @@ union CritterListResponse = CritterList | InvalidArgumentError | NotAuthorizedEr
 input CritterModifyInput {
   id: ID!
   name: String
-  traitListId: ID
   traitValues: [CritterCreateTraitInput!]
+  variantId: ID
 }
 
 union CritterModifyResponse = Critter | InvalidArgumentError | NotAuthorizedError | NotFoundError
