@@ -14,25 +14,33 @@ import { SpeciesVariant } from "../SpeciesVariant/SpeciesVariant.js";
 
 @Entity()
 @ObjectType()
-@Unique(["traitListId", "enumValueId"])
+@Unique("UQ_3560cef16c43083407f0b7a4cd4", ["speciesVariantId", "enumValueId"])
 export class EnumValueSetting {
   @IdField
   id!: string;
 
   @Field(() => [SpeciesVariant])
-  @ManyToOne(() => SpeciesVariant, (traitList) => traitList.enumValueSettings, {
-    nullable: false,
-  })
+  @ManyToOne(
+    () => SpeciesVariant,
+    (speciesVariant) => speciesVariant.enumValueSettings,
+    {
+      nullable: false,
+    }
+  )
   @JoinColumn({
-    name: "traitListId",
+    name: "speciesVariantId",
     referencedColumnName: "id",
+    foreignKeyConstraintName: "FK_d29d07896675d1ab7aa2c1a3b1e",
   })
   @TypeormLoader()
-  traitList!: Relation<SpeciesVariant>;
+  speciesVariant!: Relation<SpeciesVariant>;
 
   @ManyToOneField({
     columnName: "enumValueId",
     foreignColumnName: "id",
+    joinColumnOptions: {
+      foreignKeyConstraintName: "FK_39c63c3bf1ca4d492cc8d2d2e78",
+    },
     type: () => EnumValue,
     nullable: false,
   })
@@ -44,5 +52,5 @@ export class EnumValueSetting {
 
   @Column("uuid", { nullable: false })
   @Field(() => ID)
-  traitListId!: string;
+  speciesVariantId!: string;
 }

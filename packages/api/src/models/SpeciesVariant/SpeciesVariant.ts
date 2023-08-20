@@ -21,7 +21,7 @@ export class SpeciesVariant {
     columnName: "speciesId",
     foreignColumnName: "id",
     joinColumnOptions: {
-      foreignKeyConstraintName: "FK_7763bfcc4cea7dd7d063e1ccca2",
+      foreignKeyConstraintName: "FK_966982509647dc386b75ee2d143",
     },
     nullable: false,
     type: () => Species,
@@ -46,7 +46,7 @@ export class SpeciesVariant {
 
   @OneToMany(
     () => EnumValueSetting,
-    (enumValueSetting) => enumValueSetting.traitList
+    (enumValueSetting) => enumValueSetting.speciesVariant
   )
   @Field(() => [EnumValueSetting])
   @TypeormLoader()

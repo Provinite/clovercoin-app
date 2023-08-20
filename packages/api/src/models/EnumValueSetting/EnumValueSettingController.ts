@@ -5,7 +5,7 @@ import { EnumValueSetting } from "./EnumValueSetting.js";
 
 export type EnumValueSettingCreate = Pick<
   EnumValueSetting,
-  "enumValueId" | "traitListId"
+  "enumValueId" | "speciesVariantId"
 >;
 
 export class EnumValueSettingController extends EntityController<
