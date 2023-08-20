@@ -3,7 +3,7 @@ import {
   EnumValueSetting,
   Species,
   Trait,
-  TraitList,
+  SpeciesVariant,
   TraitListEntry,
 } from "@clovercoin/api-client";
 import { LoadingButton } from "@mui/lab";
@@ -20,7 +20,7 @@ import { FetcherWithComponents } from "react-router-dom";
 import { TraitInput } from "../common/TraitInput";
 import { CritterFormState, CritterFormStateDispatch } from "./useCritterForm";
 
-export type CritterFormStateVariant = Pick<TraitList, "id" | "name"> & {
+export type CritterFormStateVariant = Pick<SpeciesVariant, "id" | "name"> & {
   enumValueSettings: Array<
     Pick<EnumValueSetting, "id" | "enumValueId" | "traitListId">
   >;
