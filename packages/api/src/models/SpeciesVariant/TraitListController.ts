@@ -1,16 +1,16 @@
 import { Repository } from "typeorm";
 import { EntityController } from "../../business/EntityController.js";
 import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
-import { Variant } from "./TraitList.js";
+import { SpeciesVariant } from "./SpeciesVariant.js";
 
-export type TraitListCreate = Pick<Variant, "speciesId" | "name">;
+export type TraitListCreate = Pick<SpeciesVariant, "speciesId" | "name">;
 export type TraitListModify = Pick<
-  Partial<Variant>,
+  Partial<SpeciesVariant>,
   "name" | "traitListEntries"
 >;
 export class TraitListController extends EntityController<
-  Variant,
-  Repository<Variant>,
+  SpeciesVariant,
+  Repository<SpeciesVariant>,
   TraitListCreate,
   TraitListModify
 > {

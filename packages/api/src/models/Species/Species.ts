@@ -4,7 +4,7 @@ import { Column, Entity, OneToMany } from "typeorm";
 import { Community } from "../Community/Community.js";
 import { Critter } from "../Critter/Critter.js";
 import { IdField, ManyToOneField } from "../relationFieldDecorators.js";
-import { Variant } from "../SpeciesVariant/TraitList.js";
+import { SpeciesVariant } from "../SpeciesVariant/SpeciesVariant.js";
 
 @Entity()
 @ObjectType({
@@ -39,10 +39,10 @@ export class Species {
   @TypeormLoader()
   critters!: Critter[];
 
-  @OneToMany(() => Variant, (traitList) => traitList.species)
-  @Field(() => [Variant], { nullable: false })
+  @OneToMany(() => SpeciesVariant, (traitList) => traitList.species)
+  @Field(() => [SpeciesVariant], { nullable: false })
   @TypeormLoader()
-  traitLists!: Variant[];
+  traitLists!: SpeciesVariant[];
 
   @Field(() => String, {})
   @Column("boolean", { nullable: false, default: false })

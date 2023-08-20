@@ -7,7 +7,7 @@ import {
   RelationIdField,
 } from "../relationFieldDecorators.js";
 import { Identity } from "../Identity/Identity.js";
-import { Variant } from "../SpeciesVariant/TraitList.js";
+import { SpeciesVariant } from "../SpeciesVariant/SpeciesVariant.js";
 import { TypeormLoader } from "type-graphql-dataloader";
 
 @Entity()
@@ -50,15 +50,15 @@ export class Critter {
   })
   ownerId!: string;
 
-  @ManyToOneField<Variant, typeof Variant>({
+  @ManyToOneField<SpeciesVariant, typeof SpeciesVariant>({
     columnName: "traitListId",
     foreignColumnName: "id",
     nullable: false,
-    type: () => Variant,
+    type: () => SpeciesVariant,
     inverseSide: (traitList) => traitList.critters,
   })
   @TypeormLoader()
-  traitList!: Variant;
+  traitList!: SpeciesVariant;
 
   @RelationIdField<Critter>({
     nullable: false,

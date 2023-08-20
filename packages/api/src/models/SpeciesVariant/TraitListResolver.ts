@@ -12,7 +12,7 @@ import {
 import { DuplicateError } from "../../errors/DuplicateError.js";
 import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
 import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
-import { Variant } from "./TraitList.js";
+import { SpeciesVariant } from "./SpeciesVariant.js";
 
 @InputType()
 export class TraitListCreateInput {
@@ -40,16 +40,16 @@ export class TraitListModifyInput {
 
 const TraitListCreateResponse = createUnionType({
   name: "TraitListCreateResponse",
-  types: () => [Variant, DuplicateError, InvalidArgumentError],
+  types: () => [SpeciesVariant, DuplicateError, InvalidArgumentError],
 });
 
-@Resolver(() => Variant)
+@Resolver(() => SpeciesVariant)
 export class TraitListResolver {
   @Mutation(() => TraitListCreateResponse)
   async createTraitList(
     @Arg("input") input: TraitListCreateInput,
     @Ctx() { traitListController }: AppGraphqlContext
-  ): Promise<Variant> {
+  ): Promise<SpeciesVariant> {
     return await traitListController.create(input);
   }
 }
