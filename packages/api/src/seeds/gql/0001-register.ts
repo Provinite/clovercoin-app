@@ -9,7 +9,7 @@ import { gql } from "graphql-tag";
 export default class Seed0001Register {
   async up(client: GraphQLClient) {
     const query: TypedDocumentNode<{
-      register: { identity: { id: string } };
+      register: { identity: { id: string }; token: string };
     }> = gql`
       mutation {
         register(
@@ -25,10 +25,13 @@ export default class Seed0001Register {
             identity {
               id
             }
+            token
           }
         }
       }
     `;
-    return (await client.request(query)).register;
+    const result = (await client.request(query)).register;
+    client.setHeader("Authorization", `Bearer ${result.token}`);
+    return result;
   }
 }

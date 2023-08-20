@@ -42,7 +42,7 @@ export const useCritterForm = (critter?: CritterWithFormValues) => {
       type: "set",
       partial: {
         name: critter.name,
-        variantId: critter.traitList.id,
+        variantId: critter.variant.id,
       },
     });
     for (const { traitId, value } of critter.traitValues) {
@@ -82,5 +82,5 @@ export type CritterFormStateDispatch = Dispatch<CritterFormStateAction>;
 
 type CritterWithFormValues = DeepPick<
   Critter,
-  "id" | "name" | "traitValues" | "traitList.id"
+  "id" | "name" | "traitValues" | "variant.id"
 >;

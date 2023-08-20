@@ -395,7 +395,7 @@ const critterCreateAction = makeAction(
         input: {
           name,
           speciesId,
-          traitListId: variantId,
+          variantId,
           traitValues,
           ownerId: graphqlService.getTokenPayload().identity.id,
         },
@@ -610,7 +610,7 @@ const enumValueSettingListAction = makeAction(
           }>({
             id: `TraitList:${variantId}`,
             fragment: gql`
-              fragment Settings on TraitList {
+              fragment Settings on SpeciesVariant {
                 enumValueSettings {
                   id
                   enumValueId
@@ -626,7 +626,7 @@ const enumValueSettingListAction = makeAction(
           cache.writeFragment({
             id: `TraitList:${variantId}`,
             fragment: gql`
-              fragment Settings on TraitList {
+              fragment Settings on SpeciesVariant {
                 enumValueSettings {
                   __typename
                   id

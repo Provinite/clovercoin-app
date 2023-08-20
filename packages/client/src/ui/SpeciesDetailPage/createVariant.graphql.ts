@@ -4,7 +4,7 @@ import DuplicateErrorFragmentGraphql from "../../utils/error-fragments/Duplicate
 import InvalidArgumentErrorFragmentGraphql from "../../utils/error-fragments/InvalidArgumentErrorFragment.graphql";
 
 export const createVariantMutation = gql`
-  mutation createVariant($input: TraitListCreateInput!) {
+  mutation createVariant($input: SpeciesVariantCreateInput!) {
     createTraitList(input: $input) {
       ... on SpeciesVariant {
         id

@@ -5,8 +5,8 @@ import { gql } from "graphql-tag";
 import { logger } from "../../util/logger.js";
 import Seed0004CreateSpeciesTraits, {
   Seed0004TraitName,
-} from "./0004-create-species-traits.mjs";
-import Seed0005CreateSpeciesTraitLists from "./0005-create-species-trait-lists.mjs";
+} from "./0004-create-species-traits.js";
+import Seed0005CreateSpeciesTraitLists from "./0005-create-species-trait-lists.js";
 import { GetResultFn } from "./_seeds.mjs";
 
 export default class Seed0006CreateSpeciesTraits {

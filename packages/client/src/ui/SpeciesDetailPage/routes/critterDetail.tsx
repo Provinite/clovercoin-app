@@ -39,7 +39,7 @@ export const critterDetailAction = makeAction(
           id: critterId,
           name,
           traitValues: finalValues.length ? finalValues : undefined,
-          traitListId: variantId,
+          variantId,
         },
       },
       update: (cache, result) => {
@@ -58,8 +58,8 @@ export const critterDetailAction = makeAction(
                   traitId
                   value
                 }
-                traitListId
-                traitList {
+                variantId
+                variant {
                   id
                   name
                 }

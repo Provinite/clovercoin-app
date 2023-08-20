@@ -8,7 +8,7 @@ import type { GraphQLClient } from "graphql-request";
 import { gql } from "graphql-tag";
 import { logger } from "../../util/logger.js";
 import { speciesName } from "../generators/speciesName.js";
-import Seed0002CreateCommunity from "./0002-create-community.mjs";
+import Seed0002CreateCommunity from "./0002-create-community.js";
 import { GetResultFn } from "./_seeds.mjs";
 
 export default class Seed0003CreateSpecies {

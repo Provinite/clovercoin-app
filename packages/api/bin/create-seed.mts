@@ -7,7 +7,7 @@ import { join, relative } from "path";
 import { Project, SyntaxKind, Node } from "ts-morph";
 
 const seedPath = "./src/seeds/gql";
-const seedFileRegex = /^(?<number>\d+)-.*?.mts$/;
+const seedFileRegex = /^(?<number>\d+)-.*?.ts$/;
 
 const [_, __, kebabCaseDescription, mutationName] = process.argv;
 
@@ -22,7 +22,7 @@ const sourcePath = "./bin";
 const seedNumber = getNextSeedNumber();
 const paddedSeedNumber = padLeft(String(seedNumber), 4, "0");
 const pascalDescription = kebabCaseToPascalCase(kebabCaseDescription);
-const fileName = `${paddedSeedNumber}-${kebabCaseDescription}.mts`;
+const fileName = `${paddedSeedNumber}-${kebabCaseDescription}.ts`;
 const className = `Seed${paddedSeedNumber}${pascalDescription}`;
 
 const vars = {
@@ -81,7 +81,7 @@ function transformTemplate(
 
   // register seed in seeds file
   seedsFile.addImportDeclaration({
-    moduleSpecifier: `./${fileName.replace(/\.mts/, ".mjs")}`,
+    moduleSpecifier: `./${fileName.replace(/\.ts/, ".js")}`,
     defaultImport: className,
   });
 

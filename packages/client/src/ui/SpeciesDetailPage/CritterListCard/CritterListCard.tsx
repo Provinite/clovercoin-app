@@ -19,7 +19,7 @@ import { DeepPick } from "../../../typing/types";
 export interface CritterListCardProps extends CardProps {
   species: Pick<Species, "name" | "id">;
   community: Pick<Community, "id">;
-  critters: DeepPick<Critter, "id" | "name" | "traitList.name">[];
+  critters: DeepPick<Critter, "id" | "name" | "variant.name">[];
 }
 
 // TODO:
@@ -59,7 +59,7 @@ export const CritterListCard: FC<CritterListCardProps> = ({
             {critter.name}
           </Typography>
           <Typography p={2} variant="body1">
-            {critter.traitList.name}
+            {critter.variant.name}
           </Typography>
           <EditButton
             to={AppRoutes.critterDetail(community.id, species.id, critter.id)}

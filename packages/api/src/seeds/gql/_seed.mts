@@ -33,6 +33,7 @@ for (let i = 0; i < seeds.length; i++) {
     seed: SeedClass.name,
     index: i,
     of: seeds.length,
+    result,
   });
 }
 

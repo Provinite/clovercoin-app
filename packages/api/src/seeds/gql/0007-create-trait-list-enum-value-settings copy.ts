@@ -5,10 +5,10 @@ import { gql } from "graphql-tag";
 import { logger } from "../../util/logger.js";
 import Seed0004CreateSpeciesTraits, {
   Seed0004TraitName,
-} from "./0004-create-species-traits.mjs";
+} from "./0004-create-species-traits.js";
 import Seed0005CreateSpeciesTraitLists, {
   Seed0005SpeciesTraitListName,
-} from "./0005-create-species-trait-lists.mjs";
+} from "./0005-create-species-trait-lists.js";
 import { GetResultFn } from "./_seeds.mjs";
 
 export default class Seed0007CreateTraitListEnumValueSettings {

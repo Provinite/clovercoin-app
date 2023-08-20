@@ -92,17 +92,17 @@ export interface Critter {
   ownerId: Scalars["ID"];
   species: Species;
   speciesId: Scalars["ID"];
-  traitList: SpeciesVariant;
-  traitListId: Scalars["ID"];
   traitValues: Array<CritterTraitValue>;
+  variant: SpeciesVariant;
+  variantId: Scalars["ID"];
 }
 
 export interface CritterCreateInput {
   name: Scalars["String"];
   ownerId?: InputMaybe<Scalars["ID"]>;
   speciesId: Scalars["ID"];
-  traitListId: Scalars["ID"];
   traitValues: Array<CritterCreateTraitInput>;
+  variantId: Scalars["ID"];
 }
 
 export interface CritterCreateTraitInput {
@@ -128,8 +128,8 @@ export type CritterListResponse =
 export interface CritterModifyInput {
   id: Scalars["ID"];
   name?: InputMaybe<Scalars["String"]>;
-  traitListId?: InputMaybe<Scalars["ID"]>;
   traitValues?: InputMaybe<Array<CritterCreateTraitInput>>;
+  variantId?: InputMaybe<Scalars["ID"]>;
 }
 
 export type CritterModifyResponse =
@@ -282,7 +282,7 @@ export interface Mutation {
   createSpecies: SpeciesCreateResponse;
   createSpeciesImageUploadUrl: CreateSpeciesImageUploadUrlResponse;
   createTrait: TraitCreateResponse;
-  createTraitList: TraitListCreateResponse;
+  createTraitList: SpeciesVariantCreateResponse;
   /** Add a trait to a variant's trait list */
   createTraitListEntry: TraitListEntryCreateResponse;
   deleteEnumValueSetting: EnumValueSettingDeleteResponse;
@@ -330,7 +330,7 @@ export interface MutationCreateTraitArgs {
 }
 
 export interface MutationCreateTraitListArgs {
-  input: TraitListCreateInput;
+  input: SpeciesVariantCreateInput;
 }
 
 export interface MutationCreateTraitListEntryArgs {
@@ -519,6 +519,16 @@ export interface SpeciesVariant {
   traitListEntries: Array<TraitListEntry>;
 }
 
+export interface SpeciesVariantCreateInput {
+  name: Scalars["String"];
+  speciesId: Scalars["ID"];
+}
+
+export type SpeciesVariantCreateResponse =
+  | DuplicateError
+  | InvalidArgumentError
+  | SpeciesVariant;
+
 export interface Trait {
   __typename?: "Trait";
   enumValues: Array<EnumValue>;
@@ -549,16 +559,6 @@ export type TraitCreateResponse =
 export interface TraitFilters {
   speciesId: Scalars["ID"];
 }
-
-export interface TraitListCreateInput {
-  name: Scalars["String"];
-  speciesId: Scalars["ID"];
-}
-
-export type TraitListCreateResponse =
-  | DuplicateError
-  | InvalidArgumentError
-  | SpeciesVariant;
 
 export interface TraitListEntry {
   __typename?: "TraitListEntry";
@@ -697,11 +697,7 @@ export type GetCrittersQuery = {
           __typename?: "Critter";
           id: string;
           name: string;
-          traitList: {
-            __typename?: "SpeciesVariant";
-            name: string;
-            id: string;
-          };
+          variant: { __typename?: "SpeciesVariant"; name: string; id: string };
           traitValues: Array<{
             __typename?: "CritterTraitValue";
             traitId: string;
@@ -1068,7 +1064,7 @@ export type CreateSpeciesTraitMutation = {
 };
 
 export type CreateVariantMutationVariables = Exact<{
-  input: TraitListCreateInput;
+  input: SpeciesVariantCreateInput;
 }>;
 
 export type CreateVariantMutation = {
@@ -1213,13 +1209,13 @@ export type ModifyCritterMutation = {
         __typename: "Critter";
         id: string;
         name: string;
-        traitListId: string;
+        variantId: string;
         traitValues: Array<{
           __typename?: "CritterTraitValue";
           traitId: string;
           value?: string | null;
         }>;
-        traitList: { __typename?: "SpeciesVariant"; id: string; name: string };
+        variant: { __typename?: "SpeciesVariant"; id: string; name: string };
       }
     | {
         __typename: "InvalidArgumentError";
@@ -1531,9 +1527,9 @@ export type CritterKeySpecifier = (
   | "ownerId"
   | "species"
   | "speciesId"
-  | "traitList"
-  | "traitListId"
   | "traitValues"
+  | "variant"
+  | "variantId"
   | CritterKeySpecifier
 )[];
 export type CritterFieldPolicy = {
@@ -1543,9 +1539,9 @@ export type CritterFieldPolicy = {
   ownerId?: FieldPolicy<any> | FieldReadFunction<any>;
   species?: FieldPolicy<any> | FieldReadFunction<any>;
   speciesId?: FieldPolicy<any> | FieldReadFunction<any>;
-  traitList?: FieldPolicy<any> | FieldReadFunction<any>;
-  traitListId?: FieldPolicy<any> | FieldReadFunction<any>;
   traitValues?: FieldPolicy<any> | FieldReadFunction<any>;
+  variant?: FieldPolicy<any> | FieldReadFunction<any>;
+  variantId?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type CritterListKeySpecifier = ("list" | CritterListKeySpecifier)[];
 export type CritterListFieldPolicy = {
@@ -2168,7 +2164,7 @@ export const GetCrittersDocument = gql`
         list {
           id
           name
-          traitList {
+          variant {
             name
             id
           }
@@ -2438,7 +2434,7 @@ export const CreateSpeciesTraitDocument = gql`
   ${BaseErrorFragmentFragmentDoc}
 `;
 export const CreateVariantDocument = gql`
-  mutation createVariant($input: TraitListCreateInput!) {
+  mutation createVariant($input: SpeciesVariantCreateInput!) {
     createTraitList(input: $input) {
       ... on SpeciesVariant {
         id
@@ -2547,8 +2543,8 @@ export const ModifyCritterDocument = gql`
           traitId
           value
         }
-        traitListId
-        traitList {
+        variantId
+        variant {
           id
           name
         }
