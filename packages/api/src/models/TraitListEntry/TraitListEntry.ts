@@ -3,7 +3,7 @@ import { Column, Entity, type Relation } from "typeorm";
 import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes.js";
 import { IdField, ManyToOneField } from "../relationFieldDecorators.js";
 import { Trait } from "../Trait/Trait.js";
-import { TraitList } from "../TraitList/TraitList.js";
+import { Variant } from "../TraitList/TraitList.js";
 
 /**
  * Model representing a single entry on a variant's trait list.
@@ -38,11 +38,11 @@ export class TraitListEntry {
    */
   @ManyToOneField({
     nullable: false,
-    type: () => TraitList,
+    type: () => Variant,
     columnName: "traitListId",
     foreignColumnName: "id",
   })
-  traitList!: Relation<TraitList>;
+  traitList!: Relation<Variant>;
 
   /**
    * The ID of the trait for this entry

@@ -14,7 +14,7 @@ import { TraitListEntry } from "../TraitListEntry/TraitListEntry.js";
 @Entity()
 @ObjectType()
 @Unique(["id", "speciesId"])
-export class TraitList {
+export class Variant {
   @IdField
   id!: string;
 

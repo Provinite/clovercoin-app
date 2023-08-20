@@ -10,7 +10,7 @@ import {
 } from "typeorm";
 import { EnumValue } from "../EnumValue/EnumValue.js";
 import { IdField, ManyToOneField } from "../relationFieldDecorators.js";
-import { TraitList } from "../TraitList/TraitList.js";
+import { Variant } from "../TraitList/TraitList.js";
 
 @Entity()
 @ObjectType()
@@ -19,8 +19,8 @@ export class EnumValueSetting {
   @IdField
   id!: string;
 
-  @Field(() => [TraitList])
-  @ManyToOne(() => TraitList, (traitList) => traitList.enumValueSettings, {
+  @Field(() => [Variant])
+  @ManyToOne(() => Variant, (traitList) => traitList.enumValueSettings, {
     nullable: false,
   })
   @JoinColumn({
@@ -28,7 +28,7 @@ export class EnumValueSetting {
     referencedColumnName: "id",
   })
   @TypeormLoader()
-  traitList!: Relation<TraitList>;
+  traitList!: Relation<Variant>;
 
   @ManyToOneField({
     columnName: "enumValueId",
