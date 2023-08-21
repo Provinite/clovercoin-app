@@ -34,7 +34,7 @@ export const ManyToOneField: <U, T extends ObjectType<U> = ObjectType<U>>(
   inverseSide,
   relationOptions,
   nullable,
-  joinColumnOptions,
+  joinColumnOptions = {},
   description,
   columnName,
   foreignColumnName,
@@ -45,11 +45,11 @@ export const ManyToOneField: <U, T extends ObjectType<U> = ObjectType<U>>(
     } else {
       ManyToOne(type, { ...relationOptions, nullable })(...args);
     }
-    JoinColumn(
-      joinColumnOptions
-        ? (joinColumnOptions as JoinColumnOptions)
-        : { name: columnName, referencedColumnName: foreignColumnName }
-    )(...args);
+    JoinColumn({
+      name: columnName,
+      referencedColumnName: foreignColumnName,
+      ...joinColumnOptions,
+    })(...args);
     Field(fieldType, { description })(...args);
     TypeormLoader()(...args);
   };

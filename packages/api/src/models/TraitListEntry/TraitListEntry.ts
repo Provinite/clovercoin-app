@@ -28,6 +28,9 @@ export class TraitListEntry {
     columnName: "traitId",
     foreignColumnName: "id",
     inverseSide: (trait) => trait.traitListEntries,
+    joinColumnOptions: {
+      foreignKeyConstraintName: "FK_2f2b5a9ef8b2060e65a8ea8dc72",
+    },
     nullable: false,
     type: () => Trait,
   })
@@ -39,10 +42,13 @@ export class TraitListEntry {
   @ManyToOneField({
     nullable: false,
     type: () => SpeciesVariant,
-    columnName: "traitListId",
+    columnName: "speciesVariantId",
     foreignColumnName: "id",
+    joinColumnOptions: {
+      foreignKeyConstraintName: "FK_6a9e092e68655161d7934f3677f",
+    },
   })
-  traitList!: Relation<SpeciesVariant>;
+  speciesVariant!: Relation<SpeciesVariant>;
 
   /**
    * The ID of the trait for this entry
@@ -56,7 +62,7 @@ export class TraitListEntry {
    */
   @Column("uuid", { nullable: false })
   @Field(() => ID)
-  traitListId!: string;
+  speciesVariantId!: string;
 
   /**
    * Order of this trait in the list

@@ -8,6 +8,7 @@ import { RenameTraitListsTable1692510423335 } from "./1692510423335-rename-trait
 import { RemoveErroneousVariantUqIndex1692551564666 } from "./1692551564666-remove-erroneous-variant-uq-index.js";
 import { RenameCritterTraitListIdColumn1692560972528 } from "./1692560972528-rename-critter-trait-list-id-column.js";
 import { RenameEnumValueSettingTraitListFields1692573382888 } from "./1692573382888-rename-enum-value-setting-trait-list-fields.js";
+import { RenameTraitListEntryTraitListIdField1692581217285 } from "./1692581217285-rename-trait-list-entry-trait-list-id-field.js";
 
 export const migrationsArray = [
   initializeDb1690172455074,
@@ -20,4 +21,5 @@ export const migrationsArray = [
   RemoveErroneousVariantUqIndex1692551564666,
   RenameCritterTraitListIdColumn1692560972528,
   RenameEnumValueSettingTraitListFields1692573382888,
+  RenameTraitListEntryTraitListIdField1692581217285,
 ];

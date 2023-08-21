@@ -39,7 +39,10 @@ export class SpeciesVariant {
   @Field(() => ID)
   speciesId!: string;
 
-  @OneToMany(() => TraitListEntry, (traitListEntry) => traitListEntry.traitList)
+  @OneToMany(
+    () => TraitListEntry,
+    (traitListEntry) => traitListEntry.speciesVariant
+  )
   @Field(() => [TraitListEntry])
   @TypeormLoader()
   traitListEntries!: TraitListEntry[];

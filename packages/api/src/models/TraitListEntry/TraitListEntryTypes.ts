@@ -23,7 +23,7 @@ import { TraitListEntry } from "./TraitListEntry.js";
 export class TraitListEntryCreateInput {
   @Field(() => ID)
   @IsUUID(4)
-  traitListId!: string;
+  speciesVariantId!: string;
 
   @Field(() => ID)
   @IsUUID(4)
