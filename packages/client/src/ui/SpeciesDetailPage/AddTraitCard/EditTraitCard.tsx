@@ -27,7 +27,7 @@ export const EditTraitCard: FunctionComponent = () => {
   const [form, setForm] = useTraitForm();
   const fetcher = useFetcher();
 
-  const { traits } = useRouteTraits();
+  const traits = useRouteTraits();
   const { traitId: traitSlug } = useParams();
 
   /**
@@ -43,7 +43,7 @@ export const EditTraitCard: FunctionComponent = () => {
    */
   useEffect(() => {
     if (traitId) {
-      const existingTrait = traits.find((t) => t.id === traitId);
+      const existingTrait = traits.list.find((t) => t.id === traitId);
       if (!existingTrait) {
         throw new Error("404");
       }

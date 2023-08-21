@@ -286,7 +286,7 @@ export interface Mutation {
   /** Add a trait to a variant's trait list */
   createTraitListEntry: TraitListEntryCreateResponse;
   deleteEnumValueSetting: EnumValueSettingDeleteResponse;
-  deleteTrait: Scalars["String"];
+  deleteTrait: TraitDeleteResponse;
   /** Remove a trait from a variant's traitlist. This will delete any values for this trait from all existing characters under the specified variant. */
   deleteTraitListEntry: TraitListEntryDeleteResponse;
   /** Log in using local credentials and receive an auth token */
@@ -342,7 +342,7 @@ export interface MutationDeleteEnumValueSettingArgs {
 }
 
 export interface MutationDeleteTraitArgs {
-  id: Scalars["ID"];
+  input: TraitDeleteInput;
 }
 
 export interface MutationDeleteTraitListEntryArgs {
@@ -398,7 +398,7 @@ export interface Query {
   /** Fetch invite codes */
   inviteCodes: InviteCodeResponse;
   species: SpeciesResponse;
-  traits: Array<Trait>;
+  traits: TraitListResponse;
 }
 
 export interface QueryCommunitiesArgs {
@@ -556,8 +556,22 @@ export type TraitCreateResponse =
   | NotAuthorizedError
   | Trait;
 
+export interface TraitDeleteInput {
+  id: Scalars["ID"];
+}
+
+export type TraitDeleteResponse =
+  | DeleteResponse
+  | InvalidArgumentError
+  | NotAuthorizedError;
+
 export interface TraitFilters {
   speciesId: Scalars["ID"];
+}
+
+export interface TraitList {
+  __typename?: "TraitList";
+  list: Array<Trait>;
 }
 
 export interface TraitListEntry {
@@ -600,6 +614,8 @@ export interface TraitListEntryModifyInput {
 export type TraitListEntryModifyResponse =
   | InvalidArgumentError
   | TraitListEntry;
+
+export type TraitListResponse = NotAuthorizedError | TraitList;
 
 export interface TraitModifyEnumValueInput {
   id?: InputMaybe<Scalars["ID"]>;
@@ -1115,12 +1131,27 @@ export type DeleteEnumValueSettingMutation = {
 };
 
 export type DeleteTraitMutationVariables = Exact<{
-  id: Scalars["ID"];
+  input: TraitDeleteInput;
 }>;
 
 export type DeleteTraitMutation = {
   __typename?: "Mutation";
-  deleteTrait: string;
+  deleteTrait:
+    | { __typename: "DeleteResponse"; ok: boolean }
+    | {
+        __typename: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      }
+    | { __typename: "NotAuthorizedError"; message: string };
 };
 
 export type GetSpeciesDetailQueryVariables = Exact<{
@@ -1189,13 +1220,22 @@ export type GetSpeciesTraitsQueryVariables = Exact<{
 
 export type GetSpeciesTraitsQuery = {
   __typename?: "Query";
-  traits: Array<{
-    __typename?: "Trait";
-    id: string;
-    name: string;
-    valueType: CritterTraitValueType;
-    enumValues: Array<{ __typename?: "EnumValue"; id: string; name: string }>;
-  }>;
+  traits:
+    | { __typename?: "NotAuthorizedError"; message: string }
+    | {
+        __typename?: "TraitList";
+        list: Array<{
+          __typename?: "Trait";
+          id: string;
+          name: string;
+          valueType: CritterTraitValueType;
+          enumValues: Array<{
+            __typename?: "EnumValue";
+            id: string;
+            name: string;
+          }>;
+        }>;
+      };
 };
 
 export type ModifyCritterMutationVariables = Exact<{
@@ -1812,6 +1852,10 @@ export type TraitFieldPolicy = {
   species?: FieldPolicy<any> | FieldReadFunction<any>;
   valueType?: FieldPolicy<any> | FieldReadFunction<any>;
 };
+export type TraitListKeySpecifier = ("list" | TraitListKeySpecifier)[];
+export type TraitListFieldPolicy = {
+  list?: FieldPolicy<any> | FieldReadFunction<any>;
+};
 export type TraitListEntryKeySpecifier = (
   | "defaultDisplayValue"
   | "id"
@@ -2056,6 +2100,13 @@ export type StrictTypedTypePolicies = {
       | TraitKeySpecifier
       | (() => undefined | TraitKeySpecifier);
     fields?: TraitFieldPolicy;
+  };
+  TraitList?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | TraitListKeySpecifier
+      | (() => undefined | TraitListKeySpecifier);
+    fields?: TraitListFieldPolicy;
   };
   TraitListEntry?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
@@ -2470,9 +2521,26 @@ export const DeleteEnumValueSettingDocument = gql`
   ${InvalidArgumentErrorFragmentFragmentDoc}
 `;
 export const DeleteTraitDocument = gql`
-  mutation deleteTrait($id: ID!) {
-    deleteTrait(id: $id)
+  mutation deleteTrait($input: TraitDeleteInput!) {
+    deleteTrait(input: $input) {
+      __typename
+      ... on DeleteResponse {
+        ok
+      }
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+      ... on BaseError {
+        ...BaseErrorFragment
+      }
+      ... on NotAuthorizedError {
+        ...NotAuthorizedErrorFragment
+      }
+    }
   }
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+  ${BaseErrorFragmentFragmentDoc}
+  ${NotAuthorizedErrorFragmentFragmentDoc}
 `;
 export const GetSpeciesDetailDocument = gql`
   query getSpeciesDetail($filters: SpeciesFilters) {
@@ -2522,15 +2590,27 @@ export const GetSpeciesDetailDocument = gql`
 export const GetSpeciesTraitsDocument = gql`
   query getSpeciesTraits($filters: TraitFilters!) {
     traits(filters: $filters) {
-      id
-      name
-      enumValues {
-        id
-        name
+      ... on TraitList {
+        list {
+          id
+          name
+          enumValues {
+            id
+            name
+          }
+          valueType
+        }
       }
-      valueType
+      ... on BaseError {
+        ...BaseErrorFragment
+      }
+      ... on NotAuthorizedError {
+        ...NotAuthorizedErrorFragment
+      }
     }
   }
+  ${BaseErrorFragmentFragmentDoc}
+  ${NotAuthorizedErrorFragmentFragmentDoc}
 `;
 export const ModifyCritterDocument = gql`
   mutation modifyCritter($input: CritterModifyInput!) {
@@ -4153,6 +4233,14 @@ export function isTrait(val: unknown): val is { __typename: "Trait" } {
 }
 
 export type NarrowToTrait<T> = T extends { __typename?: "Trait" } ? T : never;
+
+export function isTraitList(val: unknown): val is { __typename: "TraitList" } {
+  return hasTypeName(val, "TraitList");
+}
+
+export type NarrowToTraitList<T> = T extends { __typename?: "TraitList" }
+  ? T
+  : never;
 
 export function isTraitListEntry(
   val: unknown

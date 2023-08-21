@@ -447,7 +447,7 @@ const traitListLoader = makeLoader(
       },
     });
 
-    return result.data;
+    return result.data.traits;
   }
 );
 
@@ -529,7 +529,7 @@ const traitDetailAction = makeAction(
     if (method === "DELETE") {
       await graphqlService.deleteTrait({
         variables: {
-          id: traitId,
+          input: { id: traitId },
         },
         update(cache) {
           cache.evict({

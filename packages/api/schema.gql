@@ -214,7 +214,7 @@ type Mutation {
   """Add a trait to a variant's trait list"""
   createTraitListEntry(input: TraitListEntryCreateInput!): TraitListEntryCreateResponse!
   deleteEnumValueSetting(input: EnumValueDeleteInput!): EnumValueSettingDeleteResponse!
-  deleteTrait(id: ID!): String!
+  deleteTrait(input: TraitDeleteInput!): TraitDeleteResponse!
 
   """
   Remove a trait from a variant's traitlist. This will delete any values for this trait from all existing characters under the specified variant.
@@ -257,7 +257,7 @@ type Query {
   """Fetch invite codes"""
   inviteCodes: InviteCodeResponse!
   species(filters: SpeciesFilters): SpeciesResponse!
-  traits(filters: TraitFilters!): [Trait!]!
+  traits(filters: TraitFilters!): TraitListResponse!
 }
 
 input RegisterArgs {
@@ -373,8 +373,18 @@ input TraitCreateInput {
 
 union TraitCreateResponse = DuplicateError | InvalidArgumentError | NotAuthorizedError | Trait
 
+input TraitDeleteInput {
+  id: ID!
+}
+
+union TraitDeleteResponse = DeleteResponse | InvalidArgumentError | NotAuthorizedError
+
 input TraitFilters {
   speciesId: ID!
+}
+
+type TraitList {
+  list: [Trait!]!
 }
 
 type TraitListEntry {
@@ -409,6 +419,8 @@ input TraitListEntryModifyInput {
 }
 
 union TraitListEntryModifyResponse = InvalidArgumentError | TraitListEntry
+
+union TraitListResponse = NotAuthorizedError | TraitList
 
 input TraitModifyEnumValueInput {
   id: ID = null

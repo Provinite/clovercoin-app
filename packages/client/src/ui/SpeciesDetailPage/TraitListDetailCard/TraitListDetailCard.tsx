@@ -37,7 +37,7 @@ export const TraitListDetailCard: FunctionComponent = () => {
     useState<typeof variant["traitListEntries"][number]>();
   const [showConfirmRemoveDialog, setShowConfirmRemoveDialog] = useState(false);
   const [traitToAdd, setTraitToAdd] =
-    useState<typeof allTraits["traits"][number]>();
+    useState<typeof allTraits["list"][number]>();
   const { submit } = useFetcher();
 
   const findTraitListEntry = (traitId: string) =>
@@ -59,7 +59,7 @@ export const TraitListDetailCard: FunctionComponent = () => {
             <TextStack primary={"Enabled"} css={ss.header} />
           </GridRow>
           {/* Trait rows */}
-          {allTraits.traits.map((trait) => (
+          {allTraits.list.map((trait) => (
             <With value={() => findTraitListEntry(trait.id)} key={trait.id}>
               {(traitListEntry) => (
                 <VariantTraitListEntryListItem

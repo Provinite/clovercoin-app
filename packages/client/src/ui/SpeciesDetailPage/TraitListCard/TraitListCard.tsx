@@ -36,7 +36,7 @@ export const TraitListCard: FunctionComponent = () => {
   const community = useRouteCommunity();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [traitToDelete, setTraitToDelete] =
-    useState<typeof data["traits"][number]>();
+    useState<typeof data["list"][number]>();
 
   const [loading, setLoading] = useState(false);
   const snackbarQueue = useSnackbarQueue();
@@ -82,7 +82,7 @@ export const TraitListCard: FunctionComponent = () => {
             </Typography>
             <></>
           </GridRow>
-          {data.traits.map((t) => {
+          {data.list.map((t) => {
             return (
               <GridRow xs={[3, 3, 3, 3, 0]} xl={[3, 3, 1, 1, 4]} key={t.id}>
                 <Typography p={2} variant="body1" key="name">

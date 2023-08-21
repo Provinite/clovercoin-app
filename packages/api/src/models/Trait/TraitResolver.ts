@@ -1,4 +1,4 @@
-import { Arg, Ctx, ID, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
 import { Authenticated } from "../../business/auth/Authenticated.js";
 import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
 import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes.js";
@@ -10,6 +10,11 @@ import { TraitCreateInput } from "./gql-types/TraitCreateInput.js";
 import { TraitCreateResponse } from "./gql-types/TraitCreateResponse.js";
 import { TraitModifyResponse } from "./gql-types/TraitModifyResponse.js";
 import { TraitFilters } from "./gql-types/TraitFilters.js";
+import { TraitListResponse } from "./gql-types/TraitListResponse.js";
+import { TraitList } from "./gql-types/TraitList.js";
+import { TraitDeleteResponse } from "./gql-types/TraitDeleteResponse.js";
+import { DeleteResponse } from "../../business/DeleteResponse.js";
+import { TraitDeleteInput } from "./gql-types/TraitDeleteInput.js";
 
 @Resolver(() => Trait)
 export class TraitResolver {
@@ -53,27 +58,28 @@ export class TraitResolver {
     );
   }
 
-  @Query(() => [Trait])
+  @Query(() => TraitListResponse)
   async traits(
     @Arg("filters", () => TraitFilters) filters: TraitFilters,
     @Ctx() { traitRepository }: AppGraphqlContext
-  ): Promise<Trait[]> {
-    const result = traitRepository.find({
+  ): Promise<TraitList> {
+    const result = await traitRepository.find({
       where: {
         speciesId: filters.speciesId,
       },
     });
-    return result;
+    return new TraitList(result);
   }
 
   @Authenticated()
-  @Mutation(() => String)
+  @Mutation(() => TraitDeleteResponse)
   async deleteTrait(
-    @Arg("id", () => ID, { nullable: false }) id: string,
+    @Arg("input", () => TraitDeleteInput, { nullable: false })
+    { id }: TraitDeleteInput,
     @Ctx() { traitController }: AppGraphqlContext
   ) {
-    traitController.deleteOneById(id);
-    return "deleted";
+    await traitController.deleteOneById(id);
+    return new DeleteResponse(true);
   }
 
   @Authenticated()
