@@ -20,7 +20,7 @@ import { AppRoutes } from "../../AppRoutes";
 import { GridRow } from "../../lib/GridRow";
 import { With } from "../../util/With";
 import { useRouteSpecies } from "../useRouteSpecies";
-import { useRouteVariant } from "../useRouteTraitList";
+import { useRouteVariant } from "../useRouteVariant";
 import { TextStack } from "./TextStack";
 import { VariantTraitListEntryListItem } from "./VariantTraitListEntryListItem";
 

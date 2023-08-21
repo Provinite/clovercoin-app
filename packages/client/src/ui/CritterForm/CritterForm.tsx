@@ -63,9 +63,7 @@ export const CritterForm: FC<CritterFormProps> = ({
   const setVariantId = makeHandler("variantId");
 
   const { name, variantId, traitValues } = value;
-  const variant = species.variants.find(
-    (traitList) => traitList.id === variantId
-  );
+  const variant = species.variants.find((variant) => variant.id === variantId);
   return (
     <fetcher.Form method={method} action={action}>
       <Stack spacing={2} direction="row">
