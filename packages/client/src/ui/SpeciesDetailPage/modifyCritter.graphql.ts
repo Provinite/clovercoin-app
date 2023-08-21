@@ -11,8 +11,8 @@ export const createCritterMutation = gql`
           traitId
           value
         }
-        traitListId
-        traitList {
+        variantId
+        variant {
           id
           name
         }

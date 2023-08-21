@@ -17,6 +17,8 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
+import { Authenticated } from "../../business/auth/Authenticated.js";
+import { NotAuthorizedError } from "../../business/auth/NotAuthorizedError.js";
 import { DuplicateError } from "../../errors/DuplicateError.js";
 import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
 import { NotFoundError } from "../../errors/NotFoundError.js";
@@ -43,7 +45,7 @@ export class CritterCreateInput {
 
   @Field(() => ID, { nullable: false })
   @IsUUID(4)
-  traitListId!: string;
+  variantId!: string;
 }
 
 @InputType()
@@ -98,26 +100,37 @@ export class CritterModifyInput {
   @Field(() => ID, { nullable: true })
   @IsUUID()
   @IsOptional()
-  traitListId?: string;
+  variantId?: string;
 }
 
 const CritterListResponse = createUnionType({
   name: "CritterListResponse",
-  types: () => [CritterList, InvalidArgumentError],
+  types: () => [CritterList, InvalidArgumentError, NotAuthorizedError],
 });
 
 const CritterModifyResponse = createUnionType({
   name: "CritterModifyResponse",
-  types: () => [Critter, InvalidArgumentError, NotFoundError],
+  types: () => [
+    Critter,
+    InvalidArgumentError,
+    NotFoundError,
+    NotAuthorizedError,
+  ],
 });
 
 const CreateCritterResponse = createUnionType({
   name: "CreateCritterResponse",
-  types: () => [Critter, DuplicateError, InvalidArgumentError],
+  types: () => [
+    Critter,
+    DuplicateError,
+    InvalidArgumentError,
+    NotAuthorizedError,
+  ],
 });
 
 @Resolver(() => Critter)
 export class CritterResolver {
+  @Authenticated()
   @Mutation(() => CreateCritterResponse)
   async createCritter(
     @Arg("input") input: CritterCreateInput,
@@ -134,6 +147,7 @@ export class CritterResolver {
     });
   }
 
+  @Authenticated()
   @Query(() => CritterListResponse)
   async critters(
     @Arg("filters") filters: CritterFilters,
@@ -153,6 +167,7 @@ export class CritterResolver {
   }
 
   // TODO: Permissions, need to limit owners to editing their own
+  @Authenticated()
   @Mutation(() => CritterModifyResponse)
   async modifyCritter(
     @Arg("input") input: CritterModifyInput,

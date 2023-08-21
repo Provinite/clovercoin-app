@@ -3,14 +3,14 @@ import type { GraphQLClient } from "graphql-request";
 import { gql } from "graphql-tag";
 import { v4 } from "uuid";
 import { critterName } from "../generators/critterName.js";
-import Seed0001Register from "./0001-register.mjs";
-import Seed0003CreateSpecies from "./0003-create-species.mjs";
+import Seed0001Register from "./0001-register.js";
+import Seed0003CreateSpecies from "./0003-create-species.js";
 import Seed0004CreateSpeciesTraits, {
   Seed0004TraitName,
-} from "./0004-create-species-traits.mjs";
+} from "./0004-create-species-traits.js";
 import Seed0005CreateSpeciesTraitLists, {
   Seed0005SpeciesTraitListName,
-} from "./0005-create-species-trait-lists.mjs";
+} from "./0005-create-species-trait-lists.js";
 import { GetResultFn } from "./_seeds.mjs";
 
 export default class Seed0008CreateCritters {
@@ -18,7 +18,7 @@ export default class Seed0008CreateCritters {
     type MakeCritterVars = {
       name: string;
       speciesId: string;
-      traitListId: string;
+      variantId: string;
       traitValues: {
         traitId: string;
         value: string;
@@ -29,7 +29,7 @@ export default class Seed0008CreateCritters {
       __typename: "Critter";
       id: string;
     };
-    const { traitLists } = getResult(Seed0005CreateSpeciesTraitLists);
+    const { speciesVariants } = getResult(Seed0005CreateSpeciesTraitLists);
     const { traits } = getResult(Seed0004CreateSpeciesTraits);
     const { identity } = getResult(Seed0001Register);
     const { species } = getResult(Seed0003CreateSpecies);
@@ -47,7 +47,7 @@ export default class Seed0008CreateCritters {
       mutation makeCritter(
         $name: String!
         $speciesId: ID!
-        $traitListId: ID!
+        $variantId: ID!
         $traitValues: [CritterCreateTraitInput!]!
         $ownerId: ID
       ) {
@@ -55,7 +55,7 @@ export default class Seed0008CreateCritters {
           input: {
             name: $name
             speciesId: $speciesId
-            traitListId: $traitListId
+            variantId: $variantId
             traitValues: $traitValues
             ownerId: $ownerId
           }
@@ -66,7 +66,7 @@ export default class Seed0008CreateCritters {
             name
             ownerId
             speciesId
-            traitListId
+            variantId
             traitValues {
               traitId
               value
@@ -96,7 +96,7 @@ export default class Seed0008CreateCritters {
       await client.request(makeCritterQuery, {
         name: critterName(),
         speciesId: species.id,
-        traitListId: traitLists[Seed0005SpeciesTraitListName.Special].id,
+        variantId: speciesVariants[Seed0005SpeciesTraitListName.Special].id,
         traitValues: [
           {
             traitId: traits.Size.id,
@@ -118,7 +118,7 @@ export default class Seed0008CreateCritters {
       await client.request(makeCritterQuery, {
         name: critterName(),
         speciesId: species.id,
-        traitListId: traitLists[Seed0005SpeciesTraitListName.Rare].id,
+        variantId: speciesVariants[Seed0005SpeciesTraitListName.Rare].id,
         traitValues: [
           {
             traitId: traits.Size.id,
@@ -140,7 +140,7 @@ export default class Seed0008CreateCritters {
       await client.request(makeCritterQuery, {
         name: critterName(),
         speciesId: species.id,
-        traitListId: traitLists[Seed0005SpeciesTraitListName.Common].id,
+        variantId: speciesVariants[Seed0005SpeciesTraitListName.Common].id,
         traitValues: [
           {
             traitId: traits.Size.id,

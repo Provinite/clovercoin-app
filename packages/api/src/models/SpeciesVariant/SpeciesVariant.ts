@@ -1,6 +1,6 @@
 import { Field, ID, ObjectType } from "type-graphql";
 import { TypeormLoader } from "type-graphql-dataloader";
-import { Column, Entity, OneToMany, type Relation, Unique } from "typeorm";
+import { Column, Entity, OneToMany, type Relation } from "typeorm";
 import { Critter } from "../Critter/Critter.js";
 import { EnumValueSetting } from "../EnumValueSetting/EnumValueSetting.js";
 import { IdField, ManyToOneField } from "../relationFieldDecorators.js";
@@ -13,14 +13,16 @@ import { TraitListEntry } from "../TraitListEntry/TraitListEntry.js";
  */
 @Entity()
 @ObjectType()
-@Unique(["id", "speciesId"])
-export class TraitList {
+export class SpeciesVariant {
   @IdField
   id!: string;
 
   @ManyToOneField({
     columnName: "speciesId",
     foreignColumnName: "id",
+    joinColumnOptions: {
+      foreignKeyConstraintName: "FK_966982509647dc386b75ee2d143",
+    },
     nullable: false,
     type: () => Species,
   })
@@ -37,19 +39,22 @@ export class TraitList {
   @Field(() => ID)
   speciesId!: string;
 
-  @OneToMany(() => TraitListEntry, (traitListEntry) => traitListEntry.traitList)
+  @OneToMany(
+    () => TraitListEntry,
+    (traitListEntry) => traitListEntry.speciesVariant
+  )
   @Field(() => [TraitListEntry])
   @TypeormLoader()
   traitListEntries!: TraitListEntry[];
 
   @OneToMany(
     () => EnumValueSetting,
-    (enumValueSetting) => enumValueSetting.traitList
+    (enumValueSetting) => enumValueSetting.speciesVariant
   )
   @Field(() => [EnumValueSetting])
   @TypeormLoader()
   enumValueSettings!: EnumValueSetting[];
 
-  @OneToMany(() => Critter, (critter) => critter.traitList)
+  @OneToMany(() => Critter, (critter) => critter.variant)
   critters!: Critter[];
 }

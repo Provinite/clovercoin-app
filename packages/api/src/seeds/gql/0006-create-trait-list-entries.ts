@@ -5,20 +5,20 @@ import { gql } from "graphql-tag";
 import { logger } from "../../util/logger.js";
 import Seed0004CreateSpeciesTraits, {
   Seed0004TraitName,
-} from "./0004-create-species-traits.mjs";
-import Seed0005CreateSpeciesTraitLists from "./0005-create-species-trait-lists.mjs";
+} from "./0004-create-species-traits.js";
+import Seed0005CreateSpeciesTraitLists from "./0005-create-species-trait-lists.js";
 import { GetResultFn } from "./_seeds.mjs";
 
 export default class Seed0006CreateSpeciesTraits {
   async up(client: GraphQLClient, getResult: GetResultFn) {
     type MakeTraitListEntryVars = {
       traitId: string;
-      traitListId: string;
+      speciesVariantId: string;
       order: number;
       required?: boolean;
     };
     type TraitListEntry = { __typename: "TraitListEntry"; id: string };
-    const { traitLists } = getResult(Seed0005CreateSpeciesTraitLists);
+    const { speciesVariants } = getResult(Seed0005CreateSpeciesTraitLists);
     const { traits } = getResult(Seed0004CreateSpeciesTraits);
     const makeTraitListEntryQuery: TypedDocumentNode<
       {
@@ -33,14 +33,14 @@ export default class Seed0006CreateSpeciesTraits {
     > = gql`
       mutation makeTraitListEntry(
         $traitId: ID!
-        $traitListId: ID!
+        $speciesVariantId: ID!
         $order: Int!
         $required: Boolean
       ) {
         createTraitListEntry(
           input: {
             traitId: $traitId
-            traitListId: $traitListId
+            speciesVariantId: $speciesVariantId
             order: $order
             required: $required
           }
@@ -64,13 +64,13 @@ export default class Seed0006CreateSpeciesTraits {
     `;
 
     // add all traits to all trait lists
-    for (const traitList of Object.values(traitLists)) {
+    for (const traitList of Object.values(speciesVariants)) {
       let { createTraitListEntry } = await client.request(
         makeTraitListEntryQuery,
         {
           order: 0,
           traitId: traits[Seed0004TraitName.Size].id,
-          traitListId: traitList.id,
+          speciesVariantId: traitList.id,
           required: true,
         }
       );
@@ -90,7 +90,7 @@ export default class Seed0006CreateSpeciesTraits {
         {
           order: 1,
           traitId: traits[Seed0004TraitName.Length].id,
-          traitListId: traitList.id,
+          speciesVariantId: traitList.id,
           required: false,
         }
       ));
@@ -110,7 +110,7 @@ export default class Seed0006CreateSpeciesTraits {
         {
           order: 2,
           traitId: traits[Seed0004TraitName.AdditionalBodyMods].id,
-          traitListId: traitList.id,
+          speciesVariantId: traitList.id,
           required: false,
         }
       ));

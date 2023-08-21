@@ -3,32 +3,32 @@ import { TypedDocumentNode } from "@graphql-typed-document-node/core";
 import type { GraphQLClient } from "graphql-request";
 import { gql } from "graphql-tag";
 import { logger } from "../../util/logger.js";
-import Seed0003CreateSpecies from "./0003-create-species.mjs";
+import Seed0003CreateSpecies from "./0003-create-species.js";
 import { GetResultFn } from "./_seeds.mjs";
 
 export default class Seed0005CreateSpeciesTraitLists {
   async up(client: GraphQLClient, getResult: GetResultFn) {
-    type MakeTraitListVars = {
+    type MakeSpeciesVariantVars = {
       speciesId: string;
       name: Seed0005SpeciesTraitListName;
     };
-    type TraitList = { id: string; name: string };
+    type SpeciesVariant = { id: string; name: string };
     const { species } = getResult(Seed0003CreateSpecies);
-    const makeTraitListQuery: TypedDocumentNode<
+    const makeSpeciesVariantQuery: TypedDocumentNode<
       {
-        createTraitList:
-          | TraitList
+        createSpeciesVariant:
+          | SpeciesVariant
           | {
               __typename: "DuplicateError" | "InvalidArgumentError";
               message: string;
             };
       },
-      MakeTraitListVars
+      MakeSpeciesVariantVars
     > = gql`
       mutation makeTraitList($speciesId: ID!, $name: String!) {
-        createTraitList(input: { name: $name, speciesId: $speciesId }) {
+        createSpeciesVariant(input: { name: $name, speciesId: $speciesId }) {
           __typename
-          ... on TraitList {
+          ... on SpeciesVariant {
             id
             name
           }
@@ -46,9 +46,11 @@ export default class Seed0005CreateSpeciesTraitLists {
       }
     `;
 
-    const traitLists: Record<Seed0005SpeciesTraitListName, TraitList> =
-      {} as any;
-    const traitDefinitions: Omit<MakeTraitListVars, "speciesId">[] = [
+    const speciesVariants: Record<
+      Seed0005SpeciesTraitListName,
+      SpeciesVariant
+    > = {} as any;
+    const traitDefinitions: Omit<MakeSpeciesVariantVars, "speciesId">[] = [
       {
         name: Seed0005SpeciesTraitListName.Common,
       },
@@ -63,27 +65,27 @@ export default class Seed0005CreateSpeciesTraitLists {
       },
     ];
     for (const definition of traitDefinitions) {
-      const { createTraitList: traitList } = await client.request(
-        makeTraitListQuery,
+      const { createSpeciesVariant: speciesVariant } = await client.request(
+        makeSpeciesVariantQuery,
         {
           ...definition,
           speciesId: species.id,
         }
       );
-      if (isBaseError(traitList)) {
+      if (isBaseError(speciesVariant)) {
         logger.error({
           message: "Error during seed",
-          errorName: traitList.__typename,
-          errorMessage: traitList.message,
+          errorName: speciesVariant.__typename,
+          errorMessage: speciesVariant.message,
           query: "createTrait",
-          error: traitList,
+          error: speciesVariant,
         });
-        throw traitList;
+        throw speciesVariant;
       }
-      traitLists[definition.name] = traitList;
+      speciesVariants[definition.name] = speciesVariant;
     }
 
-    return { traitLists };
+    return { speciesVariants };
   }
 }
 

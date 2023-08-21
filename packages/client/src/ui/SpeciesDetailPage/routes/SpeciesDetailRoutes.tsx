@@ -13,7 +13,9 @@ import {
   isCritterList,
   isDeleteResponse,
   isEnumValueSetting,
+  isNotAuthorizedError,
   isTrait,
+  isUrlResponse,
 } from "@clovercoin/api-client";
 import { typedRouteConfig } from "../../../routes";
 import { AddTraitCard } from "../AddTraitCard/AddTraitCard";
@@ -191,7 +193,7 @@ const variantListAction = makeAction(
   },
   async ({ ids: { speciesId }, form: { name } }) => {
     const {
-      data: { createTraitList },
+      data: { createSpeciesVariant },
     } = await graphqlService.createVariant({
       variables: {
         input: {
@@ -212,7 +214,7 @@ const variantListAction = makeAction(
       },
     });
 
-    return createTraitList;
+    return createSpeciesVariant;
   }
 );
 
@@ -234,7 +236,7 @@ const variantDetailAction = makeAction(
         input: {
           order: 1,
           traitId,
-          traitListId: variantId,
+          speciesVariantId: variantId,
           required: false,
         },
       },
@@ -271,6 +273,9 @@ const speciesDetailLoader = makeLoader(
         },
       },
     });
+    if (isNotAuthorizedError(data.species)) {
+      return data.species;
+    }
     if (isBaseError(data.species)) {
       throw new Error(data.species.message);
     }
@@ -299,9 +304,7 @@ const speciesDetailAction = makeAction(
   },
   async ({ ids: { speciesId, communityId }, form: { iconUrl } }) => {
     const {
-      data: {
-        createSpeciesImageUploadUrl: { url },
-      },
+      data: { createSpeciesImageUploadUrl },
     } = await graphqlService.createSpeciesImageUploadUrl({
       variables: {
         input: {
@@ -309,7 +312,10 @@ const speciesDetailAction = makeAction(
           speciesId,
         },
       },
-      update: (cache) => {
+      update: (cache, { data }) => {
+        if (isBaseError(data?.createSpeciesImageUploadUrl)) {
+          return;
+        }
         // clear out this species list and any detail fetches
         cache.modify({
           fields: {
@@ -327,8 +333,13 @@ const speciesDetailAction = makeAction(
       },
     });
 
-    // actually upload the image
-    await uploadService.put(url, iconUrl);
+    if (isUrlResponse(createSpeciesImageUploadUrl)) {
+      // actually upload the image
+      await uploadService.put(createSpeciesImageUploadUrl.url, iconUrl);
+      return;
+    }
+
+    return createSpeciesImageUploadUrl;
   }
 );
 
@@ -384,7 +395,7 @@ const critterCreateAction = makeAction(
         input: {
           name,
           speciesId,
-          traitListId: variantId,
+          variantId,
           traitValues,
           ownerId: graphqlService.getTokenPayload().identity.id,
         },
@@ -436,7 +447,7 @@ const traitListLoader = makeLoader(
       },
     });
 
-    return result.data;
+    return result.data.traits;
   }
 );
 
@@ -518,7 +529,7 @@ const traitDetailAction = makeAction(
     if (method === "DELETE") {
       await graphqlService.deleteTrait({
         variables: {
-          id: traitId,
+          input: { id: traitId },
         },
         update(cache) {
           cache.evict({
@@ -589,7 +600,7 @@ const enumValueSettingListAction = makeAction(
       variables: {
         input: {
           enumValueId,
-          traitListId: variantId,
+          speciesVariantId: variantId,
         },
       },
       update: (cache, { data }) => {
@@ -599,11 +610,11 @@ const enumValueSettingListAction = makeAction(
           }>({
             id: `TraitList:${variantId}`,
             fragment: gql`
-              fragment Settings on TraitList {
+              fragment Settings on SpeciesVariant {
                 enumValueSettings {
                   id
                   enumValueId
-                  traitListId
+                  speciesVariantId
                 }
               }
             `,
@@ -615,12 +626,12 @@ const enumValueSettingListAction = makeAction(
           cache.writeFragment({
             id: `TraitList:${variantId}`,
             fragment: gql`
-              fragment Settings on TraitList {
+              fragment Settings on SpeciesVariant {
                 enumValueSettings {
                   __typename
                   id
                   enumValueId
-                  traitListId
+                  speciesVariantId
                 }
               }
             `,

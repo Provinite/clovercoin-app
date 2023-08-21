@@ -63,7 +63,7 @@ jobs:
           # It will generate hash from the target file for primary key. It works only If cache is specified.
           # Supports wildcards or a list of file names for caching multiple dependencies.
           # Default: ''
-          cache-dependency-path: "./yarn.lock"
+          cache-dependency-path: "yarn.lock"
 
           # Optional registry to set up for auth. Will set the registry in a project level .npmrc and .yarnrc file,
           # and set up auth to read in from env.NODE_AUTH_TOKEN.

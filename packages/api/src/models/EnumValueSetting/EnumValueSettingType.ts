@@ -20,7 +20,7 @@ export class EnumValueSettingCreateInput {
 
   @Field(() => ID)
   @IsUUID()
-  traitListId!: string;
+  speciesVariantId!: string;
 }
 
 export const EnumValueSettingCreateResponse = createUnionType({

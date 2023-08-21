@@ -12,6 +12,8 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
+import { Authenticated } from "../../business/auth/Authenticated.js";
+import { NotAuthorizedError } from "../../business/auth/NotAuthorizedError.js";
 import { IsValidInviteCode } from "../../business/validation/IsValidInviteCode.js";
 import { DuplicateError } from "../../errors/DuplicateError.js";
 import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
@@ -20,12 +22,17 @@ import { InviteCode } from "./InviteCode.js";
 
 export const InviteCodeResponse = createUnionType({
   name: "InviteCodeResponse",
-  types: () => [InviteCodeList],
+  types: () => [InviteCodeList, NotAuthorizedError],
 });
 
 export const InviteCodeCreateResponse = createUnionType({
   name: "InviteCodeCreateResponse",
-  types: () => [InviteCode, InvalidArgumentError, DuplicateError],
+  types: () => [
+    InviteCode,
+    InvalidArgumentError,
+    DuplicateError,
+    NotAuthorizedError,
+  ],
 });
 
 @ObjectType()
@@ -57,6 +64,7 @@ export class InviteCodeCreateInput {
 
 @Resolver()
 export class InviteCodeResolver {
+  @Authenticated()
   @Query(() => InviteCodeResponse, {
     description: "Fetch invite codes",
   })
@@ -66,6 +74,7 @@ export class InviteCodeResolver {
     return new InviteCodeList(await inviteCodeController.find());
   }
 
+  @Authenticated()
   @Mutation(() => InviteCodeCreateResponse)
   async createInviteCode(
     @Ctx() { inviteCodeController }: AppGraphqlContext,

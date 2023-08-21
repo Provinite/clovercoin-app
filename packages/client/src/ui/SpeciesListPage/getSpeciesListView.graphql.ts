@@ -9,7 +9,7 @@ export const getSpeciesListViewQuery = gql`
           id
           name
           iconUrl
-          traitLists {
+          variants {
             id
             name
             traitListEntries {

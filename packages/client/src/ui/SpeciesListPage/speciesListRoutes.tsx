@@ -1,4 +1,8 @@
-import { isSpeciesList, isBaseError } from "@clovercoin/api-client";
+import {
+  isSpeciesList,
+  isBaseError,
+  isNotAuthorizedError,
+} from "@clovercoin/api-client";
 import { LoaderFunctionArgs, ActionFunctionArgs } from "react-router-dom";
 import { graphqlService } from "../../graphql/client";
 import { typedRouteConfig } from "../../routes";
@@ -19,6 +23,10 @@ export const speciesListRoutes = typedRouteConfig({
         communityId,
       },
     });
+
+    if (isNotAuthorizedError(result.data.species)) {
+      return result.data.species;
+    }
 
     if (!isSpeciesList(result.data.species)) {
       throw new Error("404");

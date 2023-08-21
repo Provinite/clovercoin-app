@@ -10,7 +10,7 @@ export interface TraitListEntryCreate
   extends SetOptional<
     Pick<
       TraitListEntry,
-      "traitId" | "traitListId" | "order" | "valueType" | "required"
+      "traitId" | "speciesVariantId" | "order" | "valueType" | "required"
     >,
     "valueType"
   > {}

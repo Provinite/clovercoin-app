@@ -14,7 +14,7 @@ export const useRouteVariant = () => {
     return;
   }
   const variantId = slugToUuid(variantSlug);
-  const variant = species.traitLists.find((tl) => tl.id === variantId);
+  const variant = species.variants.find((variant) => variant.id === variantId);
   if (!variant) {
     throw new Error("Invalid variant id");
   }

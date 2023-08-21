@@ -65,17 +65,24 @@ export interface CommunityList {
 export type CommunityResponse =
   | Community
   | InvalidArgumentError
+  | NotAuthorizedError
   | NotFoundError;
 
 export type CreateCommunityResponse =
   | Community
   | DuplicateError
-  | InvalidArgumentError;
+  | InvalidArgumentError
+  | NotAuthorizedError;
 
 export type CreateCritterResponse =
   | Critter
   | DuplicateError
-  | InvalidArgumentError;
+  | InvalidArgumentError
+  | NotAuthorizedError;
+
+export type CreateSpeciesImageUploadUrlResponse =
+  | NotAuthorizedError
+  | UrlResponse;
 
 export interface Critter {
   __typename?: "Critter";
@@ -85,17 +92,17 @@ export interface Critter {
   ownerId: Scalars["ID"];
   species: Species;
   speciesId: Scalars["ID"];
-  traitList: TraitList;
-  traitListId: Scalars["ID"];
   traitValues: Array<CritterTraitValue>;
+  variant: SpeciesVariant;
+  variantId: Scalars["ID"];
 }
 
 export interface CritterCreateInput {
   name: Scalars["String"];
   ownerId?: InputMaybe<Scalars["ID"]>;
   speciesId: Scalars["ID"];
-  traitListId: Scalars["ID"];
   traitValues: Array<CritterCreateTraitInput>;
+  variantId: Scalars["ID"];
 }
 
 export interface CritterCreateTraitInput {
@@ -113,18 +120,22 @@ export interface CritterList {
   list: Array<Critter>;
 }
 
-export type CritterListResponse = CritterList | InvalidArgumentError;
+export type CritterListResponse =
+  | CritterList
+  | InvalidArgumentError
+  | NotAuthorizedError;
 
 export interface CritterModifyInput {
   id: Scalars["ID"];
   name?: InputMaybe<Scalars["String"]>;
-  traitListId?: InputMaybe<Scalars["ID"]>;
   traitValues?: InputMaybe<Array<CritterCreateTraitInput>>;
+  variantId?: InputMaybe<Scalars["ID"]>;
 }
 
 export type CritterModifyResponse =
   | Critter
   | InvalidArgumentError
+  | NotAuthorizedError
   | NotFoundError;
 
 export interface CritterTraitValue {
@@ -171,13 +182,13 @@ export interface EnumValueSetting {
   enumValue: EnumValue;
   enumValueId: Scalars["ID"];
   id: Scalars["ID"];
-  traitList: Array<TraitList>;
-  traitListId: Scalars["ID"];
+  speciesVariant: Array<SpeciesVariant>;
+  speciesVariantId: Scalars["ID"];
 }
 
 export interface EnumValueSettingCreateInput {
   enumValueId: Scalars["ID"];
-  traitListId: Scalars["ID"];
+  speciesVariantId: Scalars["ID"];
 }
 
 export type EnumValueSettingDeleteResponse =
@@ -190,6 +201,13 @@ export interface Identity {
   email: Scalars["String"];
   id: Scalars["ID"];
 }
+
+export interface IdentityList {
+  __typename?: "IdentityList";
+  list: Array<Identity>;
+}
+
+export type IdentitylistResponse = IdentityList | NotAuthorizedError;
 
 /** Acceptable MIME types for images */
 export enum ImageContentType {
@@ -222,14 +240,15 @@ export interface InviteCodeCreateInput {
 export type InviteCodeCreateResponse =
   | DuplicateError
   | InvalidArgumentError
-  | InviteCode;
+  | InviteCode
+  | NotAuthorizedError;
 
 export interface InviteCodeList {
   __typename?: "InviteCodeList";
   list: Array<InviteCode>;
 }
 
-export type InviteCodeResponse = InviteCodeList;
+export type InviteCodeResponse = InviteCodeList | NotAuthorizedError;
 
 export interface LoginArgs {
   password?: InputMaybe<Scalars["String"]>;
@@ -261,13 +280,13 @@ export interface Mutation {
   createEnumValueSetting: EnumValueSettingCreateResponse;
   createInviteCode: InviteCodeCreateResponse;
   createSpecies: SpeciesCreateResponse;
-  createSpeciesImageUploadUrl: UrlResponse;
+  createSpeciesImageUploadUrl: CreateSpeciesImageUploadUrlResponse;
+  createSpeciesVariant: SpeciesVariantCreateResponse;
   createTrait: TraitCreateResponse;
-  createTraitList: TraitListCreateResponse;
   /** Add a trait to a variant's trait list */
   createTraitListEntry: TraitListEntryCreateResponse;
   deleteEnumValueSetting: EnumValueSettingDeleteResponse;
-  deleteTrait: Scalars["String"];
+  deleteTrait: TraitDeleteResponse;
   /** Remove a trait from a variant's traitlist. This will delete any values for this trait from all existing characters under the specified variant. */
   deleteTraitListEntry: TraitListEntryDeleteResponse;
   /** Log in using local credentials and receive an auth token */
@@ -306,12 +325,12 @@ export interface MutationCreateSpeciesImageUploadUrlArgs {
   input: SpeciesImageUrlCreateInput;
 }
 
-export interface MutationCreateTraitArgs {
-  input: TraitCreateInput;
+export interface MutationCreateSpeciesVariantArgs {
+  input: SpeciesVariantCreateInput;
 }
 
-export interface MutationCreateTraitListArgs {
-  input: TraitListCreateInput;
+export interface MutationCreateTraitArgs {
+  input: TraitCreateInput;
 }
 
 export interface MutationCreateTraitListEntryArgs {
@@ -323,7 +342,7 @@ export interface MutationDeleteEnumValueSettingArgs {
 }
 
 export interface MutationDeleteTraitArgs {
-  id: Scalars["ID"];
+  input: TraitDeleteInput;
 }
 
 export interface MutationDeleteTraitListEntryArgs {
@@ -358,6 +377,11 @@ export interface MutationResetPasswordArgs {
   input: ResetPasswordInput;
 }
 
+export interface NotAuthorizedError extends BaseError {
+  __typename?: "NotAuthorizedError";
+  message: Scalars["String"];
+}
+
 export interface NotFoundError extends BaseError {
   __typename?: "NotFoundError";
   message: Scalars["String"];
@@ -370,11 +394,11 @@ export interface Query {
   /** Fetch a community by id and/or name */
   community: CommunityResponse;
   critters: CritterListResponse;
-  identities: Array<Identity>;
+  identities: IdentitylistResponse;
   /** Fetch invite codes */
   inviteCodes: InviteCodeResponse;
   species: SpeciesResponse;
-  traits: Array<Trait>;
+  traits: TraitListResponse;
 }
 
 export interface QueryCommunitiesArgs {
@@ -450,7 +474,7 @@ export interface Species {
   id: Scalars["ID"];
   /** Name of the species */
   name: Scalars["String"];
-  traitLists: Array<TraitList>;
+  variants: Array<SpeciesVariant>;
 }
 
 export interface SpeciesCreateInput {
@@ -461,6 +485,7 @@ export interface SpeciesCreateInput {
 export type SpeciesCreateResponse =
   | DuplicateError
   | InvalidArgumentError
+  | NotAuthorizedError
   | Species;
 
 export interface SpeciesFilters {
@@ -479,7 +504,30 @@ export interface SpeciesList {
   list: Array<Species>;
 }
 
-export type SpeciesResponse = InvalidArgumentError | SpeciesList;
+export type SpeciesResponse =
+  | InvalidArgumentError
+  | NotAuthorizedError
+  | SpeciesList;
+
+export interface SpeciesVariant {
+  __typename?: "SpeciesVariant";
+  enumValueSettings: Array<EnumValueSetting>;
+  id: Scalars["ID"];
+  name: Scalars["String"];
+  species: Species;
+  speciesId: Scalars["ID"];
+  traitListEntries: Array<TraitListEntry>;
+}
+
+export interface SpeciesVariantCreateInput {
+  name: Scalars["String"];
+  speciesId: Scalars["ID"];
+}
+
+export type SpeciesVariantCreateResponse =
+  | DuplicateError
+  | InvalidArgumentError
+  | SpeciesVariant;
 
 export interface Trait {
   __typename?: "Trait";
@@ -502,7 +550,20 @@ export interface TraitCreateInput {
   valueType: CritterTraitValueType;
 }
 
-export type TraitCreateResponse = DuplicateError | InvalidArgumentError | Trait;
+export type TraitCreateResponse =
+  | DuplicateError
+  | InvalidArgumentError
+  | NotAuthorizedError
+  | Trait;
+
+export interface TraitDeleteInput {
+  id: Scalars["ID"];
+}
+
+export type TraitDeleteResponse =
+  | DeleteResponse
+  | InvalidArgumentError
+  | NotAuthorizedError;
 
 export interface TraitFilters {
   speciesId: Scalars["ID"];
@@ -510,23 +571,8 @@ export interface TraitFilters {
 
 export interface TraitList {
   __typename?: "TraitList";
-  enumValueSettings: Array<EnumValueSetting>;
-  id: Scalars["ID"];
-  name: Scalars["String"];
-  species: Species;
-  speciesId: Scalars["ID"];
-  traitListEntries: Array<TraitListEntry>;
+  list: Array<Trait>;
 }
-
-export interface TraitListCreateInput {
-  name: Scalars["String"];
-  speciesId: Scalars["ID"];
-}
-
-export type TraitListCreateResponse =
-  | DuplicateError
-  | InvalidArgumentError
-  | TraitList;
 
 export interface TraitListEntry {
   __typename?: "TraitListEntry";
@@ -534,10 +580,10 @@ export interface TraitListEntry {
   id: Scalars["ID"];
   order: Scalars["Int"];
   required: Scalars["Boolean"];
+  speciesVariant: SpeciesVariant;
+  speciesVariantId: Scalars["ID"];
   trait: Trait;
   traitId: Scalars["ID"];
-  traitList: TraitList;
-  traitListId: Scalars["ID"];
   valueType: CritterTraitValueType;
 }
 
@@ -545,8 +591,8 @@ export interface TraitListEntry {
 export interface TraitListEntryCreateInput {
   order: Scalars["Int"];
   required?: InputMaybe<Scalars["Boolean"]>;
+  speciesVariantId: Scalars["ID"];
   traitId: Scalars["ID"];
-  traitListId: Scalars["ID"];
 }
 
 export type TraitListEntryCreateResponse =
@@ -569,6 +615,8 @@ export type TraitListEntryModifyResponse =
   | InvalidArgumentError
   | TraitListEntry;
 
+export type TraitListResponse = NotAuthorizedError | TraitList;
+
 export interface TraitModifyEnumValueInput {
   id?: InputMaybe<Scalars["ID"]>;
   name: Scalars["String"];
@@ -582,7 +630,11 @@ export interface TraitModifyInput {
   valueType: CritterTraitValueType;
 }
 
-export type TraitModifyResponse = DuplicateError | InvalidArgumentError | Trait;
+export type TraitModifyResponse =
+  | DuplicateError
+  | InvalidArgumentError
+  | NotAuthorizedError
+  | Trait;
 
 export interface UrlResponse {
   __typename?: "UrlResponse";
@@ -631,7 +683,8 @@ export type CreateCommunityMutation = {
             description: string;
           }>;
         }>;
-      };
+      }
+    | { __typename: "NotAuthorizedError"; message: string };
 };
 
 export type GetCommunityQueryVariables = Exact<{
@@ -643,6 +696,7 @@ export type GetCommunityQuery = {
   community:
     | { __typename: "Community"; id: string; name: string }
     | { __typename: "InvalidArgumentError"; message: string }
+    | { __typename: "NotAuthorizedError"; message: string }
     | { __typename: "NotFoundError"; message: string };
 };
 
@@ -659,7 +713,7 @@ export type GetCrittersQuery = {
           __typename?: "Critter";
           id: string;
           name: string;
-          traitList: { __typename?: "TraitList"; name: string; id: string };
+          variant: { __typename?: "SpeciesVariant"; name: string; id: string };
           traitValues: Array<{
             __typename?: "CritterTraitValue";
             traitId: string;
@@ -679,7 +733,8 @@ export type GetCrittersQuery = {
             description: string;
           }>;
         }>;
-      };
+      }
+    | { __typename?: "NotAuthorizedError"; message: string };
 };
 
 export type GetCommunityListViewQueryVariables = Exact<{
@@ -947,7 +1002,8 @@ export type CreateCritterMutation = {
             description: string;
           }>;
         }>;
-      };
+      }
+    | { __typename?: "NotAuthorizedError"; message: string };
 };
 
 export type CreateEnumValueSettingMutationVariables = Exact<{
@@ -966,7 +1022,7 @@ export type CreateEnumValueSettingMutation = {
         __typename: "EnumValueSetting";
         id: string;
         enumValueId: string;
-        traitListId: string;
+        speciesVariantId: string;
       }
     | {
         __typename: "InvalidArgumentError";
@@ -989,7 +1045,9 @@ export type CreateSpeciesImageUploadUrlMutationVariables = Exact<{
 
 export type CreateSpeciesImageUploadUrlMutation = {
   __typename?: "Mutation";
-  createSpeciesImageUploadUrl: { __typename: "UrlResponse"; url: string };
+  createSpeciesImageUploadUrl:
+    | { __typename: "NotAuthorizedError"; message: string }
+    | { __typename: "UrlResponse"; url: string };
 };
 
 export type CreateSpeciesTraitMutationVariables = Exact<{
@@ -1017,16 +1075,17 @@ export type CreateSpeciesTraitMutation = {
           }>;
         }>;
       }
+    | { __typename?: "NotAuthorizedError"; message: string }
     | { __typename?: "Trait"; id: string };
 };
 
 export type CreateVariantMutationVariables = Exact<{
-  input: TraitListCreateInput;
+  input: SpeciesVariantCreateInput;
 }>;
 
 export type CreateVariantMutation = {
   __typename?: "Mutation";
-  createTraitList:
+  createSpeciesVariant:
     | {
         __typename: "DuplicateError";
         message: string;
@@ -1045,7 +1104,7 @@ export type CreateVariantMutation = {
           }>;
         }>;
       }
-    | { __typename?: "TraitList"; id: string; name: string };
+    | { __typename?: "SpeciesVariant"; id: string; name: string };
 };
 
 export type DeleteEnumValueSettingMutationVariables = Exact<{
@@ -1072,12 +1131,27 @@ export type DeleteEnumValueSettingMutation = {
 };
 
 export type DeleteTraitMutationVariables = Exact<{
-  id: Scalars["ID"];
+  input: TraitDeleteInput;
 }>;
 
 export type DeleteTraitMutation = {
   __typename?: "Mutation";
-  deleteTrait: string;
+  deleteTrait:
+    | { __typename: "DeleteResponse"; ok: boolean }
+    | {
+        __typename: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      }
+    | { __typename: "NotAuthorizedError"; message: string };
 };
 
 export type GetSpeciesDetailQueryVariables = Exact<{
@@ -1100,20 +1174,21 @@ export type GetSpeciesDetailQuery = {
           }>;
         }>;
       }
+    | { __typename?: "NotAuthorizedError"; message: string }
     | {
         __typename?: "SpeciesList";
         list: Array<{
           __typename?: "Species";
           id: string;
           name: string;
-          traitLists: Array<{
-            __typename?: "TraitList";
+          variants: Array<{
+            __typename?: "SpeciesVariant";
             id: string;
             name: string;
             enumValueSettings: Array<{
               __typename?: "EnumValueSetting";
               id: string;
-              traitListId: string;
+              speciesVariantId: string;
               enumValueId: string;
             }>;
             traitListEntries: Array<{
@@ -1145,13 +1220,22 @@ export type GetSpeciesTraitsQueryVariables = Exact<{
 
 export type GetSpeciesTraitsQuery = {
   __typename?: "Query";
-  traits: Array<{
-    __typename?: "Trait";
-    id: string;
-    name: string;
-    valueType: CritterTraitValueType;
-    enumValues: Array<{ __typename?: "EnumValue"; id: string; name: string }>;
-  }>;
+  traits:
+    | { __typename?: "NotAuthorizedError"; message: string }
+    | {
+        __typename?: "TraitList";
+        list: Array<{
+          __typename?: "Trait";
+          id: string;
+          name: string;
+          valueType: CritterTraitValueType;
+          enumValues: Array<{
+            __typename?: "EnumValue";
+            id: string;
+            name: string;
+          }>;
+        }>;
+      };
 };
 
 export type ModifyCritterMutationVariables = Exact<{
@@ -1165,13 +1249,13 @@ export type ModifyCritterMutation = {
         __typename: "Critter";
         id: string;
         name: string;
-        traitListId: string;
+        variantId: string;
         traitValues: Array<{
           __typename?: "CritterTraitValue";
           traitId: string;
           value?: string | null;
         }>;
-        traitList: { __typename?: "TraitList"; id: string; name: string };
+        variant: { __typename?: "SpeciesVariant"; id: string; name: string };
       }
     | {
         __typename: "InvalidArgumentError";
@@ -1186,6 +1270,7 @@ export type ModifyCritterMutation = {
           }>;
         }>;
       }
+    | { __typename: "NotAuthorizedError"; message: string }
     | { __typename: "NotFoundError"; message: string };
 };
 
@@ -1214,6 +1299,7 @@ export type ModifySpeciesTraitMutation = {
           }>;
         }>;
       }
+    | { __typename?: "NotAuthorizedError" }
     | {
         __typename?: "Trait";
         id: string;
@@ -1251,13 +1337,14 @@ export type CreateSpeciesMutation = {
           }>;
         }>;
       }
+    | { __typename?: "NotAuthorizedError"; message: string }
     | {
         __typename?: "Species";
         id: string;
         name: string;
         iconUrl?: string | null;
-        traitLists: Array<{
-          __typename?: "TraitList";
+        variants: Array<{
+          __typename?: "SpeciesVariant";
           id: string;
           name: string;
           traitListEntries: Array<{
@@ -1297,6 +1384,7 @@ export type GetSpeciesListViewQuery = {
           }>;
         }>;
       }
+    | { __typename: "NotAuthorizedError"; message: string }
     | {
         __typename: "SpeciesList";
         list: Array<{
@@ -1304,8 +1392,8 @@ export type GetSpeciesListViewQuery = {
           id: string;
           name: string;
           iconUrl?: string | null;
-          traitLists: Array<{
-            __typename?: "TraitList";
+          variants: Array<{
+            __typename?: "SpeciesVariant";
             id: string;
             name: string;
             traitListEntries: Array<{
@@ -1356,35 +1444,43 @@ export type CreateInviteCodeMutation = {
         claimCount: number;
         maxClaims: number;
         creator: { __typename?: "Identity"; displayName: string };
-      };
+      }
+    | { __typename: "NotAuthorizedError" };
 };
 
 export type GetIdentityListQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetIdentityListQuery = {
   __typename?: "Query";
-  identities: Array<{
-    __typename?: "Identity";
-    displayName: string;
-    email: string;
-    id: string;
-  }>;
+  identities:
+    | {
+        __typename?: "IdentityList";
+        list: Array<{
+          __typename?: "Identity";
+          displayName: string;
+          email: string;
+          id: string;
+        }>;
+      }
+    | { __typename?: "NotAuthorizedError"; message: string };
 };
 
 export type GetInviteCodeListQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetInviteCodeListQuery = {
   __typename?: "Query";
-  inviteCodes: {
-    __typename: "InviteCodeList";
-    list: Array<{
-      __typename?: "InviteCode";
-      claimCount: number;
-      id: string;
-      maxClaims: number;
-      creator: { __typename?: "Identity"; displayName: string };
-    }>;
-  };
+  inviteCodes:
+    | {
+        __typename: "InviteCodeList";
+        list: Array<{
+          __typename?: "InviteCode";
+          claimCount: number;
+          id: string;
+          maxClaims: number;
+          creator: { __typename?: "Identity"; displayName: string };
+        }>;
+      }
+    | { __typename: "NotAuthorizedError" };
 };
 
 export type BaseErrorFragment_DuplicateError_Fragment = {
@@ -1397,6 +1493,11 @@ export type BaseErrorFragment_InvalidArgumentError_Fragment = {
   message: string;
 };
 
+export type BaseErrorFragment_NotAuthorizedError_Fragment = {
+  __typename?: "NotAuthorizedError";
+  message: string;
+};
+
 export type BaseErrorFragment_NotFoundError_Fragment = {
   __typename?: "NotFoundError";
   message: string;
@@ -1405,6 +1506,7 @@ export type BaseErrorFragment_NotFoundError_Fragment = {
 export type BaseErrorFragmentFragment =
   | BaseErrorFragment_DuplicateError_Fragment
   | BaseErrorFragment_InvalidArgumentError_Fragment
+  | BaseErrorFragment_NotAuthorizedError_Fragment
   | BaseErrorFragment_NotFoundError_Fragment;
 
 export type DuplicateErrorFragmentFragment = {
@@ -1425,6 +1527,11 @@ export type InvalidArgumentErrorFragmentFragment = {
       description: string;
     }>;
   }>;
+};
+
+export type NotAuthorizedErrorFragmentFragment = {
+  __typename?: "NotAuthorizedError";
+  message: string;
 };
 
 export type AccountKeySpecifier = (
@@ -1460,9 +1567,9 @@ export type CritterKeySpecifier = (
   | "ownerId"
   | "species"
   | "speciesId"
-  | "traitList"
-  | "traitListId"
   | "traitValues"
+  | "variant"
+  | "variantId"
   | CritterKeySpecifier
 )[];
 export type CritterFieldPolicy = {
@@ -1472,9 +1579,9 @@ export type CritterFieldPolicy = {
   ownerId?: FieldPolicy<any> | FieldReadFunction<any>;
   species?: FieldPolicy<any> | FieldReadFunction<any>;
   speciesId?: FieldPolicy<any> | FieldReadFunction<any>;
-  traitList?: FieldPolicy<any> | FieldReadFunction<any>;
-  traitListId?: FieldPolicy<any> | FieldReadFunction<any>;
   traitValues?: FieldPolicy<any> | FieldReadFunction<any>;
+  variant?: FieldPolicy<any> | FieldReadFunction<any>;
+  variantId?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type CritterListKeySpecifier = ("list" | CritterListKeySpecifier)[];
 export type CritterListFieldPolicy = {
@@ -1523,16 +1630,16 @@ export type EnumValueSettingKeySpecifier = (
   | "enumValue"
   | "enumValueId"
   | "id"
-  | "traitList"
-  | "traitListId"
+  | "speciesVariant"
+  | "speciesVariantId"
   | EnumValueSettingKeySpecifier
 )[];
 export type EnumValueSettingFieldPolicy = {
   enumValue?: FieldPolicy<any> | FieldReadFunction<any>;
   enumValueId?: FieldPolicy<any> | FieldReadFunction<any>;
   id?: FieldPolicy<any> | FieldReadFunction<any>;
-  traitList?: FieldPolicy<any> | FieldReadFunction<any>;
-  traitListId?: FieldPolicy<any> | FieldReadFunction<any>;
+  speciesVariant?: FieldPolicy<any> | FieldReadFunction<any>;
+  speciesVariantId?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type IdentityKeySpecifier = (
   | "displayName"
@@ -1544,6 +1651,10 @@ export type IdentityFieldPolicy = {
   displayName?: FieldPolicy<any> | FieldReadFunction<any>;
   email?: FieldPolicy<any> | FieldReadFunction<any>;
   id?: FieldPolicy<any> | FieldReadFunction<any>;
+};
+export type IdentityListKeySpecifier = ("list" | IdentityListKeySpecifier)[];
+export type IdentityListFieldPolicy = {
+  list?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type InvalidArgumentErrorKeySpecifier = (
   | "message"
@@ -1601,8 +1712,8 @@ export type MutationKeySpecifier = (
   | "createInviteCode"
   | "createSpecies"
   | "createSpeciesImageUploadUrl"
+  | "createSpeciesVariant"
   | "createTrait"
-  | "createTraitList"
   | "createTraitListEntry"
   | "deleteEnumValueSetting"
   | "deleteTrait"
@@ -1623,8 +1734,8 @@ export type MutationFieldPolicy = {
   createInviteCode?: FieldPolicy<any> | FieldReadFunction<any>;
   createSpecies?: FieldPolicy<any> | FieldReadFunction<any>;
   createSpeciesImageUploadUrl?: FieldPolicy<any> | FieldReadFunction<any>;
+  createSpeciesVariant?: FieldPolicy<any> | FieldReadFunction<any>;
   createTrait?: FieldPolicy<any> | FieldReadFunction<any>;
-  createTraitList?: FieldPolicy<any> | FieldReadFunction<any>;
   createTraitListEntry?: FieldPolicy<any> | FieldReadFunction<any>;
   deleteEnumValueSetting?: FieldPolicy<any> | FieldReadFunction<any>;
   deleteTrait?: FieldPolicy<any> | FieldReadFunction<any>;
@@ -1636,6 +1747,13 @@ export type MutationFieldPolicy = {
   register?: FieldPolicy<any> | FieldReadFunction<any>;
   requestPasswordReset?: FieldPolicy<any> | FieldReadFunction<any>;
   resetPassword?: FieldPolicy<any> | FieldReadFunction<any>;
+};
+export type NotAuthorizedErrorKeySpecifier = (
+  | "message"
+  | NotAuthorizedErrorKeySpecifier
+)[];
+export type NotAuthorizedErrorFieldPolicy = {
+  message?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type NotFoundErrorKeySpecifier = (
   | "message"
@@ -1685,7 +1803,7 @@ export type SpeciesKeySpecifier = (
   | "iconUrl"
   | "id"
   | "name"
-  | "traitLists"
+  | "variants"
   | SpeciesKeySpecifier
 )[];
 export type SpeciesFieldPolicy = {
@@ -1696,11 +1814,28 @@ export type SpeciesFieldPolicy = {
   iconUrl?: FieldPolicy<any> | FieldReadFunction<any>;
   id?: FieldPolicy<any> | FieldReadFunction<any>;
   name?: FieldPolicy<any> | FieldReadFunction<any>;
-  traitLists?: FieldPolicy<any> | FieldReadFunction<any>;
+  variants?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type SpeciesListKeySpecifier = ("list" | SpeciesListKeySpecifier)[];
 export type SpeciesListFieldPolicy = {
   list?: FieldPolicy<any> | FieldReadFunction<any>;
+};
+export type SpeciesVariantKeySpecifier = (
+  | "enumValueSettings"
+  | "id"
+  | "name"
+  | "species"
+  | "speciesId"
+  | "traitListEntries"
+  | SpeciesVariantKeySpecifier
+)[];
+export type SpeciesVariantFieldPolicy = {
+  enumValueSettings?: FieldPolicy<any> | FieldReadFunction<any>;
+  id?: FieldPolicy<any> | FieldReadFunction<any>;
+  name?: FieldPolicy<any> | FieldReadFunction<any>;
+  species?: FieldPolicy<any> | FieldReadFunction<any>;
+  speciesId?: FieldPolicy<any> | FieldReadFunction<any>;
+  traitListEntries?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type TraitKeySpecifier = (
   | "enumValues"
@@ -1717,32 +1852,19 @@ export type TraitFieldPolicy = {
   species?: FieldPolicy<any> | FieldReadFunction<any>;
   valueType?: FieldPolicy<any> | FieldReadFunction<any>;
 };
-export type TraitListKeySpecifier = (
-  | "enumValueSettings"
-  | "id"
-  | "name"
-  | "species"
-  | "speciesId"
-  | "traitListEntries"
-  | TraitListKeySpecifier
-)[];
+export type TraitListKeySpecifier = ("list" | TraitListKeySpecifier)[];
 export type TraitListFieldPolicy = {
-  enumValueSettings?: FieldPolicy<any> | FieldReadFunction<any>;
-  id?: FieldPolicy<any> | FieldReadFunction<any>;
-  name?: FieldPolicy<any> | FieldReadFunction<any>;
-  species?: FieldPolicy<any> | FieldReadFunction<any>;
-  speciesId?: FieldPolicy<any> | FieldReadFunction<any>;
-  traitListEntries?: FieldPolicy<any> | FieldReadFunction<any>;
+  list?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type TraitListEntryKeySpecifier = (
   | "defaultDisplayValue"
   | "id"
   | "order"
   | "required"
+  | "speciesVariant"
+  | "speciesVariantId"
   | "trait"
   | "traitId"
-  | "traitList"
-  | "traitListId"
   | "valueType"
   | TraitListEntryKeySpecifier
 )[];
@@ -1751,10 +1873,10 @@ export type TraitListEntryFieldPolicy = {
   id?: FieldPolicy<any> | FieldReadFunction<any>;
   order?: FieldPolicy<any> | FieldReadFunction<any>;
   required?: FieldPolicy<any> | FieldReadFunction<any>;
+  speciesVariant?: FieldPolicy<any> | FieldReadFunction<any>;
+  speciesVariantId?: FieldPolicy<any> | FieldReadFunction<any>;
   trait?: FieldPolicy<any> | FieldReadFunction<any>;
   traitId?: FieldPolicy<any> | FieldReadFunction<any>;
-  traitList?: FieldPolicy<any> | FieldReadFunction<any>;
-  traitListId?: FieldPolicy<any> | FieldReadFunction<any>;
   valueType?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type UrlResponseKeySpecifier = ("url" | UrlResponseKeySpecifier)[];
@@ -1864,6 +1986,13 @@ export type StrictTypedTypePolicies = {
       | (() => undefined | IdentityKeySpecifier);
     fields?: IdentityFieldPolicy;
   };
+  IdentityList?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | IdentityListKeySpecifier
+      | (() => undefined | IdentityListKeySpecifier);
+    fields?: IdentityListFieldPolicy;
+  };
   InvalidArgumentError?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
       | false
@@ -1905,6 +2034,13 @@ export type StrictTypedTypePolicies = {
       | MutationKeySpecifier
       | (() => undefined | MutationKeySpecifier);
     fields?: MutationFieldPolicy;
+  };
+  NotAuthorizedError?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | NotAuthorizedErrorKeySpecifier
+      | (() => undefined | NotAuthorizedErrorKeySpecifier);
+    fields?: NotAuthorizedErrorFieldPolicy;
   };
   NotFoundError?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
@@ -1950,6 +2086,13 @@ export type StrictTypedTypePolicies = {
       | SpeciesListKeySpecifier
       | (() => undefined | SpeciesListKeySpecifier);
     fields?: SpeciesListFieldPolicy;
+  };
+  SpeciesVariant?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | SpeciesVariantKeySpecifier
+      | (() => undefined | SpeciesVariantKeySpecifier);
+    fields?: SpeciesVariantFieldPolicy;
   };
   Trait?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
@@ -2019,6 +2162,11 @@ export const InvalidArgumentErrorFragmentFragmentDoc = gql`
     }
   }
 `;
+export const NotAuthorizedErrorFragmentFragmentDoc = gql`
+  fragment NotAuthorizedErrorFragment on NotAuthorizedError {
+    message
+  }
+`;
 export const CreateCommunityDocument = gql`
   mutation createCommunity($input: CommunityCreateInput!) {
     createCommunity(input: $input) {
@@ -2067,7 +2215,7 @@ export const GetCrittersDocument = gql`
         list {
           id
           name
-          traitList {
+          variant {
             name
             id
           }
@@ -2284,7 +2432,7 @@ export const CreateEnumValueSettingDocument = gql`
       ... on EnumValueSetting {
         id
         enumValueId
-        traitListId
+        speciesVariantId
       }
       ... on DuplicateError {
         ...DuplicateErrorFragment
@@ -2304,10 +2452,16 @@ export const CreateEnumValueSettingDocument = gql`
 export const CreateSpeciesImageUploadUrlDocument = gql`
   mutation createSpeciesImageUploadUrl($input: SpeciesImageUrlCreateInput!) {
     createSpeciesImageUploadUrl(input: $input) {
-      url
       __typename
+      ... on UrlResponse {
+        url
+      }
+      ... on NotAuthorizedError {
+        ...NotAuthorizedErrorFragment
+      }
     }
   }
+  ${NotAuthorizedErrorFragmentFragmentDoc}
 `;
 export const CreateSpeciesTraitDocument = gql`
   mutation createSpeciesTrait($input: TraitCreateInput!) {
@@ -2331,9 +2485,9 @@ export const CreateSpeciesTraitDocument = gql`
   ${BaseErrorFragmentFragmentDoc}
 `;
 export const CreateVariantDocument = gql`
-  mutation createVariant($input: TraitListCreateInput!) {
-    createTraitList(input: $input) {
-      ... on TraitList {
+  mutation createVariant($input: SpeciesVariantCreateInput!) {
+    createSpeciesVariant(input: $input) {
+      ... on SpeciesVariant {
         id
         name
       }
@@ -2367,9 +2521,26 @@ export const DeleteEnumValueSettingDocument = gql`
   ${InvalidArgumentErrorFragmentFragmentDoc}
 `;
 export const DeleteTraitDocument = gql`
-  mutation deleteTrait($id: ID!) {
-    deleteTrait(id: $id)
+  mutation deleteTrait($input: TraitDeleteInput!) {
+    deleteTrait(input: $input) {
+      __typename
+      ... on DeleteResponse {
+        ok
+      }
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+      ... on BaseError {
+        ...BaseErrorFragment
+      }
+      ... on NotAuthorizedError {
+        ...NotAuthorizedErrorFragment
+      }
+    }
   }
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+  ${BaseErrorFragmentFragmentDoc}
+  ${NotAuthorizedErrorFragmentFragmentDoc}
 `;
 export const GetSpeciesDetailDocument = gql`
   query getSpeciesDetail($filters: SpeciesFilters) {
@@ -2379,12 +2550,12 @@ export const GetSpeciesDetailDocument = gql`
         list {
           id
           name
-          traitLists {
+          variants {
             id
             name
             enumValueSettings {
               id
-              traitListId
+              speciesVariantId
               enumValueId
             }
             traitListEntries {
@@ -2408,22 +2579,38 @@ export const GetSpeciesDetailDocument = gql`
       ... on InvalidArgumentError {
         ...InvalidArgumentErrorFragment
       }
+      ... on BaseError {
+        ...BaseErrorFragment
+      }
     }
   }
   ${InvalidArgumentErrorFragmentFragmentDoc}
+  ${BaseErrorFragmentFragmentDoc}
 `;
 export const GetSpeciesTraitsDocument = gql`
   query getSpeciesTraits($filters: TraitFilters!) {
     traits(filters: $filters) {
-      id
-      name
-      enumValues {
-        id
-        name
+      ... on TraitList {
+        list {
+          id
+          name
+          enumValues {
+            id
+            name
+          }
+          valueType
+        }
       }
-      valueType
+      ... on BaseError {
+        ...BaseErrorFragment
+      }
+      ... on NotAuthorizedError {
+        ...NotAuthorizedErrorFragment
+      }
     }
   }
+  ${BaseErrorFragmentFragmentDoc}
+  ${NotAuthorizedErrorFragmentFragmentDoc}
 `;
 export const ModifyCritterDocument = gql`
   mutation modifyCritter($input: CritterModifyInput!) {
@@ -2436,8 +2623,8 @@ export const ModifyCritterDocument = gql`
           traitId
           value
         }
-        traitListId
-        traitList {
+        variantId
+        variant {
           id
           name
         }
@@ -2484,7 +2671,7 @@ export const CreateSpeciesDocument = gql`
         id
         name
         iconUrl
-        traitLists {
+        variants {
           id
           name
           traitListEntries {
@@ -2527,7 +2714,7 @@ export const GetSpeciesListViewDocument = gql`
           id
           name
           iconUrl
-          traitLists {
+          variants {
             id
             name
             traitListEntries {
@@ -2580,11 +2767,19 @@ export const CreateInviteCodeDocument = gql`
 export const GetIdentityListDocument = gql`
   query getIdentityList {
     identities {
-      displayName
-      email
-      id
+      ... on IdentityList {
+        list {
+          displayName
+          email
+          id
+        }
+      }
+      ... on NotAuthorizedError {
+        ...NotAuthorizedErrorFragment
+      }
     }
   }
+  ${NotAuthorizedErrorFragmentFragmentDoc}
 `;
 export const GetInviteCodeListDocument = gql`
   query getInviteCodeList {
@@ -3873,6 +4068,16 @@ export type NarrowToIdentity<T> = T extends { __typename?: "Identity" }
   ? T
   : never;
 
+export function isIdentityList(
+  val: unknown
+): val is { __typename: "IdentityList" } {
+  return hasTypeName(val, "IdentityList");
+}
+
+export type NarrowToIdentityList<T> = T extends { __typename?: "IdentityList" }
+  ? T
+  : never;
+
 export function isInvalidArgumentError(
   val: unknown
 ): val is { __typename: "InvalidArgumentError" } {
@@ -3939,6 +4144,18 @@ export type NarrowToMutation<T> = T extends { __typename?: "Mutation" }
   ? T
   : never;
 
+export function isNotAuthorizedError(
+  val: unknown
+): val is { __typename: "NotAuthorizedError" } {
+  return hasTypeName(val, "NotAuthorizedError");
+}
+
+export type NarrowToNotAuthorizedError<T> = T extends {
+  __typename?: "NotAuthorizedError";
+}
+  ? T
+  : never;
+
 export function isNotFoundError(
   val: unknown
 ): val is { __typename: "NotFoundError" } {
@@ -3996,6 +4213,18 @@ export function isSpeciesList(
 }
 
 export type NarrowToSpeciesList<T> = T extends { __typename?: "SpeciesList" }
+  ? T
+  : never;
+
+export function isSpeciesVariant(
+  val: unknown
+): val is { __typename: "SpeciesVariant" } {
+  return hasTypeName(val, "SpeciesVariant");
+}
+
+export type NarrowToSpeciesVariant<T> = T extends {
+  __typename?: "SpeciesVariant";
+}
   ? T
   : never;
 
@@ -4060,13 +4289,18 @@ export type NarrowToValidationError<T> = T extends {
   : never;
 
 export function isBaseError(val: any): val is {
-  __typename?: "DuplicateError" | "InvalidArgumentError" | "NotFoundError";
+  __typename?:
+    | "DuplicateError"
+    | "InvalidArgumentError"
+    | "NotAuthorizedError"
+    | "NotFoundError";
 } {
   return (
     val &&
     val.__typename &&
     (val.__typename === "DuplicateError" ||
       val.__typename === "InvalidArgumentError" ||
+      val.__typename === "NotAuthorizedError" ||
       val.__typename === "NotFoundError")
   );
 }

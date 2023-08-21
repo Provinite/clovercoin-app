@@ -14,7 +14,7 @@ import NatureIcon from "@mui/icons-material/Nature";
 import SchemaIcon from "@mui/icons-material/Schema";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import SpaIcon from "@mui/icons-material/Spa";
-import { useRouteVariant } from "./useRouteTraitList";
+import { useRouteVariant } from "./useRouteVariant";
 
 export interface SpeciesDetailPageProps {
   headerBarProps: HeaderBarProps;

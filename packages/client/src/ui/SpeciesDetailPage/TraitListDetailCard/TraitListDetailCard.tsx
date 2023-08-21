@@ -20,7 +20,7 @@ import { AppRoutes } from "../../AppRoutes";
 import { GridRow } from "../../lib/GridRow";
 import { With } from "../../util/With";
 import { useRouteSpecies } from "../useRouteSpecies";
-import { useRouteVariant } from "../useRouteTraitList";
+import { useRouteVariant } from "../useRouteVariant";
 import { TextStack } from "./TextStack";
 import { VariantTraitListEntryListItem } from "./VariantTraitListEntryListItem";
 
@@ -37,7 +37,7 @@ export const TraitListDetailCard: FunctionComponent = () => {
     useState<typeof variant["traitListEntries"][number]>();
   const [showConfirmRemoveDialog, setShowConfirmRemoveDialog] = useState(false);
   const [traitToAdd, setTraitToAdd] =
-    useState<typeof allTraits["traits"][number]>();
+    useState<typeof allTraits["list"][number]>();
   const { submit } = useFetcher();
 
   const findTraitListEntry = (traitId: string) =>
@@ -59,7 +59,7 @@ export const TraitListDetailCard: FunctionComponent = () => {
             <TextStack primary={"Enabled"} css={ss.header} />
           </GridRow>
           {/* Trait rows */}
-          {allTraits.traits.map((trait) => (
+          {allTraits.list.map((trait) => (
             <With value={() => findTraitListEntry(trait.id)} key={trait.id}>
               {(traitListEntry) => (
                 <VariantTraitListEntryListItem

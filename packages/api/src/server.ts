@@ -2,7 +2,7 @@ import "reflect-metadata";
 import Koa from "koa";
 import mount from "koa-mount";
 import { graphqlHTTP, OptionsResult } from "koa-graphql";
-import { buildSchema, MiddlewareFn, NonEmptyArray } from "type-graphql";
+import { buildSchema, NonEmptyArray } from "type-graphql";
 import type { AppGraphqlContext } from "./graphql/AppGraphqlContext.js";
 import { asClass, asFunction, asValue } from "awilix";
 import { register } from "./awilix/register.js";
@@ -12,13 +12,8 @@ import { registerControllers } from "./business/registerControllers.js";
 import { ResolversArray } from "./business/Resolvers.js";
 import { logger } from "./util/logger.js";
 import { configureDataSource, dataSource } from "./db/dbConnection.js";
-import { DuplicateError } from "./errors/DuplicateError.js";
-import { InvalidArgumentError } from "./errors/InvalidArgumentError.js";
-import { print } from "graphql";
-import { BaseError } from "./errors/BaseError.js";
 import { PresignedUrlService } from "./s3/PresignedUrlService.js";
 import { s3Config } from "./s3/s3Config.js";
-import { objectMap } from "./util/objectMap.js";
 import { handleJsonBufferBody } from "./http-middleware/handleJsonBufferBody.js";
 import { createRequestContainer } from "./http-middleware/createRequestContainer.js";
 import { build } from "./awilix/build.js";
@@ -30,8 +25,10 @@ import {
   getSesEnvironment,
 } from "./environment.js";
 import { ImageController } from "./business/ImageController.js";
-import { authChecker } from "./business/auth/AuthChecker.js";
+import { authChecker } from "./business/auth/authChecker.js";
 import { sesConfig } from "./ses/sesConfig.js";
+import { errorHandlerMiddleware } from "./graphql/middlewares/errorHandlerMiddleware.js";
+import { loggingMiddleware } from "./graphql/middlewares/loggingMiddleware.js";
 export interface ServerOptions {
   db: {
     host?: string;
@@ -75,7 +72,7 @@ export const createCloverCoinAppServer = async (options: ServerOptions) => {
     >,
     emitSchemaFile: options?.schema.emitFile,
     authChecker,
-    globalMiddlewares: [errorHandler, loggingMiddleware],
+    globalMiddlewares: [errorHandlerMiddleware, loggingMiddleware],
   });
 
   const rootContainer = createContainer<AppGraphqlContext>("root");
@@ -183,48 +180,6 @@ export const createCloverCoinAppServer = async (options: ServerOptions) => {
     );
 
   return { rootContainer, koa };
-};
-
-const errorHandler: MiddlewareFn<AppGraphqlContext> = async (
-  { context: { logger } },
-  next
-) => {
-  try {
-    return await next();
-  } catch (err) {
-    logger.error(err);
-    if (err instanceof BaseError) {
-      return err;
-    }
-
-    const asDuplicate = DuplicateError.fromPostgresError(err);
-    if (asDuplicate) {
-      return asDuplicate;
-    }
-
-    const asInvalidArgError =
-      InvalidArgumentError.fromTypegraphqlValidationError(err);
-    if (asInvalidArgError) {
-      return asInvalidArgError;
-    }
-
-    throw err;
-  }
-};
-
-const loggingMiddleware: MiddlewareFn<AppGraphqlContext> = async (
-  { context: { logger }, info, root },
-  next
-) => {
-  if (!root) {
-    logger.info({
-      message: "Request started",
-      path: print(info.operation),
-      fragments: objectMap(info.fragments, print),
-      fieldName: info.fieldName,
-    });
-  }
-  await next();
 };
 
 declare module "./graphql/AppGraphqlContext.js" {

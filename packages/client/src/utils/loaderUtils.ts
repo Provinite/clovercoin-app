@@ -1,5 +1,10 @@
-import { ActionFunctionArgs, LoaderFunctionArgs } from "react-router-dom";
-import { v4 } from "uuid";
+import { isNotAuthorizedError } from "@clovercoin/api-client";
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  redirect,
+} from "react-router-dom";
+import { AppRoutes } from "../ui/AppRoutes";
 import { isNullish } from "../ui/util/isNullish";
 import {
   getAllStrings,
@@ -168,7 +173,7 @@ export function makeLoader<
   loader: (
     data: GetDataResult<T & { data: LoaderFunctionArgs | ActionFunctionArgs }>
   ) => Promise<R>
-): (opts: LoaderFunctionArgs | ActionFunctionArgs) => Promise<R> {
+): (opts: LoaderFunctionArgs | ActionFunctionArgs) => Promise<R | Response> {
   return async (data) => {
     if (
       options.allowedMethods &&
@@ -184,7 +189,10 @@ export function makeLoader<
       );
       return result;
     }
-    const result = loader(await getLoaderData({ data, ...options }));
+    const result = await loader(await getLoaderData({ data, ...options }));
+    if (isNotAuthorizedError(result)) {
+      return redirect(AppRoutes.login());
+    }
     return result;
   };
 }

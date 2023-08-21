@@ -7,7 +7,7 @@ import {
   RelationIdField,
 } from "../relationFieldDecorators.js";
 import { Identity } from "../Identity/Identity.js";
-import { TraitList } from "../TraitList/TraitList.js";
+import { SpeciesVariant } from "../SpeciesVariant/SpeciesVariant.js";
 import { TypeormLoader } from "type-graphql-dataloader";
 
 @Entity()
@@ -50,21 +50,21 @@ export class Critter {
   })
   ownerId!: string;
 
-  @ManyToOneField<TraitList, typeof TraitList>({
-    columnName: "traitListId",
+  @ManyToOneField<SpeciesVariant, typeof SpeciesVariant>({
+    columnName: "variantId",
     foreignColumnName: "id",
     nullable: false,
-    type: () => TraitList,
-    inverseSide: (traitList) => traitList.critters,
+    type: () => SpeciesVariant,
+    inverseSide: (speciesVariant) => speciesVariant.critters,
   })
   @TypeormLoader()
-  traitList!: TraitList;
+  variant!: SpeciesVariant;
 
   @RelationIdField<Critter>({
     nullable: false,
-    relation: (critter) => critter.traitList,
+    relation: (critter) => critter.variant,
   })
-  traitListId!: string;
+  variantId!: string;
 
   @Column("jsonb", { default: [], nullable: false })
   @Field(() => [CritterTraitValue], { nullable: false })

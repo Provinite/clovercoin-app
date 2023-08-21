@@ -1,12 +1,12 @@
 import { GraphQLClient } from "graphql-request";
-import Seed0001Register from "./0001-register.mjs";
-import Seed0002CreateCommunity from "./0002-create-community.mjs";
-import Seed0003CreateSpecies from "./0003-create-species.mjs";
-import Seed0004CreateSpeciesTraits from "./0004-create-species-traits.mjs";
-import Seed0005CreateSpeciesTraitLists from "./0005-create-species-trait-lists.mjs";
-import Seed0006CreateSpeciesTraits from "./0006-create-trait-list-entries.mjs";
-import Seed0007CreateTraitListEnumValueSettings from "./0007-create-trait-list-enum-value-settings copy.mjs";
-import Seed0008CreateCritters from "./0008-create-critters.mjs";
+import Seed0001Register from "./0001-register.js";
+import Seed0002CreateCommunity from "./0002-create-community.js";
+import Seed0003CreateSpecies from "./0003-create-species.js";
+import Seed0004CreateSpeciesTraits from "./0004-create-species-traits.js";
+import Seed0005CreateSpeciesTraitLists from "./0005-create-species-trait-lists.js";
+import Seed0006CreateSpeciesTraits from "./0006-create-trait-list-entries.js";
+import Seed0007CreateTraitListEnumValueSettings from "./0007-create-trait-list-enum-value-settings copy.js";
+import Seed0008CreateCritters from "./0008-create-critters.js";
 
 /**
  * This array contains references to all of the seed functions.

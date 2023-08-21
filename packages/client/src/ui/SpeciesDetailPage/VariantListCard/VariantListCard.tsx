@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { AppRoutes } from "../../AppRoutes";
 import { useRouteCommunity } from "../../../useRouteCommunity";
-import { isTraitList } from "@clovercoin/api-client";
+import { isSpeciesVariant } from "@clovercoin/api-client";
 import { ActionData, RouteType } from "../../../routes";
 import AddIcon from "@mui/icons-material/Add";
 import { Link } from "../../Link/Link";
@@ -31,7 +31,7 @@ export const VariantListCard: FC<VariantListCardProps> = () => {
   const [name, setName] = useState("");
 
   useEffect(() => {
-    if (data && isTraitList(data)) {
+    if (data && isSpeciesVariant(data)) {
       setName("");
     }
   }, [data]);
@@ -54,18 +54,18 @@ export const VariantListCard: FC<VariantListCardProps> = () => {
               </Typography>
               <></>
             </GridRow>
-            {species.traitLists.map((traitList) => (
-              <GridRow key={traitList.id} xs={[12, 0]}>
+            {species.variants.map((variant) => (
+              <GridRow key={variant.id} xs={[12, 0]}>
                 <Link
                   padding={2}
                   to={AppRoutes.speciesVariantDetail(
                     community.id,
                     species.id,
-                    traitList.id
+                    variant.id
                   )}
                   state
                 >
-                  {traitList.name}
+                  {variant.name}
                 </Link>
                 <></>
               </GridRow>

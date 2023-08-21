@@ -12,6 +12,8 @@ import {
   Resolver,
 } from "type-graphql";
 import { FindManyOptions, ILike } from "typeorm";
+import { Authenticated } from "../../business/auth/Authenticated.js";
+import { NotAuthorizedError } from "../../business/auth/NotAuthorizedError.js";
 import { DuplicateError } from "../../errors/DuplicateError.js";
 import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
 import { NotFoundError } from "../../errors/NotFoundError.js";
@@ -47,12 +49,22 @@ export class CommunityFilters {
  */
 const CreateCommunityResponse = createUnionType({
   name: "CreateCommunityResponse",
-  types: () => [Community, DuplicateError, InvalidArgumentError],
+  types: () => [
+    Community,
+    DuplicateError,
+    InvalidArgumentError,
+    NotAuthorizedError,
+  ],
 });
 
 const CommunityResponse = createUnionType({
   name: "CommunityResponse",
-  types: () => [Community, NotFoundError, InvalidArgumentError],
+  types: () => [
+    Community,
+    NotFoundError,
+    InvalidArgumentError,
+    NotAuthorizedError,
+  ],
 });
 
 const CommunitiesResponse = createUnionType({
@@ -71,6 +83,7 @@ class CommunityList {
 
 @Resolver(() => Community)
 export class CommunityResolver {
+  @Authenticated()
   @Mutation(() => CreateCommunityResponse, {
     description: "Create a new community",
   })
@@ -114,6 +127,7 @@ export class CommunityResolver {
    * @param communityFilters filters
    * @returns A single community
    */
+  @Authenticated()
   @Query(() => CommunityResponse, {
     description: "Fetch a community by id and/or name",
   })

@@ -3,7 +3,7 @@ import {
   EnumValueSetting,
   Species,
   Trait,
-  TraitList,
+  SpeciesVariant,
   TraitListEntry,
 } from "@clovercoin/api-client";
 import { LoadingButton } from "@mui/lab";
@@ -20,9 +20,9 @@ import { FetcherWithComponents } from "react-router-dom";
 import { TraitInput } from "../common/TraitInput";
 import { CritterFormState, CritterFormStateDispatch } from "./useCritterForm";
 
-export type CritterFormStateVariant = Pick<TraitList, "id" | "name"> & {
+export type CritterFormStateVariant = Pick<SpeciesVariant, "id" | "name"> & {
   enumValueSettings: Array<
-    Pick<EnumValueSetting, "id" | "enumValueId" | "traitListId">
+    Pick<EnumValueSetting, "id" | "enumValueId" | "speciesVariantId">
   >;
   traitListEntries: Array<
     Pick<TraitListEntry, "id" | "order" | "required"> & {
@@ -35,7 +35,7 @@ export type CritterFormStateVariant = Pick<TraitList, "id" | "name"> & {
 
 export interface CritterFormProps {
   species: Pick<Species, "name" | "id"> & {
-    traitLists: CritterFormStateVariant[];
+    variants: CritterFormStateVariant[];
   };
   fetcher: FetcherWithComponents<any>;
   value: CritterFormState;
@@ -63,9 +63,7 @@ export const CritterForm: FC<CritterFormProps> = ({
   const setVariantId = makeHandler("variantId");
 
   const { name, variantId, traitValues } = value;
-  const variant = species.traitLists.find(
-    (traitList) => traitList.id === variantId
-  );
+  const variant = species.variants.find((variant) => variant.id === variantId);
   return (
     <fetcher.Form method={method} action={action}>
       <Stack spacing={2} direction="row">
@@ -76,7 +74,7 @@ export const CritterForm: FC<CritterFormProps> = ({
           onChange={({ target: { value } }) => setName(value)}
           helperText="This can be changed at any time"
         >
-          {species.traitLists.map(({ id, name }) => (
+          {species.variants.map(({ id, name }) => (
             <MenuItem value={id} key={id}>
               {name}
             </MenuItem>
@@ -94,7 +92,7 @@ export const CritterForm: FC<CritterFormProps> = ({
           helperText="The critter's variant determines what traits and values are available."
         >
           <MenuItem value={""}>Choose a variant</MenuItem>
-          {species.traitLists.map(({ id, name }) => (
+          {species.variants.map(({ id, name }) => (
             <MenuItem value={id} key={id}>
               {name}
             </MenuItem>

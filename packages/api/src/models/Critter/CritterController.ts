@@ -4,13 +4,13 @@ import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
 import type { Critter, CritterTraitValue } from "./Critter.js";
 
 export interface CritterCreate
-  extends Pick<Critter, "name" | "speciesId" | "ownerId" | "traitListId"> {
+  extends Pick<Critter, "name" | "speciesId" | "ownerId" | "variantId"> {
   traitValues: Pick<CritterTraitValue, "traitId" | "value">[];
 }
 
 export interface CritterModify
   extends Pick<Critter, "id">,
-    Partial<Pick<Critter, "name" | "traitValues" | "traitListId">> {}
+    Partial<Pick<Critter, "name" | "traitValues" | "variantId">> {}
 export class CritterController extends EntityController<
   Critter,
   Repository<Critter>,

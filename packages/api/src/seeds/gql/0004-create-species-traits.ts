@@ -4,7 +4,7 @@ import type { GraphQLClient } from "graphql-request";
 import { gql } from "graphql-tag";
 import { CritterTraitValueTypes } from "../../models/CritterTrait/CritterTraitValueTypes.js";
 import { logger } from "../../util/logger.js";
-import Seed0003CreateSpecies from "./0003-create-species.mjs";
+import Seed0003CreateSpecies from "./0003-create-species.js";
 import { GetResultFn } from "./_seeds.mjs";
 
 export default class Seed0004CreateSpeciesTraits {

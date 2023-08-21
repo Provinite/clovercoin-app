@@ -1,9 +1,12 @@
 import gql from "graphql-tag";
+import BaseErrorFragmentGraphql from "../../utils/error-fragments/BaseErrorFragment.graphql";
+import DuplicateErrorFragmentGraphql from "../../utils/error-fragments/DuplicateErrorFragment.graphql";
+import InvalidArgumentErrorFragmentGraphql from "../../utils/error-fragments/InvalidArgumentErrorFragment.graphql";
 
 export const createVariantMutation = gql`
-  mutation createVariant($input: TraitListCreateInput!) {
-    createTraitList(input: $input) {
-      ... on TraitList {
+  mutation createVariant($input: SpeciesVariantCreateInput!) {
+    createSpeciesVariant(input: $input) {
+      ... on SpeciesVariant {
         id
         name
       }
@@ -18,4 +21,7 @@ export const createVariantMutation = gql`
       }
     }
   }
+  ${InvalidArgumentErrorFragmentGraphql}
+  ${DuplicateErrorFragmentGraphql}
+  ${BaseErrorFragmentGraphql}
 `;

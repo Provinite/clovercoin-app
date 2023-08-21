@@ -9,7 +9,7 @@ export const getCrittersQuery = gql`
         list {
           id
           name
-          traitList {
+          variant {
             name
             id
           }

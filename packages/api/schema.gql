@@ -34,11 +34,13 @@ type CommunityList {
   list: [Community!]!
 }
 
-union CommunityResponse = Community | InvalidArgumentError | NotFoundError
+union CommunityResponse = Community | InvalidArgumentError | NotAuthorizedError | NotFoundError
 
-union CreateCommunityResponse = Community | DuplicateError | InvalidArgumentError
+union CreateCommunityResponse = Community | DuplicateError | InvalidArgumentError | NotAuthorizedError
 
-union CreateCritterResponse = Critter | DuplicateError | InvalidArgumentError
+union CreateCritterResponse = Critter | DuplicateError | InvalidArgumentError | NotAuthorizedError
+
+union CreateSpeciesImageUploadUrlResponse = NotAuthorizedError | UrlResponse
 
 type Critter {
   id: ID!
@@ -47,17 +49,17 @@ type Critter {
   ownerId: ID!
   species: Species!
   speciesId: ID!
-  traitList: TraitList!
-  traitListId: ID!
   traitValues: [CritterTraitValue!]!
+  variant: SpeciesVariant!
+  variantId: ID!
 }
 
 input CritterCreateInput {
   name: String!
   ownerId: ID = null
   speciesId: ID!
-  traitListId: ID!
   traitValues: [CritterCreateTraitInput!]!
+  variantId: ID!
 }
 
 input CritterCreateTraitInput {
@@ -74,16 +76,16 @@ type CritterList {
   list: [Critter!]!
 }
 
-union CritterListResponse = CritterList | InvalidArgumentError
+union CritterListResponse = CritterList | InvalidArgumentError | NotAuthorizedError
 
 input CritterModifyInput {
   id: ID!
   name: String
-  traitListId: ID
   traitValues: [CritterCreateTraitInput!]
+  variantId: ID
 }
 
-union CritterModifyResponse = Critter | InvalidArgumentError | NotFoundError
+union CritterModifyResponse = Critter | InvalidArgumentError | NotAuthorizedError | NotFoundError
 
 type CritterTraitValue {
   traitId: ID!
@@ -124,13 +126,13 @@ type EnumValueSetting {
   enumValue: EnumValue!
   enumValueId: ID!
   id: ID!
-  traitList: [TraitList!]!
-  traitListId: ID!
+  speciesVariant: [SpeciesVariant!]!
+  speciesVariantId: ID!
 }
 
 input EnumValueSettingCreateInput {
   enumValueId: ID!
-  traitListId: ID!
+  speciesVariantId: ID!
 }
 
 union EnumValueSettingDeleteResponse = DeleteResponse | InvalidArgumentError
@@ -140,6 +142,12 @@ type Identity {
   email: String!
   id: ID!
 }
+
+type IdentityList {
+  list: [Identity!]!
+}
+
+union IdentitylistResponse = IdentityList | NotAuthorizedError
 
 """Acceptable MIME types for images"""
 enum ImageContentType {
@@ -167,13 +175,13 @@ input InviteCodeCreateInput {
   maxClaims: Int!
 }
 
-union InviteCodeCreateResponse = DuplicateError | InvalidArgumentError | InviteCode
+union InviteCodeCreateResponse = DuplicateError | InvalidArgumentError | InviteCode | NotAuthorizedError
 
 type InviteCodeList {
   list: [InviteCode!]!
 }
 
-union InviteCodeResponse = InviteCodeList
+union InviteCodeResponse = InviteCodeList | NotAuthorizedError
 
 input LoginArgs {
   password: String = ""
@@ -199,14 +207,14 @@ type Mutation {
   createEnumValueSetting(input: EnumValueSettingCreateInput!): enumValueSettingCreateResponse!
   createInviteCode(input: InviteCodeCreateInput!): InviteCodeCreateResponse!
   createSpecies(input: SpeciesCreateInput!): SpeciesCreateResponse!
-  createSpeciesImageUploadUrl(input: SpeciesImageUrlCreateInput!): UrlResponse!
+  createSpeciesImageUploadUrl(input: SpeciesImageUrlCreateInput!): CreateSpeciesImageUploadUrlResponse!
+  createSpeciesVariant(input: SpeciesVariantCreateInput!): SpeciesVariantCreateResponse!
   createTrait(input: TraitCreateInput!): TraitCreateResponse!
-  createTraitList(input: TraitListCreateInput!): TraitListCreateResponse!
 
   """Add a trait to a variant's trait list"""
   createTraitListEntry(input: TraitListEntryCreateInput!): TraitListEntryCreateResponse!
   deleteEnumValueSetting(input: EnumValueDeleteInput!): EnumValueSettingDeleteResponse!
-  deleteTrait(id: ID!): String!
+  deleteTrait(input: TraitDeleteInput!): TraitDeleteResponse!
 
   """
   Remove a trait from a variant's traitlist. This will delete any values for this trait from all existing characters under the specified variant.
@@ -229,6 +237,10 @@ type Mutation {
   resetPassword(input: ResetPasswordInput!): ResetPasswordResponse!
 }
 
+type NotAuthorizedError implements BaseError {
+  message: String!
+}
+
 type NotFoundError implements BaseError {
   message: String!
 }
@@ -240,12 +252,12 @@ type Query {
   """Fetch a community by id and/or name"""
   community(filters: CommunityFilters!): CommunityResponse!
   critters(filters: CritterFilters!): CritterListResponse!
-  identities: [Identity!]!
+  identities: IdentitylistResponse!
 
   """Fetch invite codes"""
   inviteCodes: InviteCodeResponse!
   species(filters: SpeciesFilters): SpeciesResponse!
-  traits(filters: TraitFilters!): [Trait!]!
+  traits(filters: TraitFilters!): TraitListResponse!
 }
 
 input RegisterArgs {
@@ -296,7 +308,7 @@ type Species {
 
   """Name of the species"""
   name: String!
-  traitLists: [TraitList!]!
+  variants: [SpeciesVariant!]!
 }
 
 input SpeciesCreateInput {
@@ -304,7 +316,7 @@ input SpeciesCreateInput {
   name: String!
 }
 
-union SpeciesCreateResponse = DuplicateError | InvalidArgumentError | Species
+union SpeciesCreateResponse = DuplicateError | InvalidArgumentError | NotAuthorizedError | Species
 
 input SpeciesFilters {
   communityId: ID!
@@ -321,7 +333,23 @@ type SpeciesList {
   list: [Species!]!
 }
 
-union SpeciesResponse = InvalidArgumentError | SpeciesList
+union SpeciesResponse = InvalidArgumentError | NotAuthorizedError | SpeciesList
+
+type SpeciesVariant {
+  enumValueSettings: [EnumValueSetting!]!
+  id: ID!
+  name: String!
+  species: Species!
+  speciesId: ID!
+  traitListEntries: [TraitListEntry!]!
+}
+
+input SpeciesVariantCreateInput {
+  name: String!
+  speciesId: ID!
+}
+
+union SpeciesVariantCreateResponse = DuplicateError | InvalidArgumentError | SpeciesVariant
 
 type Trait {
   enumValues: [EnumValue!]!
@@ -343,37 +371,31 @@ input TraitCreateInput {
   valueType: CritterTraitValueType!
 }
 
-union TraitCreateResponse = DuplicateError | InvalidArgumentError | Trait
+union TraitCreateResponse = DuplicateError | InvalidArgumentError | NotAuthorizedError | Trait
+
+input TraitDeleteInput {
+  id: ID!
+}
+
+union TraitDeleteResponse = DeleteResponse | InvalidArgumentError | NotAuthorizedError
 
 input TraitFilters {
   speciesId: ID!
 }
 
 type TraitList {
-  enumValueSettings: [EnumValueSetting!]!
-  id: ID!
-  name: String!
-  species: Species!
-  speciesId: ID!
-  traitListEntries: [TraitListEntry!]!
+  list: [Trait!]!
 }
-
-input TraitListCreateInput {
-  name: String!
-  speciesId: ID!
-}
-
-union TraitListCreateResponse = DuplicateError | InvalidArgumentError | TraitList
 
 type TraitListEntry {
   defaultDisplayValue: String
   id: ID!
   order: Int!
   required: Boolean!
+  speciesVariant: SpeciesVariant!
+  speciesVariantId: ID!
   trait: Trait!
   traitId: ID!
-  traitList: TraitList!
-  traitListId: ID!
   valueType: CritterTraitValueType!
 }
 
@@ -381,8 +403,8 @@ type TraitListEntry {
 input TraitListEntryCreateInput {
   order: Int!
   required: Boolean = false
+  speciesVariantId: ID!
   traitId: ID!
-  traitListId: ID!
 }
 
 union TraitListEntryCreateResponse = DuplicateError | InvalidArgumentError | TraitListEntry
@@ -398,6 +420,8 @@ input TraitListEntryModifyInput {
 
 union TraitListEntryModifyResponse = InvalidArgumentError | TraitListEntry
 
+union TraitListResponse = NotAuthorizedError | TraitList
+
 input TraitModifyEnumValueInput {
   id: ID = null
   name: String!
@@ -411,7 +435,7 @@ input TraitModifyInput {
   valueType: CritterTraitValueType!
 }
 
-union TraitModifyResponse = DuplicateError | InvalidArgumentError | Trait
+union TraitModifyResponse = DuplicateError | InvalidArgumentError | NotAuthorizedError | Trait
 
 type UrlResponse {
   url: String!
