@@ -308,7 +308,7 @@ type Species {
 
   """Name of the species"""
   name: String!
-  traitLists: [SpeciesVariant!]!
+  variants: [SpeciesVariant!]!
 }
 
 input SpeciesCreateInput {

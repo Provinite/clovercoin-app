@@ -474,7 +474,7 @@ export interface Species {
   id: Scalars["ID"];
   /** Name of the species */
   name: Scalars["String"];
-  traitLists: Array<SpeciesVariant>;
+  variants: Array<SpeciesVariant>;
 }
 
 export interface SpeciesCreateInput {
@@ -1150,7 +1150,7 @@ export type GetSpeciesDetailQuery = {
           __typename?: "Species";
           id: string;
           name: string;
-          traitLists: Array<{
+          variants: Array<{
             __typename?: "SpeciesVariant";
             id: string;
             name: string;
@@ -1303,7 +1303,7 @@ export type CreateSpeciesMutation = {
         id: string;
         name: string;
         iconUrl?: string | null;
-        traitLists: Array<{
+        variants: Array<{
           __typename?: "SpeciesVariant";
           id: string;
           name: string;
@@ -1352,7 +1352,7 @@ export type GetSpeciesListViewQuery = {
           id: string;
           name: string;
           iconUrl?: string | null;
-          traitLists: Array<{
+          variants: Array<{
             __typename?: "SpeciesVariant";
             id: string;
             name: string;
@@ -1763,7 +1763,7 @@ export type SpeciesKeySpecifier = (
   | "iconUrl"
   | "id"
   | "name"
-  | "traitLists"
+  | "variants"
   | SpeciesKeySpecifier
 )[];
 export type SpeciesFieldPolicy = {
@@ -1774,7 +1774,7 @@ export type SpeciesFieldPolicy = {
   iconUrl?: FieldPolicy<any> | FieldReadFunction<any>;
   id?: FieldPolicy<any> | FieldReadFunction<any>;
   name?: FieldPolicy<any> | FieldReadFunction<any>;
-  traitLists?: FieldPolicy<any> | FieldReadFunction<any>;
+  variants?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type SpeciesListKeySpecifier = ("list" | SpeciesListKeySpecifier)[];
 export type SpeciesListFieldPolicy = {
@@ -2482,7 +2482,7 @@ export const GetSpeciesDetailDocument = gql`
         list {
           id
           name
-          traitLists {
+          variants {
             id
             name
             enumValueSettings {
@@ -2591,7 +2591,7 @@ export const CreateSpeciesDocument = gql`
         id
         name
         iconUrl
-        traitLists {
+        variants {
           id
           name
           traitListEntries {
@@ -2634,7 +2634,7 @@ export const GetSpeciesListViewDocument = gql`
           id
           name
           iconUrl
-          traitLists {
+          variants {
             id
             name
             traitListEntries {

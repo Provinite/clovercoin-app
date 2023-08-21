@@ -55,7 +55,7 @@ export class Critter {
     foreignColumnName: "id",
     nullable: false,
     type: () => SpeciesVariant,
-    inverseSide: (traitList) => traitList.critters,
+    inverseSide: (speciesVariant) => speciesVariant.critters,
   })
   @TypeormLoader()
   variant!: SpeciesVariant;

@@ -10,7 +10,7 @@ export const getSpeciesDetailQuery = gql`
         list {
           id
           name
-          traitLists {
+          variants {
             id
             name
             enumValueSettings {

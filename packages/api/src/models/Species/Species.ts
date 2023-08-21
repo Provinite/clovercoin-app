@@ -39,10 +39,9 @@ export class Species {
   @TypeormLoader()
   critters!: Critter[];
 
-  @OneToMany(() => SpeciesVariant, (traitList) => traitList.species)
   @Field(() => [SpeciesVariant], { nullable: false })
   @TypeormLoader()
-  traitLists!: SpeciesVariant[];
+  variants!: SpeciesVariant[];
 
   @Field(() => String, {})
   @Column("boolean", { nullable: false, default: false })

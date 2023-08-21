@@ -54,18 +54,18 @@ export const VariantListCard: FC<VariantListCardProps> = () => {
               </Typography>
               <></>
             </GridRow>
-            {species.traitLists.map((traitList) => (
-              <GridRow key={traitList.id} xs={[12, 0]}>
+            {species.variants.map((variant) => (
+              <GridRow key={variant.id} xs={[12, 0]}>
                 <Link
                   padding={2}
                   to={AppRoutes.speciesVariantDetail(
                     community.id,
                     species.id,
-                    traitList.id
+                    variant.id
                   )}
                   state
                 >
-                  {traitList.name}
+                  {variant.name}
                 </Link>
                 <></>
               </GridRow>

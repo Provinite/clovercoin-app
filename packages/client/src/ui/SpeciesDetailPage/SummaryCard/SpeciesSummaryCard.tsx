@@ -19,8 +19,8 @@ export const SpeciesSummaryCard: FunctionComponent<
       />
       <CardContent>
         <Typography paragraph variant="body1">
-          Are a species with {species.traitLists.length}{" "}
-          {pluralize(species.traitLists.length, "variant")}
+          Are a species with {species.variants.length}{" "}
+          {pluralize(species.variants.length, "variant")}
         </Typography>
       </CardContent>
     </Card>

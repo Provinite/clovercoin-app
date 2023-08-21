@@ -35,7 +35,7 @@ export type CritterFormStateVariant = Pick<SpeciesVariant, "id" | "name"> & {
 
 export interface CritterFormProps {
   species: Pick<Species, "name" | "id"> & {
-    traitLists: CritterFormStateVariant[];
+    variants: CritterFormStateVariant[];
   };
   fetcher: FetcherWithComponents<any>;
   value: CritterFormState;
@@ -63,7 +63,7 @@ export const CritterForm: FC<CritterFormProps> = ({
   const setVariantId = makeHandler("variantId");
 
   const { name, variantId, traitValues } = value;
-  const variant = species.traitLists.find(
+  const variant = species.variants.find(
     (traitList) => traitList.id === variantId
   );
   return (
@@ -76,7 +76,7 @@ export const CritterForm: FC<CritterFormProps> = ({
           onChange={({ target: { value } }) => setName(value)}
           helperText="This can be changed at any time"
         >
-          {species.traitLists.map(({ id, name }) => (
+          {species.variants.map(({ id, name }) => (
             <MenuItem value={id} key={id}>
               {name}
             </MenuItem>
@@ -94,7 +94,7 @@ export const CritterForm: FC<CritterFormProps> = ({
           helperText="The critter's variant determines what traits and values are available."
         >
           <MenuItem value={""}>Choose a variant</MenuItem>
-          {species.traitLists.map(({ id, name }) => (
+          {species.variants.map(({ id, name }) => (
             <MenuItem value={id} key={id}>
               {name}
             </MenuItem>
