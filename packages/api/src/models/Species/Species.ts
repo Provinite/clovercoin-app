@@ -39,6 +39,7 @@ export class Species {
   @TypeormLoader()
   critters!: Critter[];
 
+  @OneToMany(() => SpeciesVariant, (speciesVariant) => speciesVariant.species)
   @Field(() => [SpeciesVariant], { nullable: false })
   @TypeormLoader()
   variants!: SpeciesVariant[];

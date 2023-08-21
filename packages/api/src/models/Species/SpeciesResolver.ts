@@ -129,7 +129,8 @@ export class SpeciesResolver {
       }
       filters.where.communityId = communityId;
     }
-    return new SpeciesList(await speciesRepository.find(filters));
+    const result = new SpeciesList(await speciesRepository.find(filters));
+    return result;
   }
 
   @FieldResolver(() => String, {
