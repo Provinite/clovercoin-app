@@ -188,7 +188,7 @@ export interface EnumValueSetting {
 
 export interface EnumValueSettingCreateInput {
   enumValueId: Scalars["ID"];
-  traitListId: Scalars["ID"];
+  speciesVariantId: Scalars["ID"];
 }
 
 export type EnumValueSettingDeleteResponse =

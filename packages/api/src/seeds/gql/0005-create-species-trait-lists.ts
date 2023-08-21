@@ -46,7 +46,8 @@ export default class Seed0005CreateSpeciesTraitLists {
       }
     `;
 
-    const traitLists: Record<Seed0005SpeciesTraitListName, Variant> = {} as any;
+    const speciesVariants: Record<Seed0005SpeciesTraitListName, Variant> =
+      {} as any;
     const traitDefinitions: Omit<MakeSpeciesVariantVars, "speciesId">[] = [
       {
         name: Seed0005SpeciesTraitListName.Common,
@@ -79,10 +80,10 @@ export default class Seed0005CreateSpeciesTraitLists {
         });
         throw traitList;
       }
-      traitLists[definition.name] = traitList;
+      speciesVariants[definition.name] = traitList;
     }
 
-    return { traitLists };
+    return { speciesVariants };
   }
 }
 

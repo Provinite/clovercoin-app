@@ -600,7 +600,7 @@ const enumValueSettingListAction = makeAction(
       variables: {
         input: {
           enumValueId,
-          traitListId: variantId,
+          speciesVariantId: variantId,
         },
       },
       update: (cache, { data }) => {
@@ -614,7 +614,7 @@ const enumValueSettingListAction = makeAction(
                 enumValueSettings {
                   id
                   enumValueId
-                  traitListId
+                  speciesVariantId
                 }
               }
             `,
@@ -631,7 +631,7 @@ const enumValueSettingListAction = makeAction(
                   __typename
                   id
                   enumValueId
-                  traitListId
+                  speciesVariantId
                 }
               }
             `,

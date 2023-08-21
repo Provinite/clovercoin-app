@@ -132,7 +132,7 @@ type EnumValueSetting {
 
 input EnumValueSettingCreateInput {
   enumValueId: ID!
-  traitListId: ID!
+  speciesVariantId: ID!
 }
 
 union EnumValueSettingDeleteResponse = DeleteResponse | InvalidArgumentError

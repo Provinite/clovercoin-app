@@ -18,7 +18,7 @@ export default class Seed0006CreateSpeciesTraits {
       required?: boolean;
     };
     type TraitListEntry = { __typename: "TraitListEntry"; id: string };
-    const { traitLists } = getResult(Seed0005CreateSpeciesTraitLists);
+    const { speciesVariants } = getResult(Seed0005CreateSpeciesTraitLists);
     const { traits } = getResult(Seed0004CreateSpeciesTraits);
     const makeTraitListEntryQuery: TypedDocumentNode<
       {
@@ -64,7 +64,7 @@ export default class Seed0006CreateSpeciesTraits {
     `;
 
     // add all traits to all trait lists
-    for (const traitList of Object.values(traitLists)) {
+    for (const traitList of Object.values(speciesVariants)) {
       let { createTraitListEntry } = await client.request(
         makeTraitListEntryQuery,
         {

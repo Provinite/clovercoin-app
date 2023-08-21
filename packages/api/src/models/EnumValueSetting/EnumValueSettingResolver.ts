@@ -27,7 +27,7 @@ export class EnumValueSettingResolver {
   ) {
     return enumValueSettingController.create({
       enumValueId: input.enumValueId,
-      speciesVariantId: input.traitListId,
+      speciesVariantId: input.speciesVariantId,
     });
   }
 }

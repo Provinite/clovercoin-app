@@ -29,7 +29,7 @@ export default class Seed0008CreateCritters {
       __typename: "Critter";
       id: string;
     };
-    const { traitLists } = getResult(Seed0005CreateSpeciesTraitLists);
+    const { speciesVariants } = getResult(Seed0005CreateSpeciesTraitLists);
     const { traits } = getResult(Seed0004CreateSpeciesTraits);
     const { identity } = getResult(Seed0001Register);
     const { species } = getResult(Seed0003CreateSpecies);
@@ -96,7 +96,7 @@ export default class Seed0008CreateCritters {
       await client.request(makeCritterQuery, {
         name: critterName(),
         speciesId: species.id,
-        variantId: traitLists[Seed0005SpeciesTraitListName.Special].id,
+        variantId: speciesVariants[Seed0005SpeciesTraitListName.Special].id,
         traitValues: [
           {
             traitId: traits.Size.id,
@@ -118,7 +118,7 @@ export default class Seed0008CreateCritters {
       await client.request(makeCritterQuery, {
         name: critterName(),
         speciesId: species.id,
-        variantId: traitLists[Seed0005SpeciesTraitListName.Rare].id,
+        variantId: speciesVariants[Seed0005SpeciesTraitListName.Rare].id,
         traitValues: [
           {
             traitId: traits.Size.id,
@@ -140,7 +140,7 @@ export default class Seed0008CreateCritters {
       await client.request(makeCritterQuery, {
         name: critterName(),
         speciesId: species.id,
-        variantId: traitLists[Seed0005SpeciesTraitListName.Common].id,
+        variantId: speciesVariants[Seed0005SpeciesTraitListName.Common].id,
         traitValues: [
           {
             traitId: traits.Size.id,
