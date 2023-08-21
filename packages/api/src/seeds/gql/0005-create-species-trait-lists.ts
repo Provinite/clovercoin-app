@@ -12,12 +12,12 @@ export default class Seed0005CreateSpeciesTraitLists {
       speciesId: string;
       name: Seed0005SpeciesTraitListName;
     };
-    type Variant = { id: string; name: string };
+    type SpeciesVariant = { id: string; name: string };
     const { species } = getResult(Seed0003CreateSpecies);
     const makeSpeciesVariantQuery: TypedDocumentNode<
       {
-        createTraitList:
-          | Variant
+        createSpeciesVariant:
+          | SpeciesVariant
           | {
               __typename: "DuplicateError" | "InvalidArgumentError";
               message: string;
@@ -26,7 +26,7 @@ export default class Seed0005CreateSpeciesTraitLists {
       MakeSpeciesVariantVars
     > = gql`
       mutation makeTraitList($speciesId: ID!, $name: String!) {
-        createTraitList(input: { name: $name, speciesId: $speciesId }) {
+        createSpeciesVariant(input: { name: $name, speciesId: $speciesId }) {
           __typename
           ... on SpeciesVariant {
             id
@@ -46,8 +46,10 @@ export default class Seed0005CreateSpeciesTraitLists {
       }
     `;
 
-    const speciesVariants: Record<Seed0005SpeciesTraitListName, Variant> =
-      {} as any;
+    const speciesVariants: Record<
+      Seed0005SpeciesTraitListName,
+      SpeciesVariant
+    > = {} as any;
     const traitDefinitions: Omit<MakeSpeciesVariantVars, "speciesId">[] = [
       {
         name: Seed0005SpeciesTraitListName.Common,
@@ -63,24 +65,24 @@ export default class Seed0005CreateSpeciesTraitLists {
       },
     ];
     for (const definition of traitDefinitions) {
-      const { createTraitList: traitList } = await client.request(
+      const { createSpeciesVariant: speciesVariant } = await client.request(
         makeSpeciesVariantQuery,
         {
           ...definition,
           speciesId: species.id,
         }
       );
-      if (isBaseError(traitList)) {
+      if (isBaseError(speciesVariant)) {
         logger.error({
           message: "Error during seed",
-          errorName: traitList.__typename,
-          errorMessage: traitList.message,
+          errorName: speciesVariant.__typename,
+          errorMessage: speciesVariant.message,
           query: "createTrait",
-          error: traitList,
+          error: speciesVariant,
         });
-        throw traitList;
+        throw speciesVariant;
       }
-      speciesVariants[definition.name] = traitList;
+      speciesVariants[definition.name] = speciesVariant;
     }
 
     return { speciesVariants };

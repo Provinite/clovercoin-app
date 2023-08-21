@@ -208,8 +208,8 @@ type Mutation {
   createInviteCode(input: InviteCodeCreateInput!): InviteCodeCreateResponse!
   createSpecies(input: SpeciesCreateInput!): SpeciesCreateResponse!
   createSpeciesImageUploadUrl(input: SpeciesImageUrlCreateInput!): CreateSpeciesImageUploadUrlResponse!
+  createSpeciesVariant(input: SpeciesVariantCreateInput!): SpeciesVariantCreateResponse!
   createTrait(input: TraitCreateInput!): TraitCreateResponse!
-  createTraitList(input: SpeciesVariantCreateInput!): SpeciesVariantCreateResponse!
 
   """Add a trait to a variant's trait list"""
   createTraitListEntry(input: TraitListEntryCreateInput!): TraitListEntryCreateResponse!

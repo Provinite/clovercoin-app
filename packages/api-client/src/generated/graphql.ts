@@ -281,8 +281,8 @@ export interface Mutation {
   createInviteCode: InviteCodeCreateResponse;
   createSpecies: SpeciesCreateResponse;
   createSpeciesImageUploadUrl: CreateSpeciesImageUploadUrlResponse;
+  createSpeciesVariant: SpeciesVariantCreateResponse;
   createTrait: TraitCreateResponse;
-  createTraitList: SpeciesVariantCreateResponse;
   /** Add a trait to a variant's trait list */
   createTraitListEntry: TraitListEntryCreateResponse;
   deleteEnumValueSetting: EnumValueSettingDeleteResponse;
@@ -325,12 +325,12 @@ export interface MutationCreateSpeciesImageUploadUrlArgs {
   input: SpeciesImageUrlCreateInput;
 }
 
-export interface MutationCreateTraitArgs {
-  input: TraitCreateInput;
+export interface MutationCreateSpeciesVariantArgs {
+  input: SpeciesVariantCreateInput;
 }
 
-export interface MutationCreateTraitListArgs {
-  input: SpeciesVariantCreateInput;
+export interface MutationCreateTraitArgs {
+  input: TraitCreateInput;
 }
 
 export interface MutationCreateTraitListEntryArgs {
@@ -1069,7 +1069,7 @@ export type CreateVariantMutationVariables = Exact<{
 
 export type CreateVariantMutation = {
   __typename?: "Mutation";
-  createTraitList:
+  createSpeciesVariant:
     | {
         __typename: "DuplicateError";
         message: string;
@@ -1672,8 +1672,8 @@ export type MutationKeySpecifier = (
   | "createInviteCode"
   | "createSpecies"
   | "createSpeciesImageUploadUrl"
+  | "createSpeciesVariant"
   | "createTrait"
-  | "createTraitList"
   | "createTraitListEntry"
   | "deleteEnumValueSetting"
   | "deleteTrait"
@@ -1694,8 +1694,8 @@ export type MutationFieldPolicy = {
   createInviteCode?: FieldPolicy<any> | FieldReadFunction<any>;
   createSpecies?: FieldPolicy<any> | FieldReadFunction<any>;
   createSpeciesImageUploadUrl?: FieldPolicy<any> | FieldReadFunction<any>;
+  createSpeciesVariant?: FieldPolicy<any> | FieldReadFunction<any>;
   createTrait?: FieldPolicy<any> | FieldReadFunction<any>;
-  createTraitList?: FieldPolicy<any> | FieldReadFunction<any>;
   createTraitListEntry?: FieldPolicy<any> | FieldReadFunction<any>;
   deleteEnumValueSetting?: FieldPolicy<any> | FieldReadFunction<any>;
   deleteTrait?: FieldPolicy<any> | FieldReadFunction<any>;
@@ -2435,7 +2435,7 @@ export const CreateSpeciesTraitDocument = gql`
 `;
 export const CreateVariantDocument = gql`
   mutation createVariant($input: SpeciesVariantCreateInput!) {
-    createTraitList(input: $input) {
+    createSpeciesVariant(input: $input) {
       ... on SpeciesVariant {
         id
         name

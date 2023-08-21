@@ -25,19 +25,6 @@ export class SpeciesVariantCreateInput {
   name!: string;
 }
 
-@InputType()
-export class SpeciesVariantModifyInput {
-  @Field(() => ID)
-  @IsUUID(4)
-  traitListId!: string;
-
-  @Field(() => String, {
-    nullable: true,
-    defaultValue: null,
-  })
-  name: string | null = null;
-}
-
 const SpeciesVariantCreateResponse = createUnionType({
   name: "SpeciesVariantCreateResponse",
   types: () => [SpeciesVariant, DuplicateError, InvalidArgumentError],
@@ -46,7 +33,7 @@ const SpeciesVariantCreateResponse = createUnionType({
 @Resolver(() => SpeciesVariant)
 export class SpeciesVariantResolver {
   @Mutation(() => SpeciesVariantCreateResponse)
-  async createTraitList(
+  async createSpeciesVariant(
     @Arg("input") input: SpeciesVariantCreateInput,
     @Ctx() { speciesVariantController }: AppGraphqlContext
   ): Promise<SpeciesVariant> {

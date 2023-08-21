@@ -5,7 +5,7 @@ import InvalidArgumentErrorFragmentGraphql from "../../utils/error-fragments/Inv
 
 export const createVariantMutation = gql`
   mutation createVariant($input: SpeciesVariantCreateInput!) {
-    createTraitList(input: $input) {
+    createSpeciesVariant(input: $input) {
       ... on SpeciesVariant {
         id
         name

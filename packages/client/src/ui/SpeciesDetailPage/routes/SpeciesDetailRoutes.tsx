@@ -193,7 +193,7 @@ const variantListAction = makeAction(
   },
   async ({ ids: { speciesId }, form: { name } }) => {
     const {
-      data: { createTraitList },
+      data: { createSpeciesVariant },
     } = await graphqlService.createVariant({
       variables: {
         input: {
@@ -214,7 +214,7 @@ const variantListAction = makeAction(
       },
     });
 
-    return createTraitList;
+    return createSpeciesVariant;
   }
 );
 
