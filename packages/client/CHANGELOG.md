@@ -1,3 +1,8 @@
+# 3.3.0
+
+- Refactored all API usage to support CC API v4.0.0 auth changes
+- Any time a `NotAuthorizedError` is received, the user will be forcibly logged out and redirected to the login page.
+
 # 2.4.0
 
 - Added an about page with a basic FAQ
