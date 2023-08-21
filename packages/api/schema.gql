@@ -382,10 +382,10 @@ type TraitListEntry {
   id: ID!
   order: Int!
   required: Boolean!
+  speciesVariant: SpeciesVariant!
+  speciesVariantId: ID!
   trait: Trait!
   traitId: ID!
-  traitList: SpeciesVariant!
-  traitListId: ID!
   valueType: CritterTraitValueType!
 }
 
@@ -393,8 +393,8 @@ type TraitListEntry {
 input TraitListEntryCreateInput {
   order: Int!
   required: Boolean = false
+  speciesVariantId: ID!
   traitId: ID!
-  traitListId: ID!
 }
 
 union TraitListEntryCreateResponse = DuplicateError | InvalidArgumentError | TraitListEntry

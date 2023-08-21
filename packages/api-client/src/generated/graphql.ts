@@ -566,10 +566,10 @@ export interface TraitListEntry {
   id: Scalars["ID"];
   order: Scalars["Int"];
   required: Scalars["Boolean"];
+  speciesVariant: SpeciesVariant;
+  speciesVariantId: Scalars["ID"];
   trait: Trait;
   traitId: Scalars["ID"];
-  traitList: SpeciesVariant;
-  traitListId: Scalars["ID"];
   valueType: CritterTraitValueType;
 }
 
@@ -577,8 +577,8 @@ export interface TraitListEntry {
 export interface TraitListEntryCreateInput {
   order: Scalars["Int"];
   required?: InputMaybe<Scalars["Boolean"]>;
+  speciesVariantId: Scalars["ID"];
   traitId: Scalars["ID"];
-  traitListId: Scalars["ID"];
 }
 
 export type TraitListEntryCreateResponse =
@@ -1817,10 +1817,10 @@ export type TraitListEntryKeySpecifier = (
   | "id"
   | "order"
   | "required"
+  | "speciesVariant"
+  | "speciesVariantId"
   | "trait"
   | "traitId"
-  | "traitList"
-  | "traitListId"
   | "valueType"
   | TraitListEntryKeySpecifier
 )[];
@@ -1829,10 +1829,10 @@ export type TraitListEntryFieldPolicy = {
   id?: FieldPolicy<any> | FieldReadFunction<any>;
   order?: FieldPolicy<any> | FieldReadFunction<any>;
   required?: FieldPolicy<any> | FieldReadFunction<any>;
+  speciesVariant?: FieldPolicy<any> | FieldReadFunction<any>;
+  speciesVariantId?: FieldPolicy<any> | FieldReadFunction<any>;
   trait?: FieldPolicy<any> | FieldReadFunction<any>;
   traitId?: FieldPolicy<any> | FieldReadFunction<any>;
-  traitList?: FieldPolicy<any> | FieldReadFunction<any>;
-  traitListId?: FieldPolicy<any> | FieldReadFunction<any>;
   valueType?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type UrlResponseKeySpecifier = ("url" | UrlResponseKeySpecifier)[];

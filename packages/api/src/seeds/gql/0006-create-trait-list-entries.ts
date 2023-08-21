@@ -13,7 +13,7 @@ export default class Seed0006CreateSpeciesTraits {
   async up(client: GraphQLClient, getResult: GetResultFn) {
     type MakeTraitListEntryVars = {
       traitId: string;
-      traitListId: string;
+      speciesVariantId: string;
       order: number;
       required?: boolean;
     };
@@ -33,14 +33,14 @@ export default class Seed0006CreateSpeciesTraits {
     > = gql`
       mutation makeTraitListEntry(
         $traitId: ID!
-        $traitListId: ID!
+        $speciesVariantId: ID!
         $order: Int!
         $required: Boolean
       ) {
         createTraitListEntry(
           input: {
             traitId: $traitId
-            traitListId: $traitListId
+            speciesVariantId: $speciesVariantId
             order: $order
             required: $required
           }
@@ -70,7 +70,7 @@ export default class Seed0006CreateSpeciesTraits {
         {
           order: 0,
           traitId: traits[Seed0004TraitName.Size].id,
-          traitListId: traitList.id,
+          speciesVariantId: traitList.id,
           required: true,
         }
       );
@@ -90,7 +90,7 @@ export default class Seed0006CreateSpeciesTraits {
         {
           order: 1,
           traitId: traits[Seed0004TraitName.Length].id,
-          traitListId: traitList.id,
+          speciesVariantId: traitList.id,
           required: false,
         }
       ));
@@ -110,7 +110,7 @@ export default class Seed0006CreateSpeciesTraits {
         {
           order: 2,
           traitId: traits[Seed0004TraitName.AdditionalBodyMods].id,
-          traitListId: traitList.id,
+          speciesVariantId: traitList.id,
           required: false,
         }
       ));

@@ -236,7 +236,7 @@ const variantDetailAction = makeAction(
         input: {
           order: 1,
           traitId,
-          traitListId: variantId,
+          speciesVariantId: variantId,
           required: false,
         },
       },
