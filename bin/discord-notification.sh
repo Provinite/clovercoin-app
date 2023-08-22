@@ -2,11 +2,11 @@
 export YARN_ENABLE_COLORS=false
 
 contents=$(git diff $NX_BASE..HEAD \
- --unified=0 \
- --color=never "**/CHANGELOG.md" |
- sed -e 's/^\(\s\|\)[+-]//g' |
- sed -e '/^\(@@\|[+][+]\|index \|diff --git\).*$/d' |
- sed -e 's/^--[^/]\+[/]\(.*\)CHANGELOG.md/jq -r .name "\1package.json" | sed "s\/^\/# \/g"/eg'
+    --unified=0 \
+    --color=never "**/CHANGELOG.md" |
+  sed -e 's/^\(\s\|\)[+-]//g' |
+  sed -e '/^\(@@\|[+][+]\|index \|diff --git\).*$/d' |
+  sed -e 's/^--[^/]\+[/]\(.*\)CHANGELOG.md/jq -r .name "\1package.json" | sed "s\/^\/# \/g"/eg'
 )
 if [ -n "$contents" ]; then
   printf $'%s\n' \
