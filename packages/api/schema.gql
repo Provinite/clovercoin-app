@@ -19,6 +19,7 @@ union CommunitiesResponse = CommunityList | InvalidArgumentError
 type Community {
   id: ID!
   name: String!
+  roles: [Role!]!
 }
 
 input CommunityCreateInput {
@@ -288,6 +289,14 @@ union ResetPasswordResponse = InvalidArgumentError | ResetPasswordSuccessRespons
 
 type ResetPasswordSuccessResponse {
   success: Boolean!
+}
+
+type Role {
+  canCreateSpecies: Boolean!
+  community: Community!
+  communityId: ID!
+  id: ID!
+  name: String!
 }
 
 """

@@ -1,5 +1,6 @@
 import { Field, ObjectType } from "type-graphql";
 import { Column, Entity, OneToMany } from "typeorm";
+import { CommunityMember } from "../CommunityMember/CommunityMember.js";
 import { InviteCode } from "../InviteCode/InviteCode.js";
 import { IdField } from "../relationFieldDecorators.js";
 
@@ -24,4 +25,10 @@ export class Identity {
 
   @OneToMany(() => InviteCode, (inviteCode) => inviteCode.creator)
   createdInviteCodes?: InviteCode[];
+
+  @OneToMany(
+    () => CommunityMember,
+    (communityMember) => communityMember.identity
+  )
+  communityMemberships!: CommunityMember[];
 }
