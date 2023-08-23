@@ -40,8 +40,7 @@ export class CommunityMember {
     columnName: "identityId",
     foreignColumnName: "id",
     joinColumnOptions: {
-      foreignKeyConstraintName:
-        "FK_COMMUNITY_MEMBER_ROLE_IDENTITY_ID_IDENTITY_ID",
+      foreignKeyConstraintName: "FK_1af7e557b638e25cf487cb0c66b",
     },
   })
   identity!: Relation<Identity>;
