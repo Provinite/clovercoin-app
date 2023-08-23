@@ -8,7 +8,7 @@ export class AddRoles1692753280259 implements MigrationInterface {
       `CREATE TABLE "role" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "name" text NOT NULL, "communityId" uuid NOT NULL, "canCreateSpecies" boolean NOT NULL DEFAULT false, CONSTRAINT "UQ_ROLE_COMMUNITY_NAME" UNIQUE ("name", "communityId"), CONSTRAINT "PK_b36bcfe02fc8de3c57a8b2391c2" PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
-      `ALTER TABLE "community_member" DROP COLUMN "roleId"`
+      `ALTER TABLE "community_member" DROP COLUMN "role"`
     );
     await queryRunner.query(
       `ALTER TABLE "community_member" ADD "roleId" uuid NOT NULL`
@@ -32,7 +32,7 @@ export class AddRoles1692753280259 implements MigrationInterface {
       `ALTER TABLE "community_member" DROP COLUMN "roleId"`
     );
     await queryRunner.query(
-      `ALTER TABLE "community_member" ADD "roleId" character varying NOT NULL DEFAULT 'member'`
+      `ALTER TABLE "community_member" ADD "role" character varying NOT NULL DEFAULT 'member'`
     );
     await queryRunner.query(`DROP TABLE "role"`);
   }
