@@ -10,6 +10,12 @@ import { RenameCritterTraitListIdColumn1692560972528 } from "./1692560972528-ren
 import { RenameEnumValueSettingTraitListFields1692573382888 } from "./1692573382888-rename-enum-value-setting-trait-list-fields.js";
 import { RenameTraitListEntryTraitListIdField1692581217285 } from "./1692581217285-rename-trait-list-entry-trait-list-id-field.js";
 import { AddRoles1692753280259 } from "./1692753280259-add-roles.js";
+import { AddIdentityCanCreateCommunityColumn1692845317726 } from "./1692845317726-add-identity-can-create-community-column.js";
+import { AddCanListIdentitiesPerm1693092216811 } from "./1693092216811-add-can-list-identities-perm.js";
+import { AddCommunityRoleCanCreateCritterPerm1693102933339 } from "./1693102933339-add-community-role-can-create-critter-perm.js";
+import { AddCommunityRoleCanEditCritterPermission1693110836623 } from "./1693110836623-add-community-role-can-edit-critter-permission.js";
+import { AddCommunityRoleCanEditSpeciesPermission1693167148507 } from "./1693167148507-add-community-role-can-edit-species-permission.js";
+import { AddIdentityCanCreateInviteCodePerm1693180926946 } from "./1693180926946-add-identity-can-create-invite-code-perm.js";
 
 export const migrationsArray = [
   initializeDb1690172455074,
@@ -24,4 +30,10 @@ export const migrationsArray = [
   RenameEnumValueSettingTraitListFields1692573382888,
   RenameTraitListEntryTraitListIdField1692581217285,
   AddRoles1692753280259,
+  AddIdentityCanCreateCommunityColumn1692845317726,
+  AddCanListIdentitiesPerm1693092216811,
+  AddCommunityRoleCanCreateCritterPerm1693102933339,
+  AddCommunityRoleCanEditCritterPermission1693110836623,
+  AddCommunityRoleCanEditSpeciesPermission1693167148507,
+  AddIdentityCanCreateInviteCodePerm1693180926946,
 ];

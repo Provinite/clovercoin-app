@@ -13,7 +13,7 @@ import {
   isCritterList,
   isDeleteResponse,
   isEnumValueSetting,
-  isNotAuthorizedError,
+  isNotAuthenticatedError,
   isTrait,
   isUrlResponse,
 } from "@clovercoin/api-client";
@@ -273,7 +273,7 @@ const speciesDetailLoader = makeLoader(
         },
       },
     });
-    if (isNotAuthorizedError(data.species)) {
+    if (isNotAuthenticatedError(data.species)) {
       return data.species;
     }
     if (isBaseError(data.species)) {

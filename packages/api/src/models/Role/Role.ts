@@ -9,6 +9,8 @@ import {
 } from "../relationFieldDecorators.js";
 import { CommunityMember } from "../CommunityMember/CommunityMember.js";
 
+export type RolePermissionKeys = keyof Role & `can${string}`;
+
 @Entity()
 @ObjectType()
 @Unique("UQ_ROLE_COMMUNITY_NAME", ["name", "communityId"])
@@ -44,4 +46,16 @@ export class Role {
   @Column("boolean", { nullable: false, default: false })
   @Field(() => Boolean)
   canCreateSpecies!: boolean;
+
+  @Column("boolean", { nullable: false, default: false })
+  @Field(() => Boolean)
+  canCreateCritter!: boolean;
+
+  @Column("boolean", { nullable: false, default: false })
+  @Field(() => Boolean)
+  canEditCritter!: boolean;
+
+  @Column("boolean", { nullable: false, default: false })
+  @Field(() => Boolean)
+  canEditSpecies!: boolean;
 }

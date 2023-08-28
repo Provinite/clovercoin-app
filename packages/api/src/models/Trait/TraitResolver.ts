@@ -1,5 +1,4 @@
 import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
-import { Authenticated } from "../../business/auth/Authenticated.js";
 import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
 import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes.js";
 import { EnumValueCreate } from "../EnumValue/EnumValueController.js";
@@ -15,10 +14,23 @@ import { TraitList } from "./gql-types/TraitList.js";
 import { TraitDeleteResponse } from "./gql-types/TraitDeleteResponse.js";
 import { DeleteResponse } from "../../business/DeleteResponse.js";
 import { TraitDeleteInput } from "./gql-types/TraitDeleteInput.js";
+import { Preauthorize } from "../../business/auth/Preauthorize.js";
+import { AuthScope } from "../../business/auth/AuthInfo.js";
+import { parseArgToClass } from "../../business/validation/parseArgToClass.js";
 
 @Resolver(() => Trait)
 export class TraitResolver {
-  @Authenticated()
+  @Preauthorize(async ({ context: { speciesController }, args: { input } }) => {
+    const traitCreateInput = await parseArgToClass(input, TraitCreateInput);
+    const species = await speciesController.findOneByIdOrFail(
+      traitCreateInput.speciesId
+    );
+    return {
+      scope: AuthScope.Community,
+      communityId: species.communityId,
+      permissions: ["canEditSpecies"],
+    };
+  })
   @Mutation(() => TraitCreateResponse)
   async createTrait(
     @Arg("input") input: TraitCreateInput,
@@ -59,6 +71,15 @@ export class TraitResolver {
   }
 
   @Query(() => TraitListResponse)
+  @Preauthorize(async ({ args: { input }, context: { speciesController } }) => {
+    const { speciesId } = await parseArgToClass(input, TraitFilters);
+    const species = await speciesController.findOneByIdOrFail(speciesId);
+    return {
+      scope: AuthScope.Community,
+      communityId: species.communityId,
+      permissions: [],
+    };
+  })
   async traits(
     @Arg("filters", () => TraitFilters) filters: TraitFilters,
     @Ctx() { traitRepository }: AppGraphqlContext
@@ -71,8 +92,25 @@ export class TraitResolver {
     return new TraitList(result);
   }
 
-  @Authenticated()
   @Mutation(() => TraitDeleteResponse)
+  @Preauthorize(
+    async ({
+      args: { input },
+      context: { traitController, speciesController },
+    }) => {
+      const { id } = await parseArgToClass(input, TraitDeleteInput);
+      const trait = await traitController.findOneByIdOrFail(id);
+      const species = await speciesController.findOneByIdOrFail(
+        trait.speciesId
+      );
+
+      return {
+        scope: AuthScope.Community,
+        communityId: species.communityId,
+        permissions: ["canEditSpecies"],
+      };
+    }
+  )
   async deleteTrait(
     @Arg("input", () => TraitDeleteInput, { nullable: false })
     { id }: TraitDeleteInput,
@@ -82,8 +120,25 @@ export class TraitResolver {
     return new DeleteResponse(true);
   }
 
-  @Authenticated()
   @Mutation(() => TraitModifyResponse)
+  @Preauthorize(
+    async ({
+      args: { input },
+      context: { traitController, speciesController },
+    }) => {
+      const { id } = await parseArgToClass(input, TraitModifyInput);
+      const trait = await traitController.findOneByIdOrFail(id);
+      const species = await speciesController.findOneByIdOrFail(
+        trait.speciesId
+      );
+
+      return {
+        scope: AuthScope.Community,
+        communityId: species.communityId,
+        permissions: ["canEditSpecies"],
+      };
+    }
+  )
   async modifyTrait(
     @Arg("input", () => TraitModifyInput, { nullable: false })
     input: TraitModifyInput,

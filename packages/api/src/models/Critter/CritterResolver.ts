@@ -18,7 +18,10 @@ import {
   Resolver,
 } from "type-graphql";
 import { Authenticated } from "../../business/auth/Authenticated.js";
+import { AuthScope } from "../../business/auth/AuthInfo.js";
+import { NotAuthenticatedError } from "../../business/auth/NotAuthenticatedError.js";
 import { NotAuthorizedError } from "../../business/auth/NotAuthorizedError.js";
+import { anyAuth, Preauthorize } from "../../business/auth/Preauthorize.js";
 import { DuplicateError } from "../../errors/DuplicateError.js";
 import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
 import { NotFoundError } from "../../errors/NotFoundError.js";
@@ -105,7 +108,7 @@ export class CritterModifyInput {
 
 const CritterListResponse = createUnionType({
   name: "CritterListResponse",
-  types: () => [CritterList, InvalidArgumentError, NotAuthorizedError],
+  types: () => [CritterList, InvalidArgumentError, NotAuthenticatedError],
 });
 
 const CritterModifyResponse = createUnionType({
@@ -114,6 +117,7 @@ const CritterModifyResponse = createUnionType({
     Critter,
     InvalidArgumentError,
     NotFoundError,
+    NotAuthenticatedError,
     NotAuthorizedError,
   ],
 });
@@ -124,26 +128,32 @@ const CreateCritterResponse = createUnionType({
     Critter,
     DuplicateError,
     InvalidArgumentError,
+    NotAuthenticatedError,
     NotAuthorizedError,
   ],
 });
 
 @Resolver(() => Critter)
 export class CritterResolver {
-  @Authenticated()
   @Mutation(() => CreateCritterResponse)
+  @Preauthorize(async ({ context: { speciesController }, args: { input } }) => {
+    if (!input?.speciesId) {
+      throw new NotAuthorizedError();
+    }
+    const species = await speciesController.findOneByIdOrFail(input.speciesId);
+    return {
+      scope: AuthScope.Community,
+      communityId: species.communityId,
+      permissions: ["canCreateCritter"],
+    };
+  })
   async createCritter(
     @Arg("input") input: CritterCreateInput,
-    @Ctx() { critterController }: AppGraphqlContext
+    @Ctx() { critterController, principal }: AppGraphqlContext
   ): Promise<Critter> {
-    if (!input.ownerId) {
-      throw new Error("OwnerId Optional: NOT IMPLEMENTED");
-    }
-    // TODO: Look up owner from auth token
-    // only allow creation under other owners by admins
     return critterController.create({
       ...input,
-      ownerId: input.ownerId,
+      ownerId: principal!.id,
     });
   }
 
@@ -151,23 +161,45 @@ export class CritterResolver {
   @Query(() => CritterListResponse)
   async critters(
     @Arg("filters") filters: CritterFilters,
-    @Ctx() { critterRepository }: AppGraphqlContext
+    @Ctx() { critterController }: AppGraphqlContext
   ): Promise<CritterList> {
-    const result = await critterRepository.find({
-      where: {
-        speciesId: filters.speciesId ?? undefined,
-        id: filters.id ?? undefined,
-      },
-      order: {
-        name: "ASC",
-      },
+    const result = await critterController.find({
+      speciesId: filters.speciesId ?? undefined,
+      id: filters.id ?? undefined,
     });
 
     return new CritterList(result);
   }
 
-  // TODO: Permissions, need to limit owners to editing their own
-  @Authenticated()
+  @Preauthorize(
+    async ({
+      context: { critterController, speciesController },
+      args: { input },
+    }) => {
+      const critter = await critterController.findOneById(input.id);
+      if (!critter) {
+        throw new NotFoundError();
+      }
+
+      const species = await speciesController.findOneById(critter.speciesId);
+      if (!species) {
+        throw new NotFoundError();
+      }
+
+      return anyAuth(
+        {
+          scope: AuthScope.Community,
+          communityId: species.communityId,
+          permissions: ["canEditCritter"],
+        },
+        {
+          scope: AuthScope.Critter,
+          critterId: critter.id,
+          permissions: ["canEditOwn"],
+        }
+      );
+    }
+  )
   @Mutation(() => CritterModifyResponse)
   async modifyCritter(
     @Arg("input") input: CritterModifyInput,

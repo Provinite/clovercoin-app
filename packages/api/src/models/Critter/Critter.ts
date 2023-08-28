@@ -15,7 +15,7 @@ import { TypeormLoader } from "type-graphql-dataloader";
 @Index("critter_traitvalues_gin_idx", { synchronize: false })
 export class Critter {
   @IdField
-  id: string | undefined;
+  id!: string;
 
   @Field(() => String, { nullable: false })
   @Column({ nullable: false })

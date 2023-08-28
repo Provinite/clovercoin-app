@@ -1,4 +1,4 @@
-import { isNotAuthorizedError } from "@clovercoin/api-client";
+import { isNotAuthenticatedError } from "@clovercoin/api-client";
 import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -190,7 +190,7 @@ export function makeLoader<
       return result;
     }
     const result = await loader(await getLoaderData({ data, ...options }));
-    if (isNotAuthorizedError(result)) {
+    if (isNotAuthenticatedError(result)) {
       return redirect(AppRoutes.login());
     }
     return result;

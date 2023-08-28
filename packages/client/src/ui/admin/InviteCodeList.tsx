@@ -6,7 +6,7 @@ import {
   isDuplicateError,
   isInvalidArgumentError,
   isInviteCodeList,
-  isNotAuthorizedError,
+  isNotAuthenticatedError,
 } from "@clovercoin/api-client";
 import { LoadingButton } from "@mui/lab";
 import {
@@ -36,7 +36,7 @@ export const InviteCodeList: FC<InviteCodeListProps> = () => {
   >(GetInviteCodeListDocument);
 
   useEffect(() => {
-    if (data && isNotAuthorizedError(data.inviteCodes)) {
+    if (data && isNotAuthenticatedError(data.inviteCodes)) {
       return bounce();
     }
   }, [data]);

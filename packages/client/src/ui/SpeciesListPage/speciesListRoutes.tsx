@@ -1,7 +1,7 @@
 import {
   isSpeciesList,
   isBaseError,
-  isNotAuthorizedError,
+  isNotAuthenticatedError,
 } from "@clovercoin/api-client";
 import { LoaderFunctionArgs, ActionFunctionArgs } from "react-router-dom";
 import { graphqlService } from "../../graphql/client";
@@ -24,7 +24,7 @@ export const speciesListRoutes = typedRouteConfig({
       },
     });
 
-    if (isNotAuthorizedError(result.data.species)) {
+    if (isNotAuthenticatedError(result.data.species)) {
       return result.data.species;
     }
 

@@ -3,7 +3,7 @@ import {
   GetIdentityListDocument,
   GetIdentityListQuery,
   isIdentityList,
-  isNotAuthorizedError,
+  isNotAuthenticatedError,
 } from "@clovercoin/api-client";
 import { Box, Grid, Typography } from "@mui/material";
 import { FC, useEffect } from "react";
@@ -15,7 +15,7 @@ export const UserList: FC<UserListProps> = () => {
   const { data } = useQuery<GetIdentityListQuery>(GetIdentityListDocument);
   const bounce = useBounceToLogin();
   useEffect(() => {
-    if (isNotAuthorizedError(data?.identities)) {
+    if (isNotAuthenticatedError(data?.identities)) {
       bounce();
     }
   }, [data]);

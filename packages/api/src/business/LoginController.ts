@@ -46,8 +46,12 @@ export class LoginController {
         accountController,
         inviteCodeController,
       }) => {
+        const isAdminUser = Boolean(
+          this.#adminEmail && this.#adminEmail === email
+        );
+
         // The bootstrap admin email can bypass invite requirements
-        if (!this.#adminEmail || email !== this.#adminEmail) {
+        if (!isAdminUser) {
           try {
             await inviteCodeController.claimInviteCodeOrThrow(inviteCodeId);
           } catch (err) {
@@ -66,6 +70,8 @@ export class LoginController {
         const identity = await identityController.create({
           displayName: username,
           email,
+          canCreateCommunity: isAdminUser,
+          canListIdentities: isAdminUser,
         });
         const [account, token] = await Promise.all([
           accountController.create({

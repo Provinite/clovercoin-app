@@ -35,13 +35,13 @@ type CommunityList {
   list: [Community!]!
 }
 
-union CommunityResponse = Community | InvalidArgumentError | NotAuthorizedError | NotFoundError
+union CommunityResponse = Community | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError
 
-union CreateCommunityResponse = Community | DuplicateError | InvalidArgumentError | NotAuthorizedError
+union CreateCommunityResponse = Community | DuplicateError | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError
 
-union CreateCritterResponse = Critter | DuplicateError | InvalidArgumentError | NotAuthorizedError
+union CreateCritterResponse = Critter | DuplicateError | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError
 
-union CreateSpeciesImageUploadUrlResponse = NotAuthorizedError | UrlResponse
+union CreateSpeciesImageUploadUrlResponse = NotAuthenticatedError | UrlResponse
 
 type Critter {
   id: ID!
@@ -77,7 +77,7 @@ type CritterList {
   list: [Critter!]!
 }
 
-union CritterListResponse = CritterList | InvalidArgumentError | NotAuthorizedError
+union CritterListResponse = CritterList | InvalidArgumentError | NotAuthenticatedError
 
 input CritterModifyInput {
   id: ID!
@@ -86,7 +86,7 @@ input CritterModifyInput {
   variantId: ID
 }
 
-union CritterModifyResponse = Critter | InvalidArgumentError | NotAuthorizedError | NotFoundError
+union CritterModifyResponse = Critter | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError
 
 type CritterTraitValue {
   traitId: ID!
@@ -148,7 +148,7 @@ type IdentityList {
   list: [Identity!]!
 }
 
-union IdentitylistResponse = IdentityList | NotAuthorizedError
+union IdentitylistResponse = IdentityList | NotAuthenticatedError
 
 """Acceptable MIME types for images"""
 enum ImageContentType {
@@ -176,13 +176,13 @@ input InviteCodeCreateInput {
   maxClaims: Int!
 }
 
-union InviteCodeCreateResponse = DuplicateError | InvalidArgumentError | InviteCode | NotAuthorizedError
+union InviteCodeCreateResponse = DuplicateError | InvalidArgumentError | InviteCode | NotAuthenticatedError
 
 type InviteCodeList {
   list: [InviteCode!]!
 }
 
-union InviteCodeResponse = InviteCodeList | NotAuthorizedError
+union InviteCodeResponse = InviteCodeList | NotAuthenticatedError
 
 input LoginArgs {
   password: String = ""
@@ -238,6 +238,16 @@ type Mutation {
   resetPassword(input: ResetPasswordInput!): ResetPasswordResponse!
 }
 
+"""
+This error indicates that the associated field requires authentication and no valid authentication was provided.
+"""
+type NotAuthenticatedError implements BaseError {
+  message: String!
+}
+
+"""
+This error indicates the associated field requires permissions that the requestor does not posess.
+"""
 type NotAuthorizedError implements BaseError {
   message: String!
 }
@@ -292,7 +302,10 @@ type ResetPasswordSuccessResponse {
 }
 
 type Role {
+  canCreateCritter: Boolean!
   canCreateSpecies: Boolean!
+  canEditCritter: Boolean!
+  canEditSpecies: Boolean!
   community: Community!
   communityId: ID!
   id: ID!
@@ -325,7 +338,7 @@ input SpeciesCreateInput {
   name: String!
 }
 
-union SpeciesCreateResponse = DuplicateError | InvalidArgumentError | NotAuthorizedError | Species
+union SpeciesCreateResponse = DuplicateError | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError | Species
 
 input SpeciesFilters {
   communityId: ID!
@@ -342,7 +355,7 @@ type SpeciesList {
   list: [Species!]!
 }
 
-union SpeciesResponse = InvalidArgumentError | NotAuthorizedError | SpeciesList
+union SpeciesResponse = InvalidArgumentError | NotAuthenticatedError | SpeciesList
 
 type SpeciesVariant {
   enumValueSettings: [EnumValueSetting!]!
@@ -380,13 +393,13 @@ input TraitCreateInput {
   valueType: CritterTraitValueType!
 }
 
-union TraitCreateResponse = DuplicateError | InvalidArgumentError | NotAuthorizedError | Trait
+union TraitCreateResponse = DuplicateError | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | Trait
 
 input TraitDeleteInput {
   id: ID!
 }
 
-union TraitDeleteResponse = DeleteResponse | InvalidArgumentError | NotAuthorizedError
+union TraitDeleteResponse = DeleteResponse | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError
 
 input TraitFilters {
   speciesId: ID!
@@ -416,9 +429,9 @@ input TraitListEntryCreateInput {
   traitId: ID!
 }
 
-union TraitListEntryCreateResponse = DuplicateError | InvalidArgumentError | TraitListEntry
+union TraitListEntryCreateResponse = DuplicateError | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError | TraitListEntry
 
-union TraitListEntryDeleteResponse = DeleteResponse | InvalidArgumentError
+union TraitListEntryDeleteResponse = DeleteResponse | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError
 
 """Input object for modifying a TraitListEntry"""
 input TraitListEntryModifyInput {
@@ -427,9 +440,9 @@ input TraitListEntryModifyInput {
   required: Boolean
 }
 
-union TraitListEntryModifyResponse = InvalidArgumentError | TraitListEntry
+union TraitListEntryModifyResponse = InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError | TraitListEntry
 
-union TraitListResponse = NotAuthorizedError | TraitList
+union TraitListResponse = NotAuthenticatedError | NotAuthorizedError | NotFoundError | TraitList
 
 input TraitModifyEnumValueInput {
   id: ID = null
@@ -444,7 +457,7 @@ input TraitModifyInput {
   valueType: CritterTraitValueType!
 }
 
-union TraitModifyResponse = DuplicateError | InvalidArgumentError | NotAuthorizedError | Trait
+union TraitModifyResponse = DuplicateError | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError | Trait
 
 type UrlResponse {
   url: String!

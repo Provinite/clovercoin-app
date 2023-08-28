@@ -13,7 +13,10 @@ import {
 } from "type-graphql";
 import { FindManyOptions, ILike } from "typeorm";
 import { Authenticated } from "../../business/auth/Authenticated.js";
+import { hasGlobalPerms } from "../../business/auth/authorizationInfoGenerators/hasGlobalPerms.js";
+import { NotAuthenticatedError } from "../../business/auth/NotAuthenticatedError.js";
 import { NotAuthorizedError } from "../../business/auth/NotAuthorizedError.js";
+import { Preauthorize } from "../../business/auth/Preauthorize.js";
 import { DuplicateError } from "../../errors/DuplicateError.js";
 import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
 import { NotFoundError } from "../../errors/NotFoundError.js";
@@ -53,6 +56,7 @@ const CreateCommunityResponse = createUnionType({
     Community,
     DuplicateError,
     InvalidArgumentError,
+    NotAuthenticatedError,
     NotAuthorizedError,
   ],
 });
@@ -63,6 +67,7 @@ const CommunityResponse = createUnionType({
     Community,
     NotFoundError,
     InvalidArgumentError,
+    NotAuthenticatedError,
     NotAuthorizedError,
   ],
 });
@@ -83,7 +88,7 @@ class CommunityList {
 
 @Resolver(() => Community)
 export class CommunityResolver {
-  @Authenticated()
+  @Preauthorize(hasGlobalPerms(["canCreateCommunity"]))
   @Mutation(() => CreateCommunityResponse, {
     description: "Create a new community",
   })

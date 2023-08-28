@@ -12,8 +12,10 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import { Authenticated } from "../../business/auth/Authenticated.js";
+import { hasGlobalPerms } from "../../business/auth/authorizationInfoGenerators/hasGlobalPerms.js";
+import { NotAuthenticatedError } from "../../business/auth/NotAuthenticatedError.js";
 import { NotAuthorizedError } from "../../business/auth/NotAuthorizedError.js";
+import { Preauthorize } from "../../business/auth/Preauthorize.js";
 import { IsValidInviteCode } from "../../business/validation/IsValidInviteCode.js";
 import { DuplicateError } from "../../errors/DuplicateError.js";
 import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
@@ -22,7 +24,7 @@ import { InviteCode } from "./InviteCode.js";
 
 export const InviteCodeResponse = createUnionType({
   name: "InviteCodeResponse",
-  types: () => [InviteCodeList, NotAuthorizedError],
+  types: () => [InviteCodeList, NotAuthenticatedError, NotAuthorizedError],
 });
 
 export const InviteCodeCreateResponse = createUnionType({
@@ -31,6 +33,7 @@ export const InviteCodeCreateResponse = createUnionType({
     InviteCode,
     InvalidArgumentError,
     DuplicateError,
+    NotAuthenticatedError,
     NotAuthorizedError,
   ],
 });
@@ -64,7 +67,7 @@ export class InviteCodeCreateInput {
 
 @Resolver()
 export class InviteCodeResolver {
-  @Authenticated()
+  @Preauthorize(hasGlobalPerms(["canListInviteCodes"]))
   @Query(() => InviteCodeResponse, {
     description: "Fetch invite codes",
   })
@@ -74,7 +77,7 @@ export class InviteCodeResolver {
     return new InviteCodeList(await inviteCodeController.find());
   }
 
-  @Authenticated()
+  @Preauthorize(hasGlobalPerms(["canCreateInviteCode"]))
   @Mutation(() => InviteCodeCreateResponse)
   async createInviteCode(
     @Ctx() { inviteCodeController }: AppGraphqlContext,

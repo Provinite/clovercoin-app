@@ -1,5 +1,5 @@
 import gql from "graphql-tag";
-import NotAuthorizedErrorFragmentGraphql from "../../utils/error-fragments/NotAuthorizedErrorFragment.graphql";
+import NotAuthenticatedErrorFragmentGraphql from "../../utils/error-fragments/NotAuthenticatedErrorFragment.graphql.js";
 
 export const getIdentityListQuery = gql`
   query getIdentityList {
@@ -11,10 +11,10 @@ export const getIdentityListQuery = gql`
           id
         }
       }
-      ... on NotAuthorizedError {
-        ...NotAuthorizedErrorFragment
+      ... on NotAuthenticatedError {
+        ...NotAuthenticatedErrorFragment
       }
     }
   }
-  ${NotAuthorizedErrorFragmentGraphql}
+  ${NotAuthenticatedErrorFragmentGraphql}
 `;

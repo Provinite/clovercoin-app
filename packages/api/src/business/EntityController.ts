@@ -6,6 +6,7 @@ import {
   ObjectLiteral,
   Repository,
 } from "typeorm";
+import { NotFoundError } from "../errors/NotFoundError.js";
 import { ensureArray } from "../util/ensureArray.js";
 
 export class EntityController<
@@ -18,6 +19,7 @@ export class EntityController<
 
   create(createBody: CreateBody): Promise<Model>;
   create(createBody: CreateBody[]): Promise<Model[]>;
+  create(createBody: CreateBody | CreateBody[]): Promise<Model | Model[]>;
   async create(
     createBody: CreateBody | CreateBody[]
   ): Promise<Model | Model[]> {
@@ -57,17 +59,25 @@ export class EntityController<
   }
 
   async findOneById(id: Model["id"]) {
-    return this.repository.findOneBy({
-      id,
+    return this.repository.findOne({
+      where: await this.augmentFindWhere({ id }),
     });
   }
 
+  async findOneByIdOrFail(id: Model["id"]) {
+    const result = await this.findOneById(id);
+    if (!result) {
+      throw new NotFoundError();
+    }
+    return result;
+  }
+
   async delete(where: FindOptionsWhere<Model>): Promise<DeleteResult> {
-    return this.repository.delete(where);
+    return this.repository.delete(await this.augmentFindWhere(where));
   }
 
   async deleteOneById(id: Model["id"]) {
-    return this.repository.delete({ id });
+    return this.repository.delete(await this.augmentFindWhere({ id }));
   }
 
   async updateOneById(id: Model["id"], updateBody: UpdateBody): Promise<Model> {
@@ -79,10 +89,21 @@ export class EntityController<
     });
   }
 
-  async find(where?: FindOptionsWhere<Model>): Promise<Model[]> {
-    if (!where) {
-      return this.repository.find();
-    }
+  async find(where: FindOptionsWhere<Model> = {}): Promise<Model[]> {
+    where = await this.augmentFindWhere(where);
     return this.repository.findBy(where);
+  }
+
+  /**
+   * Add filters to `findWhere` conditions here to have them added to every find*
+   * query. This is useful for adding authorization-based limits such as filtering
+   * for communities a user is a member of.
+   * @param findWhere
+   * @returns
+   */
+  async augmentFindWhere(
+    findWhere: FindOptionsWhere<Model>
+  ): Promise<FindOptionsWhere<Model>> {
+    return findWhere;
   }
 }

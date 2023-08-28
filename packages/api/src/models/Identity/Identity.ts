@@ -31,4 +31,16 @@ export class Identity {
     (communityMember) => communityMember.identity
   )
   communityMemberships!: CommunityMember[];
+
+  @Column("boolean", { nullable: false, default: false })
+  canCreateCommunity!: boolean;
+
+  @Column("boolean", { nullable: false, default: false })
+  canListIdentities!: boolean;
+
+  @Column("boolean", { nullable: false, default: false })
+  canListInviteCodes!: boolean;
+
+  @Column("boolean", { nullable: false, default: false })
+  canCreateInviteCode!: boolean;
 }

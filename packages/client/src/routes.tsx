@@ -5,8 +5,8 @@
  */
 import {
   isCommunity,
-  isNotAuthorizedError,
-  NotAuthorizedError,
+  isNotAuthenticatedError,
+  NotAuthenticatedError,
 } from "@clovercoin/api-client";
 import {
   useRouteError,
@@ -49,7 +49,7 @@ const communityDetailLoader = makeLoader(
     if (isCommunity(result.data.community)) {
       return result.data.community;
     }
-    if (isNotAuthorizedError(result.data.community)) {
+    if (isNotAuthenticatedError(result.data.community)) {
       return result.data.community;
     }
     throw new Error(
@@ -172,7 +172,7 @@ export type LoaderData<Route extends Record<string, any>> =
   Route["loader"] extends (...args: any[]) => any
     ? Exclude<
         Awaited<ReturnType<Route["loader"]>>,
-        Response | NotAuthorizedError
+        Response | NotAuthenticatedError
       >
     : never;
 
@@ -180,7 +180,7 @@ export type LoaderData<Route extends Record<string, any>> =
  * Type of the data returned by the action of the specified route. The `Response`
  * type is filtered out of this result, as that is generally not intended to be
  * consumed by the app (and won't actually be returned into related hook calls).
- * Additionally, {@link NotAuthorizedError} is handled by a global middleware
+ * Additionally, {@link NotAuthenticatedError} is handled by a global middleware
  * in the `makeAction` utility, and will be converted to a redirect before being
  * returned from an action.
  * @example
@@ -190,7 +190,7 @@ export type ActionData<Route extends Record<string, any>> =
   Route["action"] extends (...args: any[]) => any
     ? Exclude<
         Awaited<ReturnType<Route["action"]>>,
-        Response | NotAuthorizedError
+        Response | NotAuthenticatedError
       >
     : never;
 

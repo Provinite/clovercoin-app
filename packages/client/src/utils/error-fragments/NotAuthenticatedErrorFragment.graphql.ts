@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 
 export default gql`
-  fragment NotAuthorizedErrorFragment on NotAuthorizedError {
+  fragment NotAuthenticatedErrorFragment on NotAuthenticatedError {
     message
   }
 `;
