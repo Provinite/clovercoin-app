@@ -12,10 +12,17 @@ import {
   isBaseError,
   isCritterList,
   isDeleteResponse,
+  isDuplicateError,
   isEnumValueSetting,
+  isInvalidArgumentError,
   isNotAuthenticatedError,
+  isNotAuthorizedError,
+  isNotFoundError,
   isTrait,
+  isTraitList,
   isUrlResponse,
+  ObjectType,
+  TraitList,
 } from "@clovercoin/api-client";
 import { typedRouteConfig } from "../../../routes";
 import { AddTraitCard } from "../AddTraitCard/AddTraitCard";
@@ -35,6 +42,10 @@ import { SpeciesIndex } from "../SpeciesIndex/SpeciesIndex";
 import { ConnectedAddCritterCard } from "../AddCritterCard/AddCritterCard";
 import { EditCritterCard } from "../EditCritterCard/EditCritterCard";
 import { critterDetailAction, critterDetailLoader } from "./critterDetail";
+import { redirect } from "react-router-dom";
+import { AppRoutes } from "../../AppRoutes";
+import { assertNever } from "../../../utils/assertNever";
+import { globalSnackbarTopic } from "../../../utils/observables/topics/globalSnackbarTopic";
 
 /**
  * Species detail route configuration. Intended to be registered
@@ -436,10 +447,12 @@ const critterCreateAction = makeAction(
 const traitListLoader = makeLoader(
   {
     name: "traitListLoader",
-    slugs: { speciesId: true },
+    slugs: { speciesId: true, communityId: true },
   },
-  async ({ ids: { speciesId } }) => {
-    const result = await graphqlService.getSpeciesTraits({
+  async ({ ids: { speciesId, communityId } }) => {
+    const {
+      data: { traits },
+    } = await graphqlService.getSpeciesTraits({
       variables: {
         filters: {
           speciesId,
@@ -447,12 +460,30 @@ const traitListLoader = makeLoader(
       },
     });
 
-    return result.data.traits;
+    if (isNotFoundError(traits)) {
+      globalSnackbarTopic.simpleError.publish("Species not found");
+      return redirect(AppRoutes.speciesList(communityId));
+    } else if (isNotAuthorizedError(traits)) {
+      globalSnackbarTopic.simpleError.publish(
+        "Insufficient permissions to load traits."
+      );
+      const emptyTraitList: TraitList = {
+        __typename: "TraitList",
+        list: [],
+      };
+
+      return emptyTraitList;
+    } else if (isTraitList(traits) || isNotAuthenticatedError(traits)) {
+      return traits;
+    } else {
+      assertNever(traits);
+    }
   }
 );
 
 /**
- * Action handler for species trait list route
+ * Action handler for species trait list route. Responsible for
+ * creating new species traits.
  */
 const traitListAction = makeAction(
   {
@@ -469,7 +500,9 @@ const traitListAction = makeAction(
   },
   async ({ ids: { speciesId }, form: { enumValues, name, valueType } }) => {
     let i = 0;
-    const { data } = await graphqlService.createSpeciesTrait({
+    const {
+      data: { createTrait },
+    } = await graphqlService.createSpeciesTrait({
       variables: {
         input: {
           name,
@@ -481,7 +514,7 @@ const traitListAction = makeAction(
         },
       },
       update(cache, { data }) {
-        if (isTrait(data!.createTrait)) {
+        if (data && isTrait(data.createTrait)) {
           cache.modify({
             fields: {
               traits: (_data, { DELETE, storeFieldName }) => {
@@ -495,7 +528,16 @@ const traitListAction = makeAction(
       },
     });
 
-    return data.createTrait;
+    if (
+      isDuplicateError(createTrait) ||
+      isInvalidArgumentError(createTrait) ||
+      isNotAuthenticatedError(createTrait) ||
+      isNotAuthorizedError(createTrait) ||
+      isTrait(createTrait)
+    ) {
+      return createTrait;
+    }
+    assertNever(createTrait);
   }
 );
 
@@ -596,7 +638,9 @@ const enumValueSettingListAction = makeAction(
     },
   },
   async ({ ids: { variantId }, form: { enumValueId } }) => {
-    return graphqlService.createEnumValueSetting({
+    const {
+      data: { createEnumValueSetting },
+    } = await graphqlService.createEnumValueSetting({
       variables: {
         input: {
           enumValueId,
@@ -608,7 +652,10 @@ const enumValueSettingListAction = makeAction(
           const cachedData = cache.readFragment<{
             enumValueSettings: Partial<EnumValueSetting>[];
           }>({
-            id: `TraitList:${variantId}`,
+            id: cache.identify({
+              __typename: ObjectType.SpeciesVariant,
+              id: variantId,
+            }),
             fragment: gql`
               fragment Settings on SpeciesVariant {
                 enumValueSettings {
@@ -624,7 +671,10 @@ const enumValueSettingListAction = makeAction(
           }
           const { enumValueSettings } = cachedData;
           cache.writeFragment({
-            id: `TraitList:${variantId}`,
+            id: cache.identify({
+              __typename: ObjectType.SpeciesVariant,
+              id: variantId,
+            }),
             fragment: gql`
               fragment Settings on SpeciesVariant {
                 enumValueSettings {
@@ -645,6 +695,27 @@ const enumValueSettingListAction = makeAction(
         }
       },
     });
+
+    if (
+      isEnumValueSetting(createEnumValueSetting) ||
+      isNotAuthenticatedError(createEnumValueSetting) ||
+      isDuplicateError(createEnumValueSetting) ||
+      isInvalidArgumentError(createEnumValueSetting)
+    ) {
+      return createEnumValueSetting;
+    } else if (isNotAuthorizedError(createEnumValueSetting)) {
+      globalSnackbarTopic.simpleError.publish(
+        "Failed to associate dropdown option with this variant. Insufficient permissions"
+      );
+      return;
+    } else if (isNotFoundError(createEnumValueSetting)) {
+      globalSnackbarTopic.simpleError.publish(
+        `Dropdown option or species variant not found.`
+      );
+      return;
+    }
+
+    assertNever(createEnumValueSetting);
   }
 );
 
@@ -660,7 +731,9 @@ const enumValueSettingDetailAction = makeAction(
     },
   },
   async ({ ids: { enumValueSettingId } }) => {
-    return graphqlService.deleteEnumValueSetting({
+    const {
+      data: { deleteEnumValueSetting },
+    } = await graphqlService.deleteEnumValueSetting({
       variables: {
         id: enumValueSettingId,
       },
@@ -676,5 +749,29 @@ const enumValueSettingDetailAction = makeAction(
         }
       },
     });
+
+    if (isDeleteResponse(deleteEnumValueSetting)) {
+      return deleteEnumValueSetting;
+    } else if (isInvalidArgumentError(deleteEnumValueSetting)) {
+      console.error(deleteEnumValueSetting);
+      globalSnackbarTopic.simpleError.publish(
+        "Error disabling dropdown option: Invalid argument"
+      );
+      return;
+    } else if (isNotAuthenticatedError(deleteEnumValueSetting)) {
+      return deleteEnumValueSetting;
+    } else if (isNotAuthorizedError(deleteEnumValueSetting)) {
+      console.error(deleteEnumValueSetting);
+      return globalSnackbarTopic.simpleError.publish(
+        "Error disabling dropdown option: insufficient permissions"
+      );
+    } else if (isNotFoundError(deleteEnumValueSetting)) {
+      console.error(deleteEnumValueSetting);
+      return globalSnackbarTopic.simpleError.publish(
+        "Error disabling dropdown option: option not enabled"
+      );
+    } else {
+      assertNever(deleteEnumValueSetting);
+    }
   }
 );

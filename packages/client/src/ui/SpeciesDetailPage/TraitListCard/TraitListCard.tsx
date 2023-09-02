@@ -22,12 +22,9 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { useRouteCommunity } from "../../../useRouteCommunity";
 import { AppRoutes } from "../../AppRoutes";
-import {
-  SequentialSnackbar,
-  useSnackbarQueue,
-} from "../../SequentialSnackbar/SequentialSnackbar";
 import { GridRow } from "../../lib/GridRow";
 import { Link } from "../../Link/Link";
+import { useSnackbar } from "../../SequentialSnackbar/SequentialSnackbarContext";
 
 export const TraitListCard: FunctionComponent = () => {
   const data = useRouteTraits();
@@ -39,7 +36,7 @@ export const TraitListCard: FunctionComponent = () => {
     useState<typeof data["list"][number]>();
 
   const [loading, setLoading] = useState(false);
-  const snackbarQueue = useSnackbarQueue();
+  const snackbarQueue = useSnackbar();
 
   useEffect(() => {
     if (fetcher.state !== "idle") {
@@ -61,7 +58,6 @@ export const TraitListCard: FunctionComponent = () => {
   }, [fetcher, snackbarQueue.append]);
   return (
     <Card elevation={1}>
-      <SequentialSnackbar queue={snackbarQueue} />
       <CardHeader
         title={`${species.name} - Traits`}
         action={

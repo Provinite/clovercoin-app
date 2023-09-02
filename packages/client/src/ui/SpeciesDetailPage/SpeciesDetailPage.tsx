@@ -15,6 +15,7 @@ import SchemaIcon from "@mui/icons-material/Schema";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import SpaIcon from "@mui/icons-material/Spa";
 import { useRouteVariant } from "./useRouteVariant";
+import SettingsIcon from "@mui/icons-material/Settings";
 
 export interface SpeciesDetailPageProps {
   headerBarProps: HeaderBarProps;
@@ -75,6 +76,11 @@ export const SpeciesDetailPage: FC<SpeciesDetailPageProps> = ({
                 ],
               },
             ],
+          },
+          {
+            to: AppRoutes.communitySettings(community.id),
+            children: "Community Settings",
+            icon: <SettingsIcon />,
           },
         ],
       },

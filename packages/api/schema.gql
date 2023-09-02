@@ -41,7 +41,7 @@ union CreateCommunityResponse = Community | DuplicateError | InvalidArgumentErro
 
 union CreateCritterResponse = Critter | DuplicateError | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError
 
-union CreateSpeciesImageUploadUrlResponse = NotAuthenticatedError | UrlResponse
+union CreateSpeciesImageUploadUrlResponse = NotAuthenticatedError | NotAuthorizedError | NotFoundError | UrlResponse
 
 type Critter {
   id: ID!
@@ -136,7 +136,7 @@ input EnumValueSettingCreateInput {
   speciesVariantId: ID!
 }
 
-union EnumValueSettingDeleteResponse = DeleteResponse | InvalidArgumentError
+union EnumValueSettingDeleteResponse = DeleteResponse | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError
 
 type Identity {
   displayName: String!
@@ -176,13 +176,13 @@ input InviteCodeCreateInput {
   maxClaims: Int!
 }
 
-union InviteCodeCreateResponse = DuplicateError | InvalidArgumentError | InviteCode | NotAuthenticatedError
+union InviteCodeCreateResponse = DuplicateError | InvalidArgumentError | InviteCode | NotAuthenticatedError | NotAuthorizedError
 
 type InviteCodeList {
   list: [InviteCode!]!
 }
 
-union InviteCodeResponse = InviteCodeList | NotAuthenticatedError
+union InviteCodeResponse = InviteCodeList | NotAuthenticatedError | NotAuthorizedError
 
 input LoginArgs {
   password: String = ""
@@ -371,7 +371,7 @@ input SpeciesVariantCreateInput {
   speciesId: ID!
 }
 
-union SpeciesVariantCreateResponse = DuplicateError | InvalidArgumentError | SpeciesVariant
+union SpeciesVariantCreateResponse = DuplicateError | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError | SpeciesVariant
 
 type Trait {
   enumValues: [EnumValue!]!
@@ -473,4 +473,4 @@ type ValidationError {
   field: String!
 }
 
-union enumValueSettingCreateResponse = DuplicateError | EnumValueSetting | InvalidArgumentError
+union enumValueSettingCreateResponse = DuplicateError | EnumValueSetting | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError

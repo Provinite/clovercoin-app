@@ -71,15 +71,17 @@ export class TraitResolver {
   }
 
   @Query(() => TraitListResponse)
-  @Preauthorize(async ({ args: { input }, context: { speciesController } }) => {
-    const { speciesId } = await parseArgToClass(input, TraitFilters);
-    const species = await speciesController.findOneByIdOrFail(speciesId);
-    return {
-      scope: AuthScope.Community,
-      communityId: species.communityId,
-      permissions: [],
-    };
-  })
+  @Preauthorize(
+    async ({ args: { filters }, context: { speciesController } }) => {
+      const { speciesId } = await parseArgToClass(filters, TraitFilters);
+      const species = await speciesController.findOneByIdOrFail(speciesId);
+      return {
+        scope: AuthScope.Community,
+        communityId: species.communityId,
+        permissions: [],
+      };
+    }
+  )
   async traits(
     @Arg("filters", () => TraitFilters) filters: TraitFilters,
     @Ctx() { traitRepository }: AppGraphqlContext

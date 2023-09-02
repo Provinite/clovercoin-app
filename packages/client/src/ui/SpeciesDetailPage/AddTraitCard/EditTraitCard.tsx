@@ -5,15 +5,12 @@ import { slugToUuid } from "../../../utils/uuidUtils";
 import { AppRoutes } from "../../AppRoutes";
 import { useRouteCommunity } from "../../../useRouteCommunity";
 import { useRouteSpecies } from "../useRouteSpecies";
-import {
-  SequentialSnackbar,
-  useSnackbarQueue,
-} from "../../SequentialSnackbar/SequentialSnackbar";
 import { TraitForm } from "./TraitForm/TraitForm";
 import { useTraitForm } from "./TraitForm/useTraitForm";
 import { TraitPreviewCard } from "./TraitPreviewCard";
 import { TraitActionAlert } from "./TraitActionAlert";
 import { useRouteTraits } from "../useRouteTraits";
+import { useSnackbar } from "../../SequentialSnackbar/SequentialSnackbarContext";
 
 /**
  * Card component that allows adding and editing traits. Add/edit
@@ -30,6 +27,8 @@ export const EditTraitCard: FunctionComponent = () => {
   const traits = useRouteTraits();
   const { traitId: traitSlug } = useParams();
 
+  const snackbarQueue = useSnackbar();
+
   /**
    * Current editing trait uuid
    */
@@ -45,7 +44,8 @@ export const EditTraitCard: FunctionComponent = () => {
     if (traitId) {
       const existingTrait = traits.list.find((t) => t.id === traitId);
       if (!existingTrait) {
-        throw new Error("404");
+        snackbarQueue.appendSimpleError("Trait not found");
+        return;
       }
       setForm({
         id: traitId,
@@ -69,7 +69,6 @@ export const EditTraitCard: FunctionComponent = () => {
     });
   }, []);
 
-  const snackbarQueue = useSnackbarQueue();
   const gridSizes = {
     xs: 6,
     lg: 4,
@@ -78,7 +77,6 @@ export const EditTraitCard: FunctionComponent = () => {
 
   return (
     <>
-      <SequentialSnackbar queue={snackbarQueue} />
       <CardHeader title="Edit" subheader="Tweak trait settings here" />
       <CardContent>
         <Grid container spacing={2}>

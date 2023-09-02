@@ -3,7 +3,7 @@
  * This script uses ts-morph to augment the graphql-codegen generated data with a helper class
  * providing type-safe access to graphql queries outside react.
  */
-import { Project, Scope } from "ts-morph";
+import { EnumMemberStructure, Project, Scope, StructureKind } from "ts-morph";
 const project = new Project({
   skipAddingFilesFromTsConfig: true,
 });
@@ -159,6 +159,7 @@ sf.addFunction({
 });
 
 const errorTypes: string[] = [];
+const objectTypes: EnumMemberStructure[] = [];
 
 sf.getInterfaces().forEach((interfaceDeclaration) => {
   const typenameProperty = interfaceDeclaration.getProperty("__typename");
@@ -170,6 +171,11 @@ sf.getInterfaces().forEach((interfaceDeclaration) => {
       );
     }
     const value = kind.getText();
+    objectTypes.push({
+      kind: StructureKind.EnumMember,
+      name: value.replace(/"/g, ""),
+      value: value.replace(/"/g, ""),
+    });
     const name = interfaceDeclaration.getName();
     if (
       interfaceDeclaration.getExtends().some((i) => i.getText() === "BaseError")
@@ -189,7 +195,7 @@ sf.getInterfaces().forEach((interfaceDeclaration) => {
       name: `is${name}`,
       isExported: true,
       parameters: [{ name: "val", type: "unknown" }],
-      returnType: `val is {__typename: ${value}}`,
+      returnType: `val is {__typename?: ${value}}`,
       statements: (w) => w.writeLine(`return hasTypeName(val, ${value});`),
     });
 
@@ -208,6 +214,12 @@ sf.getInterfaces().forEach((interfaceDeclaration) => {
         w.writeLine(`T extends { __typename ?: ${value} } ? T : never`),
     });
   }
+});
+
+sf.addEnum({
+  name: "ObjectType",
+  isExported: true,
+  members: objectTypes,
 });
 
 if (errorTypes.length) {

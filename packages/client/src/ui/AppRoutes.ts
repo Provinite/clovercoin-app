@@ -11,6 +11,11 @@ export const AppRouteParts = {
   logout: () => ["logout"],
   register: () => ["register"],
   community: (communityId: string) => ["community", uuidToSlug(communityId)],
+  communitySettings: (communityId: string) => [
+    "community",
+    uuidToSlug(communityId),
+    "settings",
+  ],
   communityList: () => ["communities"],
   addCritter: (communityId: string, speciesId: string) => [
     ...AppRouteParts.speciesDetail(communityId, speciesId),

@@ -1,19 +1,16 @@
 import { FunctionComponent, useCallback, useMemo } from "react";
 import { useFetcher, useParams } from "react-router-dom";
 import { CritterTraitValueType } from "@clovercoin/api-client";
-import { Alert, Card, CardContent, CardHeader, Grid } from "@mui/material";
+import { Card, CardContent, CardHeader, Grid } from "@mui/material";
 import { slugToUuid } from "../../../utils/uuidUtils";
 import { AppRoutes } from "../../AppRoutes";
 import { useRouteCommunity } from "../../../useRouteCommunity";
 import { useRouteSpecies } from "../useRouteSpecies";
-import {
-  SequentialSnackbar,
-  useSnackbarQueue,
-} from "../../SequentialSnackbar/SequentialSnackbar";
 import { TraitForm, TraitFormProps } from "./TraitForm/TraitForm";
 import { useTraitForm } from "./TraitForm/useTraitForm";
 import { TraitPreviewCard } from "./TraitPreviewCard";
 import { TraitActionAlert } from "./TraitActionAlert";
+import { useSnackbar } from "../../SequentialSnackbar/SequentialSnackbarContext";
 /**
  * Card component that allows adding and editing traits. Add/edit
  * mode are controlled by the current route.
@@ -25,7 +22,7 @@ export const AddTraitCard: FunctionComponent = () => {
   const fetcher = useFetcher();
   const [form, setForm] = useTraitForm();
   const { traitId: traitSlug } = useParams();
-  const snackbarQueue = useSnackbarQueue();
+  const snackbarQueue = useSnackbar();
 
   /**
    * Trait ID to edit (if editing)
@@ -61,13 +58,7 @@ export const AddTraitCard: FunctionComponent = () => {
    */
   const onError = useCallback<TraitFormProps["onError"]>(
     (err) => {
-      snackbarQueue.append({
-        children: (
-          <Alert severity="error" onClose={snackbarQueue.close}>
-            Failed to create trait: {err.message}
-          </Alert>
-        ),
-      });
+      snackbarQueue.appendSimpleError(`Failed to create trait: ${err.message}`);
     },
     [snackbarQueue]
   );
@@ -80,7 +71,6 @@ export const AddTraitCard: FunctionComponent = () => {
 
   return (
     <>
-      <SequentialSnackbar queue={snackbarQueue} />
       <CardHeader
         title="Add"
         subheader="Create traits here, and add them to trait lists later"

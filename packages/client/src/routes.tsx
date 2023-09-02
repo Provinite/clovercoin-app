@@ -3,11 +3,7 @@
  * for the entire application, as well as type utilities to improve
  * type-safety when interacting with react-router-dom.
  */
-import {
-  isCommunity,
-  isNotAuthenticatedError,
-  NotAuthenticatedError,
-} from "@clovercoin/api-client";
+import { isCommunity, isNotAuthenticatedError } from "@clovercoin/api-client";
 import {
   useRouteError,
   NonIndexRouteObject,
@@ -18,14 +14,16 @@ import {
 import { Application } from "./Application";
 import { graphqlService } from "./graphql/client";
 import { aboutRoutes } from "./ui/AboutPage/aboutRoutes";
-import { adminRoutes } from "./ui/admin/adminRoutes";
+import { adminRoutes } from "./ui/admin/routes/adminRoutes";
 import { AppRoutes } from "./ui/AppRoutes";
 import { communityListRoutes } from "./ui/CommunityListPage/communityListRoutes";
+import { communitySettingsRoutes } from "./ui/CommunitySettingsPage/communitySettingsRoutes";
 import { loginRoutes } from "./ui/LoginPage/loginRoutes";
 import { SpeciesDetailRoutes } from "./ui/SpeciesDetailPage/routes/SpeciesDetailRoutes";
 import { speciesListRoutes } from "./ui/SpeciesListPage/speciesListRoutes";
 import { PrettyPrintJson } from "./ui/util/PrettyPrintJson";
 import { makeLoader } from "./utils/loaderUtils";
+import { globalSnackbarTopic } from "./utils/observables/topics/globalSnackbarTopic";
 
 const PrintError = () => {
   const error = useRouteError();
@@ -72,6 +70,9 @@ export const routes = [
         id: "root.authBarrier",
         loader: async () => {
           if (!graphqlService.isClientAuthenticated()) {
+            globalSnackbarTopic.simpleError.publish(
+              "You are not logged in. Redirecting to the login page."
+            );
             return redirect(AppRoutes.login());
           }
         },
@@ -87,7 +88,11 @@ export const routes = [
             id: "root.community",
             path: "community/:communityId",
             loader: communityDetailLoader,
-            children: [SpeciesDetailRoutes(), speciesListRoutes],
+            children: [
+              SpeciesDetailRoutes(),
+              speciesListRoutes,
+              ...communitySettingsRoutes(),
+            ],
           },
         ],
       }),
@@ -170,10 +175,7 @@ export type RouteType<R extends RouteId, T = typeof routes[number]> = WithId<
  */
 export type LoaderData<Route extends Record<string, any>> =
   Route["loader"] extends (...args: any[]) => any
-    ? Exclude<
-        Awaited<ReturnType<Route["loader"]>>,
-        Response | NotAuthenticatedError
-      >
+    ? Awaited<ReturnType<Route["loader"]>>
     : never;
 
 /**
@@ -188,10 +190,7 @@ export type LoaderData<Route extends Record<string, any>> =
  * */
 export type ActionData<Route extends Record<string, any>> =
   Route["action"] extends (...args: any[]) => any
-    ? Exclude<
-        Awaited<ReturnType<Route["action"]>>,
-        Response | NotAuthenticatedError
-      >
+    ? Awaited<ReturnType<Route["action"]>>
     : never;
 
 /**

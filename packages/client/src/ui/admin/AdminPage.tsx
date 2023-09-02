@@ -18,34 +18,26 @@ import { SideNav } from "../SideNav/SideNav";
 import SpaIcon from "@mui/icons-material/Spa";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import { useFetcher } from "react-router-dom";
-import {
-  SequentialSnackbar,
-  useSnackbarQueue,
-} from "../SequentialSnackbar/SequentialSnackbar";
 import { ActionData, RouteType } from "../../routes";
 import CloseIcon from "@mui/icons-material/Close";
 import { Link } from "../Link/Link";
 import { isBaseError } from "@clovercoin/api-client";
 import { UserList } from "./UserList";
 import { InviteCodeList } from "./InviteCodeList";
-import { SequentialSnackbarContext } from "../SequentialSnackbar/SequentialSnackbarContext";
+import { useSnackbar } from "../SequentialSnackbar/SequentialSnackbarContext";
 
 export interface AdminPageProps {}
 export const AdminPage: FunctionComponent<AdminPageProps> = () => {
   const [name, setName] = useState("");
   const headerBarProps = useHeaderBarProps();
   const fetcher = useFetcher<ActionData<RouteType<"root.community-list">>>();
-  const snackbarQueue = useSnackbarQueue();
+  const snackbarQueue = useSnackbar();
   useEffect(() => {
     if (fetcher.state === "idle" && fetcher.data) {
       if (isBaseError(fetcher.data)) {
-        snackbarQueue.append({
-          children: (
-            <Alert onClose={snackbarQueue.close} severity="error">
-              Error creating community: {fetcher.data.message}
-            </Alert>
-          ),
-        });
+        snackbarQueue.appendSimpleError(
+          `Error creating community: ${fetcher.data.message}`
+        );
         return;
       }
       const { name, id } = fetcher.data;
@@ -78,8 +70,7 @@ export const AdminPage: FunctionComponent<AdminPageProps> = () => {
     }
   }, [fetcher.state]);
   return (
-    <SequentialSnackbarContext.Provider value={snackbarQueue}>
-      <SequentialSnackbar queue={snackbarQueue} />
+    <>
       <HeaderBar {...headerBarProps} title="Site Administration" />
       <Stack direction="row">
         <SideNav
@@ -150,6 +141,6 @@ export const AdminPage: FunctionComponent<AdminPageProps> = () => {
           </Grid>
         </Stack>
       </Stack>
-    </SequentialSnackbarContext.Provider>
+    </>
   );
 };

@@ -67,22 +67,27 @@ export type CommunityResponse =
   | Community
   | InvalidArgumentError
   | NotAuthenticatedError
+  | NotAuthorizedError
   | NotFoundError;
 
 export type CreateCommunityResponse =
   | Community
   | DuplicateError
   | InvalidArgumentError
-  | NotAuthenticatedError;
+  | NotAuthenticatedError
+  | NotAuthorizedError;
 
 export type CreateCritterResponse =
   | Critter
   | DuplicateError
   | InvalidArgumentError
-  | NotAuthenticatedError;
+  | NotAuthenticatedError
+  | NotAuthorizedError;
 
 export type CreateSpeciesImageUploadUrlResponse =
   | NotAuthenticatedError
+  | NotAuthorizedError
+  | NotFoundError
   | UrlResponse;
 
 export interface Critter {
@@ -137,6 +142,7 @@ export type CritterModifyResponse =
   | Critter
   | InvalidArgumentError
   | NotAuthenticatedError
+  | NotAuthorizedError
   | NotFoundError;
 
 export interface CritterTraitValue {
@@ -194,7 +200,10 @@ export interface EnumValueSettingCreateInput {
 
 export type EnumValueSettingDeleteResponse =
   | DeleteResponse
-  | InvalidArgumentError;
+  | InvalidArgumentError
+  | NotAuthenticatedError
+  | NotAuthorizedError
+  | NotFoundError;
 
 export interface Identity {
   __typename?: "Identity";
@@ -242,14 +251,18 @@ export type InviteCodeCreateResponse =
   | DuplicateError
   | InvalidArgumentError
   | InviteCode
-  | NotAuthenticatedError;
+  | NotAuthenticatedError
+  | NotAuthorizedError;
 
 export interface InviteCodeList {
   __typename?: "InviteCodeList";
   list: Array<InviteCode>;
 }
 
-export type InviteCodeResponse = InviteCodeList | NotAuthenticatedError;
+export type InviteCodeResponse =
+  | InviteCodeList
+  | NotAuthenticatedError
+  | NotAuthorizedError;
 
 export interface LoginArgs {
   password?: InputMaybe<Scalars["String"]>;
@@ -384,6 +397,12 @@ export interface NotAuthenticatedError extends BaseError {
   message: Scalars["String"];
 }
 
+/** This error indicates the associated field requires permissions that the requestor does not posess. */
+export interface NotAuthorizedError extends BaseError {
+  __typename?: "NotAuthorizedError";
+  message: Scalars["String"];
+}
+
 export interface NotFoundError extends BaseError {
   __typename?: "NotFoundError";
   message: Scalars["String"];
@@ -464,7 +483,10 @@ export interface ResetPasswordSuccessResponse {
 
 export interface Role {
   __typename?: "Role";
+  canCreateCritter: Scalars["Boolean"];
   canCreateSpecies: Scalars["Boolean"];
+  canEditCritter: Scalars["Boolean"];
+  canEditSpecies: Scalars["Boolean"];
   community: Community;
   communityId: Scalars["ID"];
   id: Scalars["ID"];
@@ -497,6 +519,8 @@ export type SpeciesCreateResponse =
   | DuplicateError
   | InvalidArgumentError
   | NotAuthenticatedError
+  | NotAuthorizedError
+  | NotFoundError
   | Species;
 
 export interface SpeciesFilters {
@@ -538,6 +562,9 @@ export interface SpeciesVariantCreateInput {
 export type SpeciesVariantCreateResponse =
   | DuplicateError
   | InvalidArgumentError
+  | NotAuthenticatedError
+  | NotAuthorizedError
+  | NotFoundError
   | SpeciesVariant;
 
 export interface Trait {
@@ -565,6 +592,7 @@ export type TraitCreateResponse =
   | DuplicateError
   | InvalidArgumentError
   | NotAuthenticatedError
+  | NotAuthorizedError
   | Trait;
 
 export interface TraitDeleteInput {
@@ -574,7 +602,9 @@ export interface TraitDeleteInput {
 export type TraitDeleteResponse =
   | DeleteResponse
   | InvalidArgumentError
-  | NotAuthenticatedError;
+  | NotAuthenticatedError
+  | NotAuthorizedError
+  | NotFoundError;
 
 export interface TraitFilters {
   speciesId: Scalars["ID"];
@@ -609,11 +639,17 @@ export interface TraitListEntryCreateInput {
 export type TraitListEntryCreateResponse =
   | DuplicateError
   | InvalidArgumentError
+  | NotAuthenticatedError
+  | NotAuthorizedError
+  | NotFoundError
   | TraitListEntry;
 
 export type TraitListEntryDeleteResponse =
   | DeleteResponse
-  | InvalidArgumentError;
+  | InvalidArgumentError
+  | NotAuthenticatedError
+  | NotAuthorizedError
+  | NotFoundError;
 
 /** Input object for modifying a TraitListEntry */
 export interface TraitListEntryModifyInput {
@@ -624,9 +660,16 @@ export interface TraitListEntryModifyInput {
 
 export type TraitListEntryModifyResponse =
   | InvalidArgumentError
+  | NotAuthenticatedError
+  | NotAuthorizedError
+  | NotFoundError
   | TraitListEntry;
 
-export type TraitListResponse = NotAuthenticatedError | TraitList;
+export type TraitListResponse =
+  | NotAuthenticatedError
+  | NotAuthorizedError
+  | NotFoundError
+  | TraitList;
 
 export interface TraitModifyEnumValueInput {
   id?: InputMaybe<Scalars["ID"]>;
@@ -645,6 +688,8 @@ export type TraitModifyResponse =
   | DuplicateError
   | InvalidArgumentError
   | NotAuthenticatedError
+  | NotAuthorizedError
+  | NotFoundError
   | Trait;
 
 export interface UrlResponse {
@@ -667,7 +712,10 @@ export interface ValidationError {
 export type EnumValueSettingCreateResponse =
   | DuplicateError
   | EnumValueSetting
-  | InvalidArgumentError;
+  | InvalidArgumentError
+  | NotAuthenticatedError
+  | NotAuthorizedError
+  | NotFoundError;
 
 export type CreateCommunityMutationVariables = Exact<{
   input: CommunityCreateInput;
@@ -695,7 +743,8 @@ export type CreateCommunityMutation = {
           }>;
         }>;
       }
-    | { __typename: "NotAuthenticatedError"; message: string };
+    | { __typename: "NotAuthenticatedError"; message: string }
+    | { __typename: "NotAuthorizedError"; message: string };
 };
 
 export type GetCommunityQueryVariables = Exact<{
@@ -708,6 +757,7 @@ export type GetCommunityQuery = {
     | { __typename: "Community"; id: string; name: string }
     | { __typename: "InvalidArgumentError"; message: string }
     | { __typename: "NotAuthenticatedError"; message: string }
+    | { __typename: "NotAuthorizedError"; message: string }
     | { __typename: "NotFoundError"; message: string };
 };
 
@@ -772,6 +822,43 @@ export type GetCommunityListViewQuery = {
           }>;
         }>;
       };
+};
+
+export type GetCommunityRolesQueryVariables = Exact<{
+  communityId: Scalars["ID"];
+}>;
+
+export type GetCommunityRolesQuery = {
+  __typename?: "Query";
+  community:
+    | {
+        __typename: "Community";
+        roles: Array<{
+          __typename: "Role";
+          id: string;
+          name: string;
+          canCreateCritter: boolean;
+          canCreateSpecies: boolean;
+          canEditCritter: boolean;
+          canEditSpecies: boolean;
+        }>;
+      }
+    | {
+        __typename: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      }
+    | { __typename: "NotAuthenticatedError"; message: string }
+    | { __typename: "NotAuthorizedError"; message: string }
+    | { __typename: "NotFoundError"; message: string };
 };
 
 export type LoginMutationVariables = Exact<{
@@ -905,6 +992,9 @@ export type CreateTraitListEntryMutation = {
           }>;
         }>;
       }
+    | { __typename: "NotAuthenticatedError"; message: string }
+    | { __typename: "NotAuthorizedError"; message: string }
+    | { __typename: "NotFoundError"; message: string }
     | {
         __typename: "TraitListEntry";
         id: string;
@@ -945,7 +1035,10 @@ export type DeleteTraitListEntryMutation = {
             description: string;
           }>;
         }>;
-      };
+      }
+    | { __typename: "NotAuthenticatedError"; message: string }
+    | { __typename: "NotAuthorizedError"; message: string }
+    | { __typename: "NotFoundError"; message: string };
 };
 
 export type ModifyTraitListEntryMutationVariables = Exact<{
@@ -968,6 +1061,9 @@ export type ModifyTraitListEntryMutation = {
           }>;
         }>;
       }
+    | { __typename: "NotAuthenticatedError"; message: string }
+    | { __typename: "NotAuthorizedError"; message: string }
+    | { __typename: "NotFoundError"; message: string }
     | {
         __typename: "TraitListEntry";
         id: string;
@@ -1014,7 +1110,8 @@ export type CreateCritterMutation = {
           }>;
         }>;
       }
-    | { __typename?: "NotAuthenticatedError"; message: string };
+    | { __typename?: "NotAuthenticatedError"; message: string }
+    | { __typename?: "NotAuthorizedError"; message: string };
 };
 
 export type CreateEnumValueSettingMutationVariables = Exact<{
@@ -1047,7 +1144,10 @@ export type CreateEnumValueSettingMutation = {
             description: string;
           }>;
         }>;
-      };
+      }
+    | { __typename: "NotAuthenticatedError"; message: string }
+    | { __typename: "NotAuthorizedError"; message: string }
+    | { __typename: "NotFoundError"; message: string };
 };
 
 export type CreateSpeciesImageUploadUrlMutationVariables = Exact<{
@@ -1058,6 +1158,8 @@ export type CreateSpeciesImageUploadUrlMutation = {
   __typename?: "Mutation";
   createSpeciesImageUploadUrl:
     | { __typename: "NotAuthenticatedError"; message: string }
+    | { __typename: "NotAuthorizedError" }
+    | { __typename: "NotFoundError" }
     | { __typename: "UrlResponse"; url: string };
 };
 
@@ -1087,6 +1189,7 @@ export type CreateSpeciesTraitMutation = {
         }>;
       }
     | { __typename?: "NotAuthenticatedError"; message: string }
+    | { __typename?: "NotAuthorizedError"; message: string }
     | { __typename?: "Trait"; id: string };
 };
 
@@ -1115,6 +1218,9 @@ export type CreateVariantMutation = {
           }>;
         }>;
       }
+    | { __typename?: "NotAuthenticatedError"; message: string }
+    | { __typename?: "NotAuthorizedError"; message: string }
+    | { __typename?: "NotFoundError"; message: string }
     | { __typename?: "SpeciesVariant"; id: string; name: string };
 };
 
@@ -1138,7 +1244,10 @@ export type DeleteEnumValueSettingMutation = {
             description: string;
           }>;
         }>;
-      };
+      }
+    | { __typename: "NotAuthenticatedError" }
+    | { __typename: "NotAuthorizedError" }
+    | { __typename: "NotFoundError" };
 };
 
 export type DeleteTraitMutationVariables = Exact<{
@@ -1162,7 +1271,9 @@ export type DeleteTraitMutation = {
           }>;
         }>;
       }
-    | { __typename: "NotAuthenticatedError"; message: string };
+    | { __typename: "NotAuthenticatedError"; message: string }
+    | { __typename: "NotAuthorizedError"; message: string }
+    | { __typename: "NotFoundError"; message: string };
 };
 
 export type GetSpeciesDetailQueryVariables = Exact<{
@@ -1233,6 +1344,8 @@ export type GetSpeciesTraitsQuery = {
   __typename?: "Query";
   traits:
     | { __typename?: "NotAuthenticatedError"; message: string }
+    | { __typename?: "NotAuthorizedError"; message: string }
+    | { __typename?: "NotFoundError"; message: string }
     | {
         __typename?: "TraitList";
         list: Array<{
@@ -1282,6 +1395,7 @@ export type ModifyCritterMutation = {
         }>;
       }
     | { __typename: "NotAuthenticatedError"; message: string }
+    | { __typename: "NotAuthorizedError"; message: string }
     | { __typename: "NotFoundError"; message: string };
 };
 
@@ -1311,6 +1425,8 @@ export type ModifySpeciesTraitMutation = {
         }>;
       }
     | { __typename?: "NotAuthenticatedError" }
+    | { __typename?: "NotAuthorizedError" }
+    | { __typename?: "NotFoundError" }
     | {
         __typename?: "Trait";
         id: string;
@@ -1349,6 +1465,8 @@ export type CreateSpeciesMutation = {
         }>;
       }
     | { __typename?: "NotAuthenticatedError"; message: string }
+    | { __typename?: "NotAuthorizedError"; message: string }
+    | { __typename?: "NotFoundError"; message: string }
     | {
         __typename?: "Species";
         id: string;
@@ -1424,41 +1542,6 @@ export type GetSpeciesListViewQuery = {
       };
 };
 
-export type CreateInviteCodeMutationVariables = Exact<{
-  input: InviteCodeCreateInput;
-}>;
-
-export type CreateInviteCodeMutation = {
-  __typename?: "Mutation";
-  createInviteCode:
-    | {
-        __typename: "DuplicateError";
-        duplicateKeys: Array<string>;
-        message: string;
-      }
-    | {
-        __typename: "InvalidArgumentError";
-        message: string;
-        validationErrors: Array<{
-          __typename?: "ValidationError";
-          field: string;
-          constraints: Array<{
-            __typename?: "ValidationConstraint";
-            key: string;
-            description: string;
-          }>;
-        }>;
-      }
-    | {
-        __typename: "InviteCode";
-        id: string;
-        claimCount: number;
-        maxClaims: number;
-        creator: { __typename?: "Identity"; displayName: string };
-      }
-    | { __typename: "NotAuthenticatedError" };
-};
-
 export type GetIdentityListQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetIdentityListQuery = {
@@ -1491,7 +1574,44 @@ export type GetInviteCodeListQuery = {
           creator: { __typename?: "Identity"; displayName: string };
         }>;
       }
-    | { __typename: "NotAuthenticatedError" };
+    | { __typename: "NotAuthenticatedError" }
+    | { __typename: "NotAuthorizedError" };
+};
+
+export type CreateInviteCodeMutationVariables = Exact<{
+  input: InviteCodeCreateInput;
+}>;
+
+export type CreateInviteCodeMutation = {
+  __typename?: "Mutation";
+  createInviteCode:
+    | {
+        __typename: "DuplicateError";
+        duplicateKeys: Array<string>;
+        message: string;
+      }
+    | {
+        __typename: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      }
+    | {
+        __typename: "InviteCode";
+        id: string;
+        claimCount: number;
+        maxClaims: number;
+        creator: { __typename?: "Identity"; displayName: string };
+      }
+    | { __typename: "NotAuthenticatedError" }
+    | { __typename: "NotAuthorizedError" };
 };
 
 export type BaseErrorFragment_DuplicateError_Fragment = {
@@ -1509,6 +1629,11 @@ export type BaseErrorFragment_NotAuthenticatedError_Fragment = {
   message: string;
 };
 
+export type BaseErrorFragment_NotAuthorizedError_Fragment = {
+  __typename?: "NotAuthorizedError";
+  message: string;
+};
+
 export type BaseErrorFragment_NotFoundError_Fragment = {
   __typename?: "NotFoundError";
   message: string;
@@ -1518,6 +1643,7 @@ export type BaseErrorFragmentFragment =
   | BaseErrorFragment_DuplicateError_Fragment
   | BaseErrorFragment_InvalidArgumentError_Fragment
   | BaseErrorFragment_NotAuthenticatedError_Fragment
+  | BaseErrorFragment_NotAuthorizedError_Fragment
   | BaseErrorFragment_NotFoundError_Fragment;
 
 export type DuplicateErrorFragmentFragment = {
@@ -1772,6 +1898,13 @@ export type NotAuthenticatedErrorKeySpecifier = (
 export type NotAuthenticatedErrorFieldPolicy = {
   message?: FieldPolicy<any> | FieldReadFunction<any>;
 };
+export type NotAuthorizedErrorKeySpecifier = (
+  | "message"
+  | NotAuthorizedErrorKeySpecifier
+)[];
+export type NotAuthorizedErrorFieldPolicy = {
+  message?: FieldPolicy<any> | FieldReadFunction<any>;
+};
 export type NotFoundErrorKeySpecifier = (
   | "message"
   | NotFoundErrorKeySpecifier
@@ -1813,7 +1946,10 @@ export type ResetPasswordSuccessResponseFieldPolicy = {
   success?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type RoleKeySpecifier = (
+  | "canCreateCritter"
   | "canCreateSpecies"
+  | "canEditCritter"
+  | "canEditSpecies"
   | "community"
   | "communityId"
   | "id"
@@ -1821,7 +1957,10 @@ export type RoleKeySpecifier = (
   | RoleKeySpecifier
 )[];
 export type RoleFieldPolicy = {
+  canCreateCritter?: FieldPolicy<any> | FieldReadFunction<any>;
   canCreateSpecies?: FieldPolicy<any> | FieldReadFunction<any>;
+  canEditCritter?: FieldPolicy<any> | FieldReadFunction<any>;
+  canEditSpecies?: FieldPolicy<any> | FieldReadFunction<any>;
   community?: FieldPolicy<any> | FieldReadFunction<any>;
   communityId?: FieldPolicy<any> | FieldReadFunction<any>;
   id?: FieldPolicy<any> | FieldReadFunction<any>;
@@ -2074,6 +2213,13 @@ export type StrictTypedTypePolicies = {
       | (() => undefined | NotAuthenticatedErrorKeySpecifier);
     fields?: NotAuthenticatedErrorFieldPolicy;
   };
+  NotAuthorizedError?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | NotAuthorizedErrorKeySpecifier
+      | (() => undefined | NotAuthorizedErrorKeySpecifier);
+    fields?: NotAuthorizedErrorFieldPolicy;
+  };
   NotFoundError?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
       | false
@@ -2292,6 +2438,36 @@ export const GetCommunityListViewDocument = gql`
   }
   ${BaseErrorFragmentFragmentDoc}
   ${InvalidArgumentErrorFragmentFragmentDoc}
+`;
+export const GetCommunityRolesDocument = gql`
+  query getCommunityRoles($communityId: ID!) {
+    community(filters: { id: $communityId }) {
+      __typename
+      ... on Community {
+        roles {
+          __typename
+          id
+          name
+          canCreateCritter
+          canCreateSpecies
+          canEditCritter
+          canEditSpecies
+        }
+      }
+      ... on NotAuthenticatedError {
+        ...NotAuthenticatedErrorFragment
+      }
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+      ... on BaseError {
+        ...BaseErrorFragment
+      }
+    }
+  }
+  ${NotAuthenticatedErrorFragmentFragmentDoc}
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+  ${BaseErrorFragmentFragmentDoc}
 `;
 export const LoginDocument = gql`
   mutation login($input: LoginArgs!) {
@@ -2777,29 +2953,6 @@ export const GetSpeciesListViewDocument = gql`
   ${InvalidArgumentErrorFragmentFragmentDoc}
   ${BaseErrorFragmentFragmentDoc}
 `;
-export const CreateInviteCodeDocument = gql`
-  mutation createInviteCode($input: InviteCodeCreateInput!) {
-    createInviteCode(input: $input) {
-      __typename
-      ... on InvalidArgumentError {
-        ...InvalidArgumentErrorFragment
-      }
-      ... on DuplicateError {
-        ...DuplicateErrorFragment
-      }
-      ... on InviteCode {
-        id
-        creator {
-          displayName
-        }
-        claimCount
-        maxClaims
-      }
-    }
-  }
-  ${InvalidArgumentErrorFragmentFragmentDoc}
-  ${DuplicateErrorFragmentFragmentDoc}
-`;
 export const GetIdentityListDocument = gql`
   query getIdentityList {
     identities {
@@ -2833,6 +2986,29 @@ export const GetInviteCodeListDocument = gql`
       }
     }
   }
+`;
+export const CreateInviteCodeDocument = gql`
+  mutation createInviteCode($input: InviteCodeCreateInput!) {
+    createInviteCode(input: $input) {
+      __typename
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+      ... on DuplicateError {
+        ...DuplicateErrorFragment
+      }
+      ... on InviteCode {
+        id
+        creator {
+          displayName
+        }
+        claimCount
+        maxClaims
+      }
+    }
+  }
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+  ${DuplicateErrorFragmentFragmentDoc}
 `;
 export type Requester<C = {}, E = unknown> = <R, V>(
   doc: DocumentNode,
@@ -2886,6 +3062,16 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
         variables,
         options
       ) as Promise<GetCommunityListViewQuery>;
+    },
+    getCommunityRoles(
+      variables: GetCommunityRolesQueryVariables,
+      options?: C
+    ): Promise<GetCommunityRolesQuery> {
+      return requester<GetCommunityRolesQuery, GetCommunityRolesQueryVariables>(
+        GetCommunityRolesDocument,
+        variables,
+        options
+      ) as Promise<GetCommunityRolesQuery>;
     },
     login(
       variables: LoginMutationVariables,
@@ -3117,19 +3303,6 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
         options
       ) as Promise<GetSpeciesListViewQuery>;
     },
-    createInviteCode(
-      variables: CreateInviteCodeMutationVariables,
-      options?: C
-    ): Promise<CreateInviteCodeMutation> {
-      return requester<
-        CreateInviteCodeMutation,
-        CreateInviteCodeMutationVariables
-      >(
-        CreateInviteCodeDocument,
-        variables,
-        options
-      ) as Promise<CreateInviteCodeMutation>;
-    },
     getIdentityList(
       variables?: GetIdentityListQueryVariables,
       options?: C
@@ -3149,6 +3322,19 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
         variables,
         options
       ) as Promise<GetInviteCodeListQuery>;
+    },
+    createInviteCode(
+      variables: CreateInviteCodeMutationVariables,
+      options?: C
+    ): Promise<CreateInviteCodeMutation> {
+      return requester<
+        CreateInviteCodeMutation,
+        CreateInviteCodeMutationVariables
+      >(
+        CreateInviteCodeDocument,
+        variables,
+        options
+      ) as Promise<CreateInviteCodeMutation>;
     },
   };
 }
@@ -3265,6 +3451,33 @@ export class GraphqlService {
     const result = await this.client.query<
       GetCommunityListViewQuery,
       GetCommunityListViewQueryVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
+  async getCommunityRoles(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").QueryOptions<
+          GetCommunityRolesQueryVariables,
+          GetCommunityRolesQuery
+        >
+      >,
+      "variables" | "query"
+    > & {
+      variables: GetCommunityRolesQueryVariables;
+    }
+  ) {
+    const finalOptions = {
+      ...options,
+      query: GetCommunityRolesDocument,
+    };
+    const result = await this.client.query<
+      GetCommunityRolesQuery,
+      GetCommunityRolesQueryVariables
     >(finalOptions);
     if (!hasData(result)) {
       throw new Error("Unknown request failure");
@@ -3896,38 +4109,6 @@ export class GraphqlService {
     return result;
   }
 
-  async createInviteCode(
-    options: Omit<
-      Partial<
-        import("@apollo/client/core").MutationOptions<
-          CreateInviteCodeMutation,
-          CreateInviteCodeMutationVariables
-        >
-      >,
-      "variables" | "mutation"
-    > & {
-      variables: CreateInviteCodeMutationVariables;
-    }
-  ): Promise<
-    Omit<
-      import("@apollo/client/core").FetchResult<CreateInviteCodeMutation>,
-      "data"
-    > & { data: CreateInviteCodeMutation }
-  > {
-    const finalOptions = {
-      ...options,
-      mutation: CreateInviteCodeDocument,
-    };
-    const result = await this.client.mutate<
-      CreateInviteCodeMutation,
-      CreateInviteCodeMutationVariables
-    >(finalOptions);
-    if (!hasData(result)) {
-      throw new Error("Unknown request failure");
-    }
-    return result;
-  }
-
   async getIdentityList(
     options: Omit<
       Partial<
@@ -3981,6 +4162,38 @@ export class GraphqlService {
     }
     return result;
   }
+
+  async createInviteCode(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").MutationOptions<
+          CreateInviteCodeMutation,
+          CreateInviteCodeMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: CreateInviteCodeMutationVariables;
+    }
+  ): Promise<
+    Omit<
+      import("@apollo/client/core").FetchResult<CreateInviteCodeMutation>,
+      "data"
+    > & { data: CreateInviteCodeMutation }
+  > {
+    const finalOptions = {
+      ...options,
+      mutation: CreateInviteCodeDocument,
+    };
+    const result = await this.client.mutate<
+      CreateInviteCodeMutation,
+      CreateInviteCodeMutationVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
 }
 
 function hasData(result: any): result is { data: {} } {
@@ -3994,7 +4207,7 @@ export function hasTypeName<T extends string>(
   return val && typeof val === "object" && val.__typename === typename;
 }
 
-export function isAccount(val: unknown): val is { __typename: "Account" } {
+export function isAccount(val: unknown): val is { __typename?: "Account" } {
   return hasTypeName(val, "Account");
 }
 
@@ -4002,7 +4215,7 @@ export type NarrowToAccount<T> = T extends { __typename?: "Account" }
   ? T
   : never;
 
-export function isCommunity(val: unknown): val is { __typename: "Community" } {
+export function isCommunity(val: unknown): val is { __typename?: "Community" } {
   return hasTypeName(val, "Community");
 }
 
@@ -4012,7 +4225,7 @@ export type NarrowToCommunity<T> = T extends { __typename?: "Community" }
 
 export function isCommunityList(
   val: unknown
-): val is { __typename: "CommunityList" } {
+): val is { __typename?: "CommunityList" } {
   return hasTypeName(val, "CommunityList");
 }
 
@@ -4022,7 +4235,7 @@ export type NarrowToCommunityList<T> = T extends {
   ? T
   : never;
 
-export function isCritter(val: unknown): val is { __typename: "Critter" } {
+export function isCritter(val: unknown): val is { __typename?: "Critter" } {
   return hasTypeName(val, "Critter");
 }
 
@@ -4032,7 +4245,7 @@ export type NarrowToCritter<T> = T extends { __typename?: "Critter" }
 
 export function isCritterList(
   val: unknown
-): val is { __typename: "CritterList" } {
+): val is { __typename?: "CritterList" } {
   return hasTypeName(val, "CritterList");
 }
 
@@ -4042,7 +4255,7 @@ export type NarrowToCritterList<T> = T extends { __typename?: "CritterList" }
 
 export function isCritterTraitValue(
   val: unknown
-): val is { __typename: "CritterTraitValue" } {
+): val is { __typename?: "CritterTraitValue" } {
   return hasTypeName(val, "CritterTraitValue");
 }
 
@@ -4054,7 +4267,7 @@ export type NarrowToCritterTraitValue<T> = T extends {
 
 export function isDeleteResponse(
   val: unknown
-): val is { __typename: "DeleteResponse" } {
+): val is { __typename?: "DeleteResponse" } {
   return hasTypeName(val, "DeleteResponse");
 }
 
@@ -4066,7 +4279,7 @@ export type NarrowToDeleteResponse<T> = T extends {
 
 export function isDuplicateError(
   val: unknown
-): val is { __typename: "DuplicateError" } {
+): val is { __typename?: "DuplicateError" } {
   return hasTypeName(val, "DuplicateError");
 }
 
@@ -4076,7 +4289,7 @@ export type NarrowToDuplicateError<T> = T extends {
   ? T
   : never;
 
-export function isEnumValue(val: unknown): val is { __typename: "EnumValue" } {
+export function isEnumValue(val: unknown): val is { __typename?: "EnumValue" } {
   return hasTypeName(val, "EnumValue");
 }
 
@@ -4086,7 +4299,7 @@ export type NarrowToEnumValue<T> = T extends { __typename?: "EnumValue" }
 
 export function isEnumValueSetting(
   val: unknown
-): val is { __typename: "EnumValueSetting" } {
+): val is { __typename?: "EnumValueSetting" } {
   return hasTypeName(val, "EnumValueSetting");
 }
 
@@ -4096,7 +4309,7 @@ export type NarrowToEnumValueSetting<T> = T extends {
   ? T
   : never;
 
-export function isIdentity(val: unknown): val is { __typename: "Identity" } {
+export function isIdentity(val: unknown): val is { __typename?: "Identity" } {
   return hasTypeName(val, "Identity");
 }
 
@@ -4106,7 +4319,7 @@ export type NarrowToIdentity<T> = T extends { __typename?: "Identity" }
 
 export function isIdentityList(
   val: unknown
-): val is { __typename: "IdentityList" } {
+): val is { __typename?: "IdentityList" } {
   return hasTypeName(val, "IdentityList");
 }
 
@@ -4116,7 +4329,7 @@ export type NarrowToIdentityList<T> = T extends { __typename?: "IdentityList" }
 
 export function isInvalidArgumentError(
   val: unknown
-): val is { __typename: "InvalidArgumentError" } {
+): val is { __typename?: "InvalidArgumentError" } {
   return hasTypeName(val, "InvalidArgumentError");
 }
 
@@ -4128,7 +4341,7 @@ export type NarrowToInvalidArgumentError<T> = T extends {
 
 export function isInviteCode(
   val: unknown
-): val is { __typename: "InviteCode" } {
+): val is { __typename?: "InviteCode" } {
   return hasTypeName(val, "InviteCode");
 }
 
@@ -4138,7 +4351,7 @@ export type NarrowToInviteCode<T> = T extends { __typename?: "InviteCode" }
 
 export function isInviteCodeList(
   val: unknown
-): val is { __typename: "InviteCodeList" } {
+): val is { __typename?: "InviteCodeList" } {
   return hasTypeName(val, "InviteCodeList");
 }
 
@@ -4150,7 +4363,7 @@ export type NarrowToInviteCodeList<T> = T extends {
 
 export function isLoginFailureResponse(
   val: unknown
-): val is { __typename: "LoginFailureResponse" } {
+): val is { __typename?: "LoginFailureResponse" } {
   return hasTypeName(val, "LoginFailureResponse");
 }
 
@@ -4162,7 +4375,7 @@ export type NarrowToLoginFailureResponse<T> = T extends {
 
 export function isLoginSuccessResponse(
   val: unknown
-): val is { __typename: "LoginSuccessResponse" } {
+): val is { __typename?: "LoginSuccessResponse" } {
   return hasTypeName(val, "LoginSuccessResponse");
 }
 
@@ -4172,7 +4385,7 @@ export type NarrowToLoginSuccessResponse<T> = T extends {
   ? T
   : never;
 
-export function isMutation(val: unknown): val is { __typename: "Mutation" } {
+export function isMutation(val: unknown): val is { __typename?: "Mutation" } {
   return hasTypeName(val, "Mutation");
 }
 
@@ -4182,7 +4395,7 @@ export type NarrowToMutation<T> = T extends { __typename?: "Mutation" }
 
 export function isNotAuthenticatedError(
   val: unknown
-): val is { __typename: "NotAuthenticatedError" } {
+): val is { __typename?: "NotAuthenticatedError" } {
   return hasTypeName(val, "NotAuthenticatedError");
 }
 
@@ -4192,9 +4405,21 @@ export type NarrowToNotAuthenticatedError<T> = T extends {
   ? T
   : never;
 
+export function isNotAuthorizedError(
+  val: unknown
+): val is { __typename?: "NotAuthorizedError" } {
+  return hasTypeName(val, "NotAuthorizedError");
+}
+
+export type NarrowToNotAuthorizedError<T> = T extends {
+  __typename?: "NotAuthorizedError";
+}
+  ? T
+  : never;
+
 export function isNotFoundError(
   val: unknown
-): val is { __typename: "NotFoundError" } {
+): val is { __typename?: "NotFoundError" } {
   return hasTypeName(val, "NotFoundError");
 }
 
@@ -4204,7 +4429,7 @@ export type NarrowToNotFoundError<T> = T extends {
   ? T
   : never;
 
-export function isQuery(val: unknown): val is { __typename: "Query" } {
+export function isQuery(val: unknown): val is { __typename?: "Query" } {
   return hasTypeName(val, "Query");
 }
 
@@ -4212,7 +4437,7 @@ export type NarrowToQuery<T> = T extends { __typename?: "Query" } ? T : never;
 
 export function isRequestPasswordResetReceivedResponse(
   val: unknown
-): val is { __typename: "RequestPasswordResetReceivedResponse" } {
+): val is { __typename?: "RequestPasswordResetReceivedResponse" } {
   return hasTypeName(val, "RequestPasswordResetReceivedResponse");
 }
 
@@ -4224,7 +4449,7 @@ export type NarrowToRequestPasswordResetReceivedResponse<T> = T extends {
 
 export function isResetPasswordSuccessResponse(
   val: unknown
-): val is { __typename: "ResetPasswordSuccessResponse" } {
+): val is { __typename?: "ResetPasswordSuccessResponse" } {
   return hasTypeName(val, "ResetPasswordSuccessResponse");
 }
 
@@ -4234,13 +4459,13 @@ export type NarrowToResetPasswordSuccessResponse<T> = T extends {
   ? T
   : never;
 
-export function isRole(val: unknown): val is { __typename: "Role" } {
+export function isRole(val: unknown): val is { __typename?: "Role" } {
   return hasTypeName(val, "Role");
 }
 
 export type NarrowToRole<T> = T extends { __typename?: "Role" } ? T : never;
 
-export function isSpecies(val: unknown): val is { __typename: "Species" } {
+export function isSpecies(val: unknown): val is { __typename?: "Species" } {
   return hasTypeName(val, "Species");
 }
 
@@ -4250,7 +4475,7 @@ export type NarrowToSpecies<T> = T extends { __typename?: "Species" }
 
 export function isSpeciesList(
   val: unknown
-): val is { __typename: "SpeciesList" } {
+): val is { __typename?: "SpeciesList" } {
   return hasTypeName(val, "SpeciesList");
 }
 
@@ -4260,7 +4485,7 @@ export type NarrowToSpeciesList<T> = T extends { __typename?: "SpeciesList" }
 
 export function isSpeciesVariant(
   val: unknown
-): val is { __typename: "SpeciesVariant" } {
+): val is { __typename?: "SpeciesVariant" } {
   return hasTypeName(val, "SpeciesVariant");
 }
 
@@ -4270,13 +4495,13 @@ export type NarrowToSpeciesVariant<T> = T extends {
   ? T
   : never;
 
-export function isTrait(val: unknown): val is { __typename: "Trait" } {
+export function isTrait(val: unknown): val is { __typename?: "Trait" } {
   return hasTypeName(val, "Trait");
 }
 
 export type NarrowToTrait<T> = T extends { __typename?: "Trait" } ? T : never;
 
-export function isTraitList(val: unknown): val is { __typename: "TraitList" } {
+export function isTraitList(val: unknown): val is { __typename?: "TraitList" } {
   return hasTypeName(val, "TraitList");
 }
 
@@ -4286,7 +4511,7 @@ export type NarrowToTraitList<T> = T extends { __typename?: "TraitList" }
 
 export function isTraitListEntry(
   val: unknown
-): val is { __typename: "TraitListEntry" } {
+): val is { __typename?: "TraitListEntry" } {
   return hasTypeName(val, "TraitListEntry");
 }
 
@@ -4298,7 +4523,7 @@ export type NarrowToTraitListEntry<T> = T extends {
 
 export function isUrlResponse(
   val: unknown
-): val is { __typename: "UrlResponse" } {
+): val is { __typename?: "UrlResponse" } {
   return hasTypeName(val, "UrlResponse");
 }
 
@@ -4308,7 +4533,7 @@ export type NarrowToUrlResponse<T> = T extends { __typename?: "UrlResponse" }
 
 export function isValidationConstraint(
   val: unknown
-): val is { __typename: "ValidationConstraint" } {
+): val is { __typename?: "ValidationConstraint" } {
   return hasTypeName(val, "ValidationConstraint");
 }
 
@@ -4320,7 +4545,7 @@ export type NarrowToValidationConstraint<T> = T extends {
 
 export function isValidationError(
   val: unknown
-): val is { __typename: "ValidationError" } {
+): val is { __typename?: "ValidationError" } {
   return hasTypeName(val, "ValidationError");
 }
 
@@ -4330,11 +4555,49 @@ export type NarrowToValidationError<T> = T extends {
   ? T
   : never;
 
+export enum ObjectType {
+  Account = "Account",
+  Community = "Community",
+  CommunityList = "CommunityList",
+  Critter = "Critter",
+  CritterList = "CritterList",
+  CritterTraitValue = "CritterTraitValue",
+  DeleteResponse = "DeleteResponse",
+  DuplicateError = "DuplicateError",
+  EnumValue = "EnumValue",
+  EnumValueSetting = "EnumValueSetting",
+  Identity = "Identity",
+  IdentityList = "IdentityList",
+  InvalidArgumentError = "InvalidArgumentError",
+  InviteCode = "InviteCode",
+  InviteCodeList = "InviteCodeList",
+  LoginFailureResponse = "LoginFailureResponse",
+  LoginSuccessResponse = "LoginSuccessResponse",
+  Mutation = "Mutation",
+  NotAuthenticatedError = "NotAuthenticatedError",
+  NotAuthorizedError = "NotAuthorizedError",
+  NotFoundError = "NotFoundError",
+  Query = "Query",
+  RequestPasswordResetReceivedResponse = "RequestPasswordResetReceivedResponse",
+  ResetPasswordSuccessResponse = "ResetPasswordSuccessResponse",
+  Role = "Role",
+  Species = "Species",
+  SpeciesList = "SpeciesList",
+  SpeciesVariant = "SpeciesVariant",
+  Trait = "Trait",
+  TraitList = "TraitList",
+  TraitListEntry = "TraitListEntry",
+  UrlResponse = "UrlResponse",
+  ValidationConstraint = "ValidationConstraint",
+  ValidationError = "ValidationError",
+}
+
 export function isBaseError(val: any): val is {
   __typename?:
     | "DuplicateError"
     | "InvalidArgumentError"
     | "NotAuthenticatedError"
+    | "NotAuthorizedError"
     | "NotFoundError";
 } {
   return (
@@ -4343,6 +4606,7 @@ export function isBaseError(val: any): val is {
     (val.__typename === "DuplicateError" ||
       val.__typename === "InvalidArgumentError" ||
       val.__typename === "NotAuthenticatedError" ||
+      val.__typename === "NotAuthorizedError" ||
       val.__typename === "NotFoundError")
   );
 }

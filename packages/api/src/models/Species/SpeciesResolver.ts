@@ -1,4 +1,3 @@
-import { NotFound } from "@aws-sdk/client-s3";
 import { IsOptional, IsUUID, MinLength } from "class-validator";
 import {
   Arg,
@@ -109,7 +108,7 @@ export const CreateSpeciesImageUploadUrlResponse = createUnionType({
     UrlResponse,
     NotAuthenticatedError,
     NotAuthorizedError,
-    NotFound,
+    NotFoundError,
   ],
 });
 

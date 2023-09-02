@@ -22,6 +22,7 @@ import {
   DuplicateError,
   InvalidArgumentError,
   isBaseError,
+  NotAuthorizedError,
 } from "@clovercoin/api-client";
 import { TraitFormState } from "./TraitFormState";
 import { DraggableEnumValueInput } from "./DraggableEnumValueInput";
@@ -35,7 +36,9 @@ export interface TraitFormProps {
   form: TraitFormState;
   setForm: Dispatch<SetStateAction<TraitFormState>>;
   onSuccess: () => void;
-  onError: (error: DuplicateError | InvalidArgumentError) => void;
+  onError: (
+    error: DuplicateError | InvalidArgumentError | NotAuthorizedError
+  ) => void;
   action: string;
   method: "get" | "put" | "post" | "patch";
   saveButtonText: string;

@@ -19,7 +19,6 @@ import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
 import MovieFilterIcon from "@mui/icons-material/MovieFilter";
 import {
-  Alert,
   Button,
   Dialog,
   DialogActions,
@@ -37,12 +36,10 @@ import { If } from "../util/If";
 import { stylesheet } from "../../utils/emotion";
 import LoadingButton, { LoadingButtonProps } from "@mui/lab/LoadingButton";
 import { ActionData, RouteType } from "../../routes";
-import {
-  SequentialSnackbar,
-  useSnackbarQueue,
-} from "../SequentialSnackbar/SequentialSnackbar";
+import { useSnackbar } from "../SequentialSnackbar/SequentialSnackbarContext";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import SpaIcon from "@mui/icons-material/Spa";
+import SettingsIcon from "@mui/icons-material/Settings";
 
 export interface SpeciesListPageProps {
   headerBarProps: HeaderBarProps;
@@ -66,19 +63,14 @@ export const SpeciesListPage: FC<SpeciesListPageProps> = ({
   const [name, setName] = useState("");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);
-  const snackbarQueue = useSnackbarQueue();
+  const snackbarQueue = useSnackbar();
   useEffect(() => {
     if (fetcher.state === "idle") {
       const data = fetcher.data;
       if (data) {
-        // error
-        snackbarQueue.append({
-          children: (
-            <Alert severity="error" onClose={snackbarQueue.close}>
-              Failed to create species: {data.message}
-            </Alert>
-          ),
-        });
+        snackbarQueue.appendSimpleError(
+          `Failed to create species: ${data.message}`
+        );
       } else {
         setShowAddForm(false);
         setName("");
@@ -89,7 +81,6 @@ export const SpeciesListPage: FC<SpeciesListPageProps> = ({
   return (
     <>
       <HeaderBar {...headerBarProps} title={`${community.name}: Species`} />
-      <SequentialSnackbar queue={snackbarQueue} />
       <div
         css={{
           display: "flex",
@@ -108,6 +99,11 @@ export const SpeciesListPage: FC<SpeciesListPageProps> = ({
                   to: AppRoutes.speciesList(community.id),
                   children: "Species",
                   icon: <MovieFilterIcon />,
+                },
+                {
+                  to: AppRoutes.communitySettings(community.id),
+                  children: "Community Settings",
+                  icon: <SettingsIcon />,
                 },
               ],
             },
