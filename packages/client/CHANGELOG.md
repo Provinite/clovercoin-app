@@ -1,3 +1,8 @@
+# Next
+
+- Added community settings page with role management
+- Added basic support for `UnauthorizedError` response
+
 # 3.3.0
 
 - Refactored all API usage to support CC API v4.0.0 auth changes

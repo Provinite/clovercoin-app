@@ -55,11 +55,18 @@ export const CommunitySetttingsPage: FC = () => {
           <Grid container rowSpacing={2} padding={2}>
             <Grid item xs={12}>
               <Card elevation={1}>
-                <CardHeader title="Roles & Permissions" />
+                <CardHeader
+                  title="Roles & Permissions"
+                  subheader={
+                    "Manage your community's roles, and their associated" +
+                    " permissions here. Users can be assigned one or more roles in" +
+                    " our community, and will have permissions granted by those roles."
+                  }
+                />
                 <CardContent>
                   <Grid container padding={1}>
                     <GridRow xs={[3, 9]}>
-                      <TextStack primary="Name" css={ss.header} />
+                      <TextStack primary="Role Name" css={ss.header} />
                       <Box />
                     </GridRow>
                     {roles.map((r) => (
