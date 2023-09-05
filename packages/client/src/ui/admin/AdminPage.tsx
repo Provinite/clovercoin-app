@@ -23,7 +23,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Link } from "../Link/Link";
 import { isBaseError } from "@clovercoin/api-client";
 import { UserList } from "./UserList";
-import { InviteCodeList } from "./InviteCodeList";
+import { InviteCodeList } from "../InviteCodeList/InviteCodeList";
 import { useSnackbar } from "../SequentialSnackbar/SequentialSnackbarContext";
 
 export interface AdminPageProps {}

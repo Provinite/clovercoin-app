@@ -7,6 +7,10 @@ export const getCommunityQuery = gql`
       ... on Community {
         id
         name
+        roles {
+          id
+          name
+        }
       }
       ... on NotFoundError {
         message

@@ -1,6 +1,7 @@
-import { Repository } from "typeorm";
+import { FindOptionsWhere, In, Repository } from "typeorm";
 import { EntityController } from "../../business/EntityController.js";
 import { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { Identity } from "../Identity/Identity.js";
 import { RolePermissionKeys, Role } from "./Role.js";
 
 export type RoleCreate = Pick<
@@ -14,7 +15,22 @@ export class RoleController extends EntityController<
   RoleCreate,
   RoleModify
 > {
-  constructor({ roleRepository }: AppGraphqlContext) {
+  principal: Identity | null;
+  constructor({ roleRepository, principal }: AppGraphqlContext) {
     super(roleRepository);
+    this.principal = principal;
+  }
+  async augmentFindWhere(
+    findWhere: FindOptionsWhere<Role>
+  ): Promise<FindOptionsWhere<Role>> {
+    if (!this.principal) {
+      return super.augmentFindWhere(findWhere);
+    }
+    return {
+      ...findWhere,
+      communityId: In(
+        this.principal.communityMemberships.map((cm) => cm.role.communityId)
+      ),
+    };
   }
 }

@@ -8,7 +8,7 @@ import { InviteCodeExhaustedError } from "./InviteCodeConsumedError.js";
 
 export type InviteCodeCreate = Pick<
   InviteCode,
-  "id" | "maxClaims" | "creatorId"
+  "id" | "maxClaims" | "creatorId" | "roleId"
 >;
 
 export class InviteCodeController extends EntityController<

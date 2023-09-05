@@ -1,16 +1,16 @@
 import { Card, CardContent, CardHeader, Typography } from "@mui/material";
 import { FunctionComponent } from "react";
-import { useRouteCommunity } from "../../../useRouteCommunity";
+import { useRouteCommunityOrFail } from "../../../useRouteCommunity";
 import { pluralize } from "../../../utils/pluralize";
-import { useRouteSpecies } from "../useRouteSpecies";
+import { useRouteSpeciesOrFail } from "../useRouteSpecies";
 
 interface SpeciesSummaryCardProps {}
 
 export const SpeciesSummaryCard: FunctionComponent<
   SpeciesSummaryCardProps
 > = () => {
-  const species = useRouteSpecies();
-  const community = useRouteCommunity();
+  const species = useRouteSpeciesOrFail();
+  const community = useRouteCommunityOrFail();
   return (
     <Card elevation={1}>
       <CardHeader

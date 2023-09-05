@@ -3,13 +3,13 @@ import { useFetcher, useParams } from "react-router-dom";
 import { Alert, Card, CardContent, CardHeader, Grid } from "@mui/material";
 import { slugToUuid } from "../../../utils/uuidUtils";
 import { AppRoutes } from "../../AppRoutes";
-import { useRouteCommunity } from "../../../useRouteCommunity";
-import { useRouteSpecies } from "../useRouteSpecies";
+import { useRouteCommunityOrFail } from "../../../useRouteCommunity";
+import { useRouteSpeciesOrFail } from "../useRouteSpecies";
 import { TraitForm } from "./TraitForm/TraitForm";
 import { useTraitForm } from "./TraitForm/useTraitForm";
 import { TraitPreviewCard } from "./TraitPreviewCard";
 import { TraitActionAlert } from "./TraitActionAlert";
-import { useRouteTraits } from "../useRouteTraits";
+import { useRouteTraitsOrFail } from "../useRouteTraits";
 import { useSnackbar } from "../../SequentialSnackbar/SequentialSnackbarContext";
 
 /**
@@ -18,13 +18,13 @@ import { useSnackbar } from "../../SequentialSnackbar/SequentialSnackbarContext"
  * @returns
  */
 export const EditTraitCard: FunctionComponent = () => {
-  const community = useRouteCommunity();
-  const species = useRouteSpecies();
+  const community = useRouteCommunityOrFail();
+  const species = useRouteSpeciesOrFail();
 
   const [form, setForm] = useTraitForm();
   const fetcher = useFetcher();
 
-  const traits = useRouteTraits();
+  const traits = useRouteTraitsOrFail();
   const { traitId: traitSlug } = useParams();
 
   const snackbarQueue = useSnackbar();

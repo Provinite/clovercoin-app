@@ -8,6 +8,7 @@ import {
   RelationIdField,
 } from "../relationFieldDecorators.js";
 import { CommunityMember } from "../CommunityMember/CommunityMember.js";
+import { InviteCode } from "../InviteCode/InviteCode.js";
 
 export type RolePermissionKeys = keyof Role & `can${string}`;
 
@@ -43,6 +44,9 @@ export class Role {
   @OneToMany(() => CommunityMember, (communityMember) => communityMember.role)
   communityMembers!: CommunityMember[];
 
+  @OneToMany(() => InviteCode, (inviteCode) => inviteCode.role)
+  inviteCodes!: InviteCode[];
+
   @Column("boolean", { nullable: false, default: false })
   @Field(() => Boolean)
   canCreateSpecies!: boolean;
@@ -58,4 +62,12 @@ export class Role {
   @Column("boolean", { nullable: false, default: false })
   @Field(() => Boolean)
   canEditSpecies!: boolean;
+
+  @Column("boolean", { nullable: false, default: false })
+  @Field(() => Boolean)
+  canCreateInviteCode!: boolean;
+
+  @Column("boolean", { nullable: false, default: false })
+  @Field(() => Boolean)
+  canListInviteCodes!: boolean;
 }

@@ -1,3 +1,5 @@
-import { createLoaderDataHook } from "../../utils/loaderDataUtils";
+import { createRequiredLoaderDataHook } from "../../utils/loaderDataUtils";
 
-export const useRouteRoles = createLoaderDataHook("root.community.settings");
+export const useRouteRolesOrFail = createRequiredLoaderDataHook(
+  "root.community.settings"
+);

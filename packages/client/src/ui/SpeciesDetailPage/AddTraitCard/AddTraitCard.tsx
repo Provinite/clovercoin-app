@@ -4,8 +4,8 @@ import { CritterTraitValueType } from "@clovercoin/api-client";
 import { Card, CardContent, CardHeader, Grid } from "@mui/material";
 import { slugToUuid } from "../../../utils/uuidUtils";
 import { AppRoutes } from "../../AppRoutes";
-import { useRouteCommunity } from "../../../useRouteCommunity";
-import { useRouteSpecies } from "../useRouteSpecies";
+import { useRouteCommunityOrFail } from "../../../useRouteCommunity";
+import { useRouteSpeciesOrFail } from "../useRouteSpecies";
 import { TraitForm, TraitFormProps } from "./TraitForm/TraitForm";
 import { useTraitForm } from "./TraitForm/useTraitForm";
 import { TraitPreviewCard } from "./TraitPreviewCard";
@@ -17,8 +17,8 @@ import { useSnackbar } from "../../SequentialSnackbar/SequentialSnackbarContext"
  * @returns
  */
 export const AddTraitCard: FunctionComponent = () => {
-  const community = useRouteCommunity();
-  const species = useRouteSpecies();
+  const community = useRouteCommunityOrFail();
+  const species = useRouteSpeciesOrFail();
   const fetcher = useFetcher();
   const [form, setForm] = useTraitForm();
   const { traitId: traitSlug } = useParams();

@@ -1,5 +1,6 @@
 import {
   isNotAuthenticatedError,
+  isNotAuthorizedError,
   NotAuthenticatedError,
 } from "@clovercoin/api-client";
 import {
@@ -201,6 +202,8 @@ export function makeLoader<
         "You are not logged in. Redirecting to the login page."
       );
       return redirect(AppRoutes.login());
+    } else if (isNotAuthorizedError(result)) {
+      globalSnackbarTopic.simpleError.publish("Permission denied.");
     }
     return result as any;
   };

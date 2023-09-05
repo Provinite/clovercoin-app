@@ -2,6 +2,7 @@ import { Field, ID, Int, ObjectType } from "type-graphql";
 import { Check, Column, Entity, PrimaryColumn } from "typeorm";
 import { Identity } from "../Identity/Identity.js";
 import { ManyToOneField, RelationIdField } from "../relationFieldDecorators.js";
+import { Role } from "../Role/Role.js";
 
 /**
  * Model representing an invite code bucket.
@@ -36,4 +37,25 @@ export class InviteCode {
     inverseSide: (identity) => identity.createdInviteCodes,
   })
   creator: Identity | undefined;
+
+  @ManyToOneField<Role>({
+    type: () => Role,
+    nullable: true,
+    columnName: "roleId",
+    foreignColumnName: "id",
+    joinColumnOptions: {
+      foreignKeyConstraintName: "FK_INVITE_CODE_ROLE_ID_ROLE_ID",
+    },
+    inverseSide: (role) => role.inviteCodes,
+  })
+  role: Role | null = null;
+
+  @RelationIdField<InviteCode>({
+    relation: (inviteCode) => inviteCode.role,
+    nullable: true,
+    columnOptions: {
+      default: null,
+    },
+  })
+  roleId: string | null = null;
 }

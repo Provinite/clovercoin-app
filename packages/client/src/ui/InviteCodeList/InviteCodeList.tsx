@@ -3,73 +3,43 @@ import {
   GetInviteCodeListDocument,
   GetInviteCodeListQuery,
   GetInviteCodeListQueryVariables,
-  isDuplicateError,
-  isInvalidArgumentError,
   isInviteCodeList,
   isNotAuthenticatedError,
 } from "@clovercoin/api-client";
-import { LoadingButton } from "@mui/lab";
-import {
-  Alert,
-  Grid,
-  IconButton,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { FC, useContext, useEffect, useState } from "react";
-import { useFetcher } from "react-router-dom";
-import { ActionData, RouteType } from "../../routes";
+import { Alert, Grid, IconButton, Stack, Typography } from "@mui/material";
+import { FC, useEffect } from "react";
 import { AppRoutes } from "../AppRoutes";
 import { GridRow } from "../lib/GridRow";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { stylesheet } from "../../utils/emotion";
-import { SequentialSnackbarContext } from "../SequentialSnackbar/SequentialSnackbarContext";
+import { useSnackbar } from "../SequentialSnackbar/SequentialSnackbarContext";
 import { useBounceToLogin } from "../../hooks/useBounceToLogin";
+import { InviteCodeCreateForm } from "../InviteCodeCreateForm/InviteCodeCreateForm";
+import { useRouteCommunity } from "../../useRouteCommunity";
 
 export interface InviteCodeListProps {}
 export const InviteCodeList: FC<InviteCodeListProps> = () => {
   const bounce = useBounceToLogin();
+  const community = useRouteCommunity();
   const { data } = useQuery<
     GetInviteCodeListQuery,
     GetInviteCodeListQueryVariables
-  >(GetInviteCodeListDocument);
+  >(GetInviteCodeListDocument, {
+    variables: {
+      filters: {
+        communityId: community?.id || null,
+      },
+    },
+  });
 
   useEffect(() => {
     if (data && isNotAuthenticatedError(data.inviteCodes)) {
-      return bounce();
+      bounce();
     }
   }, [data]);
 
-  const fetcher = useFetcher<ActionData<RouteType<"admin.inviteCodes">>>();
-  const [code, setCode] = useState("");
-  const [maxClaims, setMaxClaims] = useState(0);
-  const [fieldErrors, setFieldErrors] = useState<
-    Record<"id" | "maxClaims", string>
-  >({
-    id: "",
-    maxClaims: "",
-  });
+  const snackbarQueue = useSnackbar();
 
-  const snackbarQueue = useContext(SequentialSnackbarContext);
-
-  useEffect(() => {
-    if (isDuplicateError(fetcher.data)) {
-      for (const key of fetcher.data.duplicateKeys) {
-        setFieldErrors((fieldErrors) => ({
-          ...fieldErrors,
-          [key]: "Already in use",
-        }));
-      }
-    } else if (isInvalidArgumentError(fetcher.data)) {
-      for (const { field, constraints } of fetcher.data.validationErrors) {
-        setFieldErrors((fieldErrors) => ({
-          ...fieldErrors,
-          [field]: constraints.map((c) => c.description).join(", "),
-        }));
-      }
-    }
-  }, [fetcher.data]);
   if (data && isInviteCodeList(data.inviteCodes)) {
     return (
       <Grid container>
@@ -154,68 +124,7 @@ export const InviteCodeList: FC<InviteCodeListProps> = () => {
             </Typography>
           </GridRow>
         ))}
-        <fetcher.Form
-          method="post"
-          action={AppRoutes.inviteCodeList()}
-          css={{ display: "contents" }}
-        >
-          <Grid item xs={5} p={2}>
-            <TextField
-              type="string"
-              name="id"
-              value={code}
-              onChange={({ target: { value } }) => {
-                setCode(value);
-                setFieldErrors((fieldErrors) => ({ ...fieldErrors, id: "" }));
-              }}
-              required
-              error={!!fieldErrors.id}
-              helperText={fieldErrors.id || "The custom invite code"}
-              label="Code"
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={5} p={2}>
-            <TextField
-              type="number"
-              name="maxClaims"
-              label="Total Uses"
-              required
-              value={maxClaims}
-              onChange={({ target: { value } }) => {
-                setMaxClaims(Number(value));
-                setFieldErrors((fieldErrors) => ({
-                  ...fieldErrors,
-                  maxClaims: "",
-                }));
-              }}
-              error={!!fieldErrors.maxClaims}
-              helperText={
-                fieldErrors.maxClaims || "How many times this code can be used"
-              }
-              fullWidth
-            />
-          </Grid>
-          <Grid
-            item
-            xs={2}
-            component={Stack}
-            css={{ flexDirection: "column" }}
-            justifyContent="center"
-            alignContent="center"
-            p={2}
-          >
-            <LoadingButton
-              type="submit"
-              variant="contained"
-              disabled={
-                Object.values(fieldErrors).some((e) => e) || !maxClaims || !code
-              }
-            >
-              Add One
-            </LoadingButton>
-          </Grid>
-        </fetcher.Form>
+        <InviteCodeCreateForm />
       </Grid>
     );
   }

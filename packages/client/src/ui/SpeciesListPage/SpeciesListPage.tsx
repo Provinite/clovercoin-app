@@ -14,7 +14,7 @@ import {
 } from "@clovercoin/api-client";
 import { SpeciesCard } from "../SpeciesCard/SpeciesCard";
 import { useFetcher } from "react-router-dom";
-import { useRouteCommunity } from "../../useRouteCommunity";
+import { useRouteCommunityOrFail } from "../../useRouteCommunity";
 import AddIcon from "@mui/icons-material/Add";
 import CheckIcon from "@mui/icons-material/Check";
 import MovieFilterIcon from "@mui/icons-material/MovieFilter";
@@ -59,7 +59,7 @@ export const SpeciesListPage: FC<SpeciesListPageProps> = ({
   const [showAddForm, setShowAddForm] = useState(false);
   const fetcher =
     useFetcher<ActionData<RouteType<"root.community.species-list">>>();
-  const community = useRouteCommunity();
+  const community = useRouteCommunityOrFail();
   const [name, setName] = useState("");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);

@@ -1,5 +1,7 @@
 # Next
 
+- Invite codes can now optionally be assigned a community role
+  - When the code is claimed, the new identity that is created will be created with a community membership w/ the specified role
 - Implements permissions/authorization
 - Each permission is associated with a particular entity in the system
   - Global Permissions are attached to a user's identity and are generally used for site-admin level permissions that very few users will have.
@@ -13,7 +15,8 @@
     - `canEditCritter` - Edit any critter in any species in this community
     - `canEditSpecies` - Edit any species in this community (name, images, traits, variants, etc)
   - Critter permissions are scoped to a particular critter
-    - `canEditOwn` (allows users to edit critters they own, all critters have this permission)
+    - `canEditOwn`
+      - This is a special permission that is not stored in the database, but instead all users have this permission if they own the target critter.
 - Permissions for:
   - Mutations
     - `createCommunity`: `global.canCreateCommunity`
@@ -57,6 +60,7 @@
 - Ability to create invite codes w/ community & permission embedded
 - Migrations to handle new identity fields
 - Migrations to handle existing users that will need roles
+- Migrations to handle new `roleId` field on invite codes
 - Frontend permission-controlled visibility of elements
 - Common (or at least robust) frontend error handling for `UnauthorizedError`
 - Revisit `critter.canEditOwn` permission. Concept seems iffy and execution is poor.

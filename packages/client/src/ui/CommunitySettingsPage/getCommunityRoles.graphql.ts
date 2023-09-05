@@ -15,6 +15,8 @@ export const getCommunityRolesQuery = gql`
           canCreateSpecies
           canEditCritter
           canEditSpecies
+          canCreateInviteCode
+          canListInviteCodes
         }
       }
       ... on NotAuthenticatedError {

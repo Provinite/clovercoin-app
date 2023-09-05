@@ -1,4 +1,4 @@
-import { IsUUID, Max, Min, MinLength } from "class-validator";
+import { IsOptional, IsUUID, Max, Min, MinLength } from "class-validator";
 import {
   Arg,
   createUnionType,
@@ -12,11 +12,14 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
+import { IsNull } from "typeorm";
+import { AuthScope } from "../../business/auth/AuthInfo.js";
 import { hasGlobalPerms } from "../../business/auth/authorizationInfoGenerators/hasGlobalPerms.js";
 import { NotAuthenticatedError } from "../../business/auth/NotAuthenticatedError.js";
 import { NotAuthorizedError } from "../../business/auth/NotAuthorizedError.js";
-import { Preauthorize } from "../../business/auth/Preauthorize.js";
+import { anyAuth, Preauthorize } from "../../business/auth/Preauthorize.js";
 import { IsValidInviteCode } from "../../business/validation/IsValidInviteCode.js";
+import { parseArgToClass } from "../../business/validation/parseArgToClass.js";
 import { DuplicateError } from "../../errors/DuplicateError.js";
 import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
 import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
@@ -60,29 +63,97 @@ export class InviteCodeCreateInput {
   @Max(100)
   maxClaims!: number;
 
-  @Field(() => ID, { nullable: false })
+  @Field(() => ID, { nullable: true })
+  @IsOptional()
   @IsUUID(4)
-  public creatorId!: string;
+  roleId: string | null = null;
+}
+
+@InputType()
+export class InviteCodeFilters {
+  @Field(() => ID, { nullable: true, defaultValue: null })
+  @IsUUID(4)
+  @IsOptional()
+  communityId: string | null = null;
 }
 
 @Resolver()
 export class InviteCodeResolver {
-  @Preauthorize(hasGlobalPerms(["canListInviteCodes"]))
+  @Preauthorize(
+    anyAuth(
+      /**
+       * Global `canListInviteCodes` permission allows viewing any invite codes.
+       */
+      hasGlobalPerms(["canListInviteCodes"]),
+      /**
+       * Community-specific `canListInviteCodes` perms may be used iff there is
+       * a community filter provided.
+       */
+      async ({ args: { filters } }) => {
+        const input = await parseArgToClass(filters, InviteCodeFilters);
+        if (!input.communityId) {
+          return null;
+        }
+        return {
+          scope: AuthScope.Community,
+          communityId: input.communityId,
+          permissions: ["canListInviteCodes"],
+        };
+      }
+    )
+  )
   @Query(() => InviteCodeResponse, {
     description: "Fetch invite codes",
   })
   async inviteCodes(
-    @Ctx() { inviteCodeController }: AppGraphqlContext
+    @Ctx() { inviteCodeController }: AppGraphqlContext,
+    @Arg("filters") filters: InviteCodeFilters
   ): Promise<InviteCodeList> {
-    return new InviteCodeList(await inviteCodeController.find());
+    return new InviteCodeList(
+      await inviteCodeController.find(
+        filters.communityId
+          ? {
+              role: {
+                communityId: filters.communityId,
+              },
+            }
+          : {
+              roleId: IsNull(),
+            }
+      )
+    );
   }
 
-  @Preauthorize(hasGlobalPerms(["canCreateInviteCode"]))
+  @Preauthorize(
+    anyAuth(
+      /**
+       * Global `canCreateInviteCode` permission allows creation
+       * in any community for any role.
+       */
+      hasGlobalPerms(["canCreateInviteCode"]),
+      /**
+       * Community role `canCreateInviteCode` permission allows
+       * creation for any role in the community.
+       */
+      async ({ context: { roleController }, args: { input } }) => {
+        const { roleId } = await parseArgToClass(input, InviteCodeCreateInput);
+        if (!roleId) {
+          return null;
+        }
+        const role = await roleController.findOneByIdOrFail(roleId);
+        return {
+          scope: AuthScope.Community,
+          communityId: role.communityId,
+          permissions: ["canCreateInviteCode"],
+        };
+      }
+    )
+  )
   @Mutation(() => InviteCodeCreateResponse)
   async createInviteCode(
-    @Ctx() { inviteCodeController }: AppGraphqlContext,
+    @Ctx() { inviteCodeController, principal }: AppGraphqlContext,
     @Arg("input", { nullable: false }) input: InviteCodeCreateInput
   ): Promise<InviteCode> {
-    return inviteCodeController.create(input);
+    return inviteCodeController.create({ ...input, creatorId: principal!.id });
   }
 }

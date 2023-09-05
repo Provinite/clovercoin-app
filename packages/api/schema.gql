@@ -168,15 +168,21 @@ type InviteCode {
   creatorId: ID!
   id: ID!
   maxClaims: Int!
+  role: Role
+  roleId: ID
 }
 
 input InviteCodeCreateInput {
-  creatorId: ID!
   id: ID!
   maxClaims: Int!
+  roleId: ID = null
 }
 
 union InviteCodeCreateResponse = DuplicateError | InvalidArgumentError | InviteCode | NotAuthenticatedError | NotAuthorizedError
+
+input InviteCodeFilters {
+  communityId: ID = null
+}
 
 type InviteCodeList {
   list: [InviteCode!]!
@@ -266,7 +272,7 @@ type Query {
   identities: IdentitylistResponse!
 
   """Fetch invite codes"""
-  inviteCodes: InviteCodeResponse!
+  inviteCodes(filters: InviteCodeFilters!): InviteCodeResponse!
   species(filters: SpeciesFilters): SpeciesResponse!
   traits(filters: TraitFilters!): TraitListResponse!
 }
@@ -303,9 +309,11 @@ type ResetPasswordSuccessResponse {
 
 type Role {
   canCreateCritter: Boolean!
+  canCreateInviteCode: Boolean!
   canCreateSpecies: Boolean!
   canEditCritter: Boolean!
   canEditSpecies: Boolean!
+  canListInviteCodes: Boolean!
   community: Community!
   communityId: ID!
   id: ID!

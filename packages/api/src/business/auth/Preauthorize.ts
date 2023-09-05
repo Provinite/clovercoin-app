@@ -1,7 +1,6 @@
-import { createMethodDecorator } from "type-graphql";
+import { ArgumentValidationError, createMethodDecorator } from "type-graphql";
 import {
-  AuthInfo,
-  AuthInfoFn,
+  AuthInfoSpecifier,
   CompoundAuthInfo,
   isCompoundAuthInfo,
 } from "./AuthInfo.js";
@@ -10,20 +9,28 @@ import { NotAuthenticatedError } from "./NotAuthenticatedError.js";
 import { assertNever } from "../../util/assertNever.js";
 import { BaseError } from "../../errors/BaseError.js";
 
-export const Preauthorize = (getAuthInfo?: AuthInfoFn) =>
+export const Preauthorize = (specifier?: AuthInfoSpecifier) =>
   createMethodDecorator<AppGraphqlContext>(async (resolverData, next) => {
     const { principal, authorizerRegistry } = resolverData.context;
     if (!principal) {
       throw new NotAuthenticatedError();
     }
-    if (!getAuthInfo) {
+    if (!specifier) {
       return next();
     }
-    const authInfo = await getAuthInfo(resolverData);
 
-    const authorize = async (
-      authInfo: AuthInfo | CompoundAuthInfo
-    ): Promise<void> => {
+    const authorize = async (authInfo: AuthInfoSpecifier): Promise<void> => {
+      if (typeof authInfo === "function") {
+        authInfo = await authInfo(resolverData);
+      }
+      if (!authInfo) {
+        /**
+         * `null` specifiers can be ignored. This allows {@link AuthInofFn}s
+         * to conditionally set themselves to be ignored if they don't apply
+         * to the current graphql operation.
+         */
+        return;
+      }
       if (isCompoundAuthInfo(authInfo)) {
         if (authInfo.kind === "anyOf") {
           /**
@@ -34,6 +41,12 @@ export const Preauthorize = (getAuthInfo?: AuthInfoFn) =>
           for (const info of authInfo.authInfos) {
             // recurse over children
             const result = await safeRun(() => authorize(info));
+            if (
+              result.result === "error" &&
+              result.error instanceof ArgumentValidationError
+            ) {
+              throw result.error;
+            }
             /**
              * Short circuit here because `anyOf` the provided
              * authinfos have passed now.
@@ -78,7 +91,8 @@ export const Preauthorize = (getAuthInfo?: AuthInfoFn) =>
      * `authorize` will throw here if authorization fails, so we just await it
      * and forward its errors.
      */
-    await authorize(authInfo);
+    await authorize(specifier);
+
     /**
      * Authorization passed, resolver approved to run.
      */
@@ -120,7 +134,7 @@ async function safeRun(
  *  to evaluate in order.
  */
 export const anyAuth = (
-  ...authInfos: Array<AuthInfo | CompoundAuthInfo>
+  ...authInfos: Array<AuthInfoSpecifier>
 ): CompoundAuthInfo => ({
   kind: "anyOf",
   authInfos,
@@ -137,7 +151,7 @@ export const anyAuth = (
  *  to evaluate in order.
  */
 export const allAuth = (
-  ...authInfos: Array<AuthInfo | CompoundAuthInfo>
+  ...authInfos: Array<AuthInfoSpecifier>
 ): CompoundAuthInfo => ({
   kind: "allOf",
   authInfos,

@@ -14,23 +14,23 @@ import {
   Typography,
 } from "@mui/material";
 import { FunctionComponent, useEffect, useState } from "react";
-import { useRouteSpecies } from "../useRouteSpecies";
+import { useRouteSpeciesOrFail } from "../useRouteSpecies";
 import TuneIcon from "@mui/icons-material/Tune";
-import { useRouteTraits } from "../useRouteTraits";
+import { useRouteTraitsOrFail } from "../useRouteTraits";
 import { useFetcher } from "react-router-dom";
 import LoadingButton from "@mui/lab/LoadingButton";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import { useRouteCommunity } from "../../../useRouteCommunity";
+import { useRouteCommunityOrFail } from "../../../useRouteCommunity";
 import { AppRoutes } from "../../AppRoutes";
 import { GridRow } from "../../lib/GridRow";
 import { Link } from "../../Link/Link";
 import { useSnackbar } from "../../SequentialSnackbar/SequentialSnackbarContext";
 
 export const TraitListCard: FunctionComponent = () => {
-  const data = useRouteTraits();
-  const species = useRouteSpecies();
+  const data = useRouteTraitsOrFail();
+  const species = useRouteSpeciesOrFail();
   const fetcher = useFetcher();
-  const community = useRouteCommunity();
+  const community = useRouteCommunityOrFail();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [traitToDelete, setTraitToDelete] =
     useState<typeof data["list"][number]>();

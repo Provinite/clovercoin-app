@@ -7,5 +7,6 @@ export const useBounceToLogin = () => {
   return () => {
     navigate(AppRoutes.login());
     graphqlService.setClientAuthToken("");
+    return graphqlService.getApolloClient().clearStore();
   };
 };

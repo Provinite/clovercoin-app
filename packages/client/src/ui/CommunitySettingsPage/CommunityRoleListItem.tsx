@@ -38,6 +38,14 @@ const permissions: Record<
     label: "Edit Species",
     helpText: "Edit any species traits, name, settings",
   },
+  canCreateInviteCode: {
+    label: "Create Invite Codes",
+    helpText: "Create invite codes for any invitable role in this community",
+  },
+  canListInviteCodes: {
+    label: "Read Invite Codes",
+    helpText: "Access to the inivite code list",
+  },
 };
 
 const permKeys = Object.keys(permissions) as Array<keyof Role & `can${string}`>;
@@ -79,7 +87,7 @@ export const CommunityRoleListItem: FC<CommunityRoleListItemProps> = ({
                 const hasPermission = role[perm] === true;
                 const { label, helpText } = permissions[perm];
                 return (
-                  <Grid item xs={6}>
+                  <Grid item xs={6} key={perm}>
                     <FormControl>
                       <FormControlLabel
                         control={<Switch checked={hasPermission} />}

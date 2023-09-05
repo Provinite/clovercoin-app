@@ -58,6 +58,8 @@ export class CommunityController extends EntityController<
         canCreateCritter: true,
         canEditCritter: true,
         canEditSpecies: true,
+        canListInviteCodes: true,
+        canCreateInviteCode: true,
       },
       {
         communityId: community.id,
@@ -66,6 +68,8 @@ export class CommunityController extends EntityController<
         canCreateCritter: true,
         canEditCritter: true,
         canEditSpecies: false,
+        canCreateInviteCode: false,
+        canListInviteCodes: true,
       },
       {
         communityId: community.id,
@@ -74,6 +78,8 @@ export class CommunityController extends EntityController<
         canCreateCritter: false,
         canEditCritter: false,
         canEditSpecies: false,
+        canListInviteCodes: false,
+        canCreateInviteCode: false,
       },
     ];
 

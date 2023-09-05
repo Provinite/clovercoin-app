@@ -239,12 +239,14 @@ export interface InviteCode {
   creatorId: Scalars["ID"];
   id: Scalars["ID"];
   maxClaims: Scalars["Int"];
+  role?: Maybe<Role>;
+  roleId?: Maybe<Scalars["ID"]>;
 }
 
 export interface InviteCodeCreateInput {
-  creatorId: Scalars["ID"];
   id: Scalars["ID"];
   maxClaims: Scalars["Int"];
+  roleId?: InputMaybe<Scalars["ID"]>;
 }
 
 export type InviteCodeCreateResponse =
@@ -253,6 +255,10 @@ export type InviteCodeCreateResponse =
   | InviteCode
   | NotAuthenticatedError
   | NotAuthorizedError;
+
+export interface InviteCodeFilters {
+  communityId?: InputMaybe<Scalars["ID"]>;
+}
 
 export interface InviteCodeList {
   __typename?: "InviteCodeList";
@@ -434,6 +440,10 @@ export interface QueryCrittersArgs {
   filters: CritterFilters;
 }
 
+export interface QueryInviteCodesArgs {
+  filters: InviteCodeFilters;
+}
+
 export interface QuerySpeciesArgs {
   filters?: InputMaybe<SpeciesFilters>;
 }
@@ -484,9 +494,11 @@ export interface ResetPasswordSuccessResponse {
 export interface Role {
   __typename?: "Role";
   canCreateCritter: Scalars["Boolean"];
+  canCreateInviteCode: Scalars["Boolean"];
   canCreateSpecies: Scalars["Boolean"];
   canEditCritter: Scalars["Boolean"];
   canEditSpecies: Scalars["Boolean"];
+  canListInviteCodes: Scalars["Boolean"];
   community: Community;
   communityId: Scalars["ID"];
   id: Scalars["ID"];
@@ -754,7 +766,12 @@ export type GetCommunityQueryVariables = Exact<{
 export type GetCommunityQuery = {
   __typename?: "Query";
   community:
-    | { __typename: "Community"; id: string; name: string }
+    | {
+        __typename: "Community";
+        id: string;
+        name: string;
+        roles: Array<{ __typename?: "Role"; id: string; name: string }>;
+      }
     | { __typename: "InvalidArgumentError"; message: string }
     | { __typename: "NotAuthenticatedError"; message: string }
     | { __typename: "NotAuthorizedError"; message: string }
@@ -841,6 +858,8 @@ export type GetCommunityRolesQuery = {
           canCreateSpecies: boolean;
           canEditCritter: boolean;
           canEditSpecies: boolean;
+          canCreateInviteCode: boolean;
+          canListInviteCodes: boolean;
         }>;
       }
     | {
@@ -1559,7 +1578,9 @@ export type GetIdentityListQuery = {
     | { __typename?: "NotAuthenticatedError"; message: string };
 };
 
-export type GetInviteCodeListQueryVariables = Exact<{ [key: string]: never }>;
+export type GetInviteCodeListQueryVariables = Exact<{
+  filters: InviteCodeFilters;
+}>;
 
 export type GetInviteCodeListQuery = {
   __typename?: "Query";
@@ -1571,6 +1592,7 @@ export type GetInviteCodeListQuery = {
           claimCount: number;
           id: string;
           maxClaims: number;
+          role?: { __typename?: "Role"; name: string; id: string } | null;
           creator: { __typename?: "Identity"; displayName: string };
         }>;
       }
@@ -1814,6 +1836,8 @@ export type InviteCodeKeySpecifier = (
   | "creatorId"
   | "id"
   | "maxClaims"
+  | "role"
+  | "roleId"
   | InviteCodeKeySpecifier
 )[];
 export type InviteCodeFieldPolicy = {
@@ -1822,6 +1846,8 @@ export type InviteCodeFieldPolicy = {
   creatorId?: FieldPolicy<any> | FieldReadFunction<any>;
   id?: FieldPolicy<any> | FieldReadFunction<any>;
   maxClaims?: FieldPolicy<any> | FieldReadFunction<any>;
+  role?: FieldPolicy<any> | FieldReadFunction<any>;
+  roleId?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type InviteCodeListKeySpecifier = (
   | "list"
@@ -1947,9 +1973,11 @@ export type ResetPasswordSuccessResponseFieldPolicy = {
 };
 export type RoleKeySpecifier = (
   | "canCreateCritter"
+  | "canCreateInviteCode"
   | "canCreateSpecies"
   | "canEditCritter"
   | "canEditSpecies"
+  | "canListInviteCodes"
   | "community"
   | "communityId"
   | "id"
@@ -1958,9 +1986,11 @@ export type RoleKeySpecifier = (
 )[];
 export type RoleFieldPolicy = {
   canCreateCritter?: FieldPolicy<any> | FieldReadFunction<any>;
+  canCreateInviteCode?: FieldPolicy<any> | FieldReadFunction<any>;
   canCreateSpecies?: FieldPolicy<any> | FieldReadFunction<any>;
   canEditCritter?: FieldPolicy<any> | FieldReadFunction<any>;
   canEditSpecies?: FieldPolicy<any> | FieldReadFunction<any>;
+  canListInviteCodes?: FieldPolicy<any> | FieldReadFunction<any>;
   community?: FieldPolicy<any> | FieldReadFunction<any>;
   communityId?: FieldPolicy<any> | FieldReadFunction<any>;
   id?: FieldPolicy<any> | FieldReadFunction<any>;
@@ -2379,6 +2409,10 @@ export const GetCommunityDocument = gql`
       ... on Community {
         id
         name
+        roles {
+          id
+          name
+        }
       }
       ... on NotFoundError {
         message
@@ -2452,6 +2486,8 @@ export const GetCommunityRolesDocument = gql`
           canCreateSpecies
           canEditCritter
           canEditSpecies
+          canCreateInviteCode
+          canListInviteCodes
         }
       }
       ... on NotAuthenticatedError {
@@ -2971,11 +3007,15 @@ export const GetIdentityListDocument = gql`
   ${NotAuthenticatedErrorFragmentFragmentDoc}
 `;
 export const GetInviteCodeListDocument = gql`
-  query getInviteCodeList {
-    inviteCodes {
+  query getInviteCodeList($filters: InviteCodeFilters!) {
+    inviteCodes(filters: $filters) {
       __typename
       ... on InviteCodeList {
         list {
+          role {
+            name
+            id
+          }
           claimCount
           id
           maxClaims
@@ -3314,7 +3354,7 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
       ) as Promise<GetIdentityListQuery>;
     },
     getInviteCodeList(
-      variables?: GetInviteCodeListQueryVariables,
+      variables: GetInviteCodeListQueryVariables,
       options?: C
     ): Promise<GetInviteCodeListQuery> {
       return requester<GetInviteCodeListQuery, GetInviteCodeListQueryVariables>(

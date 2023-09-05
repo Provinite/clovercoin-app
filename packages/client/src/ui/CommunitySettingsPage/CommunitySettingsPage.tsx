@@ -1,6 +1,6 @@
 import { Stack, Box } from "@mui/system";
 import { FC } from "react";
-import { useRouteCommunity } from "../../useRouteCommunity";
+import { useRouteCommunityOrFail } from "../../useRouteCommunity";
 import { AppRoutes } from "../AppRoutes";
 import { HeaderBar, HeaderBarSpacer } from "../HeaderBar/HeaderBar";
 import { useHeaderBarProps } from "../HeaderBar/HeaderBarContext";
@@ -10,16 +10,17 @@ import SpaIcon from "@mui/icons-material/Spa";
 import SettingsIcon from "@mui/icons-material/Settings";
 import MovieFilterIcon from "@mui/icons-material/MovieFilter";
 import { Card, CardContent, CardHeader, Grid } from "@mui/material";
-import { useRouteRoles } from "./useRouteRoles";
+import { useRouteRolesOrFail } from "./useRouteRoles";
 import { CommunityRoleListItem } from "./CommunityRoleListItem";
 import { GridRow } from "../lib/GridRow";
 import { TextStack } from "../SpeciesDetailPage/TraitListDetailCard/TextStack";
 import { stylesheet } from "../../utils/emotion";
+import { InviteCodeList } from "../InviteCodeList/InviteCodeList";
 
 export const CommunitySetttingsPage: FC = () => {
   const headerBarProps = useHeaderBarProps();
-  const community = useRouteCommunity();
-  const roles = useRouteRoles();
+  const community = useRouteCommunityOrFail();
+  const roles = useRouteRolesOrFail();
   return (
     <>
       <HeaderBar {...headerBarProps} title="Community Settings" />
@@ -70,10 +71,16 @@ export const CommunitySetttingsPage: FC = () => {
                       <Box />
                     </GridRow>
                     {roles.map((r) => (
-                      <CommunityRoleListItem role={r} />
+                      <CommunityRoleListItem key={r.id} role={r} />
                     ))}
                   </Grid>
                 </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12}>
+              <Card elevation={1}>
+                <CardHeader title="Invite Codes" />
+                <InviteCodeList />
               </Card>
             </Grid>
           </Grid>

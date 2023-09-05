@@ -8,17 +8,18 @@ export const inviteCodeAction = makeAction(
     form: {
       maxClaims: true,
       id: true,
+      roleId: false,
     },
   },
-  async ({ form: { maxClaims, id } }) => {
+  async ({ form: { maxClaims, id, roleId } }) => {
     const {
       data: { createInviteCode },
     } = await graphqlService.createInviteCode({
       variables: {
         input: {
-          creatorId: graphqlService.getTokenPayload().identity.id,
           id,
           maxClaims: Number(maxClaims),
+          roleId,
         },
       },
       update: (cache, { data }) => {

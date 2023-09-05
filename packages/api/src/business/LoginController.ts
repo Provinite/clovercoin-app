@@ -45,15 +45,22 @@ export class LoginController {
         identityController,
         accountController,
         inviteCodeController,
+        communityMemberController,
       }) => {
         const isAdminUser = Boolean(
           this.#adminEmail && this.#adminEmail === email
         );
 
+        let roleIdForInviteCode: string | null = null;
+
         // The bootstrap admin email can bypass invite requirements
         if (!isAdminUser) {
           try {
             await inviteCodeController.claimInviteCodeOrThrow(inviteCodeId);
+            const inviteCode = await inviteCodeController.findOneByIdOrFail(
+              inviteCodeId
+            );
+            roleIdForInviteCode = inviteCode.roleId;
           } catch (err) {
             if (err instanceof NotFoundError) {
               throw InvalidArgumentError.fromFieldMap({
@@ -80,6 +87,12 @@ export class LoginController {
             identityId: identity.id,
           }),
           this.#createToken(identity),
+          roleIdForInviteCode
+            ? communityMemberController.create({
+                identityId: identity.id,
+                roleId: roleIdForInviteCode,
+              })
+            : Promise.resolve(),
         ]);
         return { success: true, identity, account, token };
       }

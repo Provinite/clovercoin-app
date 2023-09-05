@@ -18,6 +18,10 @@ export function createLoaderDataHook<T extends RouteId>(routeId: T) {
   return () => useRouteLoaderData(routeId);
 }
 
+export function createRequiredLoaderDataHook<T extends RouteId>(routeId: T) {
+  return () => useRouteLoaderDataOrFail(routeId);
+}
+
 /**
  * Type-safe wrapper for useRouteLoaderData from react-router-dom.
  * Customized for this application specifically.
@@ -27,8 +31,21 @@ export function createLoaderDataHook<T extends RouteId>(routeId: T) {
 export function useRouteLoaderData<
   T extends RouteId,
   L = LoaderData<RouteType<T>>
+>(routeId: T): L | undefined {
+  return reactRouterDomUseRouteLoaderData(routeId) as L | undefined;
+}
+
+export function useRouteLoaderDataOrFail<
+  T extends RouteId,
+  L = LoaderData<RouteType<T>>
 >(routeId: T): L {
-  return reactRouterDomUseRouteLoaderData(routeId) as L;
+  const result = useRouteLoaderData(routeId);
+  if (!result) {
+    throw new Error(
+      "Invariant violation: Component canot be used outside of the specified loader context."
+    );
+  }
+  return result;
 }
 
 /**

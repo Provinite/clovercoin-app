@@ -5,7 +5,7 @@ import {
 } from "@clovercoin/api-client";
 import { HeaderBar, HeaderBarSpacer } from "../HeaderBar/HeaderBar";
 import { HeaderBarProps } from "../HeaderBar/HeaderBarProps";
-import { useRouteCommunity } from "../../useRouteCommunity";
+import { useRouteCommunityOrFail } from "../../useRouteCommunity";
 import { NavItem, SideNav } from "../SideNav/SideNav";
 import { AppRoutes } from "../AppRoutes";
 import InterestsIcon from "@mui/icons-material/Interests";
@@ -30,7 +30,7 @@ export const SpeciesDetailPage: FC<SpeciesDetailPageProps> = ({
   species,
   children,
 }) => {
-  const community = useRouteCommunity();
+  const community = useRouteCommunityOrFail();
   const variant = useRouteVariant();
   const navGroups = useMemo<NavItem[]>(() => {
     const communityId = community.id;

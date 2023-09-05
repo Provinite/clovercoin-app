@@ -27,16 +27,16 @@ export type GlobalAuthInfo = {
 };
 
 export type AuthInfo = CritterAuthInfo | CommunityAuthInfo | GlobalAuthInfo;
-
+export type AuthInfoSpecifier = AuthInfo | CompoundAuthInfo | AuthInfoFn | null;
 type MaybePromise<T> = T | Promise<T>;
 
 export type AuthInfoFn = (
   data: ResolverData<AppGraphqlContext>
-) => MaybePromise<AuthInfo | CompoundAuthInfo>;
+) => MaybePromise<AuthInfo | CompoundAuthInfo | null>;
 
 export type CompoundAuthInfo = {
   kind: "anyOf" | "allOf";
-  authInfos: (AuthInfo | CompoundAuthInfo)[];
+  authInfos: AuthInfoSpecifier[];
 };
 
 export type CritterPermissions = "canEditOwn";
