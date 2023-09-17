@@ -37,4 +37,8 @@ export interface SnackbarQueue {
    * Add a simple error to the queue.
    */
   appendSimpleError: (message: string) => void;
+  /**
+   * Add a simple success message to the queue.
+   */
+  appendSimpleSuccess: (message: string) => void;
 }

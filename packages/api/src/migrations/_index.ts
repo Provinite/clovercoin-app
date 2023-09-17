@@ -17,6 +17,7 @@ import { AddCommunityRoleCanEditCritterPermission1693110836623 } from "./1693110
 import { AddCommunityRoleCanEditSpeciesPermission1693167148507 } from "./1693167148507-add-community-role-can-edit-species-permission.js";
 import { AddIdentityCanCreateInviteCodePerm1693180926946 } from "./1693180926946-add-identity-can-create-invite-code-perm.js";
 import { AddInviteCodeRoleidAndPerms1693851679207 } from "./1693851679207-add-invite-code-roleid-and-perms.js";
+import { AddRoleManagementPerms1694912376332 } from "./1694912376332-add-role-management-perms.js";
 
 export const migrationsArray = [
   initializeDb1690172455074,
@@ -38,4 +39,5 @@ export const migrationsArray = [
   AddCommunityRoleCanEditSpeciesPermission1693167148507,
   AddIdentityCanCreateInviteCodePerm1693180926946,
   AddInviteCodeRoleidAndPerms1693851679207,
+  AddRoleManagementPerms1694912376332,
 ];

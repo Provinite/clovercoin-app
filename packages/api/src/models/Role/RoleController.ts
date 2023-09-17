@@ -8,7 +8,7 @@ export type RoleCreate = Pick<
   Role,
   "name" | "communityId" | RolePermissionKeys
 >;
-export type RoleModify = Pick<Role, "name">;
+export type RoleModify = Pick<Partial<Role>, "name" | RolePermissionKeys>;
 export class RoleController extends EntityController<
   Role,
   Repository<Role>,

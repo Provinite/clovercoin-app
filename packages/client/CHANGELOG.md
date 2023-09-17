@@ -1,6 +1,7 @@
 # Next
 
 - Added community settings page with role management
+- Community managers can now create invite codes that will join a user directly to their community with a specific role
 - Added basic support for `UnauthorizedError` response
 
 # 3.3.0

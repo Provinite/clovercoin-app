@@ -16,6 +16,11 @@ export const AppRouteParts = {
     uuidToSlug(communityId),
     "settings",
   ],
+  roleDetail: (communityId: string, roleId: string) => [
+    ...AppRouteParts.community(communityId),
+    "roles",
+    uuidToSlug(roleId),
+  ],
   communityList: () => ["communities"],
   addCritter: (communityId: string, speciesId: string) => [
     ...AppRouteParts.speciesDetail(communityId, speciesId),

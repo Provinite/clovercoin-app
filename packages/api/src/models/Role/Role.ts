@@ -70,4 +70,12 @@ export class Role {
   @Column("boolean", { nullable: false, default: false })
   @Field(() => Boolean)
   canListInviteCodes!: boolean;
+
+  @Column("boolean", { nullable: false, default: false })
+  @Field(() => Boolean)
+  canCreateRole!: boolean;
+
+  @Column("boolean", { nullable: false, default: false })
+  @Field(() => Boolean)
+  canEditRole!: boolean;
 }

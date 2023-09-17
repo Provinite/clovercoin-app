@@ -299,6 +299,7 @@ export interface Mutation {
   createCritter: CreateCritterResponse;
   createEnumValueSetting: EnumValueSettingCreateResponse;
   createInviteCode: InviteCodeCreateResponse;
+  createRole: RoleCreateResponse;
   createSpecies: SpeciesCreateResponse;
   createSpeciesImageUploadUrl: CreateSpeciesImageUploadUrlResponse;
   createSpeciesVariant: SpeciesVariantCreateResponse;
@@ -312,6 +313,7 @@ export interface Mutation {
   /** Log in using local credentials and receive an auth token */
   login: LoginResponse;
   modifyCritter: CritterModifyResponse;
+  modifyRole: RoleModifyResponse;
   modifyTrait: TraitModifyResponse;
   /** Update an entry on a variant's trait list */
   modifyTraitListEntry: TraitListEntryModifyResponse;
@@ -335,6 +337,10 @@ export interface MutationCreateEnumValueSettingArgs {
 
 export interface MutationCreateInviteCodeArgs {
   input: InviteCodeCreateInput;
+}
+
+export interface MutationCreateRoleArgs {
+  input: RoleCreateInput;
 }
 
 export interface MutationCreateSpeciesArgs {
@@ -375,6 +381,10 @@ export interface MutationLoginArgs {
 
 export interface MutationModifyCritterArgs {
   input: CritterModifyInput;
+}
+
+export interface MutationModifyRoleArgs {
+  input: RoleModifyInput;
 }
 
 export interface MutationModifyTraitArgs {
@@ -495,8 +505,10 @@ export interface Role {
   __typename?: "Role";
   canCreateCritter: Scalars["Boolean"];
   canCreateInviteCode: Scalars["Boolean"];
+  canCreateRole: Scalars["Boolean"];
   canCreateSpecies: Scalars["Boolean"];
   canEditCritter: Scalars["Boolean"];
+  canEditRole: Scalars["Boolean"];
   canEditSpecies: Scalars["Boolean"];
   canListInviteCodes: Scalars["Boolean"];
   community: Community;
@@ -504,6 +516,46 @@ export interface Role {
   id: Scalars["ID"];
   name: Scalars["String"];
 }
+
+export interface RoleCreateInput {
+  canCreateCritter?: InputMaybe<Scalars["Boolean"]>;
+  canCreateInviteCode?: InputMaybe<Scalars["Boolean"]>;
+  canCreateRole?: InputMaybe<Scalars["Boolean"]>;
+  canCreateSpecies?: InputMaybe<Scalars["Boolean"]>;
+  canEditCritter?: InputMaybe<Scalars["Boolean"]>;
+  canEditRole?: InputMaybe<Scalars["Boolean"]>;
+  canEditSpecies?: InputMaybe<Scalars["Boolean"]>;
+  canListInviteCodes?: InputMaybe<Scalars["Boolean"]>;
+  communityId: Scalars["ID"];
+  name: Scalars["String"];
+}
+
+export type RoleCreateResponse =
+  | DuplicateError
+  | InvalidArgumentError
+  | NotAuthenticatedError
+  | NotAuthorizedError
+  | Role;
+
+export interface RoleModifyInput {
+  canCreateCritter?: InputMaybe<Scalars["Boolean"]>;
+  canCreateInviteCode?: InputMaybe<Scalars["Boolean"]>;
+  canCreateRole?: InputMaybe<Scalars["Boolean"]>;
+  canCreateSpecies?: InputMaybe<Scalars["Boolean"]>;
+  canEditCritter?: InputMaybe<Scalars["Boolean"]>;
+  canEditRole?: InputMaybe<Scalars["Boolean"]>;
+  canEditSpecies?: InputMaybe<Scalars["Boolean"]>;
+  canListInviteCodes?: InputMaybe<Scalars["Boolean"]>;
+  id: Scalars["ID"];
+  name?: InputMaybe<Scalars["String"]>;
+}
+
+export type RoleModifyResponse =
+  | DuplicateError
+  | InvalidArgumentError
+  | NotAuthenticatedError
+  | NotAuthorizedError
+  | Role;
 
 /** Model representing an arbitrarily broad class of characters that use common variants and administration. */
 export interface Species {
@@ -841,6 +893,18 @@ export type GetCommunityListViewQuery = {
       };
 };
 
+export type RolePermissionsFragmentFragment = {
+  __typename?: "Role";
+  canCreateCritter: boolean;
+  canCreateInviteCode: boolean;
+  canCreateRole: boolean;
+  canCreateSpecies: boolean;
+  canEditCritter: boolean;
+  canEditRole: boolean;
+  canEditSpecies: boolean;
+  canListInviteCodes: boolean;
+};
+
 export type GetCommunityRolesQueryVariables = Exact<{
   communityId: Scalars["ID"];
 }>;
@@ -855,10 +919,12 @@ export type GetCommunityRolesQuery = {
           id: string;
           name: string;
           canCreateCritter: boolean;
+          canCreateInviteCode: boolean;
+          canCreateRole: boolean;
           canCreateSpecies: boolean;
           canEditCritter: boolean;
+          canEditRole: boolean;
           canEditSpecies: boolean;
-          canCreateInviteCode: boolean;
           canListInviteCodes: boolean;
         }>;
       }
@@ -878,6 +944,48 @@ export type GetCommunityRolesQuery = {
     | { __typename: "NotAuthenticatedError"; message: string }
     | { __typename: "NotAuthorizedError"; message: string }
     | { __typename: "NotFoundError"; message: string };
+};
+
+export type ModifyRoleMutationVariables = Exact<{
+  input: RoleModifyInput;
+}>;
+
+export type ModifyRoleMutation = {
+  __typename?: "Mutation";
+  modifyRole:
+    | {
+        __typename: "DuplicateError";
+        duplicateKeys: Array<string>;
+        message: string;
+      }
+    | {
+        __typename: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      }
+    | { __typename: "NotAuthenticatedError"; message: string }
+    | { __typename: "NotAuthorizedError"; message: string }
+    | {
+        __typename: "Role";
+        id: string;
+        name: string;
+        canCreateCritter: boolean;
+        canCreateInviteCode: boolean;
+        canCreateRole: boolean;
+        canCreateSpecies: boolean;
+        canEditCritter: boolean;
+        canEditRole: boolean;
+        canEditSpecies: boolean;
+        canListInviteCodes: boolean;
+      };
 };
 
 export type LoginMutationVariables = Exact<{
@@ -1879,6 +1987,7 @@ export type MutationKeySpecifier = (
   | "createCritter"
   | "createEnumValueSetting"
   | "createInviteCode"
+  | "createRole"
   | "createSpecies"
   | "createSpeciesImageUploadUrl"
   | "createSpeciesVariant"
@@ -1889,6 +1998,7 @@ export type MutationKeySpecifier = (
   | "deleteTraitListEntry"
   | "login"
   | "modifyCritter"
+  | "modifyRole"
   | "modifyTrait"
   | "modifyTraitListEntry"
   | "register"
@@ -1901,6 +2011,7 @@ export type MutationFieldPolicy = {
   createCritter?: FieldPolicy<any> | FieldReadFunction<any>;
   createEnumValueSetting?: FieldPolicy<any> | FieldReadFunction<any>;
   createInviteCode?: FieldPolicy<any> | FieldReadFunction<any>;
+  createRole?: FieldPolicy<any> | FieldReadFunction<any>;
   createSpecies?: FieldPolicy<any> | FieldReadFunction<any>;
   createSpeciesImageUploadUrl?: FieldPolicy<any> | FieldReadFunction<any>;
   createSpeciesVariant?: FieldPolicy<any> | FieldReadFunction<any>;
@@ -1911,6 +2022,7 @@ export type MutationFieldPolicy = {
   deleteTraitListEntry?: FieldPolicy<any> | FieldReadFunction<any>;
   login?: FieldPolicy<any> | FieldReadFunction<any>;
   modifyCritter?: FieldPolicy<any> | FieldReadFunction<any>;
+  modifyRole?: FieldPolicy<any> | FieldReadFunction<any>;
   modifyTrait?: FieldPolicy<any> | FieldReadFunction<any>;
   modifyTraitListEntry?: FieldPolicy<any> | FieldReadFunction<any>;
   register?: FieldPolicy<any> | FieldReadFunction<any>;
@@ -1974,8 +2086,10 @@ export type ResetPasswordSuccessResponseFieldPolicy = {
 export type RoleKeySpecifier = (
   | "canCreateCritter"
   | "canCreateInviteCode"
+  | "canCreateRole"
   | "canCreateSpecies"
   | "canEditCritter"
+  | "canEditRole"
   | "canEditSpecies"
   | "canListInviteCodes"
   | "community"
@@ -1987,8 +2101,10 @@ export type RoleKeySpecifier = (
 export type RoleFieldPolicy = {
   canCreateCritter?: FieldPolicy<any> | FieldReadFunction<any>;
   canCreateInviteCode?: FieldPolicy<any> | FieldReadFunction<any>;
+  canCreateRole?: FieldPolicy<any> | FieldReadFunction<any>;
   canCreateSpecies?: FieldPolicy<any> | FieldReadFunction<any>;
   canEditCritter?: FieldPolicy<any> | FieldReadFunction<any>;
+  canEditRole?: FieldPolicy<any> | FieldReadFunction<any>;
   canEditSpecies?: FieldPolicy<any> | FieldReadFunction<any>;
   canListInviteCodes?: FieldPolicy<any> | FieldReadFunction<any>;
   community?: FieldPolicy<any> | FieldReadFunction<any>;
@@ -2350,6 +2466,18 @@ export type StrictTypedTypePolicies = {
   };
 };
 export type TypedTypePolicies = StrictTypedTypePolicies & TypePolicies;
+export const RolePermissionsFragmentFragmentDoc = gql`
+  fragment RolePermissionsFragment on Role {
+    canCreateCritter
+    canCreateInviteCode
+    canCreateRole
+    canCreateSpecies
+    canEditCritter
+    canEditRole
+    canEditSpecies
+    canListInviteCodes
+  }
+`;
 export const BaseErrorFragmentFragmentDoc = gql`
   fragment BaseErrorFragment on BaseError {
     message
@@ -2482,12 +2610,7 @@ export const GetCommunityRolesDocument = gql`
           __typename
           id
           name
-          canCreateCritter
-          canCreateSpecies
-          canEditCritter
-          canEditSpecies
-          canCreateInviteCode
-          canListInviteCodes
+          ...RolePermissionsFragment
         }
       }
       ... on NotAuthenticatedError {
@@ -2501,8 +2624,38 @@ export const GetCommunityRolesDocument = gql`
       }
     }
   }
+  ${RolePermissionsFragmentFragmentDoc}
   ${NotAuthenticatedErrorFragmentFragmentDoc}
   ${InvalidArgumentErrorFragmentFragmentDoc}
+  ${BaseErrorFragmentFragmentDoc}
+`;
+export const ModifyRoleDocument = gql`
+  mutation modifyRole($input: RoleModifyInput!) {
+    modifyRole(input: $input) {
+      __typename
+      ... on Role {
+        id
+        name
+        ...RolePermissionsFragment
+      }
+      ... on DuplicateError {
+        ...DuplicateErrorFragment
+      }
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+      ... on NotAuthenticatedError {
+        ...NotAuthenticatedErrorFragment
+      }
+      ... on BaseError {
+        ...BaseErrorFragment
+      }
+    }
+  }
+  ${RolePermissionsFragmentFragmentDoc}
+  ${DuplicateErrorFragmentFragmentDoc}
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+  ${NotAuthenticatedErrorFragmentFragmentDoc}
   ${BaseErrorFragmentFragmentDoc}
 `;
 export const LoginDocument = gql`
@@ -3113,6 +3266,16 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
         options
       ) as Promise<GetCommunityRolesQuery>;
     },
+    modifyRole(
+      variables: ModifyRoleMutationVariables,
+      options?: C
+    ): Promise<ModifyRoleMutation> {
+      return requester<ModifyRoleMutation, ModifyRoleMutationVariables>(
+        ModifyRoleDocument,
+        variables,
+        options
+      ) as Promise<ModifyRoleMutation>;
+    },
     login(
       variables: LoginMutationVariables,
       options?: C
@@ -3518,6 +3681,38 @@ export class GraphqlService {
     const result = await this.client.query<
       GetCommunityRolesQuery,
       GetCommunityRolesQueryVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
+  async modifyRole(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").MutationOptions<
+          ModifyRoleMutation,
+          ModifyRoleMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: ModifyRoleMutationVariables;
+    }
+  ): Promise<
+    Omit<
+      import("@apollo/client/core").FetchResult<ModifyRoleMutation>,
+      "data"
+    > & { data: ModifyRoleMutation }
+  > {
+    const finalOptions = {
+      ...options,
+      mutation: ModifyRoleDocument,
+    };
+    const result = await this.client.mutate<
+      ModifyRoleMutation,
+      ModifyRoleMutationVariables
     >(finalOptions);
     if (!hasData(result)) {
       throw new Error("Unknown request failure");

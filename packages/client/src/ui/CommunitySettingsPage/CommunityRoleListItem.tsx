@@ -1,5 +1,7 @@
 import {
   GetCommunityRolesQuery,
+  isBaseError,
+  isRole,
   NarrowToCommunity,
   Role,
 } from "@clovercoin/api-client";
@@ -14,12 +16,18 @@ import {
   Switch,
   Typography,
 } from "@mui/material";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { GridRow } from "../lib/GridRow";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import { stylesheet } from "../../utils/emotion";
 import { TextStack } from "../SpeciesDetailPage/TraitListDetailCard/TextStack";
+import { useFetcher } from "react-router-dom";
+import { ActionData, RouteType } from "../../routes";
+import { AppRoutes } from "../AppRoutes";
+import { useRouteCommunityOrFail } from "../../useRouteCommunity";
+import { useSnackbar } from "../SequentialSnackbar/SequentialSnackbarContext";
+import { assertNever } from "../../utils/assertNever";
 
 const permissions: Record<
   keyof Role & `can${string}`,
@@ -46,6 +54,15 @@ const permissions: Record<
     label: "Read Invite Codes",
     helpText: "Access to the inivite code list",
   },
+  canCreateRole: {
+    label: "Create Roles",
+    helpText: "Define new roles and grant ANY permissions. Admins only!",
+  },
+  canEditRole: {
+    label: "Edit Roles",
+    helpText:
+      "Modify the permissions associated with roles. Can grant ANY permissions. Admins only!",
+  },
 };
 
 const permKeys = Object.keys(permissions) as Array<keyof Role & `can${string}`>;
@@ -56,7 +73,24 @@ export interface CommunityRoleListItemProps {
 export const CommunityRoleListItem: FC<CommunityRoleListItemProps> = ({
   role,
 }) => {
+  const community = useRouteCommunityOrFail();
+
   const [expanded, setExpanded] = useState(false);
+  const { submit, data, state } =
+    useFetcher<ActionData<RouteType<"root.community.role">>>();
+
+  const { appendSimpleError, appendSimpleSuccess } = useSnackbar();
+  useEffect(() => {
+    if (state === "idle" && data) {
+      if (isBaseError(data)) {
+        appendSimpleError(data.message);
+      } else if (isRole(data)) {
+        appendSimpleSuccess(`Updated ${data.name} role.`);
+      } else {
+        assertNever(data);
+      }
+    }
+  }, [data, state]);
   return (
     <>
       <GridRow xs={[3, 9]}>
@@ -90,7 +124,22 @@ export const CommunityRoleListItem: FC<CommunityRoleListItemProps> = ({
                   <Grid item xs={6} key={perm}>
                     <FormControl>
                       <FormControlLabel
-                        control={<Switch checked={hasPermission} />}
+                        control={
+                          <Switch
+                            checked={hasPermission}
+                            onChange={() => {
+                              const data = new FormData();
+                              data.set(perm, hasPermission ? "false" : "true");
+                              submit(data, {
+                                action: AppRoutes.roleDetail(
+                                  community.id,
+                                  role.id
+                                ),
+                                method: "patch",
+                              });
+                            }}
+                          />
+                        }
                         label={label}
                       />
                       <FormHelperText>{helpText}</FormHelperText>

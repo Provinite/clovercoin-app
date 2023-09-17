@@ -141,6 +141,17 @@ export function useSnackbarQueue(): SnackbarQueue {
       }),
     [append, close]
   );
+  const appendSimpleSuccess = useMemo<SnackbarQueue["appendSimpleSuccess"]>(
+    () => (msg) =>
+      append({
+        children: (
+          <Alert severity="success" onClose={close}>
+            {msg}
+          </Alert>
+        ),
+      }),
+    [append, close]
+  );
   return useMemo(
     () => ({
       queue,
@@ -150,6 +161,7 @@ export function useSnackbarQueue(): SnackbarQueue {
       open,
       close,
       appendSimpleError,
+      appendSimpleSuccess,
     }),
     [queue, append, shift, isOpen, open, close, appendSimpleError]
   );

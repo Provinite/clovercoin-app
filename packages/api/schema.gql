@@ -213,6 +213,7 @@ type Mutation {
   createCritter(input: CritterCreateInput!): CreateCritterResponse!
   createEnumValueSetting(input: EnumValueSettingCreateInput!): enumValueSettingCreateResponse!
   createInviteCode(input: InviteCodeCreateInput!): InviteCodeCreateResponse!
+  createRole(input: RoleCreateInput!): RoleCreateResponse!
   createSpecies(input: SpeciesCreateInput!): SpeciesCreateResponse!
   createSpeciesImageUploadUrl(input: SpeciesImageUrlCreateInput!): CreateSpeciesImageUploadUrlResponse!
   createSpeciesVariant(input: SpeciesVariantCreateInput!): SpeciesVariantCreateResponse!
@@ -231,6 +232,7 @@ type Mutation {
   """Log in using local credentials and receive an auth token"""
   login(input: LoginArgs!): LoginResponse!
   modifyCritter(input: CritterModifyInput!): CritterModifyResponse!
+  modifyRole(input: RoleModifyInput!): RoleModifyResponse!
   modifyTrait(input: TraitModifyInput!): TraitModifyResponse!
 
   """Update an entry on a variant's trait list"""
@@ -310,8 +312,10 @@ type ResetPasswordSuccessResponse {
 type Role {
   canCreateCritter: Boolean!
   canCreateInviteCode: Boolean!
+  canCreateRole: Boolean!
   canCreateSpecies: Boolean!
   canEditCritter: Boolean!
+  canEditRole: Boolean!
   canEditSpecies: Boolean!
   canListInviteCodes: Boolean!
   community: Community!
@@ -319,6 +323,36 @@ type Role {
   id: ID!
   name: String!
 }
+
+input RoleCreateInput {
+  canCreateCritter: Boolean = false
+  canCreateInviteCode: Boolean = false
+  canCreateRole: Boolean = false
+  canCreateSpecies: Boolean = false
+  canEditCritter: Boolean = false
+  canEditRole: Boolean = false
+  canEditSpecies: Boolean = false
+  canListInviteCodes: Boolean = false
+  communityId: ID!
+  name: String!
+}
+
+union RoleCreateResponse = DuplicateError | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | Role
+
+input RoleModifyInput {
+  canCreateCritter: Boolean
+  canCreateInviteCode: Boolean
+  canCreateRole: Boolean
+  canCreateSpecies: Boolean
+  canEditCritter: Boolean
+  canEditRole: Boolean
+  canEditSpecies: Boolean
+  canListInviteCodes: Boolean
+  id: ID!
+  name: String = null
+}
+
+union RoleModifyResponse = DuplicateError | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | Role
 
 """
 Model representing an arbitrarily broad class of characters that use common variants and administration.

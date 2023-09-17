@@ -2,6 +2,9 @@
 
 - Invite codes can now optionally be assigned a community role
   - When the code is claimed, the new identity that is created will be created with a community membership w/ the specified role
+- Adds some new muations:
+  - `createRole`
+  - `modifyRole`
 - Implements permissions/authorization
 - Each permission is associated with a particular entity in the system
   - Global Permissions are attached to a user's identity and are generally used for site-admin level permissions that very few users will have.
@@ -14,6 +17,8 @@
     - `canCreateCritter` - Create a critter in any species in this community
     - `canEditCritter` - Edit any critter in any species in this community
     - `canEditSpecies` - Edit any species in this community (name, images, traits, variants, etc)
+    - `canCreateRole` - Create a role with any permissions in this community
+    - `canEditRole` - Updatea any role in this community to have any permissions
   - Critter permissions are scoped to a particular critter
     - `canEditOwn`
       - This is a special permission that is not stored in the database, but instead all users have this permission if they own the target critter.
@@ -40,6 +45,8 @@
       - Dev's Note: This mutation is used to remove a trait from a species variant
     - `modifyTraitListEntry`: `community.canEditSpecies`
       - Dev's Note: This mutation is used to change the configuration of a trait for a species variant. Includes such options as default values, and whether a trait is optional or required.
+    - `createRole`: `community.createRole`
+    - `modifyRole`: `community.modifyRole`
     - `login`: No permissions
     - `register`: No permissions
     - `requestPasswordReset`: No permissions
@@ -57,15 +64,14 @@
 
 ## TODOS
 
-- Ability to create invite codes w/ community & permission embedded
 - Migrations to handle new identity fields
 - Migrations to handle existing users that will need roles
-- Migrations to handle new `roleId` field on invite codes
 - Frontend permission-controlled visibility of elements
-- Common (or at least robust) frontend error handling for `UnauthorizedError`
 - Revisit `critter.canEditOwn` permission. Concept seems iffy and execution is poor.
 - Global permission management
 - Revisit permissions on `traits` query
+- Make some roles not-invitable
+- Add permissions and mutations for managing identity perms
 
 # 4.0.0
 

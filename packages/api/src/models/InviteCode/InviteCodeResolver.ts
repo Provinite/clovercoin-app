@@ -151,9 +151,26 @@ export class InviteCodeResolver {
   )
   @Mutation(() => InviteCodeCreateResponse)
   async createInviteCode(
-    @Ctx() { inviteCodeController, principal }: AppGraphqlContext,
+    @Ctx()
+    {
+      inviteCodeController,
+      principal,
+      communityController,
+      roleController,
+    }: AppGraphqlContext,
     @Arg("input", { nullable: false }) input: InviteCodeCreateInput
   ): Promise<InviteCode> {
+    // PERF: How can we avoid redoing this fetch that's (maybe) already
+    // being done by the auth code
+    const createBody = { ...input };
+    if (createBody.roleId) {
+      const role = await roleController.findOneByIdOrFail(createBody.roleId);
+      const community = await communityController.findOneByIdOrFail(
+        role.communityId
+      );
+      createBody.id =
+        community.name.replaceAll(/[^a-zA-Z0-9]/g, "") + "-" + createBody.id;
+    }
     return inviteCodeController.create({ ...input, creatorId: principal!.id });
   }
 }

@@ -60,6 +60,8 @@ export class CommunityController extends EntityController<
         canEditSpecies: true,
         canListInviteCodes: true,
         canCreateInviteCode: true,
+        canCreateRole: true,
+        canEditRole: true,
       },
       {
         communityId: community.id,
@@ -70,6 +72,8 @@ export class CommunityController extends EntityController<
         canEditSpecies: false,
         canCreateInviteCode: false,
         canListInviteCodes: true,
+        canCreateRole: false,
+        canEditRole: false,
       },
       {
         communityId: community.id,
@@ -80,6 +84,8 @@ export class CommunityController extends EntityController<
         canEditSpecies: false,
         canListInviteCodes: false,
         canCreateInviteCode: false,
+        canCreateRole: false,
+        canEditRole: false,
       },
     ];
 

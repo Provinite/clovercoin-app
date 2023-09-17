@@ -1,6 +1,7 @@
 import gql from "graphql-tag";
 import BaseErrorFragmentGraphql from "../../utils/error-fragments/BaseErrorFragment.graphql";
 import NotAuthenticatedErrorFragmentGraphql from "../../utils/error-fragments/NotAuthenticatedErrorFragment.graphql";
+import { RolePermissionsFragmentGraphql } from "./RolePermissionsFragment.graphql";
 
 export const getCommunityRolesQuery = gql`
   query getCommunityRoles($communityId: ID!) {
@@ -11,12 +12,7 @@ export const getCommunityRolesQuery = gql`
           __typename
           id
           name
-          canCreateCritter
-          canCreateSpecies
-          canEditCritter
-          canEditSpecies
-          canCreateInviteCode
-          canListInviteCodes
+          ...RolePermissionsFragment
         }
       }
       ... on NotAuthenticatedError {
@@ -32,4 +28,5 @@ export const getCommunityRolesQuery = gql`
   }
   ${NotAuthenticatedErrorFragmentGraphql}
   ${BaseErrorFragmentGraphql}
+  ${RolePermissionsFragmentGraphql}
 `;
