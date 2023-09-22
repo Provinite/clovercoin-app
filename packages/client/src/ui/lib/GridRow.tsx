@@ -61,6 +61,9 @@ export const GridRow = forwardRef<
         css={[ss.gridRow, selected ? ss.gridRowActive : null]}
       >
         {children?.map((c, i) => {
+          if (!c) {
+            return;
+          }
           const gridProps = {
             xs: xs[i],
             sm: sm[i],
