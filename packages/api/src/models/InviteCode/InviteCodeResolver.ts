@@ -162,15 +162,15 @@ export class InviteCodeResolver {
   ): Promise<InviteCode> {
     // PERF: How can we avoid redoing this fetch that's (maybe) already
     // being done by the auth code
-    const createBody = { ...input };
+    const createBody = { ...input, creatorId: principal!.id };
     if (createBody.roleId) {
       const role = await roleController.findOneByIdOrFail(createBody.roleId);
       const community = await communityController.findOneByIdOrFail(
         role.communityId
       );
       createBody.id =
-        community.name.replaceAll(/[^a-zA-Z0-9]/g, "") + "-" + createBody.id;
+        community.name.replaceAll(/[^a-zA-Z0-9]/g, "") + ":" + createBody.id;
     }
-    return inviteCodeController.create({ ...input, creatorId: principal!.id });
+    return inviteCodeController.create(createBody);
   }
 }
