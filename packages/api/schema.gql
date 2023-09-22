@@ -18,6 +18,7 @@ union CommunitiesResponse = CommunityList | InvalidArgumentError
 
 type Community {
   id: ID!
+  members: CommunityMembersResponse!
   name: String!
   roles: [Role!]!
 }
@@ -31,9 +32,70 @@ input CommunityFilters {
   name: String = null
 }
 
+type CommunityInvitation {
+  accepted: Boolean!
+  declined: Boolean!
+  id: ID!
+
+  """The identity of the user that is being invited"""
+  invitee: Identity!
+  inviteeId: ID!
+
+  """The identity of the user that is extending the invitation"""
+  inviter: Identity!
+  inviterId: ID!
+
+  """The role to grant when the invitation is accepted"""
+  role: Role!
+  roleId: ID!
+}
+
+input CommunityInvitationAnswerInput {
+  accept: Boolean!
+  id: ID!
+}
+
+union CommunityInvitationAnswerResponse = CommunityInvitation | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError
+
+input CommunityInvitationCreateInput {
+  emailAddress: String!
+  roleId: ID!
+}
+
+union CommunityInvitationCreateResponse = CommunityInvitation | DuplicateError | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError | UserAlreadyHasRoleError
+
+type CommunityInvitationList {
+  list: [CommunityInvitation!]!
+}
+
 type CommunityList {
   list: [Community!]!
 }
+
+type CommunityMember {
+  id: ID!
+  identity: Identity!
+  identityId: ID!
+  role: Role!
+  roleId: ID!
+}
+
+input CommunityMemberCreateInput {
+  identityId: ID!
+  roleId: ID!
+}
+
+union CommunityMemberCreateResponse = CommunityMember | DuplicateError | InvalidArgumentError | InvitationRequiredError | NotAuthenticatedError | NotAuthorizedError | NotFoundError
+
+input CommunityMemberDeleteInput {
+  id: ID
+  identityId: ID
+  roleId: ID
+}
+
+union CommunityMemberDeleteResponse = DeleteResponse | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError
+
+union CommunityMembersResponse = IdentityList | NotAuthorizedError
 
 union CommunityResponse = Community | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError
 
@@ -142,13 +204,21 @@ type Identity {
   displayName: String!
   email: String!
   id: ID!
+  pendingInvitations: PendingInvitationsResponse!
+  roles(filters: IdentityRolesFilters!): IdentityRolesResponse!
 }
 
 type IdentityList {
   list: [Identity!]!
 }
 
-union IdentitylistResponse = IdentityList | NotAuthenticatedError
+input IdentityRolesFilters {
+  communityId: ID!
+}
+
+union IdentityRolesResponse = InvalidArgumentError | NotAuthorizedError | RoleList
+
+union IdentitylistResponse = IdentityList | NotAuthenticatedError | NotAuthorizedError
 
 """Acceptable MIME types for images"""
 enum ImageContentType {
@@ -160,6 +230,10 @@ enum ImageContentType {
 type InvalidArgumentError implements BaseError {
   message: String!
   validationErrors: [ValidationError!]!
+}
+
+type InvitationRequiredError implements BaseError {
+  message: String!
 }
 
 type InviteCode {
@@ -208,8 +282,12 @@ type LoginSuccessResponse {
 }
 
 type Mutation {
+  answerInvitation(input: CommunityInvitationAnswerInput!): CommunityInvitationAnswerResponse!
+
   """Create a new community"""
   createCommunity(input: CommunityCreateInput!): CreateCommunityResponse!
+  createCommunityInvitation(input: CommunityInvitationCreateInput!): CommunityInvitationCreateResponse!
+  createCommunityMember(input: CommunityMemberCreateInput!): CommunityMemberCreateResponse!
   createCritter(input: CritterCreateInput!): CreateCritterResponse!
   createEnumValueSetting(input: EnumValueSettingCreateInput!): enumValueSettingCreateResponse!
   createInviteCode(input: InviteCodeCreateInput!): InviteCodeCreateResponse!
@@ -221,6 +299,9 @@ type Mutation {
 
   """Add a trait to a variant's trait list"""
   createTraitListEntry(input: TraitListEntryCreateInput!): TraitListEntryCreateResponse!
+
+  """Delete a community member, effectively removing a role from a user"""
+  deleteCommunityMember(input: CommunityMemberDeleteInput!): CommunityMemberDeleteResponse!
   deleteEnumValueSetting(input: EnumValueDeleteInput!): EnumValueSettingDeleteResponse!
   deleteTrait(input: TraitDeleteInput!): TraitDeleteResponse!
 
@@ -264,6 +345,8 @@ type NotFoundError implements BaseError {
   message: String!
 }
 
+union PendingInvitationsResponse = CommunityInvitationList | NotAuthorizedError
+
 type Query {
   """Fetch a list of communities with filtering"""
   communities(filters: CommunityFilters!): CommunitiesResponse!
@@ -275,6 +358,7 @@ type Query {
 
   """Fetch invite codes"""
   inviteCodes(filters: InviteCodeFilters!): InviteCodeResponse!
+  me: Identity!
   species(filters: SpeciesFilters): SpeciesResponse!
   traits(filters: TraitFilters!): TraitListResponse!
 }
@@ -338,6 +422,10 @@ input RoleCreateInput {
 }
 
 union RoleCreateResponse = DuplicateError | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | Role
+
+type RoleList {
+  list: [Role!]!
+}
 
 input RoleModifyInput {
   canCreateCritter: Boolean
@@ -503,6 +591,10 @@ union TraitModifyResponse = DuplicateError | InvalidArgumentError | NotAuthentic
 
 type UrlResponse {
   url: String!
+}
+
+type UserAlreadyHasRoleError implements BaseError {
+  message: String!
 }
 
 type ValidationConstraint {

@@ -10,8 +10,10 @@ import { Box, Card, CardContent, CardHeader, Grid } from "@mui/material";
 import { useRouteLoaderDataOrFail } from "../../utils/loaderDataUtils";
 import { GridRow } from "../lib/GridRow";
 import { Link } from "../Link/Link";
+import { usePageTitle } from "../../hooks/usePageTitle";
 
 export const CommunityListPage: FC = () => {
+  usePageTitle("CloverCoin Species - Communities");
   const headerBarProps = useHeaderBarProps();
   const communities = useRouteLoaderDataOrFail("root.community-list");
   return (

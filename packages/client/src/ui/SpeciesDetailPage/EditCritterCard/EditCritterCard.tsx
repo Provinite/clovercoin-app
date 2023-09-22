@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader } from "@mui/material";
 import { FC } from "react";
 import { useFetcher } from "react-router-dom";
+import { usePageTitle } from "../../../hooks/usePageTitle";
 import { useRouteCommunityOrFail } from "../../../useRouteCommunity";
 import { useRouteLoaderDataOrFail } from "../../../utils/loaderDataUtils";
 import { AppRoutes } from "../../AppRoutes";
@@ -12,6 +13,7 @@ export interface EditCritterCardProps {}
 export const EditCritterCard: FC = () => {
   const community = useRouteCommunityOrFail();
   const critter = useRouteLoaderDataOrFail("root.community.species.critter");
+  usePageTitle(`${community.name} - Edit ${critter.name}`);
   const fetcher = useFetcher();
   const species = useRouteSpeciesOrFail();
   const [form, dispatch] = useCritterForm(critter);

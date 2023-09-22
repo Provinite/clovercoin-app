@@ -1,6 +1,5 @@
 import { DeleteResult, Repository } from "typeorm";
 import { EntityController } from "../../business/EntityController.js";
-import { TransactionProvider } from "../../db/TransactionProvider.js";
 import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
 import { EnumValue } from "./EnumValue.js";
 
@@ -15,17 +14,15 @@ export class EnumValueController extends EntityController<
   EnumValueCreate,
   EnumValueUpdate
 > {
-  #transactionProvider: TransactionProvider;
   constructor({ enumValueRepository, transactionProvider }: AppGraphqlContext) {
-    super(enumValueRepository);
-    this.#transactionProvider = transactionProvider;
+    super(enumValueRepository, transactionProvider);
   }
 
   async setEnumValuesForTrait(
     traitId: string,
     enumValues: { id?: string; name: string; order: number }[]
   ) {
-    return this.#transactionProvider.runTransaction(
+    return this.transactionProvider.runTransaction(
       async ({ enumValueController, logger }) => {
         const existingEnumValues = await enumValueController.find({ traitId });
 

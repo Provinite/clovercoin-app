@@ -9,6 +9,7 @@ import {
 } from "../relationFieldDecorators.js";
 import { CommunityMember } from "../CommunityMember/CommunityMember.js";
 import { InviteCode } from "../InviteCode/InviteCode.js";
+import { CommunityInvitation } from "../CommunityInvitation/CommunityInvitation.js";
 
 export type RolePermissionKeys = keyof Role & `can${string}`;
 
@@ -78,4 +79,10 @@ export class Role {
   @Column("boolean", { nullable: false, default: false })
   @Field(() => Boolean)
   canEditRole!: boolean;
+
+  @OneToMany(
+    () => CommunityInvitation,
+    (communityInvitation) => communityInvitation.role
+  )
+  communityInvitations!: CommunityInvitation[];
 }

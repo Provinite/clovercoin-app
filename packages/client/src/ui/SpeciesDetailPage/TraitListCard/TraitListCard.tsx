@@ -25,12 +25,14 @@ import { AppRoutes } from "../../AppRoutes";
 import { GridRow } from "../../lib/GridRow";
 import { Link } from "../../Link/Link";
 import { useSnackbar } from "../../SequentialSnackbar/SequentialSnackbarContext";
+import { usePageTitle } from "../../../hooks/usePageTitle";
 
 export const TraitListCard: FunctionComponent = () => {
   const data = useRouteTraitsOrFail();
   const species = useRouteSpeciesOrFail();
   const fetcher = useFetcher();
   const community = useRouteCommunityOrFail();
+  usePageTitle(`${community.name} - ${species.name} Traits`);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [traitToDelete, setTraitToDelete] =
     useState<typeof data["list"][number]>();

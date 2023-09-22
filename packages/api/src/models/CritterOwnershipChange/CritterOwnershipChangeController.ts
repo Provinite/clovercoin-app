@@ -12,7 +12,10 @@ export class CritterOwnershipChangeController extends EntityController<
   Repository<CritterOwnershipChange>,
   any
 > {
-  constructor({ critterOwnershipChangeRepository }: AppGraphqlContext) {
-    super(critterOwnershipChangeRepository);
+  constructor({
+    critterOwnershipChangeRepository,
+    transactionProvider,
+  }: AppGraphqlContext) {
+    super(critterOwnershipChangeRepository, transactionProvider);
   }
 }

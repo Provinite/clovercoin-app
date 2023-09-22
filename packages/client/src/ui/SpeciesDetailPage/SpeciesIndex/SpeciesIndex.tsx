@@ -1,4 +1,5 @@
 import { FC } from "react";
+import { usePageTitle } from "../../../hooks/usePageTitle";
 import { useRouteCommunityOrFail } from "../../../useRouteCommunity";
 import { useRouteLoaderDataOrFail } from "../../../utils/loaderDataUtils";
 import { CritterListCard } from "../CritterListCard/CritterListCard";
@@ -8,6 +9,7 @@ import { useRouteSpeciesOrFail } from "../useRouteSpecies";
 export const SpeciesIndex: FC = () => {
   const species = useRouteSpeciesOrFail();
   const community = useRouteCommunityOrFail();
+  usePageTitle(`${community.name} - ${species.name}`);
   const critters = useRouteLoaderDataOrFail("root.community.species.index");
   return (
     <>

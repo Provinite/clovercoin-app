@@ -12,7 +12,10 @@ export class CommunityMemberController extends EntityController<
   Repository<CommunityMember>,
   CommunityMemberCreate
 > {
-  constructor({ communityMemberRepository }: AppGraphqlContext) {
-    super(communityMemberRepository);
+  constructor({
+    communityMemberRepository,
+    transactionProvider,
+  }: AppGraphqlContext) {
+    super(communityMemberRepository, transactionProvider);
   }
 }

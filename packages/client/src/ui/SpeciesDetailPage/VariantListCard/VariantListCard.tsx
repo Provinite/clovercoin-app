@@ -18,6 +18,7 @@ import { ActionData, RouteType } from "../../../routes";
 import AddIcon from "@mui/icons-material/Add";
 import { Link } from "../../Link/Link";
 import { GridRow } from "../../lib/GridRow";
+import { usePageTitle } from "../../../hooks/usePageTitle";
 
 export interface VariantListCardProps {}
 
@@ -29,6 +30,8 @@ export const VariantListCard: FC<VariantListCardProps> = () => {
   const { data } = fetcher;
 
   const [name, setName] = useState("");
+
+  usePageTitle(`${community.name} - ${species.name} Variants`);
 
   useEffect(() => {
     if (data && isSpeciesVariant(data)) {

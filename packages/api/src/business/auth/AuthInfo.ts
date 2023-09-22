@@ -7,6 +7,7 @@ export enum AuthScope {
   Community,
   Global,
   Critter,
+  Identity,
 }
 
 export type CritterAuthInfo = {
@@ -26,7 +27,18 @@ export type GlobalAuthInfo = {
   permissions: IdentityPermissionKeys[];
 };
 
-export type AuthInfo = CritterAuthInfo | CommunityAuthInfo | GlobalAuthInfo;
+export type IdentityAuthInfo = {
+  scope: AuthScope.Identity;
+  identityId: string;
+  permissions: IdentityPermissions[];
+};
+
+export type AuthInfo =
+  | CritterAuthInfo
+  | CommunityAuthInfo
+  | GlobalAuthInfo
+  | IdentityAuthInfo;
+
 export type AuthInfoSpecifier = AuthInfo | CompoundAuthInfo | AuthInfoFn | null;
 type MaybePromise<T> = T | Promise<T>;
 
@@ -40,7 +52,10 @@ export type CompoundAuthInfo = {
 };
 
 export type CritterPermissions = "canEditOwn";
-
+export type IdentityPermissions =
+  | "canViewPendingInvites"
+  | "canAnswerInvites"
+  | "canViewEmail";
 export function isCompoundAuthInfo(
   authInfo: AuthInfo | CompoundAuthInfo
 ): authInfo is CompoundAuthInfo {

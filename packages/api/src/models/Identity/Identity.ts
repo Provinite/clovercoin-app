@@ -1,5 +1,6 @@
 import { Field, ObjectType } from "type-graphql";
 import { Column, Entity, OneToMany } from "typeorm";
+import { CommunityInvitation } from "../CommunityInvitation/CommunityInvitation.js";
 import { CommunityMember } from "../CommunityMember/CommunityMember.js";
 import { InviteCode } from "../InviteCode/InviteCode.js";
 import { IdField } from "../relationFieldDecorators.js";
@@ -43,4 +44,16 @@ export class Identity {
 
   @Column("boolean", { nullable: false, default: false })
   canCreateInviteCode!: boolean;
+
+  @OneToMany(
+    () => CommunityInvitation,
+    (communityInvitation) => communityInvitation.invitee
+  )
+  receivedInvitations!: CommunityInvitation[];
+
+  @OneToMany(
+    () => CommunityInvitation,
+    (communityInvitation) => communityInvitation.inviter
+  )
+  createdInvitations!: CommunityInvitation[];
 }

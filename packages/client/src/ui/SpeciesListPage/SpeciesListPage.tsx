@@ -40,6 +40,7 @@ import { useSnackbar } from "../SequentialSnackbar/SequentialSnackbarContext";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import SpaIcon from "@mui/icons-material/Spa";
 import SettingsIcon from "@mui/icons-material/Settings";
+import { usePageTitle } from "../../hooks/usePageTitle";
 
 export interface SpeciesListPageProps {
   headerBarProps: HeaderBarProps;
@@ -56,10 +57,12 @@ export const SpeciesListPage: FC<SpeciesListPageProps> = ({
   data,
   onSpeciesClick,
 }) => {
+  const community = useRouteCommunityOrFail();
+  usePageTitle(`${community.name} - Species List`);
+
   const [showAddForm, setShowAddForm] = useState(false);
   const fetcher =
     useFetcher<ActionData<RouteType<"root.community.species-list">>>();
-  const community = useRouteCommunityOrFail();
   const [name, setName] = useState("");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -217,7 +220,7 @@ export const SpeciesListPage: FC<SpeciesListPageProps> = ({
           <DialogActions>
             <Button onClick={() => setShowConfirmDialog(false)}>No</Button>
             <Button
-              onClick={() => {
+              onClick={async () => {
                 setShowConfirmDialog(false);
                 fetcher.submit(formRef.current);
               }}

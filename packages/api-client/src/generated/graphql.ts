@@ -45,6 +45,7 @@ export type CommunitiesResponse = CommunityList | InvalidArgumentError;
 export interface Community {
   __typename?: "Community";
   id: Scalars["ID"];
+  members: CommunityMembersResponse;
   name: Scalars["String"];
   roles: Array<Role>;
 }
@@ -58,10 +59,94 @@ export interface CommunityFilters {
   name?: InputMaybe<Scalars["String"]>;
 }
 
+export interface CommunityInvitation {
+  __typename?: "CommunityInvitation";
+  accepted: Scalars["Boolean"];
+  declined: Scalars["Boolean"];
+  id: Scalars["ID"];
+  /** The identity of the user that is being invited */
+  invitee: Identity;
+  inviteeId: Scalars["ID"];
+  /** The identity of the user that is extending the invitation */
+  inviter: Identity;
+  inviterId: Scalars["ID"];
+  /** The role to grant when the invitation is accepted */
+  role: Role;
+  roleId: Scalars["ID"];
+}
+
+export interface CommunityInvitationAnswerInput {
+  accept: Scalars["Boolean"];
+  id: Scalars["ID"];
+}
+
+export type CommunityInvitationAnswerResponse =
+  | CommunityInvitation
+  | InvalidArgumentError
+  | NotAuthenticatedError
+  | NotAuthorizedError
+  | NotFoundError;
+
+export interface CommunityInvitationCreateInput {
+  emailAddress: Scalars["String"];
+  roleId: Scalars["ID"];
+}
+
+export type CommunityInvitationCreateResponse =
+  | CommunityInvitation
+  | DuplicateError
+  | InvalidArgumentError
+  | NotAuthenticatedError
+  | NotAuthorizedError
+  | UserAlreadyHasRoleError;
+
+export interface CommunityInvitationList {
+  __typename?: "CommunityInvitationList";
+  list: Array<CommunityInvitation>;
+}
+
 export interface CommunityList {
   __typename?: "CommunityList";
   list: Array<Community>;
 }
+
+export interface CommunityMember {
+  __typename?: "CommunityMember";
+  id: Scalars["ID"];
+  identity: Identity;
+  identityId: Scalars["ID"];
+  role: Role;
+  roleId: Scalars["ID"];
+}
+
+export interface CommunityMemberCreateInput {
+  identityId: Scalars["ID"];
+  roleId: Scalars["ID"];
+}
+
+export type CommunityMemberCreateResponse =
+  | CommunityMember
+  | DuplicateError
+  | InvalidArgumentError
+  | InvitationRequiredError
+  | NotAuthenticatedError
+  | NotAuthorizedError
+  | NotFoundError;
+
+export interface CommunityMemberDeleteInput {
+  id?: InputMaybe<Scalars["ID"]>;
+  identityId?: InputMaybe<Scalars["ID"]>;
+  roleId?: InputMaybe<Scalars["ID"]>;
+}
+
+export type CommunityMemberDeleteResponse =
+  | DeleteResponse
+  | InvalidArgumentError
+  | NotAuthenticatedError
+  | NotAuthorizedError
+  | NotFoundError;
+
+export type CommunityMembersResponse = IdentityList | NotAuthorizedError;
 
 export type CommunityResponse =
   | Community
@@ -210,12 +295,27 @@ export interface Identity {
   displayName: Scalars["String"];
   email: Scalars["String"];
   id: Scalars["ID"];
+  pendingInvitations: PendingInvitationsResponse;
+  roles: IdentityRolesResponse;
+}
+
+export interface IdentityRolesArgs {
+  filters: IdentityRolesFilters;
 }
 
 export interface IdentityList {
   __typename?: "IdentityList";
   list: Array<Identity>;
 }
+
+export interface IdentityRolesFilters {
+  communityId: Scalars["ID"];
+}
+
+export type IdentityRolesResponse =
+  | InvalidArgumentError
+  | NotAuthorizedError
+  | RoleList;
 
 export type IdentitylistResponse = IdentityList | NotAuthenticatedError;
 
@@ -230,6 +330,11 @@ export interface InvalidArgumentError extends BaseError {
   __typename?: "InvalidArgumentError";
   message: Scalars["String"];
   validationErrors: Array<ValidationError>;
+}
+
+export interface InvitationRequiredError extends BaseError {
+  __typename?: "InvitationRequiredError";
+  message: Scalars["String"];
 }
 
 export interface InviteCode {
@@ -294,8 +399,11 @@ export interface LoginSuccessResponse {
 
 export interface Mutation {
   __typename?: "Mutation";
+  answerInvitation: CommunityInvitationAnswerResponse;
   /** Create a new community */
   createCommunity: CreateCommunityResponse;
+  createCommunityInvitation: CommunityInvitationCreateResponse;
+  createCommunityMember: CommunityMemberCreateResponse;
   createCritter: CreateCritterResponse;
   createEnumValueSetting: EnumValueSettingCreateResponse;
   createInviteCode: InviteCodeCreateResponse;
@@ -306,6 +414,8 @@ export interface Mutation {
   createTrait: TraitCreateResponse;
   /** Add a trait to a variant's trait list */
   createTraitListEntry: TraitListEntryCreateResponse;
+  /** Delete a community member, effectively removing a role from a user */
+  deleteCommunityMember: CommunityMemberDeleteResponse;
   deleteEnumValueSetting: EnumValueSettingDeleteResponse;
   deleteTrait: TraitDeleteResponse;
   /** Remove a trait from a variant's traitlist. This will delete any values for this trait from all existing characters under the specified variant. */
@@ -323,8 +433,20 @@ export interface Mutation {
   resetPassword: ResetPasswordResponse;
 }
 
+export interface MutationAnswerInvitationArgs {
+  input: CommunityInvitationAnswerInput;
+}
+
 export interface MutationCreateCommunityArgs {
   input: CommunityCreateInput;
+}
+
+export interface MutationCreateCommunityInvitationArgs {
+  input: CommunityInvitationCreateInput;
+}
+
+export interface MutationCreateCommunityMemberArgs {
+  input: CommunityMemberCreateInput;
 }
 
 export interface MutationCreateCritterArgs {
@@ -361,6 +483,10 @@ export interface MutationCreateTraitArgs {
 
 export interface MutationCreateTraitListEntryArgs {
   input: TraitListEntryCreateInput;
+}
+
+export interface MutationDeleteCommunityMemberArgs {
+  input: CommunityMemberDeleteInput;
 }
 
 export interface MutationDeleteEnumValueSettingArgs {
@@ -424,6 +550,10 @@ export interface NotFoundError extends BaseError {
   message: Scalars["String"];
 }
 
+export type PendingInvitationsResponse =
+  | CommunityInvitationList
+  | NotAuthorizedError;
+
 export interface Query {
   __typename?: "Query";
   /** Fetch a list of communities with filtering */
@@ -434,6 +564,7 @@ export interface Query {
   identities: IdentitylistResponse;
   /** Fetch invite codes */
   inviteCodes: InviteCodeResponse;
+  me: Identity;
   species: SpeciesResponse;
   traits: TraitListResponse;
 }
@@ -536,6 +667,11 @@ export type RoleCreateResponse =
   | NotAuthenticatedError
   | NotAuthorizedError
   | Role;
+
+export interface RoleList {
+  __typename?: "RoleList";
+  list: Array<Role>;
+}
 
 export interface RoleModifyInput {
   canCreateCritter?: InputMaybe<Scalars["Boolean"]>;
@@ -761,6 +897,11 @@ export interface UrlResponse {
   url: Scalars["String"];
 }
 
+export interface UserAlreadyHasRoleError extends BaseError {
+  __typename?: "UserAlreadyHasRoleError";
+  message: Scalars["String"];
+}
+
 export interface ValidationConstraint {
   __typename?: "ValidationConstraint";
   description: Scalars["String"];
@@ -893,6 +1034,102 @@ export type GetCommunityListViewQuery = {
       };
 };
 
+export type CreateCommunityMemberMutationVariables = Exact<{
+  input: CommunityMemberCreateInput;
+}>;
+
+export type CreateCommunityMemberMutation = {
+  __typename?: "Mutation";
+  createCommunityMember:
+    | {
+        __typename: "CommunityMember";
+        id: string;
+        identityId: string;
+        roleId: string;
+      }
+    | { __typename: "DuplicateError"; message: string }
+    | {
+        __typename: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      }
+    | { __typename: "InvitationRequiredError"; message: string }
+    | { __typename: "NotAuthenticatedError"; message: string }
+    | { __typename: "NotAuthorizedError"; message: string }
+    | { __typename: "NotFoundError"; message: string };
+};
+
+export type DeleteCommunityMemberMutationVariables = Exact<{
+  input: CommunityMemberDeleteInput;
+}>;
+
+export type DeleteCommunityMemberMutation = {
+  __typename?: "Mutation";
+  deleteCommunityMember:
+    | { __typename: "DeleteResponse"; ok: boolean }
+    | {
+        __typename: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      }
+    | { __typename: "NotAuthenticatedError"; message: string }
+    | { __typename: "NotAuthorizedError"; message: string }
+    | { __typename: "NotFoundError"; message: string };
+};
+
+export type GetCommunityMemberListQueryVariables = Exact<{
+  communityId: Scalars["ID"];
+}>;
+
+export type GetCommunityMemberListQuery = {
+  __typename?: "Query";
+  community:
+    | {
+        __typename: "Community";
+        members:
+          | {
+              __typename: "IdentityList";
+              list: Array<{
+                __typename?: "Identity";
+                id: string;
+                displayName: string;
+                roles:
+                  | { __typename: "InvalidArgumentError" }
+                  | { __typename: "NotAuthorizedError" }
+                  | {
+                      __typename: "RoleList";
+                      list: Array<{
+                        __typename?: "Role";
+                        id: string;
+                        name: string;
+                      }>;
+                    };
+              }>;
+            }
+          | { __typename: "NotAuthorizedError" };
+      }
+    | { __typename: "InvalidArgumentError" }
+    | { __typename: "NotAuthenticatedError" }
+    | { __typename: "NotAuthorizedError" }
+    | { __typename: "NotFoundError" };
+};
+
 export type RolePermissionsFragmentFragment = {
   __typename?: "Role";
   canCreateCritter: boolean;
@@ -903,6 +1140,25 @@ export type RolePermissionsFragmentFragment = {
   canEditRole: boolean;
   canEditSpecies: boolean;
   canListInviteCodes: boolean;
+};
+
+export type CreateCommunityInvitationMutationVariables = Exact<{
+  input: CommunityInvitationCreateInput;
+}>;
+
+export type CreateCommunityInvitationMutation = {
+  __typename?: "Mutation";
+  createCommunityInvitation:
+    | { __typename: "CommunityInvitation"; id: string }
+    | {
+        __typename: "DuplicateError";
+        duplicateKeys: Array<string>;
+        message: string;
+      }
+    | { __typename: "InvalidArgumentError"; message: string }
+    | { __typename: "NotAuthenticatedError"; message: string }
+    | { __typename: "NotAuthorizedError"; message: string }
+    | { __typename: "UserAlreadyHasRoleError"; message: string };
 };
 
 export type GetCommunityRolesQueryVariables = Exact<{
@@ -1754,6 +2010,11 @@ export type BaseErrorFragment_InvalidArgumentError_Fragment = {
   message: string;
 };
 
+export type BaseErrorFragment_InvitationRequiredError_Fragment = {
+  __typename?: "InvitationRequiredError";
+  message: string;
+};
+
 export type BaseErrorFragment_NotAuthenticatedError_Fragment = {
   __typename?: "NotAuthenticatedError";
   message: string;
@@ -1769,12 +2030,19 @@ export type BaseErrorFragment_NotFoundError_Fragment = {
   message: string;
 };
 
+export type BaseErrorFragment_UserAlreadyHasRoleError_Fragment = {
+  __typename?: "UserAlreadyHasRoleError";
+  message: string;
+};
+
 export type BaseErrorFragmentFragment =
   | BaseErrorFragment_DuplicateError_Fragment
   | BaseErrorFragment_InvalidArgumentError_Fragment
+  | BaseErrorFragment_InvitationRequiredError_Fragment
   | BaseErrorFragment_NotAuthenticatedError_Fragment
   | BaseErrorFragment_NotAuthorizedError_Fragment
-  | BaseErrorFragment_NotFoundError_Fragment;
+  | BaseErrorFragment_NotFoundError_Fragment
+  | BaseErrorFragment_UserAlreadyHasRoleError_Fragment;
 
 export type DuplicateErrorFragmentFragment = {
   __typename: "DuplicateError";
@@ -1820,18 +2088,65 @@ export type BaseErrorFieldPolicy = {
 };
 export type CommunityKeySpecifier = (
   | "id"
+  | "members"
   | "name"
   | "roles"
   | CommunityKeySpecifier
 )[];
 export type CommunityFieldPolicy = {
   id?: FieldPolicy<any> | FieldReadFunction<any>;
+  members?: FieldPolicy<any> | FieldReadFunction<any>;
   name?: FieldPolicy<any> | FieldReadFunction<any>;
   roles?: FieldPolicy<any> | FieldReadFunction<any>;
+};
+export type CommunityInvitationKeySpecifier = (
+  | "accepted"
+  | "declined"
+  | "id"
+  | "invitee"
+  | "inviteeId"
+  | "inviter"
+  | "inviterId"
+  | "role"
+  | "roleId"
+  | CommunityInvitationKeySpecifier
+)[];
+export type CommunityInvitationFieldPolicy = {
+  accepted?: FieldPolicy<any> | FieldReadFunction<any>;
+  declined?: FieldPolicy<any> | FieldReadFunction<any>;
+  id?: FieldPolicy<any> | FieldReadFunction<any>;
+  invitee?: FieldPolicy<any> | FieldReadFunction<any>;
+  inviteeId?: FieldPolicy<any> | FieldReadFunction<any>;
+  inviter?: FieldPolicy<any> | FieldReadFunction<any>;
+  inviterId?: FieldPolicy<any> | FieldReadFunction<any>;
+  role?: FieldPolicy<any> | FieldReadFunction<any>;
+  roleId?: FieldPolicy<any> | FieldReadFunction<any>;
+};
+export type CommunityInvitationListKeySpecifier = (
+  | "list"
+  | CommunityInvitationListKeySpecifier
+)[];
+export type CommunityInvitationListFieldPolicy = {
+  list?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type CommunityListKeySpecifier = ("list" | CommunityListKeySpecifier)[];
 export type CommunityListFieldPolicy = {
   list?: FieldPolicy<any> | FieldReadFunction<any>;
+};
+export type CommunityMemberKeySpecifier = (
+  | "id"
+  | "identity"
+  | "identityId"
+  | "role"
+  | "roleId"
+  | CommunityMemberKeySpecifier
+)[];
+export type CommunityMemberFieldPolicy = {
+  id?: FieldPolicy<any> | FieldReadFunction<any>;
+  identity?: FieldPolicy<any> | FieldReadFunction<any>;
+  identityId?: FieldPolicy<any> | FieldReadFunction<any>;
+  role?: FieldPolicy<any> | FieldReadFunction<any>;
+  roleId?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type CritterKeySpecifier = (
   | "id"
@@ -1918,12 +2233,16 @@ export type IdentityKeySpecifier = (
   | "displayName"
   | "email"
   | "id"
+  | "pendingInvitations"
+  | "roles"
   | IdentityKeySpecifier
 )[];
 export type IdentityFieldPolicy = {
   displayName?: FieldPolicy<any> | FieldReadFunction<any>;
   email?: FieldPolicy<any> | FieldReadFunction<any>;
   id?: FieldPolicy<any> | FieldReadFunction<any>;
+  pendingInvitations?: FieldPolicy<any> | FieldReadFunction<any>;
+  roles?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type IdentityListKeySpecifier = ("list" | IdentityListKeySpecifier)[];
 export type IdentityListFieldPolicy = {
@@ -1937,6 +2256,13 @@ export type InvalidArgumentErrorKeySpecifier = (
 export type InvalidArgumentErrorFieldPolicy = {
   message?: FieldPolicy<any> | FieldReadFunction<any>;
   validationErrors?: FieldPolicy<any> | FieldReadFunction<any>;
+};
+export type InvitationRequiredErrorKeySpecifier = (
+  | "message"
+  | InvitationRequiredErrorKeySpecifier
+)[];
+export type InvitationRequiredErrorFieldPolicy = {
+  message?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type InviteCodeKeySpecifier = (
   | "claimCount"
@@ -1983,7 +2309,10 @@ export type LoginSuccessResponseFieldPolicy = {
   token?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type MutationKeySpecifier = (
+  | "answerInvitation"
   | "createCommunity"
+  | "createCommunityInvitation"
+  | "createCommunityMember"
   | "createCritter"
   | "createEnumValueSetting"
   | "createInviteCode"
@@ -1993,6 +2322,7 @@ export type MutationKeySpecifier = (
   | "createSpeciesVariant"
   | "createTrait"
   | "createTraitListEntry"
+  | "deleteCommunityMember"
   | "deleteEnumValueSetting"
   | "deleteTrait"
   | "deleteTraitListEntry"
@@ -2007,7 +2337,10 @@ export type MutationKeySpecifier = (
   | MutationKeySpecifier
 )[];
 export type MutationFieldPolicy = {
+  answerInvitation?: FieldPolicy<any> | FieldReadFunction<any>;
   createCommunity?: FieldPolicy<any> | FieldReadFunction<any>;
+  createCommunityInvitation?: FieldPolicy<any> | FieldReadFunction<any>;
+  createCommunityMember?: FieldPolicy<any> | FieldReadFunction<any>;
   createCritter?: FieldPolicy<any> | FieldReadFunction<any>;
   createEnumValueSetting?: FieldPolicy<any> | FieldReadFunction<any>;
   createInviteCode?: FieldPolicy<any> | FieldReadFunction<any>;
@@ -2017,6 +2350,7 @@ export type MutationFieldPolicy = {
   createSpeciesVariant?: FieldPolicy<any> | FieldReadFunction<any>;
   createTrait?: FieldPolicy<any> | FieldReadFunction<any>;
   createTraitListEntry?: FieldPolicy<any> | FieldReadFunction<any>;
+  deleteCommunityMember?: FieldPolicy<any> | FieldReadFunction<any>;
   deleteEnumValueSetting?: FieldPolicy<any> | FieldReadFunction<any>;
   deleteTrait?: FieldPolicy<any> | FieldReadFunction<any>;
   deleteTraitListEntry?: FieldPolicy<any> | FieldReadFunction<any>;
@@ -2056,6 +2390,7 @@ export type QueryKeySpecifier = (
   | "critters"
   | "identities"
   | "inviteCodes"
+  | "me"
   | "species"
   | "traits"
   | QueryKeySpecifier
@@ -2066,6 +2401,7 @@ export type QueryFieldPolicy = {
   critters?: FieldPolicy<any> | FieldReadFunction<any>;
   identities?: FieldPolicy<any> | FieldReadFunction<any>;
   inviteCodes?: FieldPolicy<any> | FieldReadFunction<any>;
+  me?: FieldPolicy<any> | FieldReadFunction<any>;
   species?: FieldPolicy<any> | FieldReadFunction<any>;
   traits?: FieldPolicy<any> | FieldReadFunction<any>;
 };
@@ -2111,6 +2447,10 @@ export type RoleFieldPolicy = {
   communityId?: FieldPolicy<any> | FieldReadFunction<any>;
   id?: FieldPolicy<any> | FieldReadFunction<any>;
   name?: FieldPolicy<any> | FieldReadFunction<any>;
+};
+export type RoleListKeySpecifier = ("list" | RoleListKeySpecifier)[];
+export type RoleListFieldPolicy = {
+  list?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type SpeciesKeySpecifier = (
   | "community"
@@ -2200,6 +2540,13 @@ export type UrlResponseKeySpecifier = ("url" | UrlResponseKeySpecifier)[];
 export type UrlResponseFieldPolicy = {
   url?: FieldPolicy<any> | FieldReadFunction<any>;
 };
+export type UserAlreadyHasRoleErrorKeySpecifier = (
+  | "message"
+  | UserAlreadyHasRoleErrorKeySpecifier
+)[];
+export type UserAlreadyHasRoleErrorFieldPolicy = {
+  message?: FieldPolicy<any> | FieldReadFunction<any>;
+};
 export type ValidationConstraintKeySpecifier = (
   | "description"
   | "key"
@@ -2240,12 +2587,33 @@ export type StrictTypedTypePolicies = {
       | (() => undefined | CommunityKeySpecifier);
     fields?: CommunityFieldPolicy;
   };
+  CommunityInvitation?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | CommunityInvitationKeySpecifier
+      | (() => undefined | CommunityInvitationKeySpecifier);
+    fields?: CommunityInvitationFieldPolicy;
+  };
+  CommunityInvitationList?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | CommunityInvitationListKeySpecifier
+      | (() => undefined | CommunityInvitationListKeySpecifier);
+    fields?: CommunityInvitationListFieldPolicy;
+  };
   CommunityList?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
       | false
       | CommunityListKeySpecifier
       | (() => undefined | CommunityListKeySpecifier);
     fields?: CommunityListFieldPolicy;
+  };
+  CommunityMember?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | CommunityMemberKeySpecifier
+      | (() => undefined | CommunityMemberKeySpecifier);
+    fields?: CommunityMemberFieldPolicy;
   };
   Critter?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
@@ -2316,6 +2684,13 @@ export type StrictTypedTypePolicies = {
       | InvalidArgumentErrorKeySpecifier
       | (() => undefined | InvalidArgumentErrorKeySpecifier);
     fields?: InvalidArgumentErrorFieldPolicy;
+  };
+  InvitationRequiredError?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | InvitationRequiredErrorKeySpecifier
+      | (() => undefined | InvitationRequiredErrorKeySpecifier);
+    fields?: InvitationRequiredErrorFieldPolicy;
   };
   InviteCode?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
@@ -2401,6 +2776,13 @@ export type StrictTypedTypePolicies = {
     keyFields?: false | RoleKeySpecifier | (() => undefined | RoleKeySpecifier);
     fields?: RoleFieldPolicy;
   };
+  RoleList?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | RoleListKeySpecifier
+      | (() => undefined | RoleListKeySpecifier);
+    fields?: RoleListFieldPolicy;
+  };
   Species?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
       | false
@@ -2449,6 +2831,13 @@ export type StrictTypedTypePolicies = {
       | UrlResponseKeySpecifier
       | (() => undefined | UrlResponseKeySpecifier);
     fields?: UrlResponseFieldPolicy;
+  };
+  UserAlreadyHasRoleError?: Omit<TypePolicy, "fields" | "keyFields"> & {
+    keyFields?:
+      | false
+      | UserAlreadyHasRoleErrorKeySpecifier
+      | (() => undefined | UserAlreadyHasRoleErrorKeySpecifier);
+    fields?: UserAlreadyHasRoleErrorFieldPolicy;
   };
   ValidationConstraint?: Omit<TypePolicy, "fields" | "keyFields"> & {
     keyFields?:
@@ -2600,6 +2989,101 @@ export const GetCommunityListViewDocument = gql`
   }
   ${BaseErrorFragmentFragmentDoc}
   ${InvalidArgumentErrorFragmentFragmentDoc}
+`;
+export const CreateCommunityMemberDocument = gql`
+  mutation createCommunityMember($input: CommunityMemberCreateInput!) {
+    createCommunityMember(input: $input) {
+      __typename
+      ... on CommunityMember {
+        id
+        identityId
+        roleId
+      }
+      ... on BaseError {
+        ...BaseErrorFragment
+      }
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+      ... on NotAuthenticatedError {
+        ...NotAuthenticatedErrorFragment
+      }
+    }
+  }
+  ${BaseErrorFragmentFragmentDoc}
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+  ${NotAuthenticatedErrorFragmentFragmentDoc}
+`;
+export const DeleteCommunityMemberDocument = gql`
+  mutation deleteCommunityMember($input: CommunityMemberDeleteInput!) {
+    deleteCommunityMember(input: $input) {
+      __typename
+      ... on DeleteResponse {
+        ok
+      }
+      ... on BaseError {
+        ...BaseErrorFragment
+      }
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+      ... on NotAuthenticatedError {
+        ...NotAuthenticatedErrorFragment
+      }
+    }
+  }
+  ${BaseErrorFragmentFragmentDoc}
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+  ${NotAuthenticatedErrorFragmentFragmentDoc}
+`;
+export const GetCommunityMemberListDocument = gql`
+  query getCommunityMemberList($communityId: ID!) {
+    community(filters: { id: $communityId }) {
+      __typename
+      ... on Community {
+        members {
+          __typename
+          ... on IdentityList {
+            list {
+              id
+              displayName
+              roles(filters: { communityId: $communityId }) {
+                __typename
+                ... on RoleList {
+                  list {
+                    id
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+export const CreateCommunityInvitationDocument = gql`
+  mutation createCommunityInvitation($input: CommunityInvitationCreateInput!) {
+    createCommunityInvitation(input: $input) {
+      __typename
+      ... on CommunityInvitation {
+        id
+      }
+      ... on DuplicateError {
+        ...DuplicateErrorFragment
+      }
+      ... on NotAuthenticatedError {
+        ...NotAuthenticatedErrorFragment
+      }
+      ... on BaseError {
+        ...BaseErrorFragment
+      }
+    }
+  }
+  ${DuplicateErrorFragmentFragmentDoc}
+  ${NotAuthenticatedErrorFragmentFragmentDoc}
+  ${BaseErrorFragmentFragmentDoc}
 `;
 export const GetCommunityRolesDocument = gql`
   query getCommunityRoles($communityId: ID!) {
@@ -3256,6 +3740,58 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
         options
       ) as Promise<GetCommunityListViewQuery>;
     },
+    createCommunityMember(
+      variables: CreateCommunityMemberMutationVariables,
+      options?: C
+    ): Promise<CreateCommunityMemberMutation> {
+      return requester<
+        CreateCommunityMemberMutation,
+        CreateCommunityMemberMutationVariables
+      >(
+        CreateCommunityMemberDocument,
+        variables,
+        options
+      ) as Promise<CreateCommunityMemberMutation>;
+    },
+    deleteCommunityMember(
+      variables: DeleteCommunityMemberMutationVariables,
+      options?: C
+    ): Promise<DeleteCommunityMemberMutation> {
+      return requester<
+        DeleteCommunityMemberMutation,
+        DeleteCommunityMemberMutationVariables
+      >(
+        DeleteCommunityMemberDocument,
+        variables,
+        options
+      ) as Promise<DeleteCommunityMemberMutation>;
+    },
+    getCommunityMemberList(
+      variables: GetCommunityMemberListQueryVariables,
+      options?: C
+    ): Promise<GetCommunityMemberListQuery> {
+      return requester<
+        GetCommunityMemberListQuery,
+        GetCommunityMemberListQueryVariables
+      >(
+        GetCommunityMemberListDocument,
+        variables,
+        options
+      ) as Promise<GetCommunityMemberListQuery>;
+    },
+    createCommunityInvitation(
+      variables: CreateCommunityInvitationMutationVariables,
+      options?: C
+    ): Promise<CreateCommunityInvitationMutation> {
+      return requester<
+        CreateCommunityInvitationMutation,
+        CreateCommunityInvitationMutationVariables
+      >(
+        CreateCommunityInvitationDocument,
+        variables,
+        options
+      ) as Promise<CreateCommunityInvitationMutation>;
+    },
     getCommunityRoles(
       variables: GetCommunityRolesQueryVariables,
       options?: C
@@ -3654,6 +4190,129 @@ export class GraphqlService {
     const result = await this.client.query<
       GetCommunityListViewQuery,
       GetCommunityListViewQueryVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
+  async createCommunityMember(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").MutationOptions<
+          CreateCommunityMemberMutation,
+          CreateCommunityMemberMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: CreateCommunityMemberMutationVariables;
+    }
+  ): Promise<
+    Omit<
+      import("@apollo/client/core").FetchResult<CreateCommunityMemberMutation>,
+      "data"
+    > & { data: CreateCommunityMemberMutation }
+  > {
+    const finalOptions = {
+      ...options,
+      mutation: CreateCommunityMemberDocument,
+    };
+    const result = await this.client.mutate<
+      CreateCommunityMemberMutation,
+      CreateCommunityMemberMutationVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
+  async deleteCommunityMember(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").MutationOptions<
+          DeleteCommunityMemberMutation,
+          DeleteCommunityMemberMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: DeleteCommunityMemberMutationVariables;
+    }
+  ): Promise<
+    Omit<
+      import("@apollo/client/core").FetchResult<DeleteCommunityMemberMutation>,
+      "data"
+    > & { data: DeleteCommunityMemberMutation }
+  > {
+    const finalOptions = {
+      ...options,
+      mutation: DeleteCommunityMemberDocument,
+    };
+    const result = await this.client.mutate<
+      DeleteCommunityMemberMutation,
+      DeleteCommunityMemberMutationVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
+  async getCommunityMemberList(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").QueryOptions<
+          GetCommunityMemberListQueryVariables,
+          GetCommunityMemberListQuery
+        >
+      >,
+      "variables" | "query"
+    > & {
+      variables: GetCommunityMemberListQueryVariables;
+    }
+  ) {
+    const finalOptions = {
+      ...options,
+      query: GetCommunityMemberListDocument,
+    };
+    const result = await this.client.query<
+      GetCommunityMemberListQuery,
+      GetCommunityMemberListQueryVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
+  async createCommunityInvitation(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").MutationOptions<
+          CreateCommunityInvitationMutation,
+          CreateCommunityInvitationMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: CreateCommunityInvitationMutationVariables;
+    }
+  ): Promise<
+    Omit<
+      import("@apollo/client/core").FetchResult<CreateCommunityInvitationMutation>,
+      "data"
+    > & { data: CreateCommunityInvitationMutation }
+  > {
+    const finalOptions = {
+      ...options,
+      mutation: CreateCommunityInvitationDocument,
+    };
+    const result = await this.client.mutate<
+      CreateCommunityInvitationMutation,
+      CreateCommunityInvitationMutationVariables
     >(finalOptions);
     if (!hasData(result)) {
       throw new Error("Unknown request failure");
@@ -4458,6 +5117,30 @@ export type NarrowToCommunity<T> = T extends { __typename?: "Community" }
   ? T
   : never;
 
+export function isCommunityInvitation(
+  val: unknown
+): val is { __typename?: "CommunityInvitation" } {
+  return hasTypeName(val, "CommunityInvitation");
+}
+
+export type NarrowToCommunityInvitation<T> = T extends {
+  __typename?: "CommunityInvitation";
+}
+  ? T
+  : never;
+
+export function isCommunityInvitationList(
+  val: unknown
+): val is { __typename?: "CommunityInvitationList" } {
+  return hasTypeName(val, "CommunityInvitationList");
+}
+
+export type NarrowToCommunityInvitationList<T> = T extends {
+  __typename?: "CommunityInvitationList";
+}
+  ? T
+  : never;
+
 export function isCommunityList(
   val: unknown
 ): val is { __typename?: "CommunityList" } {
@@ -4466,6 +5149,18 @@ export function isCommunityList(
 
 export type NarrowToCommunityList<T> = T extends {
   __typename?: "CommunityList";
+}
+  ? T
+  : never;
+
+export function isCommunityMember(
+  val: unknown
+): val is { __typename?: "CommunityMember" } {
+  return hasTypeName(val, "CommunityMember");
+}
+
+export type NarrowToCommunityMember<T> = T extends {
+  __typename?: "CommunityMember";
 }
   ? T
   : never;
@@ -4570,6 +5265,18 @@ export function isInvalidArgumentError(
 
 export type NarrowToInvalidArgumentError<T> = T extends {
   __typename?: "InvalidArgumentError";
+}
+  ? T
+  : never;
+
+export function isInvitationRequiredError(
+  val: unknown
+): val is { __typename?: "InvitationRequiredError" } {
+  return hasTypeName(val, "InvitationRequiredError");
+}
+
+export type NarrowToInvitationRequiredError<T> = T extends {
+  __typename?: "InvitationRequiredError";
 }
   ? T
   : never;
@@ -4700,6 +5407,14 @@ export function isRole(val: unknown): val is { __typename?: "Role" } {
 
 export type NarrowToRole<T> = T extends { __typename?: "Role" } ? T : never;
 
+export function isRoleList(val: unknown): val is { __typename?: "RoleList" } {
+  return hasTypeName(val, "RoleList");
+}
+
+export type NarrowToRoleList<T> = T extends { __typename?: "RoleList" }
+  ? T
+  : never;
+
 export function isSpecies(val: unknown): val is { __typename?: "Species" } {
   return hasTypeName(val, "Species");
 }
@@ -4766,6 +5481,18 @@ export type NarrowToUrlResponse<T> = T extends { __typename?: "UrlResponse" }
   ? T
   : never;
 
+export function isUserAlreadyHasRoleError(
+  val: unknown
+): val is { __typename?: "UserAlreadyHasRoleError" } {
+  return hasTypeName(val, "UserAlreadyHasRoleError");
+}
+
+export type NarrowToUserAlreadyHasRoleError<T> = T extends {
+  __typename?: "UserAlreadyHasRoleError";
+}
+  ? T
+  : never;
+
 export function isValidationConstraint(
   val: unknown
 ): val is { __typename?: "ValidationConstraint" } {
@@ -4793,7 +5520,10 @@ export type NarrowToValidationError<T> = T extends {
 export enum ObjectType {
   Account = "Account",
   Community = "Community",
+  CommunityInvitation = "CommunityInvitation",
+  CommunityInvitationList = "CommunityInvitationList",
   CommunityList = "CommunityList",
+  CommunityMember = "CommunityMember",
   Critter = "Critter",
   CritterList = "CritterList",
   CritterTraitValue = "CritterTraitValue",
@@ -4804,6 +5534,7 @@ export enum ObjectType {
   Identity = "Identity",
   IdentityList = "IdentityList",
   InvalidArgumentError = "InvalidArgumentError",
+  InvitationRequiredError = "InvitationRequiredError",
   InviteCode = "InviteCode",
   InviteCodeList = "InviteCodeList",
   LoginFailureResponse = "LoginFailureResponse",
@@ -4816,6 +5547,7 @@ export enum ObjectType {
   RequestPasswordResetReceivedResponse = "RequestPasswordResetReceivedResponse",
   ResetPasswordSuccessResponse = "ResetPasswordSuccessResponse",
   Role = "Role",
+  RoleList = "RoleList",
   Species = "Species",
   SpeciesList = "SpeciesList",
   SpeciesVariant = "SpeciesVariant",
@@ -4823,6 +5555,7 @@ export enum ObjectType {
   TraitList = "TraitList",
   TraitListEntry = "TraitListEntry",
   UrlResponse = "UrlResponse",
+  UserAlreadyHasRoleError = "UserAlreadyHasRoleError",
   ValidationConstraint = "ValidationConstraint",
   ValidationError = "ValidationError",
 }
@@ -4831,17 +5564,21 @@ export function isBaseError(val: any): val is {
   __typename?:
     | "DuplicateError"
     | "InvalidArgumentError"
+    | "InvitationRequiredError"
     | "NotAuthenticatedError"
     | "NotAuthorizedError"
-    | "NotFoundError";
+    | "NotFoundError"
+    | "UserAlreadyHasRoleError";
 } {
   return (
     val &&
     val.__typename &&
     (val.__typename === "DuplicateError" ||
       val.__typename === "InvalidArgumentError" ||
+      val.__typename === "InvitationRequiredError" ||
       val.__typename === "NotAuthenticatedError" ||
       val.__typename === "NotAuthorizedError" ||
-      val.__typename === "NotFoundError")
+      val.__typename === "NotFoundError" ||
+      val.__typename === "UserAlreadyHasRoleError")
   );
 }

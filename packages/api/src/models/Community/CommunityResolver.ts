@@ -4,12 +4,14 @@ import {
   createUnionType,
   Ctx,
   Field,
+  FieldResolver,
   ID,
   InputType,
   Mutation,
   ObjectType,
   Query,
   Resolver,
+  Root,
 } from "type-graphql";
 import { FindManyOptions, ILike } from "typeorm";
 import { Authenticated } from "../../business/auth/Authenticated.js";
@@ -21,7 +23,9 @@ import { DuplicateError } from "../../errors/DuplicateError.js";
 import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
 import { NotFoundError } from "../../errors/NotFoundError.js";
 import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { IdentityList } from "../Identity/IdentityList.js";
 import { Community } from "./Community.js";
+import { CommunityMembersResponse } from "./CommunityMembersResponse.js";
 
 @InputType()
 export class CommunityCreateInput {
@@ -148,5 +152,22 @@ export class CommunityResolver {
       throw new NotFoundError();
     }
     return result[0];
+  }
+
+  @Preauthorize()
+  @FieldResolver(() => CommunityMembersResponse)
+  async members(
+    @Root() community: Community,
+    @Ctx() { identityController }: AppGraphqlContext
+  ) {
+    const results = await identityController.find({
+      communityMemberships: {
+        role: {
+          communityId: community.id,
+        },
+      },
+    });
+
+    return new IdentityList(results);
   }
 }

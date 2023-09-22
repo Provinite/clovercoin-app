@@ -61,10 +61,6 @@ declare module "koa" {
 }
 
 declare module "../graphql/AppGraphqlContext.js" {
-  /**
-   * This shouldn't be used for anything really, and is here only to
-   * configure
-   */
   interface AppGraphqlContext {
     _tgdContext: {
       requestId: string;

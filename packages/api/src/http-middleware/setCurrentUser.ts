@@ -56,10 +56,6 @@ export const setCurrentUser: Middleware = async (ctx, next) => {
 };
 
 declare module "../graphql/AppGraphqlContext.js" {
-  /**
-   * This shouldn't be used for anything really, and is here only to
-   * configure
-   */
   interface AppGraphqlContext {
     /** Authorization token (if present) */
     authToken: string | null;

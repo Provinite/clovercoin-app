@@ -16,6 +16,7 @@ import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import SpaIcon from "@mui/icons-material/Spa";
 import { useRouteVariant } from "./useRouteVariant";
 import SettingsIcon from "@mui/icons-material/Settings";
+import { usePageTitle } from "../../hooks/usePageTitle";
 
 export interface SpeciesDetailPageProps {
   headerBarProps: HeaderBarProps;
@@ -31,6 +32,7 @@ export const SpeciesDetailPage: FC<SpeciesDetailPageProps> = ({
   children,
 }) => {
   const community = useRouteCommunityOrFail();
+  usePageTitle(`${community.name} - ${species.name}`);
   const variant = useRouteVariant();
   const navGroups = useMemo<NavItem[]>(() => {
     const communityId = community.id;
@@ -96,7 +98,7 @@ export const SpeciesDetailPage: FC<SpeciesDetailPageProps> = ({
     <>
       <HeaderBar
         {...headerBarProps}
-        title={`${community.name}: Species - ${species.name}`}
+        title={`${community.name} - ${species.name}`}
       />
       <div
         css={{

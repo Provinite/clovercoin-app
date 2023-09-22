@@ -31,8 +31,9 @@ export class TraitListEntryController extends EntityController<
   constructor({
     traitListEntryRepository,
     traitController,
+    transactionProvider,
   }: AppGraphqlContext) {
-    super(traitListEntryRepository);
+    super(traitListEntryRepository, transactionProvider);
     this.#traitController = traitController;
   }
 

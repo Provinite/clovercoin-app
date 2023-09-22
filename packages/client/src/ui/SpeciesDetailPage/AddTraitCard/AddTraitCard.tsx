@@ -11,6 +11,7 @@ import { useTraitForm } from "./TraitForm/useTraitForm";
 import { TraitPreviewCard } from "./TraitPreviewCard";
 import { TraitActionAlert } from "./TraitActionAlert";
 import { useSnackbar } from "../../SequentialSnackbar/SequentialSnackbarContext";
+import { usePageTitle } from "../../../hooks/usePageTitle";
 /**
  * Card component that allows adding and editing traits. Add/edit
  * mode are controlled by the current route.
@@ -20,6 +21,7 @@ export const AddTraitCard: FunctionComponent = () => {
   const community = useRouteCommunityOrFail();
   const species = useRouteSpeciesOrFail();
   const fetcher = useFetcher();
+  usePageTitle(`${community.name} - ${species.name} - Add Trait`);
   const [form, setForm] = useTraitForm();
   const { traitId: traitSlug } = useParams();
   const snackbarQueue = useSnackbar();

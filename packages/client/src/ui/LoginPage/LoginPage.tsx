@@ -3,6 +3,7 @@ import { LoadingButton } from "@mui/lab";
 import { Card, TextField, Typography } from "@mui/material";
 import { FC, useEffect, useState } from "react";
 import { Form } from "react-router-dom";
+import { usePageTitle } from "../../hooks/usePageTitle";
 import { stylesheet } from "../../utils/emotion";
 import { useRouteActionData } from "../../utils/loaderDataUtils";
 import { AppRoutes } from "../AppRoutes";
@@ -19,6 +20,7 @@ export function exhaustiveSwitch<
 }
 
 export const LoginPage: FC = () => {
+  usePageTitle("CloverCoin Species - Login");
   const error = useRouteActionData<"root.login">();
 
   const [username, setUsername] = useState("");

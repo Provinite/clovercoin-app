@@ -1,6 +1,6 @@
 import { ObjectType } from "type-graphql";
 import type { Relation } from "typeorm";
-import { Entity } from "typeorm";
+import { Entity, Unique } from "typeorm";
 import { Identity } from "../Identity/Identity.js";
 import {
   IdField,
@@ -11,6 +11,7 @@ import { Role } from "../Role/Role.js";
 
 @Entity()
 @ObjectType()
+@Unique("UQ_COMMUNITY_MEMBER_ROLE_ID_IDENTITY_ID", ["roleId", "identityId"])
 export class CommunityMember {
   @IdField
   id!: string;

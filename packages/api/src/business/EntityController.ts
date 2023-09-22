@@ -6,6 +6,7 @@ import {
   ObjectLiteral,
   Repository,
 } from "typeorm";
+import { TransactionProvider } from "../db/TransactionProvider.js";
 import { NotFoundError } from "../errors/NotFoundError.js";
 import { ensureArray } from "../util/ensureArray.js";
 
@@ -15,7 +16,10 @@ export class EntityController<
   CreateBody,
   UpdateBody = any
 > {
-  constructor(protected repository: R) {}
+  constructor(
+    protected repository: R,
+    protected transactionProvider: TransactionProvider
+  ) {}
 
   create(createBody: CreateBody): Promise<Model>;
   create(createBody: CreateBody[]): Promise<Model[]>;
@@ -95,6 +99,10 @@ export class EntityController<
   async find(where: FindOptionsWhere<Model> = {}): Promise<Model[]> {
     where = await this.augmentFindWhere(where);
     return this.repository.findBy(where);
+  }
+
+  async advancedFind(...args: Parameters<typeof this.repository.find>) {
+    return this.repository.find(...args);
   }
 
   /**

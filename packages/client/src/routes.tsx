@@ -71,7 +71,7 @@ export const routes = [
         loader: async () => {
           if (!graphqlService.isClientAuthenticated()) {
             globalSnackbarTopic.simpleError.publish(
-              "You are not logged in. Redirecting to the login page."
+              "You are not logged in, or your session has expired. Please log in again"
             );
             return redirect(AppRoutes.login());
           }
@@ -95,9 +95,9 @@ export const routes = [
             ],
           },
         ],
-      }),
+      } as const),
     ],
-  } as const),
+  }),
 ];
 
 /**
@@ -138,7 +138,7 @@ export type TypedIndexRouteObject<RouteId extends string = string> = Omit<
 > & { readonly id: RouteId };
 /**
  * More strictly-typed variant of the RouteObject from
- * react-router-dom.
+ * react-router-dom with some custom config.
  */
 export type TypedRouteConfig<RouteId extends string = string> =
   | TypedNonIndexRouteObject<RouteId>

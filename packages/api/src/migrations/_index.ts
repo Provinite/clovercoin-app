@@ -12,12 +12,10 @@ import { RenameTraitListEntryTraitListIdField1692581217285 } from "./16925812172
 import { AddRoles1692753280259 } from "./1692753280259-add-roles.js";
 import { AddIdentityCanCreateCommunityColumn1692845317726 } from "./1692845317726-add-identity-can-create-community-column.js";
 import { AddCanListIdentitiesPerm1693092216811 } from "./1693092216811-add-can-list-identities-perm.js";
-import { AddCommunityRoleCanCreateCritterPerm1693102933339 } from "./1693102933339-add-community-role-can-create-critter-perm.js";
-import { AddCommunityRoleCanEditCritterPermission1693110836623 } from "./1693110836623-add-community-role-can-edit-critter-permission.js";
-import { AddCommunityRoleCanEditSpeciesPermission1693167148507 } from "./1693167148507-add-community-role-can-edit-species-permission.js";
 import { AddIdentityCanCreateInviteCodePerm1693180926946 } from "./1693180926946-add-identity-can-create-invite-code-perm.js";
-import { AddInviteCodeRoleidAndPerms1693851679207 } from "./1693851679207-add-invite-code-roleid-and-perms.js";
-import { AddRoleManagementPerms1694912376332 } from "./1694912376332-add-role-management-perms.js";
+import { AddInviteCodeRoleid1693851679207 } from "./1693851679207-add-invite-code-roleid.js";
+import { AddCommunityInvitationTable1694991481498 } from "./1694991481498-add-community-invitation-table.js";
+import { AddUniqueIndexesToInviteAndCommunityMember1695020560381 } from "./1695020560381-add-unique-indexes-to-invite-and-community-member.js";
 
 export const migrationsArray = [
   initializeDb1690172455074,
@@ -34,10 +32,8 @@ export const migrationsArray = [
   AddRoles1692753280259,
   AddIdentityCanCreateCommunityColumn1692845317726,
   AddCanListIdentitiesPerm1693092216811,
-  AddCommunityRoleCanCreateCritterPerm1693102933339,
-  AddCommunityRoleCanEditCritterPermission1693110836623,
-  AddCommunityRoleCanEditSpeciesPermission1693167148507,
   AddIdentityCanCreateInviteCodePerm1693180926946,
-  AddInviteCodeRoleidAndPerms1693851679207,
-  AddRoleManagementPerms1694912376332,
+  AddInviteCodeRoleid1693851679207,
+  AddCommunityInvitationTable1694991481498,
+  AddUniqueIndexesToInviteAndCommunityMember1695020560381,
 ];

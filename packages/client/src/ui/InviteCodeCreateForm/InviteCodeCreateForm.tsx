@@ -3,11 +3,12 @@ import {
   isInvalidArgumentError,
 } from "@clovercoin/api-client";
 import { LoadingButton } from "@mui/lab";
-import { Grid, TextField, Stack, MenuItem } from "@mui/material";
+import { Grid, TextField, MenuItem, Box } from "@mui/material";
 import { FC, useEffect, useState } from "react";
 import { useFetcher } from "react-router-dom";
 import { ActionData, RouteType } from "../../routes";
 import { useRouteCommunity } from "../../useRouteCommunity";
+import { stylesheet } from "../../utils/emotion";
 import { AppRoutes } from "../AppRoutes";
 
 export interface InviteCodeCreateFormProps {}
@@ -119,15 +120,7 @@ export const InviteCodeCreateForm: FC<InviteCodeCreateFormProps> = () => {
           </TextField>
         </Grid>
       )}
-      <Grid
-        item
-        xs={buttonWidth}
-        component={Stack}
-        css={{ flexDirection: "column" }}
-        justifyContent="center"
-        alignContent="center"
-        p={2}
-      >
+      <Grid item xs={buttonWidth} css={ss.buttonGridItem}>
         <LoadingButton
           type="submit"
           variant="contained"
@@ -142,7 +135,21 @@ export const InviteCodeCreateForm: FC<InviteCodeCreateFormProps> = () => {
         >
           Add One
         </LoadingButton>
+        <Box css={ss.spacer}>&nbsp;</Box>
       </Grid>
     </fetcher.Form>
   );
 };
+
+const ss = stylesheet({
+  spacer: {
+    width: "100%",
+    height: "20px",
+  },
+  buttonGridItem: (theme) => ({
+    flexDirection: "column",
+    display: "flex",
+    padding: theme.spacing(1),
+    justifyContent: "center",
+  }),
+});

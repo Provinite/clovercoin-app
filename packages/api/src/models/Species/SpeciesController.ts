@@ -13,8 +13,12 @@ export class SpeciesController extends EntityController<
   SpeciesUpdate
 > {
   principal: Identity | null;
-  constructor({ speciesRepository, principal }: AppGraphqlContext) {
-    super(speciesRepository);
+  constructor({
+    speciesRepository,
+    principal,
+    transactionProvider,
+  }: AppGraphqlContext) {
+    super(speciesRepository, transactionProvider);
     this.principal = principal;
   }
   async augmentFindWhere(

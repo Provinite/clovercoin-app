@@ -12,6 +12,8 @@ import { SpeciesVariantResolver } from "../models/SpeciesVariant/SpeciesVariantR
 import { TraitListEntryResolver } from "../models/TraitListEntry/TraitListEntryResolver.js";
 import { LoginResolver } from "./LoginResolver.js";
 import { RoleResolver } from "../models/Role/RoleResolver.js";
+import { CommunityInvitationResolver } from "../models/CommunityInvitation/CommunityInvitationResolver.js";
+import { CommunityMemberResolver } from "../models/CommunityMember/CommunityMemberResolver.js";
 /**
  * This map contains all resolvers by their classnames. If you create a new resolver,
  * it must be added here to have its queries and mutations in the gql schema.
@@ -28,6 +30,8 @@ export const ResolversMap = {
   IdentityResolver,
   InviteCodeResolver,
   RoleResolver,
+  CommunityInvitationResolver,
+  CommunityMemberResolver,
 };
 
 export const ResolversArray = Object.values(ResolversMap);

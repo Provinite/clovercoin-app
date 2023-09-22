@@ -5,6 +5,9 @@
 - Adds some new muations:
   - `createRole`
   - `modifyRole`
+  - `createCommunityInvite`
+  - `createCommunityMember`
+  - `deleteCommunityMember`
 - Implements permissions/authorization
 - Each permission is associated with a particular entity in the system
   - Global Permissions are attached to a user's identity and are generally used for site-admin level permissions that very few users will have.
@@ -64,7 +67,6 @@
 
 ## TODOS
 
-- Migrations to handle new identity fields
 - Migrations to handle existing users that will need roles
 - Frontend permission-controlled visibility of elements
 - Revisit `critter.canEditOwn` permission. Concept seems iffy and execution is poor.
@@ -72,6 +74,7 @@
 - Revisit permissions on `traits` query
 - Make some roles not-invitable
 - Add permissions and mutations for managing identity perms
+- Test permissions for global actions thoroughly (seems like new users can make global invite codes :O)
 
 # 4.0.0
 

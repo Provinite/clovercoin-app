@@ -1,17 +1,12 @@
-import { ArgumentValidationError, createMethodDecorator } from "type-graphql";
-import {
-  AuthInfoSpecifier,
-  CompoundAuthInfo,
-  isCompoundAuthInfo,
-} from "./AuthInfo.js";
+import { createMethodDecorator } from "type-graphql";
+import { AuthInfoSpecifier, CompoundAuthInfo } from "./AuthInfo.js";
 import { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
 import { NotAuthenticatedError } from "./NotAuthenticatedError.js";
-import { assertNever } from "../../util/assertNever.js";
-import { BaseError } from "../../errors/BaseError.js";
+import { runAuthorizationOrThrow } from "./runAuthorization.js";
 
 export const Preauthorize = (specifier?: AuthInfoSpecifier) =>
   createMethodDecorator<AppGraphqlContext>(async (resolverData, next) => {
-    const { principal, authorizerRegistry } = resolverData.context;
+    const { principal } = resolverData.context;
     if (!principal) {
       throw new NotAuthenticatedError();
     }
@@ -19,106 +14,17 @@ export const Preauthorize = (specifier?: AuthInfoSpecifier) =>
       return next();
     }
 
-    const authorize = async (authInfo: AuthInfoSpecifier): Promise<void> => {
-      if (typeof authInfo === "function") {
-        authInfo = await authInfo(resolverData);
-      }
-      if (!authInfo) {
-        /**
-         * `null` specifiers can be ignored. This allows {@link AuthInofFn}s
-         * to conditionally set themselves to be ignored if they don't apply
-         * to the current graphql operation.
-         */
-        return;
-      }
-      if (isCompoundAuthInfo(authInfo)) {
-        if (authInfo.kind === "anyOf") {
-          /**
-           * For "anyOf" compound auth, we collect all of the errors
-           * and throw the first if every single authinfo fails.
-           */
-          const errors: BaseError[] = [];
-          for (const info of authInfo.authInfos) {
-            // recurse over children
-            const result = await safeRun(() => authorize(info));
-            if (
-              result.result === "error" &&
-              result.error instanceof ArgumentValidationError
-            ) {
-              throw result.error;
-            }
-            /**
-             * Short circuit here because `anyOf` the provided
-             * authinfos have passed now.
-             */
-            if (result.result === "ok") return;
-            errors.push(result.error);
-          }
-          /**
-           * We never short-circuited, so we rethrow the first
-           * error here. This does result in various errors being
-           * swallowed, so will need some improved logging around
-           * this most likely.
-           */
-          throw errors[0];
-        } else if (authInfo.kind === "allOf") {
-          /**
-           * For "allOf" compound auth, we just run until the first
-           * failure and forward its error.
-           */
-          for (const info of authInfo.authInfos) {
-            // recurse over children
-            await authorize(info);
-          }
-          /**
-           * No authorizations in the list failed, so this is a passing
-           * authorization.
-           */
-          return;
-        } else {
-          assertNever(authInfo.kind);
-        }
-      } else {
-        /**
-         * For an individual auth info, we simply run the associated authorizer.
-         */
-        const authorizer = authorizerRegistry.getAuthorizer(authInfo.scope);
-        await authorizer.authorize(authInfo);
-      }
-    };
-
     /**
      * `authorize` will throw here if authorization fails, so we just await it
      * and forward its errors.
      */
-    await authorize(specifier);
+    await runAuthorizationOrThrow(specifier, resolverData);
 
     /**
      * Authorization passed, resolver approved to run.
      */
     return next();
   });
-
-/**
- * Run a function, and return an object indicating whether it threw or not
- * as well as the error if it did throw.
- *
- * @note This function will never throw
- *
- * @param fn The potentially-error-throwing void function to run
- * @returns A result object indicating if an error happened, and
- *  if so the error itself.
- */
-async function safeRun(
-  fn: () => any
-): Promise<{ result: "ok" } | { result: "error"; error: BaseError }> {
-  try {
-    await fn();
-    return { result: "ok" };
-  } catch (error: any) {
-    return { result: "error", error };
-  }
-}
 
 /**
  * Compound auth type. The operation will be authorized if any

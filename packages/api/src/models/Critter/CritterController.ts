@@ -23,8 +23,9 @@ export class CritterController extends EntityController<
     critterRepository,
     traitRepository,
     principal,
+    transactionProvider,
   }: AppGraphqlContext) {
-    super(critterRepository);
+    super(critterRepository, transactionProvider);
     this.traitRepository = traitRepository;
     this.principal = principal;
   }

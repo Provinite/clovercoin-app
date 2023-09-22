@@ -29,8 +29,8 @@ export class AccountController extends EntityController<
   Repository<Account>,
   AccountCreate
 > {
-  constructor({ accountRepository }: AppGraphqlContext) {
-    super(accountRepository);
+  constructor({ accountRepository, transactionProvider }: AppGraphqlContext) {
+    super(accountRepository, transactionProvider);
   }
 
   /**

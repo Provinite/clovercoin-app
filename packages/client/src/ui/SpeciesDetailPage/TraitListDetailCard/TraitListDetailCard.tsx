@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { FunctionComponent, useState } from "react";
 import { useFetcher } from "react-router-dom";
+import { usePageTitle } from "../../../hooks/usePageTitle";
 import { useRouteCommunityOrFail } from "../../../useRouteCommunity";
 import { stylesheet } from "../../../utils/emotion";
 import { useRouteLoaderDataOrFail } from "../../../utils/loaderDataUtils";
@@ -32,6 +33,7 @@ export const TraitListDetailCard: FunctionComponent = () => {
   const species = useRouteSpeciesOrFail();
   const community = useRouteCommunityOrFail();
   const allTraits = useRouteLoaderDataOrFail("root.community.species.variant");
+  usePageTitle(`${community.name} - ${species.name} - ${variant.name}`);
   const [showConfirmAddDialog, setShowConfirmAddDialog] = useState(false);
   const [traitListEntryToRemove, setTraitListEntryToRemove] =
     useState<typeof variant["traitListEntries"][number]>();

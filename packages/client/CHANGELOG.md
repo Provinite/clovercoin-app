@@ -1,8 +1,16 @@
 # Next
 
-- Added community settings page with role management
-- Community managers can now create invite codes that will join a user directly to their community with a specific role
-- Added basic support for `UnauthorizedError` response
+- Added community settings page with:
+  - Role management (setting permissions for roles)
+  - User management (setting roles for users)
+  - Invitation support
+  - Community-direct invite codes
+    - Community managers can now create invite codes that will join a user directly to their community with a specific role
+- Added error message support for `UnauthorizedError` response
+- Added error handling for `NotAuthenticatedError`s
+  - Bounces the user to the login page and forces a new login
+  - Dev note: This error is returned when a user that is not logged in tries
+    to do something sensitive.
 
 # 3.3.0
 

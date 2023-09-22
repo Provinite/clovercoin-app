@@ -16,10 +16,13 @@ import { GridRow } from "../lib/GridRow";
 import { TextStack } from "../SpeciesDetailPage/TraitListDetailCard/TextStack";
 import { stylesheet } from "../../utils/emotion";
 import { InviteCodeList } from "../InviteCodeList/InviteCodeList";
+import { CommunityMemberList } from "./CommunityMemberList/CommunityMemberList";
+import { usePageTitle } from "../../hooks/usePageTitle";
 
 export const CommunitySetttingsPage: FC = () => {
   const headerBarProps = useHeaderBarProps();
   const community = useRouteCommunityOrFail();
+  usePageTitle(`${community.name} - Admin Settings`);
   const roles = useRouteRolesOrFail();
   return (
     <>
@@ -79,8 +82,18 @@ export const CommunitySetttingsPage: FC = () => {
             </Grid>
             <Grid item xs={12}>
               <Card elevation={1}>
+                <CardHeader title="Members" />
+                <CardContent>
+                  <CommunityMemberList />
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12}>
+              <Card elevation={1}>
                 <CardHeader title="Invite Codes" />
-                <InviteCodeList />
+                <CardContent>
+                  <InviteCodeList />
+                </CardContent>
               </Card>
             </Grid>
           </Grid>

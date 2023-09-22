@@ -92,6 +92,7 @@ const registerAction = makeAction(
 
 const logoutLoader = makeLoader({}, async () => {
   graphqlService.setClientAuthToken("");
+  graphqlService.getApolloClient().clearStore();
 });
 
 const forgotPasswordAction = makeAction(

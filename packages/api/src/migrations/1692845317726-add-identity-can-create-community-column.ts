@@ -9,6 +9,12 @@ export class AddIdentityCanCreateCommunityColumn1692845317726
     await queryRunner.query(
       `ALTER TABLE "identity" ADD "canCreateCommunity" boolean NOT NULL DEFAULT false`
     );
+    if (process.env.CC_ADMIN_EMAIL) {
+      await queryRunner.query(
+        `UPDATE "identity" SET "canCreateCommunity" = $1 WHERE "email" = $2`,
+        [true, process.env.CC_ADMIN_EMAIL]
+      );
+    }
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

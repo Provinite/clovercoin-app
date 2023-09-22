@@ -16,8 +16,12 @@ export class RoleController extends EntityController<
   RoleModify
 > {
   principal: Identity | null;
-  constructor({ roleRepository, principal }: AppGraphqlContext) {
-    super(roleRepository);
+  constructor({
+    roleRepository,
+    principal,
+    transactionProvider,
+  }: AppGraphqlContext) {
+    super(roleRepository, transactionProvider);
     this.principal = principal;
   }
   async augmentFindWhere(

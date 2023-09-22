@@ -1,4 +1,10 @@
-import { FunctionComponent, useCallback, useEffect, useMemo } from "react";
+import {
+  FunctionComponent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useFetcher, useParams } from "react-router-dom";
 import { Alert, Card, CardContent, CardHeader, Grid } from "@mui/material";
 import { slugToUuid } from "../../../utils/uuidUtils";
@@ -11,6 +17,7 @@ import { TraitPreviewCard } from "./TraitPreviewCard";
 import { TraitActionAlert } from "./TraitActionAlert";
 import { useRouteTraitsOrFail } from "../useRouteTraits";
 import { useSnackbar } from "../../SequentialSnackbar/SequentialSnackbarContext";
+import { usePageTitle } from "../../../hooks/usePageTitle";
 
 /**
  * Card component that allows adding and editing traits. Add/edit
@@ -28,6 +35,11 @@ export const EditTraitCard: FunctionComponent = () => {
   const { traitId: traitSlug } = useParams();
 
   const snackbarQueue = useSnackbar();
+
+  const [pageTitle, setPageTitle] = useState(
+    `${community.name} - Edit ${species.name} Trait`
+  );
+  usePageTitle(pageTitle);
 
   /**
    * Current editing trait uuid
@@ -47,6 +59,9 @@ export const EditTraitCard: FunctionComponent = () => {
         snackbarQueue.appendSimpleError("Trait not found");
         return;
       }
+      setPageTitle(
+        `${community.name} - ${species.name} - Modify ${existingTrait.name}`
+      );
       setForm({
         id: traitId,
         enumValues: [...existingTrait.enumValues],

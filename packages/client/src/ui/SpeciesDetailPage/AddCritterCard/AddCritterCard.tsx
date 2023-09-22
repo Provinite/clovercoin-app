@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader } from "@mui/material";
 import { FC } from "react";
 import { useFetcher } from "react-router-dom";
+import { usePageTitle } from "../../../hooks/usePageTitle";
 import { useRouteCommunityOrFail } from "../../../useRouteCommunity";
 import { AppRoutes } from "../../AppRoutes";
 import { CritterForm } from "../../CritterForm/CritterForm";
@@ -12,6 +13,7 @@ export const AddCritterCard: FC = () => {
   const fetcher = useFetcher();
   const species = useRouteSpeciesOrFail();
   const community = useRouteCommunityOrFail();
+  usePageTitle(`${community.name} - Create a ${species.name}`);
   const [form, dispatch] = useCritterForm();
 
   return (

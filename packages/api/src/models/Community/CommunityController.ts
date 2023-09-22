@@ -1,6 +1,5 @@
 import { And, Equal, FindOptionsWhere, In, Repository } from "typeorm";
 import { EntityController } from "../../business/EntityController.js";
-import { TransactionProvider } from "../../db/TransactionProvider.js";
 import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
 import type { Identity } from "../Identity/Identity.js";
 import { RoleController, RoleCreate } from "../Role/RoleController.js";
@@ -13,7 +12,6 @@ export class CommunityController extends EntityController<
   Repository<Community>,
   CommunityCreate
 > {
-  transactionProvider: TransactionProvider;
   roleController: RoleController;
   principal: Identity | null;
   constructor({
@@ -22,8 +20,7 @@ export class CommunityController extends EntityController<
     roleController,
     principal,
   }: AppGraphqlContext) {
-    super(communityRepository);
-    this.transactionProvider = transactionProvider;
+    super(communityRepository, transactionProvider);
     this.roleController = roleController;
     this.principal = principal;
   }

@@ -10,17 +10,40 @@ export const AppRouteParts = {
   login: () => ["login"],
   logout: () => ["logout"],
   register: () => ["register"],
+
   community: (communityId: string) => ["community", uuidToSlug(communityId)],
   communitySettings: (communityId: string) => [
     "community",
     uuidToSlug(communityId),
     "settings",
   ],
+
   roleDetail: (communityId: string, roleId: string) => [
     ...AppRouteParts.community(communityId),
     "roles",
     uuidToSlug(roleId),
   ],
+
+  communityMemberList: (communityId: string) => [
+    ...AppRouteParts.community(communityId),
+    "memberships",
+  ],
+  communityMemberDetail: (
+    communityId: string,
+    identityId: string,
+    roleId: string
+  ) => [
+    ...AppRouteParts.community(communityId),
+    "memberships",
+    uuidToSlug(identityId),
+    uuidToSlug(roleId),
+  ],
+
+  communityInvitationList: (communityId: string) => [
+    ...AppRouteParts.community(communityId),
+    "invitations",
+  ],
+
   communityList: () => ["communities"],
   addCritter: (communityId: string, speciesId: string) => [
     ...AppRouteParts.speciesDetail(communityId, speciesId),

@@ -5,7 +5,12 @@ import { Identity } from "./Identity.js";
 
 export type IdentityCreate = Pick<
   Identity,
-  "displayName" | "email" | "canCreateCommunity" | "canListIdentities"
+  | "displayName"
+  | "email"
+  | "canCreateCommunity"
+  | "canListIdentities"
+  | "canListInviteCodes"
+  | "canCreateInviteCode"
 >;
 
 export class IdentityController extends EntityController<
@@ -13,7 +18,7 @@ export class IdentityController extends EntityController<
   Repository<Identity>,
   IdentityCreate
 > {
-  constructor({ identityRepository }: AppGraphqlContext) {
-    super(identityRepository);
+  constructor({ identityRepository, transactionProvider }: AppGraphqlContext) {
+    super(identityRepository, transactionProvider);
   }
 }

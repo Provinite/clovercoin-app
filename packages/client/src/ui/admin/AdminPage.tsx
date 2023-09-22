@@ -21,10 +21,11 @@ import { useFetcher } from "react-router-dom";
 import { ActionData, RouteType } from "../../routes";
 import CloseIcon from "@mui/icons-material/Close";
 import { Link } from "../Link/Link";
-import { isBaseError } from "@clovercoin/api-client";
+import { isBaseError, isNotAuthorizedError } from "@clovercoin/api-client";
 import { UserList } from "./UserList";
 import { InviteCodeList } from "../InviteCodeList/InviteCodeList";
 import { useSnackbar } from "../SequentialSnackbar/SequentialSnackbarContext";
+import { usePageTitle } from "../../hooks/usePageTitle";
 
 export interface AdminPageProps {}
 export const AdminPage: FunctionComponent<AdminPageProps> = () => {
@@ -32,15 +33,20 @@ export const AdminPage: FunctionComponent<AdminPageProps> = () => {
   const headerBarProps = useHeaderBarProps();
   const fetcher = useFetcher<ActionData<RouteType<"root.community-list">>>();
   const snackbarQueue = useSnackbar();
+  usePageTitle("CloverCoin Species - Site Administration");
   useEffect(() => {
-    if (fetcher.state === "idle" && fetcher.data) {
-      if (isBaseError(fetcher.data)) {
+    const { data, state } = fetcher;
+    if (state === "idle" && data) {
+      if (isNotAuthorizedError(data)) {
+        return;
+      }
+      if (isBaseError(data)) {
         snackbarQueue.appendSimpleError(
-          `Error creating community: ${fetcher.data.message}`
+          `Error creating community: ${data.message || data.__typename}`
         );
         return;
       }
-      const { name, id } = fetcher.data;
+      const { name, id } = data;
       snackbarQueue.append({
         children: (
           <Alert
