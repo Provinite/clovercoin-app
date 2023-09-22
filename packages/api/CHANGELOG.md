@@ -6,6 +6,7 @@
   - `createRole`
   - `modifyRole`
   - `createCommunityInvite`
+  - `answerCommunityInvite`
   - `createCommunityMember`
   - `deleteCommunityMember`
 - Implements permissions/authorization
