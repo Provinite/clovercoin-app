@@ -38,7 +38,9 @@
     - `canAnswerInvites` - Answer community invites (accept/decline) for a user. Users can answer their own
     - `canViewEmail` - Control whether a user can see another user's email. This is limited strictly to staff/"super-admins", as well as users viewing their own.
 - Permissions for:
+
   - Mutations
+
     - `createCommunity`: `global.canCreateCommunity`
     - `createCritter`: `community.canCreateCritter`
     - `modifyCritter`: `community.canEditCritter`
@@ -66,10 +68,16 @@
     - `register`: No permissions
     - `requestPasswordReset`: No permissions
     - `modifyIdentity`: `global.canGrantGlobalPermissions`
+    - `createCommunityInvite`: `community.canCreateInviteCode`
+    - `answerCommunityInvite`: `*`
+
   - Queries
     - `identities`: `global.canListIdentities`
     - `inviteCodes`: `global.canListInviteCodes`
     - `traits`: `community.*`
+    - Fields
+      - `identity.roles`: `community.*`
+
 - Added controller-enforced filtering rules. These rules are applied to every operation. So a filter can prevent reading something (eg, looking at critters in communities you don't have access to), and it can also prevent updating or creating something (eg: can't create things in a community you're not in because from your perspective it does not exist).
   - Community:
     - Filtered to communities in which the user has any role
