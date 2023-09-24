@@ -34,16 +34,24 @@ export class Identity {
   communityMemberships!: CommunityMember[];
 
   @Column("boolean", { nullable: false, default: false })
+  @Field(() => Boolean, { nullable: false })
   canCreateCommunity!: boolean;
 
   @Column("boolean", { nullable: false, default: false })
+  @Field(() => Boolean, { nullable: false })
   canListIdentities!: boolean;
 
   @Column("boolean", { nullable: false, default: false })
+  @Field(() => Boolean, { nullable: false })
   canListInviteCodes!: boolean;
 
   @Column("boolean", { nullable: false, default: false })
+  @Field(() => Boolean, { nullable: false })
   canCreateInviteCode!: boolean;
+
+  @Column("boolean", { nullable: false, default: false })
+  @Field(() => Boolean, { nullable: false })
+  canGrantGlobalPermissions!: boolean;
 
   @OneToMany(
     () => CommunityInvitation,

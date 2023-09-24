@@ -2,6 +2,7 @@ import { Repository } from "typeorm";
 import { EntityController } from "../../business/EntityController.js";
 import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
 import { Identity } from "./Identity.js";
+import { IdentityPermissionKeys } from "./IdentityPermissionKeys.js";
 
 export type IdentityCreate = Pick<
   Identity,
@@ -11,12 +12,19 @@ export type IdentityCreate = Pick<
   | "canListIdentities"
   | "canListInviteCodes"
   | "canCreateInviteCode"
+  | "canGrantGlobalPermissions"
+>;
+
+export type IdentityModify = Pick<
+  Partial<Identity>,
+  "id" | IdentityPermissionKeys
 >;
 
 export class IdentityController extends EntityController<
   Identity,
   Repository<Identity>,
-  IdentityCreate
+  IdentityCreate,
+  IdentityModify
 > {
   constructor({ identityRepository, transactionProvider }: AppGraphqlContext) {
     super(identityRepository, transactionProvider);

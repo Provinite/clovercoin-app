@@ -11,6 +11,11 @@ export const AppRouteParts = {
   logout: () => ["logout"],
   register: () => ["register"],
 
+  identityDetail: (identityId: string) => [
+    "identities",
+    uuidToSlug(identityId),
+  ],
+
   community: (communityId: string) => ["community", uuidToSlug(communityId)],
   communitySettings: (communityId: string) => [
     "community",

@@ -98,6 +98,7 @@ export type CommunityInvitationCreateResponse =
   | InvalidArgumentError
   | NotAuthenticatedError
   | NotAuthorizedError
+  | NotFoundError
   | UserAlreadyHasRoleError;
 
 export interface CommunityInvitationList {
@@ -292,6 +293,11 @@ export type EnumValueSettingDeleteResponse =
 
 export interface Identity {
   __typename?: "Identity";
+  canCreateCommunity: Scalars["Boolean"];
+  canCreateInviteCode: Scalars["Boolean"];
+  canGrantGlobalPermissions: Scalars["Boolean"];
+  canListIdentities: Scalars["Boolean"];
+  canListInviteCodes: Scalars["Boolean"];
   displayName: Scalars["String"];
   email: Scalars["String"];
   id: Scalars["ID"];
@@ -308,6 +314,22 @@ export interface IdentityList {
   list: Array<Identity>;
 }
 
+export interface IdentityModifyInput {
+  canCreateCommunity?: InputMaybe<Scalars["Boolean"]>;
+  canCreateInviteCode?: InputMaybe<Scalars["Boolean"]>;
+  canGrantGlobalPermissions?: InputMaybe<Scalars["Boolean"]>;
+  canListIdentities?: InputMaybe<Scalars["Boolean"]>;
+  canListInviteCodes?: InputMaybe<Scalars["Boolean"]>;
+  id: Scalars["ID"];
+}
+
+export type IdentityModifyResponse =
+  | Identity
+  | InvalidArgumentError
+  | NotAuthenticatedError
+  | NotAuthorizedError
+  | NotFoundError;
+
 export interface IdentityRolesFilters {
   communityId: Scalars["ID"];
 }
@@ -317,7 +339,10 @@ export type IdentityRolesResponse =
   | NotAuthorizedError
   | RoleList;
 
-export type IdentitylistResponse = IdentityList | NotAuthenticatedError;
+export type IdentitylistResponse =
+  | IdentityList
+  | NotAuthenticatedError
+  | NotAuthorizedError;
 
 /** Acceptable MIME types for images */
 export enum ImageContentType {
@@ -423,6 +448,7 @@ export interface Mutation {
   /** Log in using local credentials and receive an auth token */
   login: LoginResponse;
   modifyCritter: CritterModifyResponse;
+  modifyIdentity: IdentityModifyResponse;
   modifyRole: RoleModifyResponse;
   modifyTrait: TraitModifyResponse;
   /** Update an entry on a variant's trait list */
@@ -507,6 +533,10 @@ export interface MutationLoginArgs {
 
 export interface MutationModifyCritterArgs {
   input: CritterModifyInput;
+}
+
+export interface MutationModifyIdentityArgs {
+  input: IdentityModifyInput;
 }
 
 export interface MutationModifyRoleArgs {
@@ -1158,6 +1188,7 @@ export type CreateCommunityInvitationMutation = {
     | { __typename: "InvalidArgumentError"; message: string }
     | { __typename: "NotAuthenticatedError"; message: string }
     | { __typename: "NotAuthorizedError"; message: string }
+    | { __typename: "NotFoundError"; message: string }
     | { __typename: "UserAlreadyHasRoleError"; message: string };
 };
 
@@ -1937,9 +1968,15 @@ export type GetIdentityListQuery = {
           displayName: string;
           email: string;
           id: string;
+          canCreateCommunity: boolean;
+          canCreateInviteCode: boolean;
+          canListIdentities: boolean;
+          canListInviteCodes: boolean;
+          canGrantGlobalPermissions: boolean;
         }>;
       }
-    | { __typename?: "NotAuthenticatedError"; message: string };
+    | { __typename?: "NotAuthenticatedError"; message: string }
+    | { __typename?: "NotAuthorizedError" };
 };
 
 export type GetInviteCodeListQueryVariables = Exact<{
@@ -1962,6 +1999,40 @@ export type GetInviteCodeListQuery = {
       }
     | { __typename: "NotAuthenticatedError" }
     | { __typename: "NotAuthorizedError" };
+};
+
+export type ModifyIdentityMutationVariables = Exact<{
+  input: IdentityModifyInput;
+}>;
+
+export type ModifyIdentityMutation = {
+  __typename?: "Mutation";
+  modifyIdentity:
+    | {
+        __typename: "Identity";
+        canCreateCommunity: boolean;
+        canCreateInviteCode: boolean;
+        canGrantGlobalPermissions: boolean;
+        canListIdentities: boolean;
+        canListInviteCodes: boolean;
+        id: string;
+      }
+    | {
+        __typename: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      }
+    | { __typename: "NotAuthenticatedError"; message: string }
+    | { __typename: "NotAuthorizedError"; message: string }
+    | { __typename: "NotFoundError"; message: string };
 };
 
 export type CreateInviteCodeMutationVariables = Exact<{
@@ -2230,6 +2301,11 @@ export type EnumValueSettingFieldPolicy = {
   speciesVariantId?: FieldPolicy<any> | FieldReadFunction<any>;
 };
 export type IdentityKeySpecifier = (
+  | "canCreateCommunity"
+  | "canCreateInviteCode"
+  | "canGrantGlobalPermissions"
+  | "canListIdentities"
+  | "canListInviteCodes"
   | "displayName"
   | "email"
   | "id"
@@ -2238,6 +2314,11 @@ export type IdentityKeySpecifier = (
   | IdentityKeySpecifier
 )[];
 export type IdentityFieldPolicy = {
+  canCreateCommunity?: FieldPolicy<any> | FieldReadFunction<any>;
+  canCreateInviteCode?: FieldPolicy<any> | FieldReadFunction<any>;
+  canGrantGlobalPermissions?: FieldPolicy<any> | FieldReadFunction<any>;
+  canListIdentities?: FieldPolicy<any> | FieldReadFunction<any>;
+  canListInviteCodes?: FieldPolicy<any> | FieldReadFunction<any>;
   displayName?: FieldPolicy<any> | FieldReadFunction<any>;
   email?: FieldPolicy<any> | FieldReadFunction<any>;
   id?: FieldPolicy<any> | FieldReadFunction<any>;
@@ -2328,6 +2409,7 @@ export type MutationKeySpecifier = (
   | "deleteTraitListEntry"
   | "login"
   | "modifyCritter"
+  | "modifyIdentity"
   | "modifyRole"
   | "modifyTrait"
   | "modifyTraitListEntry"
@@ -2356,6 +2438,7 @@ export type MutationFieldPolicy = {
   deleteTraitListEntry?: FieldPolicy<any> | FieldReadFunction<any>;
   login?: FieldPolicy<any> | FieldReadFunction<any>;
   modifyCritter?: FieldPolicy<any> | FieldReadFunction<any>;
+  modifyIdentity?: FieldPolicy<any> | FieldReadFunction<any>;
   modifyRole?: FieldPolicy<any> | FieldReadFunction<any>;
   modifyTrait?: FieldPolicy<any> | FieldReadFunction<any>;
   modifyTraitListEntry?: FieldPolicy<any> | FieldReadFunction<any>;
@@ -3634,6 +3717,11 @@ export const GetIdentityListDocument = gql`
           displayName
           email
           id
+          canCreateCommunity
+          canCreateInviteCode
+          canListIdentities
+          canListInviteCodes
+          canGrantGlobalPermissions
         }
       }
       ... on NotAuthenticatedError {
@@ -3663,6 +3751,33 @@ export const GetInviteCodeListDocument = gql`
       }
     }
   }
+`;
+export const ModifyIdentityDocument = gql`
+  mutation modifyIdentity($input: IdentityModifyInput!) {
+    modifyIdentity(input: $input) {
+      __typename
+      ... on Identity {
+        canCreateCommunity
+        canCreateInviteCode
+        canGrantGlobalPermissions
+        canListIdentities
+        canListInviteCodes
+        id
+      }
+      ... on NotAuthenticatedError {
+        ...NotAuthenticatedErrorFragment
+      }
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+      ... on BaseError {
+        ...BaseErrorFragment
+      }
+    }
+  }
+  ${NotAuthenticatedErrorFragmentFragmentDoc}
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+  ${BaseErrorFragmentFragmentDoc}
 `;
 export const CreateInviteCodeDocument = gql`
   mutation createInviteCode($input: InviteCodeCreateInput!) {
@@ -4061,6 +4176,16 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
         variables,
         options
       ) as Promise<GetInviteCodeListQuery>;
+    },
+    modifyIdentity(
+      variables: ModifyIdentityMutationVariables,
+      options?: C
+    ): Promise<ModifyIdentityMutation> {
+      return requester<ModifyIdentityMutation, ModifyIdentityMutationVariables>(
+        ModifyIdentityDocument,
+        variables,
+        options
+      ) as Promise<ModifyIdentityMutation>;
     },
     createInviteCode(
       variables: CreateInviteCodeMutationVariables,
@@ -5050,6 +5175,38 @@ export class GraphqlService {
     const result = await this.client.query<
       GetInviteCodeListQuery,
       GetInviteCodeListQueryVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
+  async modifyIdentity(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").MutationOptions<
+          ModifyIdentityMutation,
+          ModifyIdentityMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: ModifyIdentityMutationVariables;
+    }
+  ): Promise<
+    Omit<
+      import("@apollo/client/core").FetchResult<ModifyIdentityMutation>,
+      "data"
+    > & { data: ModifyIdentityMutation }
+  > {
+    const finalOptions = {
+      ...options,
+      mutation: ModifyIdentityDocument,
+    };
+    const result = await this.client.mutate<
+      ModifyIdentityMutation,
+      ModifyIdentityMutationVariables
     >(finalOptions);
     if (!hasData(result)) {
       throw new Error("Unknown request failure");

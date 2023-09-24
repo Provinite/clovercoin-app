@@ -14,6 +14,7 @@ import {
 import { Application } from "./Application";
 import { graphqlService } from "./graphql/client";
 import { aboutRoutes } from "./ui/AboutPage/aboutRoutes";
+import { identityRoute } from "./ui/admin/identityRoute";
 import { adminRoutes } from "./ui/admin/routes/adminRoutes";
 import { AppRoutes } from "./ui/AppRoutes";
 import { communityListRoutes } from "./ui/CommunityListPage/communityListRoutes";
@@ -94,6 +95,7 @@ export const routes = [
               ...communitySettingsRoutes(),
             ],
           },
+          identityRoute,
         ],
       } as const),
     ],

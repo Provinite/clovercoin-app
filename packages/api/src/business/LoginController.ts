@@ -81,6 +81,7 @@ export class LoginController {
           canListIdentities: isAdminUser,
           canListInviteCodes: isAdminUser,
           canCreateInviteCode: isAdminUser,
+          canGrantGlobalPermissions: isAdminUser,
         });
         const [account, token] = await Promise.all([
           accountController.create({

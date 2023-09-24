@@ -4,6 +4,7 @@ import {
   Ctx,
   Field,
   FieldResolver,
+  Mutation,
   ObjectType,
   Query,
   Resolver,
@@ -26,6 +27,9 @@ import { Identity } from "./Identity.js";
 import { IdentityList } from "./IdentityList.js";
 import { IdentityRolesFilters } from "./IdentityRolesFilters.js";
 import { IdentityRolesResponse } from "./IdentityRolesResponse.js";
+import { IdentityModifyInput } from "./IdentityModifyInput.js";
+import { identityPermissionKeys } from "./IdentityPermissionKeys.js";
+import { IdentityModifyResponse } from "./IdentityModifyResponse.js";
 
 export const IdentityListResponse = createUnionType({
   name: "IdentitylistResponse",
@@ -53,6 +57,7 @@ export const PendingInvitationsResponse = createUnionType({
 
 @Resolver(() => Identity)
 export class IdentityResolver {
+  // #region queries
   @Preauthorize(hasGlobalPerms(["canListIdentities"]))
   @Query(() => IdentityListResponse)
   async identities(@Ctx() { identityController }: AppGraphqlContext) {
@@ -64,6 +69,45 @@ export class IdentityResolver {
   async me(@Ctx() { principal }: AppGraphqlContext): Promise<Identity> {
     return principal!;
   }
+  // #endregion
+
+  // #region mutations
+  @Preauthorize(async ({ args: { input } }) => {
+    const arg = await parseArgToClass(input, IdentityModifyInput);
+    for (const key of identityPermissionKeys) {
+      if (typeof arg[key] === "boolean") {
+        return {
+          scope: AuthScope.Global,
+          permissions: ["canGrantGlobalPermissions"],
+        };
+      }
+    }
+    return null;
+  })
+  @Mutation(() => IdentityModifyResponse)
+  modifyIdentity(
+    @Arg("input")
+    {
+      id,
+      canCreateCommunity,
+      canCreateInviteCode,
+      canGrantGlobalPermissions,
+      canListIdentities,
+      canListInviteCodes,
+    }: IdentityModifyInput,
+    @Ctx() { identityController }: AppGraphqlContext
+  ): Promise<Identity> {
+    return identityController.updateOneById(id, {
+      canCreateCommunity,
+      canCreateInviteCode,
+      canGrantGlobalPermissions,
+      canListIdentities,
+      canListInviteCodes,
+    });
+  }
+  // #endregion
+
+  // #region field resolvers
 
   // PERF: This field could be dataloaderized. In practice this is only
   // used on one identity at a time though.
@@ -147,4 +191,6 @@ export class IdentityResolver {
       return "";
     }
   }
+
+  // #endregion
 }

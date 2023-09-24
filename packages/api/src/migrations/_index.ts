@@ -16,6 +16,7 @@ import { AddIdentityCanCreateInviteCodePerm1693180926946 } from "./1693180926946
 import { AddInviteCodeRoleid1693851679207 } from "./1693851679207-add-invite-code-roleid.js";
 import { AddCommunityInvitationTable1694991481498 } from "./1694991481498-add-community-invitation-table.js";
 import { AddUniqueIndexesToInviteAndCommunityMember1695020560381 } from "./1695020560381-add-unique-indexes-to-invite-and-community-member.js";
+import { AddIdentityCanGrantGlobalPermissionsField1695513359643 } from "./1695513359643-add-identity-can-grant-global-permissions-field.js";
 
 export const migrationsArray = [
   initializeDb1690172455074,
@@ -36,4 +37,5 @@ export const migrationsArray = [
   AddInviteCodeRoleid1693851679207,
   AddCommunityInvitationTable1694991481498,
   AddUniqueIndexesToInviteAndCommunityMember1695020560381,
+  AddIdentityCanGrantGlobalPermissionsField1695513359643,
 ];

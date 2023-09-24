@@ -9,6 +9,11 @@ export const getIdentityListQuery = gql`
           displayName
           email
           id
+          canCreateCommunity
+          canCreateInviteCode
+          canListIdentities
+          canListInviteCodes
+          canGrantGlobalPermissions
         }
       }
       ... on NotAuthenticatedError {
