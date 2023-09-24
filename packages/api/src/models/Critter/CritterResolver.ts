@@ -17,7 +17,6 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import { Authenticated } from "../../business/auth/Authenticated.js";
 import { AuthScope } from "../../business/auth/AuthInfo.js";
 import { NotAuthenticatedError } from "../../business/auth/NotAuthenticatedError.js";
 import { NotAuthorizedError } from "../../business/auth/NotAuthorizedError.js";
@@ -156,7 +155,7 @@ export class CritterResolver {
     });
   }
 
-  @Authenticated()
+  @Preauthorize()
   @Query(() => CritterListResponse)
   async critters(
     @Arg("filters") filters: CritterFilters,
@@ -173,8 +172,9 @@ export class CritterResolver {
   @Preauthorize(
     async ({
       context: { critterController, speciesController },
-      args: { input },
+      args: { input: rawInput },
     }) => {
+      const input = await parseArgToClass(rawInput, CritterModifyInput);
       const critter = await critterController.findOneById(input.id);
       if (!critter) {
         throw new NotFoundError();
