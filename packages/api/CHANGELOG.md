@@ -1,14 +1,19 @@
-# Next
+# 5.0.0
 
 - Invite codes can now optionally be assigned a community role
   - When the code is claimed, the new identity that is created will be created with a community membership w/ the specified role
-- Adds some new muations:
+- Added a new entity, Community Invitations
+  - Community Invitations are sent by community managers to users in the
+    system that are not in their community. An invitation is like an invite
+    code for people that already have accounts.
+- Adds some new mutations:
   - `createRole`
   - `modifyRole`
   - `createCommunityInvite`
   - `answerCommunityInvite`
   - `createCommunityMember`
   - `deleteCommunityMember`
+  - `modifyIdentity`
 - Implements permissions/authorization
 - Each permission is associated with a particular entity in the system
   - Global Permissions are attached to a user's identity and are generally used for site-admin level permissions that very few users will have.
@@ -16,6 +21,7 @@
     - `canListIdentities` - Allowed to read the global users list
     - `canListInviteCodes` - Allowed to read the list of invite codes
     - `canCreateInviteCode` - Allowed to create an invite code
+    - `canGrantGlobalPermission`- Allowed to manage global permission for all other users.
   - Community Permissions are attached to a `Role` and a user may have one or more roles per community.
     - `canCreateSpecies` - Create a species in this community
     - `canCreateCritter` - Create a critter in any species in this community
@@ -26,6 +32,11 @@
   - Critter permissions are scoped to a particular critter
     - `canEditOwn`
       - This is a special permission that is not stored in the database, but instead all users have this permission if they own the target critter.
+  - Identity Permissions are used to control if users can perform actions on behalf
+    of a particular user (including themselves)
+    - `canViewPendingInvites` - View a user's pending community invitaitons. Users can view their own
+    - `canAnswerInvites` - Answer community invites (accept/decline) for a user. Users can answer their own
+    - `canViewEmail` - Control whether a user can see another user's email. This is limited strictly to staff/"super-admins", as well as users viewing their own.
 - Permissions for:
   - Mutations
     - `createCommunity`: `global.canCreateCommunity`
@@ -54,6 +65,7 @@
     - `login`: No permissions
     - `register`: No permissions
     - `requestPasswordReset`: No permissions
+    - `modifyIdentity`: `global.canGrantGlobalPermissions`
   - Queries
     - `identities`: `global.canListIdentities`
     - `inviteCodes`: `global.canListInviteCodes`
@@ -74,7 +86,6 @@
 - Global permission management
 - Revisit permissions on `traits` query
 - Make some roles not-invitable
-- Add permissions and mutations for managing identity perms
 - Test permissions for global actions thoroughly (seems like new users can make global invite codes :O)
 
 # 4.0.0

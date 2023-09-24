@@ -20,6 +20,8 @@ export default class _className_ {
             message: string;
           };
     };
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const query: TypedDocumentNode<MutationResult, MutationVars> = gql`
       mutation _mutationName_ {
         _mutationName_ {
