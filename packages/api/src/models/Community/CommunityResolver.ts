@@ -136,7 +136,7 @@ export class CommunityResolver {
    * @param communityFilters filters
    * @returns A single community
    */
-  @Authenticated()
+  @Preauthorize()
   @Query(() => CommunityResponse, {
     description: "Fetch a community by id and/or name",
   })

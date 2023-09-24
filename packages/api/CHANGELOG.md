@@ -32,15 +32,12 @@
   - Critter permissions are scoped to a particular critter
     - `canEditOwn`
       - This is a special permission that is not stored in the database, but instead all users have this permission if they own the target critter.
-  - Identity Permissions are used to control if users can perform actions on behalf
-    of a particular user (including themselves)
+  - Identity Permissions are used to control if users can perform actions on behalf of a particular user (including themselves)
     - `canViewPendingInvites` - View a user's pending community invitaitons. Users can view their own
     - `canAnswerInvites` - Answer community invites (accept/decline) for a user. Users can answer their own
     - `canViewEmail` - Control whether a user can see another user's email. This is limited strictly to staff/"super-admins", as well as users viewing their own.
 - Permissions for:
-
   - Mutations
-
     - `createCommunity`: `global.canCreateCommunity`
     - `createCritter`: `community.canCreateCritter`
     - `modifyCritter`: `community.canEditCritter`
@@ -70,14 +67,15 @@
     - `modifyIdentity`: `global.canGrantGlobalPermissions`
     - `createCommunityInvite`: `community.canCreateInviteCode`
     - `answerCommunityInvite`: `*`
-
   - Queries
     - `identities`: `global.canListIdentities`
     - `inviteCodes`: `global.canListInviteCodes`
     - `traits`: `community.*`
     - Fields
       - `identity.roles`: `community.*`
-
+      - `identity.email`
+        - `identity.canViewEmail`
+        - `global.canListIdentities`
 - Added controller-enforced filtering rules. These rules are applied to every operation. So a filter can prevent reading something (eg, looking at critters in communities you don't have access to), and it can also prevent updating or creating something (eg: can't create things in a community you're not in because from your perspective it does not exist).
   - Community:
     - Filtered to communities in which the user has any role
@@ -85,6 +83,7 @@
     - Filtered to critters in communities in which the user has any role
   - Species
     - Filtered to species in communities in which the user has any role
+- Makes the `stack` property on `BaseError` enumerable, resulting in stacktraces on every error logged
 
 ## TODOS
 
