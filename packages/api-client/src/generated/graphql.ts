@@ -1956,6 +1956,63 @@ export type GetSpeciesListViewQuery = {
       };
 };
 
+export type AnswerCommunityInvitationMutationVariables = Exact<{
+  input: CommunityInvitationAnswerInput;
+}>;
+
+export type AnswerCommunityInvitationMutation = {
+  __typename?: "Mutation";
+  answerInvitation:
+    | {
+        __typename: "CommunityInvitation";
+        id: string;
+        accepted: boolean;
+        declined: boolean;
+      }
+    | {
+        __typename: "InvalidArgumentError";
+        message: string;
+        validationErrors: Array<{
+          __typename?: "ValidationError";
+          field: string;
+          constraints: Array<{
+            __typename?: "ValidationConstraint";
+            key: string;
+            description: string;
+          }>;
+        }>;
+      }
+    | { __typename: "NotAuthenticatedError"; message: string }
+    | { __typename: "NotAuthorizedError"; message: string }
+    | { __typename: "NotFoundError"; message: string };
+};
+
+export type GetUserSettingsQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetUserSettingsQuery = {
+  __typename?: "Query";
+  me: {
+    __typename?: "Identity";
+    pendingInvitations:
+      | {
+          __typename: "CommunityInvitationList";
+          list: Array<{
+            __typename?: "CommunityInvitation";
+            id: string;
+            accepted: boolean;
+            declined: boolean;
+            role: {
+              __typename?: "Role";
+              name: string;
+              community: { __typename?: "Community"; name: string };
+            };
+            inviter: { __typename?: "Identity"; displayName: string };
+          }>;
+        }
+      | { __typename: "NotAuthorizedError"; message: string };
+  };
+};
+
 export type GetIdentityListQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetIdentityListQuery = {
@@ -3709,6 +3766,59 @@ export const GetSpeciesListViewDocument = gql`
   ${InvalidArgumentErrorFragmentFragmentDoc}
   ${BaseErrorFragmentFragmentDoc}
 `;
+export const AnswerCommunityInvitationDocument = gql`
+  mutation answerCommunityInvitation($input: CommunityInvitationAnswerInput!) {
+    answerInvitation(input: $input) {
+      __typename
+      ... on CommunityInvitation {
+        id
+        accepted
+        declined
+      }
+      ... on BaseError {
+        ...BaseErrorFragment
+      }
+      ... on InvalidArgumentError {
+        ...InvalidArgumentErrorFragment
+      }
+      ... on NotAuthenticatedError {
+        ...NotAuthenticatedErrorFragment
+      }
+    }
+  }
+  ${BaseErrorFragmentFragmentDoc}
+  ${InvalidArgumentErrorFragmentFragmentDoc}
+  ${NotAuthenticatedErrorFragmentFragmentDoc}
+`;
+export const GetUserSettingsDocument = gql`
+  query getUserSettings {
+    me {
+      pendingInvitations {
+        __typename
+        ... on CommunityInvitationList {
+          list {
+            id
+            accepted
+            declined
+            role {
+              name
+              community {
+                name
+              }
+            }
+            inviter {
+              displayName
+            }
+          }
+        }
+        ... on BaseError {
+          ...BaseErrorFragment
+        }
+      }
+    }
+  }
+  ${BaseErrorFragmentFragmentDoc}
+`;
 export const GetIdentityListDocument = gql`
   query getIdentityList {
     identities {
@@ -4156,6 +4266,29 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
         variables,
         options
       ) as Promise<GetSpeciesListViewQuery>;
+    },
+    answerCommunityInvitation(
+      variables: AnswerCommunityInvitationMutationVariables,
+      options?: C
+    ): Promise<AnswerCommunityInvitationMutation> {
+      return requester<
+        AnswerCommunityInvitationMutation,
+        AnswerCommunityInvitationMutationVariables
+      >(
+        AnswerCommunityInvitationDocument,
+        variables,
+        options
+      ) as Promise<AnswerCommunityInvitationMutation>;
+    },
+    getUserSettings(
+      variables?: GetUserSettingsQueryVariables,
+      options?: C
+    ): Promise<GetUserSettingsQuery> {
+      return requester<GetUserSettingsQuery, GetUserSettingsQueryVariables>(
+        GetUserSettingsDocument,
+        variables,
+        options
+      ) as Promise<GetUserSettingsQuery>;
     },
     getIdentityList(
       variables?: GetIdentityListQueryVariables,
@@ -5121,6 +5254,65 @@ export class GraphqlService {
     const result = await this.client.query<
       GetSpeciesListViewQuery,
       GetSpeciesListViewQueryVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
+  async answerCommunityInvitation(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").MutationOptions<
+          AnswerCommunityInvitationMutation,
+          AnswerCommunityInvitationMutationVariables
+        >
+      >,
+      "variables" | "mutation"
+    > & {
+      variables: AnswerCommunityInvitationMutationVariables;
+    }
+  ): Promise<
+    Omit<
+      import("@apollo/client/core").FetchResult<AnswerCommunityInvitationMutation>,
+      "data"
+    > & { data: AnswerCommunityInvitationMutation }
+  > {
+    const finalOptions = {
+      ...options,
+      mutation: AnswerCommunityInvitationDocument,
+    };
+    const result = await this.client.mutate<
+      AnswerCommunityInvitationMutation,
+      AnswerCommunityInvitationMutationVariables
+    >(finalOptions);
+    if (!hasData(result)) {
+      throw new Error("Unknown request failure");
+    }
+    return result;
+  }
+
+  async getUserSettings(
+    options: Omit<
+      Partial<
+        import("@apollo/client/core").QueryOptions<
+          GetUserSettingsQueryVariables,
+          GetUserSettingsQuery
+        >
+      >,
+      "variables" | "query"
+    > & {
+      variables: GetUserSettingsQueryVariables;
+    }
+  ) {
+    const finalOptions = {
+      ...options,
+      query: GetUserSettingsDocument,
+    };
+    const result = await this.client.query<
+      GetUserSettingsQuery,
+      GetUserSettingsQueryVariables
     >(finalOptions);
     if (!hasData(result)) {
       throw new Error("Unknown request failure");

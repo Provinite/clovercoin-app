@@ -16,6 +16,13 @@ export const AppRouteParts = {
     uuidToSlug(identityId),
   ],
 
+  userSettings: () => ["settings"],
+  communityInvitationDetail: (communityInvitationId: string) => [
+    ...AppRouteParts.userSettings(),
+    "community-invitations",
+    uuidToSlug(communityInvitationId),
+  ],
+
   community: (communityId: string) => ["community", uuidToSlug(communityId)],
   communitySettings: (communityId: string) => [
     "community",

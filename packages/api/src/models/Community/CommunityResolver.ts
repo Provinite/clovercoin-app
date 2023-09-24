@@ -13,8 +13,7 @@ import {
   Resolver,
   Root,
 } from "type-graphql";
-import { FindManyOptions, ILike } from "typeorm";
-import { Authenticated } from "../../business/auth/Authenticated.js";
+import { FindManyOptions, ILike, In } from "typeorm";
 import { hasGlobalPerms } from "../../business/auth/authorizationInfoGenerators/hasGlobalPerms.js";
 import { NotAuthenticatedError } from "../../business/auth/NotAuthenticatedError.js";
 import { NotAuthorizedError } from "../../business/auth/NotAuthorizedError.js";
@@ -109,17 +108,18 @@ export class CommunityResolver {
    * @param communityFilters filters
    * @returns
    */
+  @Preauthorize()
   @Query(() => CommunitiesResponse, {
     description: "Fetch a list of communities with filtering",
   })
   async communities(
-    @Ctx() { communityRepository }: AppGraphqlContext,
+    @Ctx() { communityRepository, principal }: AppGraphqlContext,
     @Arg("filters") communityFilters: CommunityFilters
   ): Promise<CommunityList> {
     const filters: FindManyOptions<Community> = {};
+    filters.where = {};
     if (communityFilters) {
       const { id, name } = communityFilters;
-      filters.where = {};
       if (id) {
         filters.where.id = id;
       }
@@ -127,6 +127,10 @@ export class CommunityResolver {
         filters.where.name = ILike(`%${name}%`);
       }
     }
+    filters.where.roles = {
+      id: In(principal!.communityMemberships.map((cm) => cm.roleId)),
+    };
+
     return new CommunityList(await communityRepository.find(filters));
   }
 

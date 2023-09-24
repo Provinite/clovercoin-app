@@ -22,6 +22,7 @@ import { communitySettingsRoutes } from "./ui/CommunitySettingsPage/communitySet
 import { loginRoutes } from "./ui/LoginPage/loginRoutes";
 import { SpeciesDetailRoutes } from "./ui/SpeciesDetailPage/routes/SpeciesDetailRoutes";
 import { speciesListRoutes } from "./ui/SpeciesListPage/speciesListRoutes";
+import { userSettingsRoutes } from "./ui/UserSettingsPage/userSettingsRoutes";
 import { PrettyPrintJson } from "./ui/util/PrettyPrintJson";
 import { makeLoader } from "./utils/loaderUtils";
 import { globalSnackbarTopic } from "./utils/observables/topics/globalSnackbarTopic";
@@ -96,6 +97,7 @@ export const routes = [
             ],
           },
           identityRoute,
+          ...userSettingsRoutes,
         ],
       } as const),
     ],
