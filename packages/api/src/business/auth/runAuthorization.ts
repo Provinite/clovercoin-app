@@ -1,5 +1,5 @@
-import { BaseError } from "@clovercoin/api-client";
 import { ArgumentValidationError, ResolverData } from "type-graphql";
+import { BaseError } from "../../errors/BaseError.js";
 import { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
 import { assertNever } from "../../util/assertNever.js";
 import { AuthInfoSpecifier, isCompoundAuthInfo } from "./AuthInfo.js";
