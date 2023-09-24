@@ -14,10 +14,6 @@ export const Preauthorize = (specifier?: AuthInfoSpecifier) =>
       return next();
     }
 
-    /**
-     * `authorize` will throw here if authorization fails, so we just await it
-     * and forward its errors.
-     */
     await runAuthorizationOrThrow(specifier, resolverData);
 
     /**
