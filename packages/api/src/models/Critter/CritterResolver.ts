@@ -22,6 +22,7 @@ import { AuthScope } from "../../business/auth/AuthInfo.js";
 import { NotAuthenticatedError } from "../../business/auth/NotAuthenticatedError.js";
 import { NotAuthorizedError } from "../../business/auth/NotAuthorizedError.js";
 import { anyAuth, Preauthorize } from "../../business/auth/Preauthorize.js";
+import { parseArgToClass } from "../../business/validation/parseArgToClass.js";
 import { DuplicateError } from "../../errors/DuplicateError.js";
 import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
 import { NotFoundError } from "../../errors/NotFoundError.js";
@@ -137,10 +138,8 @@ const CreateCritterResponse = createUnionType({
 export class CritterResolver {
   @Mutation(() => CreateCritterResponse)
   @Preauthorize(async ({ context: { speciesController }, args: { input } }) => {
-    if (!input?.speciesId) {
-      throw new NotAuthorizedError();
-    }
-    const species = await speciesController.findOneByIdOrFail(input.speciesId);
+    const { speciesId } = await parseArgToClass(input, CritterCreateInput);
+    const species = await speciesController.findOneByIdOrFail(speciesId);
     return {
       scope: AuthScope.Community,
       communityId: species.communityId,
