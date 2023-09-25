@@ -79,8 +79,7 @@ export const LoginPage: FC = () => {
       <Form action={AppRoutes.login()} method="post">
         <Typography variant="h5">Welcome!</Typography>
         <Typography variant="body1" color="text.secondary">
-          Log in with your username and password below to access your
-          comnmunity.
+          Log in with your email and password below to access your communities.
         </Typography>
         <br />
         <Typography variant="body1">
