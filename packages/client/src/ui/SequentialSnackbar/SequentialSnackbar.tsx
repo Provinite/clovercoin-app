@@ -1,4 +1,9 @@
-import { Snackbar, SnackbarCloseReason, SnackbarProps } from "@mui/material";
+import {
+  Alert,
+  Snackbar,
+  SnackbarCloseReason,
+  SnackbarProps,
+} from "@mui/material";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useInterval } from "../../utils/useInterval";
 import { SnackbarQueue } from "./SnackbarQueue";
@@ -125,6 +130,28 @@ export function useSnackbarQueue(): SnackbarQueue {
     () => () => setQueue(([_, ...q]) => q),
     []
   );
+  const appendSimpleError = useMemo<SnackbarQueue["appendSimpleError"]>(
+    () => (msg) =>
+      append({
+        children: (
+          <Alert severity="error" onClose={close}>
+            {msg}
+          </Alert>
+        ),
+      }),
+    [append, close]
+  );
+  const appendSimpleSuccess = useMemo<SnackbarQueue["appendSimpleSuccess"]>(
+    () => (msg) =>
+      append({
+        children: (
+          <Alert severity="success" onClose={close}>
+            {msg}
+          </Alert>
+        ),
+      }),
+    [append, close]
+  );
   return useMemo(
     () => ({
       queue,
@@ -133,7 +160,9 @@ export function useSnackbarQueue(): SnackbarQueue {
       isOpen,
       open,
       close,
+      appendSimpleError,
+      appendSimpleSuccess,
     }),
-    [queue, isOpen]
+    [queue, append, shift, isOpen, open, close, appendSimpleError]
   );
 }

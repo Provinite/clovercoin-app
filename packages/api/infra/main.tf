@@ -358,4 +358,6 @@ module "api" {
   api_security_group_id = aws_security_group.api_web_sg.id
   ecr_repo_url          = aws_ecr_repository.app_repo.repository_url
   log_group_name        = aws_cloudwatch_log_group.api_logs.name
+
+  admin_email = var.admin_email
 }

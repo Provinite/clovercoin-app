@@ -3,11 +3,7 @@
  * for the entire application, as well as type utilities to improve
  * type-safety when interacting with react-router-dom.
  */
-import {
-  isCommunity,
-  isNotAuthorizedError,
-  NotAuthorizedError,
-} from "@clovercoin/api-client";
+import { isCommunity, isNotAuthenticatedError } from "@clovercoin/api-client";
 import {
   useRouteError,
   NonIndexRouteObject,
@@ -18,14 +14,18 @@ import {
 import { Application } from "./Application";
 import { graphqlService } from "./graphql/client";
 import { aboutRoutes } from "./ui/AboutPage/aboutRoutes";
-import { adminRoutes } from "./ui/admin/adminRoutes";
+import { identityRoute } from "./ui/admin/identityRoute";
+import { adminRoutes } from "./ui/admin/routes/adminRoutes";
 import { AppRoutes } from "./ui/AppRoutes";
 import { communityListRoutes } from "./ui/CommunityListPage/communityListRoutes";
+import { communitySettingsRoutes } from "./ui/CommunitySettingsPage/communitySettingsRoutes";
 import { loginRoutes } from "./ui/LoginPage/loginRoutes";
 import { SpeciesDetailRoutes } from "./ui/SpeciesDetailPage/routes/SpeciesDetailRoutes";
 import { speciesListRoutes } from "./ui/SpeciesListPage/speciesListRoutes";
+import { userSettingsRoutes } from "./ui/UserSettingsPage/userSettingsRoutes";
 import { PrettyPrintJson } from "./ui/util/PrettyPrintJson";
 import { makeLoader } from "./utils/loaderUtils";
+import { globalSnackbarTopic } from "./utils/observables/topics/globalSnackbarTopic";
 
 const PrintError = () => {
   const error = useRouteError();
@@ -49,7 +49,7 @@ const communityDetailLoader = makeLoader(
     if (isCommunity(result.data.community)) {
       return result.data.community;
     }
-    if (isNotAuthorizedError(result.data.community)) {
+    if (isNotAuthenticatedError(result.data.community)) {
       return result.data.community;
     }
     throw new Error(
@@ -72,6 +72,9 @@ export const routes = [
         id: "root.authBarrier",
         loader: async () => {
           if (!graphqlService.isClientAuthenticated()) {
+            globalSnackbarTopic.simpleError.publish(
+              "You are not logged in, or your session has expired. Please log in again"
+            );
             return redirect(AppRoutes.login());
           }
         },
@@ -87,12 +90,18 @@ export const routes = [
             id: "root.community",
             path: "community/:communityId",
             loader: communityDetailLoader,
-            children: [SpeciesDetailRoutes(), speciesListRoutes],
+            children: [
+              SpeciesDetailRoutes(),
+              speciesListRoutes,
+              ...communitySettingsRoutes(),
+            ],
           },
+          identityRoute,
+          ...userSettingsRoutes,
         ],
-      }),
+      } as const),
     ],
-  } as const),
+  }),
 ];
 
 /**
@@ -133,7 +142,7 @@ export type TypedIndexRouteObject<RouteId extends string = string> = Omit<
 > & { readonly id: RouteId };
 /**
  * More strictly-typed variant of the RouteObject from
- * react-router-dom.
+ * react-router-dom with some custom config.
  */
 export type TypedRouteConfig<RouteId extends string = string> =
   | TypedNonIndexRouteObject<RouteId>
@@ -170,17 +179,14 @@ export type RouteType<R extends RouteId, T = typeof routes[number]> = WithId<
  */
 export type LoaderData<Route extends Record<string, any>> =
   Route["loader"] extends (...args: any[]) => any
-    ? Exclude<
-        Awaited<ReturnType<Route["loader"]>>,
-        Response | NotAuthorizedError
-      >
+    ? Awaited<ReturnType<Route["loader"]>>
     : never;
 
 /**
  * Type of the data returned by the action of the specified route. The `Response`
  * type is filtered out of this result, as that is generally not intended to be
  * consumed by the app (and won't actually be returned into related hook calls).
- * Additionally, {@link NotAuthorizedError} is handled by a global middleware
+ * Additionally, {@link NotAuthenticatedError} is handled by a global middleware
  * in the `makeAction` utility, and will be converted to a redirect before being
  * returned from an action.
  * @example
@@ -188,10 +194,7 @@ export type LoaderData<Route extends Record<string, any>> =
  * */
 export type ActionData<Route extends Record<string, any>> =
   Route["action"] extends (...args: any[]) => any
-    ? Exclude<
-        Awaited<ReturnType<Route["action"]>>,
-        Response | NotAuthorizedError
-      >
+    ? Awaited<ReturnType<Route["action"]>>
     : never;
 
 /**

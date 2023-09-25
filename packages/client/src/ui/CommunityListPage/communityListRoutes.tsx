@@ -1,7 +1,8 @@
 import { isCommunity, isCommunityList } from "@clovercoin/api-client";
-import { ActionFunctionArgs, LoaderFunctionArgs } from "react-router-dom";
+import { LoaderFunctionArgs } from "react-router-dom";
 import { graphqlService } from "../../graphql/client";
 import { typedRouteConfig } from "../../routes";
+import { makeAction } from "../../utils/loaderUtils";
 import { CommunityListPage } from "./CommunityListPage";
 
 export const communityListLoader = async (_args: LoaderFunctionArgs) => {
@@ -20,33 +21,37 @@ export const communityListLoader = async (_args: LoaderFunctionArgs) => {
   throw new Error("404");
 };
 
-export const communityListAction = async ({ request }: ActionFunctionArgs) => {
-  if (request.method === "POST") {
-    const data = await request.formData();
-    const name = data.get("name");
-    if (!name || typeof name !== "string") {
-      throw new Error("400");
-    }
-    const result = await graphqlService.createCommunity({
-      variables: {
-        input: {
-          name,
+export const communityListAction = makeAction(
+  {
+    form: {
+      name: true,
+    },
+  },
+  async ({ method, form: { name } }) => {
+    if (method === "POST") {
+      const {
+        data: { createCommunity },
+      } = await graphqlService.createCommunity({
+        variables: {
+          input: {
+            name,
+          },
         },
-      },
 
-      update: (cache, { data }) => {
-        if (data && isCommunity(data.createCommunity)) {
-          cache.modify({
-            fields: {
-              communities: (_data, { DELETE }) => DELETE,
-            },
-          });
-        }
-      },
-    });
-    return result.data.createCommunity;
+        update: (cache, { data }) => {
+          if (data && isCommunity(data.createCommunity)) {
+            cache.modify({
+              fields: {
+                communities: (_data, { DELETE }) => DELETE,
+              },
+            });
+          }
+        },
+      });
+      return createCommunity;
+    }
   }
-};
+);
 
 export const communityListRoutes = typedRouteConfig({
   id: "root.community-list",

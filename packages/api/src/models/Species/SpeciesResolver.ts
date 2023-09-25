@@ -13,9 +13,12 @@ import {
   Resolver,
   Root,
 } from "type-graphql";
-import { FindManyOptions, ILike } from "typeorm";
+import { FindOptionsWhere, ILike } from "typeorm";
 import { Authenticated } from "../../business/auth/Authenticated.js";
+import { hasCommunityPerms } from "../../business/auth/authorizationInfoGenerators/hasCommunityPerms.js";
+import { NotAuthenticatedError } from "../../business/auth/NotAuthenticatedError.js";
 import { NotAuthorizedError } from "../../business/auth/NotAuthorizedError.js";
+import { Preauthorize } from "../../business/auth/Preauthorize.js";
 import { ImageTarget } from "../../business/ImageController.js";
 import { DuplicateError } from "../../errors/DuplicateError.js";
 import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
@@ -75,7 +78,9 @@ const SpeciesCreateResponse = createUnionType({
     Species,
     InvalidArgumentError,
     DuplicateError,
+    NotAuthenticatedError,
     NotAuthorizedError,
+    NotFoundError,
   ],
 });
 
@@ -99,12 +104,17 @@ class UrlResponse {
 
 export const CreateSpeciesImageUploadUrlResponse = createUnionType({
   name: "CreateSpeciesImageUploadUrlResponse",
-  types: () => [UrlResponse, NotAuthorizedError],
+  types: () => [
+    UrlResponse,
+    NotAuthenticatedError,
+    NotAuthorizedError,
+    NotFoundError,
+  ],
 });
 
 const SpeciesResponse = createUnionType({
   name: "SpeciesResponse",
-  types: () => [SpeciesList, InvalidArgumentError, NotAuthorizedError],
+  types: () => [SpeciesList, InvalidArgumentError, NotAuthenticatedError],
 });
 
 @Resolver(() => Species)
@@ -114,22 +124,21 @@ export class SpeciesResolver {
   async species(
     @Arg("filters", () => SpeciesFilters, { nullable: true })
     speciesFilters: SpeciesFilters | null = null,
-    @Ctx() { speciesRepository }: AppGraphqlContext
+    @Ctx() { speciesController }: AppGraphqlContext
   ): Promise<SpeciesList> {
-    const filters: FindManyOptions<Species> = {};
+    const filters: FindOptionsWhere<Species> = {};
 
     if (speciesFilters) {
       const { id, name, communityId } = speciesFilters;
-      filters.where = {};
       if (id) {
-        filters.where.id = id;
+        filters.id = id;
       }
       if (name) {
-        filters.where.name = ILike(`%${name}%`);
+        filters.name = ILike(`%${name}%`);
       }
-      filters.where.communityId = communityId;
+      filters.communityId = communityId;
     }
-    const result = new SpeciesList(await speciesRepository.find(filters));
+    const result = new SpeciesList(await speciesController.find(filters));
     return result;
   }
 
@@ -147,7 +156,7 @@ export class SpeciesResolver {
     return null;
   }
 
-  @Authenticated()
+  @Preauthorize(hasCommunityPerms(["canCreateSpecies"]))
   @Mutation(() => SpeciesCreateResponse)
   async createSpecies(
     @Arg("input") input: SpeciesCreateInput,
@@ -158,7 +167,7 @@ export class SpeciesResolver {
     });
   }
 
-  @Authenticated()
+  @Preauthorize(hasCommunityPerms(["canEditSpecies"]))
   @Mutation(() => CreateSpeciesImageUploadUrlResponse)
   async createSpeciesImageUploadUrl(
     @Arg("input") input: SpeciesImageUrlCreateInput,

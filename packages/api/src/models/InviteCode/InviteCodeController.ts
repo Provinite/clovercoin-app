@@ -8,7 +8,7 @@ import { InviteCodeExhaustedError } from "./InviteCodeConsumedError.js";
 
 export type InviteCodeCreate = Pick<
   InviteCode,
-  "id" | "maxClaims" | "creatorId"
+  "id" | "maxClaims" | "creatorId" | "roleId"
 >;
 
 export class InviteCodeController extends EntityController<
@@ -17,8 +17,11 @@ export class InviteCodeController extends EntityController<
   InviteCodeCreate,
   never
 > {
-  constructor({ inviteCodeRepository }: AppGraphqlContext) {
-    super(inviteCodeRepository);
+  constructor({
+    inviteCodeRepository,
+    transactionProvider,
+  }: AppGraphqlContext) {
+    super(inviteCodeRepository, transactionProvider);
   }
 
   async createBodyToModel(createBody: InviteCodeCreate): Promise<InviteCode> {

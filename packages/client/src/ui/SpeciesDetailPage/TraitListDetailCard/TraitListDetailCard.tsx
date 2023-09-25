@@ -13,13 +13,14 @@ import {
 } from "@mui/material";
 import { FunctionComponent, useState } from "react";
 import { useFetcher } from "react-router-dom";
-import { useRouteCommunity } from "../../../useRouteCommunity";
+import { usePageTitle } from "../../../hooks/usePageTitle";
+import { useRouteCommunityOrFail } from "../../../useRouteCommunity";
 import { stylesheet } from "../../../utils/emotion";
-import { useRouteLoaderData } from "../../../utils/loaderDataUtils";
+import { useRouteLoaderDataOrFail } from "../../../utils/loaderDataUtils";
 import { AppRoutes } from "../../AppRoutes";
 import { GridRow } from "../../lib/GridRow";
 import { With } from "../../util/With";
-import { useRouteSpecies } from "../useRouteSpecies";
+import { useRouteSpeciesOrFail } from "../useRouteSpecies";
 import { useRouteVariant } from "../useRouteVariant";
 import { TextStack } from "./TextStack";
 import { VariantTraitListEntryListItem } from "./VariantTraitListEntryListItem";
@@ -29,9 +30,10 @@ export const TraitListDetailCard: FunctionComponent = () => {
   if (!variant) {
     throw new Error("Invalid variant");
   }
-  const species = useRouteSpecies();
-  const community = useRouteCommunity();
-  const allTraits = useRouteLoaderData("root.community.species.variant");
+  const species = useRouteSpeciesOrFail();
+  const community = useRouteCommunityOrFail();
+  const allTraits = useRouteLoaderDataOrFail("root.community.species.variant");
+  usePageTitle(`${community.name} - ${species.name} - ${variant.name}`);
   const [showConfirmAddDialog, setShowConfirmAddDialog] = useState(false);
   const [traitListEntryToRemove, setTraitListEntryToRemove] =
     useState<typeof variant["traitListEntries"][number]>();

@@ -12,6 +12,8 @@ import { Species } from "./Species/Species.js";
 import { Trait } from "./Trait/Trait.js";
 import { SpeciesVariant } from "./SpeciesVariant/SpeciesVariant.js";
 import { TraitListEntry } from "./TraitListEntry/TraitListEntry.js";
+import { Role } from "./Role/Role.js";
+import { CommunityInvitation } from "./CommunityInvitation/CommunityInvitation.js";
 
 /**
  * Model classes mapped by their name.
@@ -38,6 +40,9 @@ const modelsByName = {
   TraitListEntry,
 
   InviteCode,
+  Role,
+
+  CommunityInvitation,
 };
 
 // ALl of these types flow from the above object

@@ -1,3 +1,3 @@
-export function assertNever(_n: never) {
+export function assertNever(_n: never): never {
   throw new Error("Assertion error");
 }

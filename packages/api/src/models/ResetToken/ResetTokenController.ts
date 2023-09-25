@@ -12,8 +12,11 @@ export class ResetTokenController extends EntityController<
   ResetTokenCreate,
   never
 > {
-  constructor({ resetTokenRepository }: AppGraphqlContext) {
-    super(resetTokenRepository);
+  constructor({
+    resetTokenRepository,
+    transactionProvider,
+  }: AppGraphqlContext) {
+    super(resetTokenRepository, transactionProvider);
   }
 
   async revokeOutstandingResetTokensForAccount(accountId: string) {

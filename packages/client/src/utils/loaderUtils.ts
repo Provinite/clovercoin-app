@@ -1,4 +1,8 @@
-import { isNotAuthorizedError } from "@clovercoin/api-client";
+import {
+  isNotAuthenticatedError,
+  isNotAuthorizedError,
+  NotAuthenticatedError,
+} from "@clovercoin/api-client";
 import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -13,6 +17,7 @@ import {
   getString,
   getStringOrFail,
 } from "./formDataUtils";
+import { globalSnackbarTopic } from "./observables/topics/globalSnackbarTopic";
 import { slugToUuid } from "./uuidUtils";
 
 type SlugConfig = boolean;
@@ -173,7 +178,9 @@ export function makeLoader<
   loader: (
     data: GetDataResult<T & { data: LoaderFunctionArgs | ActionFunctionArgs }>
   ) => Promise<R>
-): (opts: LoaderFunctionArgs | ActionFunctionArgs) => Promise<R | Response> {
+): (
+  opts: LoaderFunctionArgs | ActionFunctionArgs
+) => Promise<Exclude<R, Response | NotAuthenticatedError>> {
   return async (data) => {
     if (
       options.allowedMethods &&
@@ -190,10 +197,15 @@ export function makeLoader<
       return result;
     }
     const result = await loader(await getLoaderData({ data, ...options }));
-    if (isNotAuthorizedError(result)) {
+    if (isNotAuthenticatedError(result)) {
+      globalSnackbarTopic.simpleError.publish(
+        "You are not logged in. Redirecting to the login page."
+      );
       return redirect(AppRoutes.login());
+    } else if (isNotAuthorizedError(result)) {
+      globalSnackbarTopic.simpleError.publish("Permission denied.");
     }
-    return result;
+    return result as any;
   };
 }
 

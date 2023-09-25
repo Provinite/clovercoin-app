@@ -1,4 +1,4 @@
-import { Repository } from "typeorm";
+import { FindOptionsWhere, In, Repository } from "typeorm";
 import { EntityController } from "../../business/EntityController.js";
 import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
 import type { Critter, CritterTraitValue } from "./Critter.js";
@@ -18,9 +18,33 @@ export class CritterController extends EntityController<
   CritterModify
 > {
   traitRepository: AppGraphqlContext["traitRepository"];
-  constructor({ critterRepository, traitRepository }: AppGraphqlContext) {
-    super(critterRepository);
+  principal: AppGraphqlContext["principal"];
+  constructor({
+    critterRepository,
+    traitRepository,
+    principal,
+    transactionProvider,
+  }: AppGraphqlContext) {
+    super(critterRepository, transactionProvider);
     this.traitRepository = traitRepository;
+    this.principal = principal;
+  }
+
+  async augmentFindWhere(
+    findWhere: FindOptionsWhere<Critter>
+  ): Promise<FindOptionsWhere<Critter>> {
+    if (!this.principal) {
+      return findWhere;
+    }
+
+    return super.augmentFindWhere({
+      ...findWhere,
+      species: {
+        communityId: In(
+          this.principal.communityMemberships.map((cm) => cm.role.communityId)
+        ),
+      },
+    });
   }
 
   async createBodyToModel(createBody: CritterCreate): Promise<Critter> {

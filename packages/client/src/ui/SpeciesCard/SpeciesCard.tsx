@@ -2,7 +2,7 @@ import { Species } from "@clovercoin/api-client";
 import { Typography } from "@mui/material";
 import { useCallback } from "react";
 import { useFetcher } from "react-router-dom";
-import { useRouteCommunity } from "../../useRouteCommunity";
+import { useRouteCommunityOrFail } from "../../useRouteCommunity";
 import { AppRoutes } from "../AppRoutes";
 import { ImageCard } from "../ImageCard/ImageCard";
 
@@ -20,7 +20,7 @@ export const SpeciesCard = ({
   const fetcher = useFetcher();
   const hasUploadForm = !species.iconUrl;
 
-  const { id: communityId } = useRouteCommunity();
+  const { id: communityId } = useRouteCommunityOrFail();
 
   const handleUpload = useCallback(
     async (files: File[]) => {

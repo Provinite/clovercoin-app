@@ -18,7 +18,9 @@ union CommunitiesResponse = CommunityList | InvalidArgumentError
 
 type Community {
   id: ID!
+  members: CommunityMembersResponse!
   name: String!
+  roles: [Role!]!
 }
 
 input CommunityCreateInput {
@@ -30,17 +32,78 @@ input CommunityFilters {
   name: String = null
 }
 
+type CommunityInvitation {
+  accepted: Boolean!
+  declined: Boolean!
+  id: ID!
+
+  """The identity of the user that is being invited"""
+  invitee: Identity!
+  inviteeId: ID!
+
+  """The identity of the user that is extending the invitation"""
+  inviter: Identity!
+  inviterId: ID!
+
+  """The role to grant when the invitation is accepted"""
+  role: Role!
+  roleId: ID!
+}
+
+input CommunityInvitationAnswerInput {
+  accept: Boolean!
+  id: ID!
+}
+
+union CommunityInvitationAnswerResponse = CommunityInvitation | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError
+
+input CommunityInvitationCreateInput {
+  emailAddress: String!
+  roleId: ID!
+}
+
+union CommunityInvitationCreateResponse = CommunityInvitation | DuplicateError | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError | UserAlreadyHasRoleError
+
+type CommunityInvitationList {
+  list: [CommunityInvitation!]!
+}
+
 type CommunityList {
   list: [Community!]!
 }
 
-union CommunityResponse = Community | InvalidArgumentError | NotAuthorizedError | NotFoundError
+type CommunityMember {
+  id: ID!
+  identity: Identity!
+  identityId: ID!
+  role: Role!
+  roleId: ID!
+}
 
-union CreateCommunityResponse = Community | DuplicateError | InvalidArgumentError | NotAuthorizedError
+input CommunityMemberCreateInput {
+  identityId: ID!
+  roleId: ID!
+}
 
-union CreateCritterResponse = Critter | DuplicateError | InvalidArgumentError | NotAuthorizedError
+union CommunityMemberCreateResponse = CommunityMember | DuplicateError | InvalidArgumentError | InvitationRequiredError | NotAuthenticatedError | NotAuthorizedError | NotFoundError
 
-union CreateSpeciesImageUploadUrlResponse = NotAuthorizedError | UrlResponse
+input CommunityMemberDeleteInput {
+  id: ID
+  identityId: ID
+  roleId: ID
+}
+
+union CommunityMemberDeleteResponse = DeleteResponse | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError
+
+union CommunityMembersResponse = IdentityList | NotAuthorizedError
+
+union CommunityResponse = Community | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError
+
+union CreateCommunityResponse = Community | DuplicateError | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError
+
+union CreateCritterResponse = Critter | DuplicateError | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError
+
+union CreateSpeciesImageUploadUrlResponse = NotAuthenticatedError | NotAuthorizedError | NotFoundError | UrlResponse
 
 type Critter {
   id: ID!
@@ -76,7 +139,7 @@ type CritterList {
   list: [Critter!]!
 }
 
-union CritterListResponse = CritterList | InvalidArgumentError | NotAuthorizedError
+union CritterListResponse = CritterList | InvalidArgumentError | NotAuthenticatedError
 
 input CritterModifyInput {
   id: ID!
@@ -85,7 +148,7 @@ input CritterModifyInput {
   variantId: ID
 }
 
-union CritterModifyResponse = Critter | InvalidArgumentError | NotAuthorizedError | NotFoundError
+union CritterModifyResponse = Critter | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError
 
 type CritterTraitValue {
   traitId: ID!
@@ -135,19 +198,43 @@ input EnumValueSettingCreateInput {
   speciesVariantId: ID!
 }
 
-union EnumValueSettingDeleteResponse = DeleteResponse | InvalidArgumentError
+union EnumValueSettingDeleteResponse = DeleteResponse | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError
 
 type Identity {
+  canCreateCommunity: Boolean!
+  canCreateInviteCode: Boolean!
+  canGrantGlobalPermissions: Boolean!
+  canListIdentities: Boolean!
+  canListInviteCodes: Boolean!
   displayName: String!
   email: String!
   id: ID!
+  pendingInvitations: PendingInvitationsResponse!
+  roles(filters: IdentityRolesFilters!): IdentityRolesResponse!
 }
 
 type IdentityList {
   list: [Identity!]!
 }
 
-union IdentitylistResponse = IdentityList | NotAuthorizedError
+input IdentityModifyInput {
+  canCreateCommunity: Boolean
+  canCreateInviteCode: Boolean
+  canGrantGlobalPermissions: Boolean
+  canListIdentities: Boolean
+  canListInviteCodes: Boolean
+  id: ID!
+}
+
+union IdentityModifyResponse = Identity | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError
+
+input IdentityRolesFilters {
+  communityId: ID!
+}
+
+union IdentityRolesResponse = InvalidArgumentError | NotAuthorizedError | RoleList
+
+union IdentitylistResponse = IdentityList | NotAuthenticatedError | NotAuthorizedError
 
 """Acceptable MIME types for images"""
 enum ImageContentType {
@@ -161,31 +248,41 @@ type InvalidArgumentError implements BaseError {
   validationErrors: [ValidationError!]!
 }
 
+type InvitationRequiredError implements BaseError {
+  message: String!
+}
+
 type InviteCode {
   claimCount: Int!
   creator: Identity!
   creatorId: ID!
   id: ID!
   maxClaims: Int!
+  role: Role
+  roleId: ID
 }
 
 input InviteCodeCreateInput {
-  creatorId: ID!
   id: ID!
   maxClaims: Int!
+  roleId: ID = null
 }
 
-union InviteCodeCreateResponse = DuplicateError | InvalidArgumentError | InviteCode | NotAuthorizedError
+union InviteCodeCreateResponse = DuplicateError | InvalidArgumentError | InviteCode | NotAuthenticatedError | NotAuthorizedError
+
+input InviteCodeFilters {
+  communityId: ID = null
+}
 
 type InviteCodeList {
   list: [InviteCode!]!
 }
 
-union InviteCodeResponse = InviteCodeList | NotAuthorizedError
+union InviteCodeResponse = InviteCodeList | NotAuthenticatedError | NotAuthorizedError
 
 input LoginArgs {
+  email: String = ""
   password: String = ""
-  username: String = ""
 }
 
 type LoginFailureResponse {
@@ -201,11 +298,16 @@ type LoginSuccessResponse {
 }
 
 type Mutation {
+  answerInvitation(input: CommunityInvitationAnswerInput!): CommunityInvitationAnswerResponse!
+
   """Create a new community"""
   createCommunity(input: CommunityCreateInput!): CreateCommunityResponse!
+  createCommunityInvitation(input: CommunityInvitationCreateInput!): CommunityInvitationCreateResponse!
+  createCommunityMember(input: CommunityMemberCreateInput!): CommunityMemberCreateResponse!
   createCritter(input: CritterCreateInput!): CreateCritterResponse!
   createEnumValueSetting(input: EnumValueSettingCreateInput!): enumValueSettingCreateResponse!
   createInviteCode(input: InviteCodeCreateInput!): InviteCodeCreateResponse!
+  createRole(input: RoleCreateInput!): RoleCreateResponse!
   createSpecies(input: SpeciesCreateInput!): SpeciesCreateResponse!
   createSpeciesImageUploadUrl(input: SpeciesImageUrlCreateInput!): CreateSpeciesImageUploadUrlResponse!
   createSpeciesVariant(input: SpeciesVariantCreateInput!): SpeciesVariantCreateResponse!
@@ -213,6 +315,9 @@ type Mutation {
 
   """Add a trait to a variant's trait list"""
   createTraitListEntry(input: TraitListEntryCreateInput!): TraitListEntryCreateResponse!
+
+  """Delete a community member, effectively removing a role from a user"""
+  deleteCommunityMember(input: CommunityMemberDeleteInput!): CommunityMemberDeleteResponse!
   deleteEnumValueSetting(input: EnumValueDeleteInput!): EnumValueSettingDeleteResponse!
   deleteTrait(input: TraitDeleteInput!): TraitDeleteResponse!
 
@@ -224,6 +329,8 @@ type Mutation {
   """Log in using local credentials and receive an auth token"""
   login(input: LoginArgs!): LoginResponse!
   modifyCritter(input: CritterModifyInput!): CritterModifyResponse!
+  modifyIdentity(input: IdentityModifyInput!): IdentityModifyResponse!
+  modifyRole(input: RoleModifyInput!): RoleModifyResponse!
   modifyTrait(input: TraitModifyInput!): TraitModifyResponse!
 
   """Update an entry on a variant's trait list"""
@@ -237,6 +344,16 @@ type Mutation {
   resetPassword(input: ResetPasswordInput!): ResetPasswordResponse!
 }
 
+"""
+This error indicates that the associated field requires authentication and no valid authentication was provided.
+"""
+type NotAuthenticatedError implements BaseError {
+  message: String!
+}
+
+"""
+This error indicates the associated field requires permissions that the requestor does not posess.
+"""
 type NotAuthorizedError implements BaseError {
   message: String!
 }
@@ -244,6 +361,8 @@ type NotAuthorizedError implements BaseError {
 type NotFoundError implements BaseError {
   message: String!
 }
+
+union PendingInvitationsResponse = CommunityInvitationList | NotAuthorizedError
 
 type Query {
   """Fetch a list of communities with filtering"""
@@ -255,7 +374,8 @@ type Query {
   identities: IdentitylistResponse!
 
   """Fetch invite codes"""
-  inviteCodes: InviteCodeResponse!
+  inviteCodes(filters: InviteCodeFilters!): InviteCodeResponse!
+  me: Identity!
   species(filters: SpeciesFilters): SpeciesResponse!
   traits(filters: TraitFilters!): TraitListResponse!
 }
@@ -290,6 +410,55 @@ type ResetPasswordSuccessResponse {
   success: Boolean!
 }
 
+type Role {
+  canCreateCritter: Boolean!
+  canCreateInviteCode: Boolean!
+  canCreateRole: Boolean!
+  canCreateSpecies: Boolean!
+  canEditCritter: Boolean!
+  canEditRole: Boolean!
+  canEditSpecies: Boolean!
+  canListInviteCodes: Boolean!
+  community: Community!
+  communityId: ID!
+  id: ID!
+  name: String!
+}
+
+input RoleCreateInput {
+  canCreateCritter: Boolean = false
+  canCreateInviteCode: Boolean = false
+  canCreateRole: Boolean = false
+  canCreateSpecies: Boolean = false
+  canEditCritter: Boolean = false
+  canEditRole: Boolean = false
+  canEditSpecies: Boolean = false
+  canListInviteCodes: Boolean = false
+  communityId: ID!
+  name: String!
+}
+
+union RoleCreateResponse = DuplicateError | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | Role
+
+type RoleList {
+  list: [Role!]!
+}
+
+input RoleModifyInput {
+  canCreateCritter: Boolean
+  canCreateInviteCode: Boolean
+  canCreateRole: Boolean
+  canCreateSpecies: Boolean
+  canEditCritter: Boolean
+  canEditRole: Boolean
+  canEditSpecies: Boolean
+  canListInviteCodes: Boolean
+  id: ID!
+  name: String = null
+}
+
+union RoleModifyResponse = DuplicateError | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | Role
+
 """
 Model representing an arbitrarily broad class of characters that use common variants and administration.
 """
@@ -316,7 +485,7 @@ input SpeciesCreateInput {
   name: String!
 }
 
-union SpeciesCreateResponse = DuplicateError | InvalidArgumentError | NotAuthorizedError | Species
+union SpeciesCreateResponse = DuplicateError | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError | Species
 
 input SpeciesFilters {
   communityId: ID!
@@ -333,7 +502,7 @@ type SpeciesList {
   list: [Species!]!
 }
 
-union SpeciesResponse = InvalidArgumentError | NotAuthorizedError | SpeciesList
+union SpeciesResponse = InvalidArgumentError | NotAuthenticatedError | SpeciesList
 
 type SpeciesVariant {
   enumValueSettings: [EnumValueSetting!]!
@@ -349,7 +518,7 @@ input SpeciesVariantCreateInput {
   speciesId: ID!
 }
 
-union SpeciesVariantCreateResponse = DuplicateError | InvalidArgumentError | SpeciesVariant
+union SpeciesVariantCreateResponse = DuplicateError | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError | SpeciesVariant
 
 type Trait {
   enumValues: [EnumValue!]!
@@ -371,13 +540,13 @@ input TraitCreateInput {
   valueType: CritterTraitValueType!
 }
 
-union TraitCreateResponse = DuplicateError | InvalidArgumentError | NotAuthorizedError | Trait
+union TraitCreateResponse = DuplicateError | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | Trait
 
 input TraitDeleteInput {
   id: ID!
 }
 
-union TraitDeleteResponse = DeleteResponse | InvalidArgumentError | NotAuthorizedError
+union TraitDeleteResponse = DeleteResponse | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError
 
 input TraitFilters {
   speciesId: ID!
@@ -407,9 +576,9 @@ input TraitListEntryCreateInput {
   traitId: ID!
 }
 
-union TraitListEntryCreateResponse = DuplicateError | InvalidArgumentError | TraitListEntry
+union TraitListEntryCreateResponse = DuplicateError | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError | TraitListEntry
 
-union TraitListEntryDeleteResponse = DeleteResponse | InvalidArgumentError
+union TraitListEntryDeleteResponse = DeleteResponse | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError
 
 """Input object for modifying a TraitListEntry"""
 input TraitListEntryModifyInput {
@@ -418,9 +587,9 @@ input TraitListEntryModifyInput {
   required: Boolean
 }
 
-union TraitListEntryModifyResponse = InvalidArgumentError | TraitListEntry
+union TraitListEntryModifyResponse = InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError | TraitListEntry
 
-union TraitListResponse = NotAuthorizedError | TraitList
+union TraitListResponse = NotAuthenticatedError | NotAuthorizedError | NotFoundError | TraitList
 
 input TraitModifyEnumValueInput {
   id: ID = null
@@ -435,10 +604,14 @@ input TraitModifyInput {
   valueType: CritterTraitValueType!
 }
 
-union TraitModifyResponse = DuplicateError | InvalidArgumentError | NotAuthorizedError | Trait
+union TraitModifyResponse = DuplicateError | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError | Trait
 
 type UrlResponse {
   url: String!
+}
+
+type UserAlreadyHasRoleError implements BaseError {
+  message: String!
 }
 
 type ValidationConstraint {
@@ -451,4 +624,4 @@ type ValidationError {
   field: String!
 }
 
-union enumValueSettingCreateResponse = DuplicateError | EnumValueSetting | InvalidArgumentError
+union enumValueSettingCreateResponse = DuplicateError | EnumValueSetting | InvalidArgumentError | NotAuthenticatedError | NotAuthorizedError | NotFoundError

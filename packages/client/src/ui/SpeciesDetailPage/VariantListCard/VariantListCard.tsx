@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import { useFetcher } from "react-router-dom";
-import { useRouteSpecies } from "../useRouteSpecies";
+import { useRouteSpeciesOrFail } from "../useRouteSpecies";
 import {
   Button,
   Card,
@@ -12,23 +12,26 @@ import {
   Typography,
 } from "@mui/material";
 import { AppRoutes } from "../../AppRoutes";
-import { useRouteCommunity } from "../../../useRouteCommunity";
+import { useRouteCommunityOrFail } from "../../../useRouteCommunity";
 import { isSpeciesVariant } from "@clovercoin/api-client";
 import { ActionData, RouteType } from "../../../routes";
 import AddIcon from "@mui/icons-material/Add";
 import { Link } from "../../Link/Link";
 import { GridRow } from "../../lib/GridRow";
+import { usePageTitle } from "../../../hooks/usePageTitle";
 
 export interface VariantListCardProps {}
 
 export const VariantListCard: FC<VariantListCardProps> = () => {
-  const species = useRouteSpecies();
-  const community = useRouteCommunity();
+  const species = useRouteSpeciesOrFail();
+  const community = useRouteCommunityOrFail();
   const fetcher =
     useFetcher<ActionData<RouteType<"root.community.species.variants">>>();
   const { data } = fetcher;
 
   const [name, setName] = useState("");
+
+  usePageTitle(`${community.name} - ${species.name} Variants`);
 
   useEffect(() => {
     if (data && isSpeciesVariant(data)) {

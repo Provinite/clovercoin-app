@@ -3,7 +3,7 @@ import { FC } from "react";
 import { Outlet } from "react-router-dom";
 import { useHeaderBarProps } from "../HeaderBar/HeaderBarContext";
 import { SpeciesDetailPage, SpeciesDetailPageProps } from "./SpeciesDetailPage";
-import { useRouteSpecies } from "./useRouteSpecies";
+import { useRouteSpeciesOrFail } from "./useRouteSpecies";
 
 export interface SpeciesDetailPageProviderProps
   extends Omit<SpeciesDetailPageProps, "headerBarProps" | "species"> {}
@@ -11,7 +11,7 @@ export interface SpeciesDetailPageProviderProps
 export const SpeciesDetailPageProvider: FC<SpeciesDetailPageProviderProps> = (
   props
 ) => {
-  const species = useRouteSpecies();
+  const species = useRouteSpeciesOrFail();
 
   return (
     <SpeciesDetailPage

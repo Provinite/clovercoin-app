@@ -8,7 +8,7 @@ export abstract class BaseError {
     this.message = message;
 
     Object.defineProperty(this, "stack", {
-      enumerable: false,
+      enumerable: true,
       writable: true,
     });
     this.stack = new Error().stack ?? "";

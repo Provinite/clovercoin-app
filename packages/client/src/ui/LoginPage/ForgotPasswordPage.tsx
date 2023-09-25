@@ -6,6 +6,7 @@ import { LoadingButton } from "@mui/lab";
 import { Card, TextField, Typography } from "@mui/material";
 import { FC, useEffect, useState } from "react";
 import { Form } from "react-router-dom";
+import { usePageTitle } from "../../hooks/usePageTitle";
 import { assertNever } from "../../utils/assertNever";
 import { stylesheet } from "../../utils/emotion";
 import { useRouteActionData } from "../../utils/loaderDataUtils";
@@ -13,6 +14,7 @@ import { AppRoutes } from "../AppRoutes";
 import { Link } from "../Link/Link";
 
 export const ForgotPasswordPage: FC = () => {
+  usePageTitle("CloverCoin Species - Forgot Password");
   const errorOrResult = useRouteActionData<"root.forgotPassword">();
 
   const [email, setEmail] = useState("");

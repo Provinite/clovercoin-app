@@ -14,6 +14,12 @@ import {
 } from "./ui/HeaderBar/HeaderBarContext";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import {
+  SequentialSnackbar,
+  useSnackbarQueue,
+} from "./ui/SequentialSnackbar/SequentialSnackbar";
+import { SequentialSnackbarContext } from "./ui/SequentialSnackbar/SequentialSnackbarContext";
+import { globalSnackbarTopic } from "./utils/observables/topics/globalSnackbarTopic";
 const defaultDarkTheme = createTheme({
   palette: {
     mode: "dark",
@@ -33,6 +39,19 @@ export const Application: FunctionComponent = () => {
         userName: "",
       },
     }));
+
+  const snackbar = useSnackbarQueue();
+
+  /**
+   * Connects the global snackbar topics to the snackbar
+   */
+  useEffect(
+    () =>
+      globalSnackbarTopic.simpleError.subscribe((msg) => {
+        snackbar.appendSimpleError(msg);
+      }),
+    []
+  );
 
   useEffect(
     () =>
@@ -87,7 +106,10 @@ export const Application: FunctionComponent = () => {
                 }}
                 elevation={0}
               >
-                <Outlet />
+                <SequentialSnackbarContext.Provider value={snackbar}>
+                  <Outlet />
+                </SequentialSnackbarContext.Provider>
+                <SequentialSnackbar queue={snackbar} />
               </Paper>
             </HeaderBarContext.Provider>
           </ApolloProvider>

@@ -14,32 +14,31 @@ import {
   Typography,
 } from "@mui/material";
 import { FunctionComponent, useEffect, useState } from "react";
-import { useRouteSpecies } from "../useRouteSpecies";
+import { useRouteSpeciesOrFail } from "../useRouteSpecies";
 import TuneIcon from "@mui/icons-material/Tune";
-import { useRouteTraits } from "../useRouteTraits";
+import { useRouteTraitsOrFail } from "../useRouteTraits";
 import { useFetcher } from "react-router-dom";
 import LoadingButton from "@mui/lab/LoadingButton";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import { useRouteCommunity } from "../../../useRouteCommunity";
+import { useRouteCommunityOrFail } from "../../../useRouteCommunity";
 import { AppRoutes } from "../../AppRoutes";
-import {
-  SequentialSnackbar,
-  useSnackbarQueue,
-} from "../../SequentialSnackbar/SequentialSnackbar";
 import { GridRow } from "../../lib/GridRow";
 import { Link } from "../../Link/Link";
+import { useSnackbar } from "../../SequentialSnackbar/SequentialSnackbarContext";
+import { usePageTitle } from "../../../hooks/usePageTitle";
 
 export const TraitListCard: FunctionComponent = () => {
-  const data = useRouteTraits();
-  const species = useRouteSpecies();
+  const data = useRouteTraitsOrFail();
+  const species = useRouteSpeciesOrFail();
   const fetcher = useFetcher();
-  const community = useRouteCommunity();
+  const community = useRouteCommunityOrFail();
+  usePageTitle(`${community.name} - ${species.name} Traits`);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [traitToDelete, setTraitToDelete] =
     useState<typeof data["list"][number]>();
 
   const [loading, setLoading] = useState(false);
-  const snackbarQueue = useSnackbarQueue();
+  const snackbarQueue = useSnackbar();
 
   useEffect(() => {
     if (fetcher.state !== "idle") {
@@ -61,7 +60,6 @@ export const TraitListCard: FunctionComponent = () => {
   }, [fetcher, snackbarQueue.append]);
   return (
     <Card elevation={1}>
-      <SequentialSnackbar queue={snackbarQueue} />
       <CardHeader
         title={`${species.name} - Traits`}
         action={

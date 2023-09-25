@@ -33,4 +33,12 @@ export interface SnackbarQueue {
    * Close the snackbar
    */
   close: (event?: Event | SyntheticEvent, reason?: SnackbarCloseReason) => void;
+  /**
+   * Add a simple error to the queue.
+   */
+  appendSimpleError: (message: string) => void;
+  /**
+   * Add a simple success message to the queue.
+   */
+  appendSimpleSuccess: (message: string) => void;
 }

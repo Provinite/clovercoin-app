@@ -63,3 +63,7 @@ variable "jwt_secret_arn" {
   type = string
 }
 
+variable "admin_email" {
+  description = "Admin email address"
+  type = string
+}

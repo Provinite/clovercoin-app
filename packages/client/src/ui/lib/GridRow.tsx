@@ -60,22 +60,36 @@ export const GridRow = forwardRef<
         className={className}
         css={[ss.gridRow, selected ? ss.gridRowActive : null]}
       >
-        {children?.map((c, i) => {
-          const gridProps = {
-            xs: xs[i],
-            sm: sm[i],
-            md: md[i],
-            lg: lg[i],
-            xl: xl[i],
-          };
+        {(() => {
+          let settingIndex = 0;
+          return children?.map((c) => {
+            if (!c) {
+              return;
+            }
+            const gridProps = {
+              xs: xs[settingIndex],
+              sm: sm[settingIndex],
+              md: md[settingIndex],
+              lg: lg[settingIndex],
+              xl: xl[settingIndex],
+            };
 
-          return (
-            <Grid ref={ref} item key={i} css={ss.item} {...gridProps}>
-              {c}
-              {divider && <Divider css={ss.divider} />}
-            </Grid>
-          );
-        })}
+            settingIndex++;
+
+            return (
+              <Grid
+                ref={ref}
+                item
+                key={settingIndex}
+                css={ss.item}
+                {...gridProps}
+              >
+                {c}
+                {divider && <Divider css={ss.divider} />}
+              </Grid>
+            );
+          });
+        })()}
       </Box>
     );
   }

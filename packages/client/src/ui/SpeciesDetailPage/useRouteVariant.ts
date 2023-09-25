@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { slugToUuid } from "../../utils/uuidUtils";
-import { useRouteSpecies } from "./useRouteSpecies";
+import { useRouteSpeciesOrFail } from "./useRouteSpecies";
 
 /**
  * Retrive the variant specified in the route. Relies
@@ -8,7 +8,7 @@ import { useRouteSpecies } from "./useRouteSpecies";
  * @see useRouteSpecies
  */
 export const useRouteVariant = () => {
-  const species = useRouteSpecies();
+  const species = useRouteSpeciesOrFail();
   const { variantSlug } = useParams();
   if (!variantSlug) {
     return;

@@ -1,5 +1,5 @@
 import gql from "graphql-tag";
-import NotAuthorizedErrorFragmentGraphql from "../../utils/error-fragments/NotAuthorizedErrorFragment.graphql";
+import NotAuthenticatedErrorFragmentGraphql from "../../utils/error-fragments/NotAuthenticatedErrorFragment.graphql";
 
 export const createSpeciesUploadUrlMutation = gql`
   mutation createSpeciesImageUploadUrl($input: SpeciesImageUrlCreateInput!) {
@@ -8,10 +8,10 @@ export const createSpeciesUploadUrlMutation = gql`
       ... on UrlResponse {
         url
       }
-      ... on NotAuthorizedError {
-        ...NotAuthorizedErrorFragment
+      ... on NotAuthenticatedError {
+        ...NotAuthenticatedErrorFragment
       }
     }
   }
-  ${NotAuthorizedErrorFragmentGraphql}
+  ${NotAuthenticatedErrorFragmentGraphql}
 `;

@@ -3,6 +3,7 @@ import { LoadingButton } from "@mui/lab";
 import { Card, TextField, Typography } from "@mui/material";
 import { FC, useEffect, useState } from "react";
 import { Form } from "react-router-dom";
+import { usePageTitle } from "../../hooks/usePageTitle";
 import { stylesheet } from "../../utils/emotion";
 import { useRouteActionData } from "../../utils/loaderDataUtils";
 import { AppRoutes } from "../AppRoutes";
@@ -19,9 +20,10 @@ export function exhaustiveSwitch<
 }
 
 export const LoginPage: FC = () => {
+  usePageTitle("CloverCoin Species - Login");
   const error = useRouteActionData<"root.login">();
 
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   useEffect(() => {
@@ -30,7 +32,7 @@ export const LoginPage: FC = () => {
       username: "",
       form: "",
     }));
-  }, [username]);
+  }, [email]);
 
   useEffect(() => {
     setFieldErrors((fieldErrors) => ({
@@ -40,11 +42,11 @@ export const LoginPage: FC = () => {
     }));
   }, [password]);
 
-  type FieldNames = "username" | "password" | "form";
+  type FieldNames = "email" | "password" | "form";
   const [fieldErrors, setFieldErrors] = useState<
     Record<FieldNames, string | undefined | null>
   >(() => ({
-    username: null,
+    email: null,
     password: null,
     form: null,
   }));
@@ -77,8 +79,7 @@ export const LoginPage: FC = () => {
       <Form action={AppRoutes.login()} method="post">
         <Typography variant="h5">Welcome!</Typography>
         <Typography variant="body1" color="text.secondary">
-          Log in with your username and password below to access your
-          comnmunity.
+          Log in with your email and password below to access your communities.
         </Typography>
         <br />
         <Typography variant="body1">
@@ -101,15 +102,15 @@ export const LoginPage: FC = () => {
         )}
         <br />
         <TextField
-          name="username"
-          label="Username"
-          type="text"
+          name="email"
+          label="Email"
+          type="email"
           required
-          error={Boolean(fieldErrors.username)}
-          helperText={fieldErrors.username ?? ""}
+          error={Boolean(fieldErrors.email)}
+          helperText={fieldErrors.email ?? ""}
           fullWidth
-          value={username}
-          onChange={({ target: { value } }) => setUsername(value)}
+          value={email}
+          onChange={({ target: { value } }) => setEmail(value)}
           css={ss.field}
         />
         <TextField
@@ -131,7 +132,7 @@ export const LoginPage: FC = () => {
           variant="contained"
           color="primary"
           disabled={
-            !username ||
+            !email ||
             !password ||
             // if there are errors, disabled
             Object.values(fieldErrors).some((val) => val)

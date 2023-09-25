@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 import BaseErrorFragmentGraphql from "../../utils/error-fragments/BaseErrorFragment.graphql";
 import InvalidArgumentErrorFragmentGraphql from "../../utils/error-fragments/InvalidArgumentErrorFragment.graphql";
-import NotAuthorizedErrorFragmentGraphql from "../../utils/error-fragments/NotAuthorizedErrorFragment.graphql";
+import NotAuthenticatedErrorFragmentGraphql from "../../utils/error-fragments/NotAuthenticatedErrorFragment.graphql";
 
 export const deleteTraitMutation = gql`
   mutation deleteTrait($input: TraitDeleteInput!) {
@@ -16,12 +16,12 @@ export const deleteTraitMutation = gql`
       ... on BaseError {
         ...BaseErrorFragment
       }
-      ... on NotAuthorizedError {
-        ...NotAuthorizedErrorFragment
+      ... on NotAuthenticatedError {
+        ...NotAuthenticatedErrorFragment
       }
     }
   }
   ${InvalidArgumentErrorFragmentGraphql}
   ${BaseErrorFragmentGraphql}
-  ${NotAuthorizedErrorFragmentGraphql}
+  ${NotAuthenticatedErrorFragmentGraphql}
 `;

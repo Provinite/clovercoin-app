@@ -1,3 +1,91 @@
+# 5.0.0
+
+- Logging in is done by email & password instead of username & password
+- Invite codes can now optionally be assigned a community role
+  - When the code is claimed, the new identity that is created will be created with a community membership w/ the specified role
+- Added a new entity, Community Invitations
+  - Community Invitations are sent by community managers to users in the
+    system that are not in their community. An invitation is like an invite
+    code for people that already have accounts.
+- Adds some new mutations:
+  - `createRole`
+  - `modifyRole`
+  - `createCommunityInvite`
+  - `answerCommunityInvite`
+  - `createCommunityMember`
+  - `deleteCommunityMember`
+  - `modifyIdentity`
+- Implements permissions/authorization
+- Each permission is associated with a particular entity in the system
+  - Global Permissions are attached to a user's identity and are generally used for site-admin level permissions that very few users will have.
+    - `canCreateCommunity` - Create new communities
+    - `canListIdentities` - Allowed to read the global users list
+    - `canListInviteCodes` - Allowed to read the list of invite codes
+    - `canCreateInviteCode` - Allowed to create an invite code
+    - `canGrantGlobalPermission`- Allowed to manage global permission for all other users.
+  - Community Permissions are attached to a `Role` and a user may have one or more roles per community.
+    - `canCreateSpecies` - Create a species in this community
+    - `canCreateCritter` - Create a critter in any species in this community
+    - `canEditCritter` - Edit any critter in any species in this community
+    - `canEditSpecies` - Edit any species in this community (name, images, traits, variants, etc)
+    - `canCreateRole` - Create a role with any permissions in this community
+    - `canEditRole` - Updatea any role in this community to have any permissions
+  - Critter permissions are scoped to a particular critter
+    - `canEditOwn`
+      - This is a special permission that is not stored in the database, but instead all users have this permission if they own the target critter.
+  - Identity Permissions are used to control if users can perform actions on behalf of a particular user (including themselves)
+    - `canViewPendingInvites` - View a user's pending community invitaitons. Users can view their own
+    - `canAnswerInvites` - Answer community invites (accept/decline) for a user. Users can answer their own
+    - `canViewEmail` - Control whether a user can see another user's email. This is limited strictly to staff/"super-admins", as well as users viewing their own.
+- Permissions for:
+  - Mutations
+    - `createCommunity`: `global.canCreateCommunity`
+    - `createCritter`: `community.canCreateCritter`
+    - `modifyCritter`: `community.canEditCritter`
+    - `deleteEnumValueSetting`: `community.canEditSpecies`
+      - Dev's Note: This mutation is used to remove an option from a variant's dropdown trait choices
+    - `createEnumValueSetting`: `community.canEditSpecies`
+      - Dev's Note: This mutation is used to add an option to a variant's dropdown trait choices
+    - `createInviteCode`: `global.canCreateInviteCode`
+    - `createSpecies`: `community.canCreateSpecies`
+    - `createSpeciesImageUploadUrl`: `community.canEditSpecies`
+      - Dev's Note: This mutation is used to upload a cover image for a species
+    - `createSpeciesVariant`: `community.canEditSpecies`
+    - `createTrait`: `community.canEditSpecies`
+    - `deleteTrait`: `community.canEditSpecies`
+    - `modifyTrait`: `community.canEditSpecies`
+    - `createTraitListEntry`: `community.canEditSpecies`
+      - Dev's Note: This mutation is used to add a trait to a species variant
+    - `deleteTraitlistEntry`: `community.canEditSpecies`
+      - Dev's Note: This mutation is used to remove a trait from a species variant
+    - `modifyTraitListEntry`: `community.canEditSpecies`
+      - Dev's Note: This mutation is used to change the configuration of a trait for a species variant. Includes such options as default values, and whether a trait is optional or required.
+    - `createRole`: `community.createRole`
+    - `modifyRole`: `community.modifyRole`
+    - `login`: No permissions
+    - `register`: No permissions
+    - `requestPasswordReset`: No permissions
+    - `modifyIdentity`: `global.canGrantGlobalPermissions`
+    - `createCommunityInvite`: `community.canCreateInviteCode`
+    - `answerCommunityInvite`: `*`
+  - Queries
+    - `identities`: `global.canListIdentities`
+    - `inviteCodes`: `global.canListInviteCodes`
+    - `traits`: `community.*`
+    - Fields
+      - `identity.roles`: `community.*`
+      - `identity.email`
+        - `identity.canViewEmail`
+        - `global.canListIdentities`
+- Added controller-enforced filtering rules. These rules are applied to every operation. So a filter can prevent reading something (eg, looking at critters in communities you don't have access to), and it can also prevent updating or creating something (eg: can't create things in a community you're not in because from your perspective it does not exist).
+  - Community:
+    - Filtered to communities in which the user has any role
+  - Critter:
+    - Filtered to critters in communities in which the user has any role
+  - Species
+    - Filtered to species in communities in which the user has any role
+- Makes the `stack` property on `BaseError` enumerable, resulting in stacktraces on every error logged
+
 # 4.0.0
 
 - Adds the `NotAuthorizedError` type

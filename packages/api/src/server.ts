@@ -25,10 +25,11 @@ import {
   getSesEnvironment,
 } from "./environment.js";
 import { ImageController } from "./business/ImageController.js";
-import { authChecker } from "./business/auth/authChecker.js";
 import { sesConfig } from "./ses/sesConfig.js";
 import { errorHandlerMiddleware } from "./graphql/middlewares/errorHandlerMiddleware.js";
 import { loggingMiddleware } from "./graphql/middlewares/loggingMiddleware.js";
+import { setCurrentUser } from "./http-middleware/setCurrentUser.js";
+import { AuthorizerRegistry } from "./business/auth/AuthorizerRegistry.js";
 export interface ServerOptions {
   db: {
     host?: string;
@@ -71,7 +72,6 @@ export const createCloverCoinAppServer = async (options: ServerOptions) => {
       typeof ResolversArray[number]
     >,
     emitSchemaFile: options?.schema.emitFile,
-    authChecker,
     globalMiddlewares: [errorHandlerMiddleware, loggingMiddleware],
   });
 
@@ -142,9 +142,18 @@ export const createCloverCoinAppServer = async (options: ServerOptions) => {
    */
   registerControllers(rootContainer);
 
+  /**
+   * Authorizer registry
+   */
+  register(
+    rootContainer,
+    "authorizerRegistry",
+    asClass(AuthorizerRegistry).scoped()
+  );
   koa
     .use(cors)
     .use(createRequestContainer(rootContainer))
+    .use(setCurrentUser)
     .use(handleJsonBufferBody)
     .use(async (ctx, next) => {
       await next();
@@ -157,13 +166,6 @@ export const createCloverCoinAppServer = async (options: ServerOptions) => {
         });
       });
     })
-    // .use(async (ctx, next) => {
-    //   // TODO: NO!
-    //   await next();
-    //   if (ctx.status === 500) {
-    //     ctx.status = 200;
-    //   }
-    // })
     .use(
       mount(
         "/",
@@ -172,7 +174,10 @@ export const createCloverCoinAppServer = async (options: ServerOptions) => {
 
           return {
             schema,
-            graphiql: true,
+            graphiql: {
+              headerEditorEnabled: true,
+              shouldPersistHeaders: true,
+            },
             context: requestContainer.cradle,
           };
         })
@@ -190,5 +195,6 @@ declare module "./graphql/AppGraphqlContext.js" {
     sesEnvironment: ReturnType<typeof getSesEnvironment>;
     sesConfig: ReturnType<typeof sesConfig>;
     appEnvironment: ReturnType<typeof getAppEnvironment>;
+    authorizerRegistry: AuthorizerRegistry;
   }
 }

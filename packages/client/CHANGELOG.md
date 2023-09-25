@@ -1,3 +1,31 @@
+# 4.0.0
+
+- Login page now requests email address instead of username
+- Added community settings page with:
+  - Role management (setting permissions for roles)
+  - User management (setting roles for users)
+  - Invitation support (invite users to your community)
+  - Community-direct invite codes (invite NEW users directly to your community!)
+    - Community managers can now create invite codes that will join a user directly to their community with a specific role
+- Added error message support for `UnauthorizedError` response
+  - Users will get a nice "access denied" type toast instead of the app crashing
+- Added error handling for `NotAuthenticatedError`s
+  - Bounces the user to the login page and forces a new login
+  - Includes a nice toast explaining what happened
+  - Dev note: This error is returned when a user that is not logged in tries
+    to do something sensitive.
+- Added graceful degredation of functionality for reduced permissions throughout the app
+- Fixed a bug that caused type narrowing for API responses to not always work
+- Refactored all toast (snackbar) usage to use a single global snackbar.
+  - This will make the toast behavior much more consistent across the application
+    and ensure a nice UX that expresses that the entire applicaiton is one system.
+- Added titles to all pages so bookmarks will be more useful
+- Added a call to destroy the apollo store on logout. This ensures that no
+  sensitive cached data is left laying around after a logout.
+- Improved type-safety for using loader data in the app
+  - Made `useRouteXXX` hooks have `| undefined` return types
+  - Added `useRouteXXXOrFail` which will throw an error if the data isn't available
+
 # 3.3.0
 
 - Refactored all API usage to support CC API v4.0.0 auth changes

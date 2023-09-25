@@ -32,3 +32,8 @@ variable "acm_cert_arn" {
   type=string
   description = "ARN of the ACM cert to use with cloudfront"
 }
+
+variable "admin_email" {
+  description = "Admin email address"
+  type = string
+}

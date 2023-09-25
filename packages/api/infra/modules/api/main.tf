@@ -3,7 +3,6 @@ resource "aws_lambda_function_url" "api_url" {
   authorization_type = "NONE"
 }
 
-
 resource "aws_lambda_function" "api" {
   function_name = "${var.prefix}-cc-api-fn"
   image_uri     = "${var.ecr_repo_url}:DUMMY"
@@ -28,6 +27,7 @@ resource "aws_lambda_function" "api" {
       CC_AWS_SES_USE_SMTP        = "true"
       CC_AWS_SES_SMTP_HOST       = "email-smtp.us-east-1.amazonaws.com"
       CC_AWS_SES_SMTP_PORT       = "587"
+      CC_ADMIN_EMAIL             = var.admin_email
     }
   }
   vpc_config {
@@ -95,6 +95,7 @@ resource "aws_lambda_function" "migrate" {
       CC_AWS_SES_USE_SMTP        = "true"
       CC_AWS_SES_SMTP_HOST       = "email-smtp.us-east-1.amazonaws.com"
       CC_AWS_SES_SMTP_PORT       = "587"
+      CC_ADMIN_EMAIL             = var.admin_email
     }
   }
   vpc_config {

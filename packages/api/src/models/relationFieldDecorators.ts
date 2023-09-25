@@ -2,6 +2,7 @@ import { Field, ID } from "type-graphql";
 import { TypeormLoader } from "type-graphql-dataloader";
 import {
   Column,
+  ColumnOptions,
   JoinColumn,
   JoinColumnOptions,
   ManyToOne,
@@ -50,7 +51,7 @@ export const ManyToOneField: <U, T extends ObjectType<U> = ObjectType<U>>(
       referencedColumnName: foreignColumnName,
       ...joinColumnOptions,
     })(...args);
-    Field(fieldType, { description })(...args);
+    Field(fieldType, { description, nullable })(...args);
     TypeormLoader()(...args);
   };
 };
@@ -59,16 +60,24 @@ export interface RelationIdFieldOptions<T> {
   relation: (model: T) => any;
   nullable: boolean;
   description?: string;
+  columnOptions?: ColumnOptions;
 }
 
 export const RelationIdField: <T>(
   options: RelationIdFieldOptions<T>
 ) => PropertyDecorator =
-  <T>({ description, nullable, relation }: RelationIdFieldOptions<T>) =>
+  <T>({
+    description,
+    nullable,
+    relation,
+    columnOptions,
+  }: RelationIdFieldOptions<T>) =>
   (...args) => {
     RelationId(relation)(...args);
     Field(() => ID, { nullable, description })(...args);
-    Column()(...args);
+    Column(columnOptions ? { ...columnOptions, nullable } : { nullable })(
+      ...args
+    );
   };
 
 export const IdField: PropertyDecorator = (...args) => {

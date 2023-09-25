@@ -45,11 +45,22 @@ export class LoginController {
         identityController,
         accountController,
         inviteCodeController,
+        communityMemberController,
       }) => {
+        const isAdminUser = Boolean(
+          this.#adminEmail && this.#adminEmail === email
+        );
+
+        let roleIdForInviteCode: string | null = null;
+
         // The bootstrap admin email can bypass invite requirements
-        if (!this.#adminEmail || email !== this.#adminEmail) {
+        if (!isAdminUser) {
           try {
             await inviteCodeController.claimInviteCodeOrThrow(inviteCodeId);
+            const inviteCode = await inviteCodeController.findOneByIdOrFail(
+              inviteCodeId
+            );
+            roleIdForInviteCode = inviteCode.roleId;
           } catch (err) {
             if (err instanceof NotFoundError) {
               throw InvalidArgumentError.fromFieldMap({
@@ -66,6 +77,11 @@ export class LoginController {
         const identity = await identityController.create({
           displayName: username,
           email,
+          canCreateCommunity: isAdminUser,
+          canListIdentities: isAdminUser,
+          canListInviteCodes: isAdminUser,
+          canCreateInviteCode: isAdminUser,
+          canGrantGlobalPermissions: isAdminUser,
         });
         const [account, token] = await Promise.all([
           accountController.create({
@@ -74,6 +90,12 @@ export class LoginController {
             identityId: identity.id,
           }),
           this.#createToken(identity),
+          roleIdForInviteCode
+            ? communityMemberController.create({
+                identityId: identity.id,
+                roleId: roleIdForInviteCode,
+              })
+            : Promise.resolve(),
         ]);
         return { success: true, identity, account, token };
       }
@@ -82,19 +104,19 @@ export class LoginController {
 
   /**
    * Authenticate a user using local credentials
-   * @param username
+   * @param email
    * @param plaintextPassword
    * @returns A result object with a success boolean, and on successful authentication,
    *  the resulting account and identity.
    */
   async login(
-    username: string,
+    email: string,
     plaintextPassword: string
   ): Promise<LoggedInResult> {
     return this.#transactionProvider.runTransaction(
       async ({ accountController, identityRepository }) => {
         const result = await accountController.verifyCredentials(
-          username,
+          email,
           plaintextPassword
         );
 

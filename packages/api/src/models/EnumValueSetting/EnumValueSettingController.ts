@@ -13,7 +13,10 @@ export class EnumValueSettingController extends EntityController<
   Repository<EnumValueSetting>,
   EnumValueSettingCreate
 > {
-  constructor({ enumValueSettingRepository }: AppGraphqlContext) {
-    super(enumValueSettingRepository);
+  constructor({
+    enumValueSettingRepository,
+    transactionProvider,
+  }: AppGraphqlContext) {
+    super(enumValueSettingRepository, transactionProvider);
   }
 }

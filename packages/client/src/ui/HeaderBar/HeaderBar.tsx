@@ -17,6 +17,7 @@ import { stylesheet } from "../../utils/emotion";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { Link } from "../Link/Link";
 import { AppRoutes } from "../AppRoutes";
+import SettingsIcon from "@mui/icons-material/Settings";
 export const HeaderBar: FC<HeaderBarProps> = ({
   title,
   userName,
@@ -65,6 +66,14 @@ export const HeaderBar: FC<HeaderBarProps> = ({
             </ListItemIcon>
             <ListItemText>
               <Typography variant="body2">Log Out</Typography>
+            </ListItemText>
+          </MenuItem>
+          <MenuItem component={Link} to={AppRoutes.userSettings()}>
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            <ListItemText>
+              <Typography variant="body2">Settings</Typography>
             </ListItemText>
           </MenuItem>
         </Menu>

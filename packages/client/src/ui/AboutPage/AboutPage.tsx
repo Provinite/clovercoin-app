@@ -10,8 +10,10 @@ import {
 import { FC } from "react";
 import { stylesheet } from "../../utils/emotion";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { usePageTitle } from "../../hooks/usePageTitle";
 
 export const AboutPage: FC = () => {
+  usePageTitle("CloverCoin Species - About");
   const faq = [
     [
       "How can I get an invite code?",

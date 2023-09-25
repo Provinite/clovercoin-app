@@ -13,6 +13,8 @@ import { TraitListEntryController } from "../models/TraitListEntry/TraitListEntr
 import { LoginController } from "./LoginController.js";
 import { InviteCodeController } from "../models/InviteCode/InviteCodeController.js";
 import { ResetTokenController } from "../models/ResetToken/ResetTokenController.js";
+import { RoleController } from "../models/Role/RoleController.js";
+import { CommunityInvitationController } from "../models/CommunityInvitation/CommunityInvitationController.js";
 /**
  * Add controllers here when they are created to make them available
  * via graphql context etc. Handles typing as well.
@@ -40,6 +42,9 @@ export const ControllersMap = {
   TraitListEntryController,
 
   InviteCodeController,
+  RoleController,
+
+  CommunityInvitationController,
 } as const;
 
 export type ControllersMap = typeof ControllersMap;

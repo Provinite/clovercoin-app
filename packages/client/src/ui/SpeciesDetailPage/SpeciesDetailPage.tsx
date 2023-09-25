@@ -5,7 +5,7 @@ import {
 } from "@clovercoin/api-client";
 import { HeaderBar, HeaderBarSpacer } from "../HeaderBar/HeaderBar";
 import { HeaderBarProps } from "../HeaderBar/HeaderBarProps";
-import { useRouteCommunity } from "../../useRouteCommunity";
+import { useRouteCommunityOrFail } from "../../useRouteCommunity";
 import { NavItem, SideNav } from "../SideNav/SideNav";
 import { AppRoutes } from "../AppRoutes";
 import InterestsIcon from "@mui/icons-material/Interests";
@@ -15,6 +15,8 @@ import SchemaIcon from "@mui/icons-material/Schema";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import SpaIcon from "@mui/icons-material/Spa";
 import { useRouteVariant } from "./useRouteVariant";
+import SettingsIcon from "@mui/icons-material/Settings";
+import { usePageTitle } from "../../hooks/usePageTitle";
 
 export interface SpeciesDetailPageProps {
   headerBarProps: HeaderBarProps;
@@ -29,7 +31,8 @@ export const SpeciesDetailPage: FC<SpeciesDetailPageProps> = ({
   species,
   children,
 }) => {
-  const community = useRouteCommunity();
+  const community = useRouteCommunityOrFail();
+  usePageTitle(`${community.name} - ${species.name}`);
   const variant = useRouteVariant();
   const navGroups = useMemo<NavItem[]>(() => {
     const communityId = community.id;
@@ -76,6 +79,11 @@ export const SpeciesDetailPage: FC<SpeciesDetailPageProps> = ({
               },
             ],
           },
+          {
+            to: AppRoutes.communitySettings(community.id),
+            children: "Community Settings",
+            icon: <SettingsIcon />,
+          },
         ],
       },
       {
@@ -90,7 +98,7 @@ export const SpeciesDetailPage: FC<SpeciesDetailPageProps> = ({
     <>
       <HeaderBar
         {...headerBarProps}
-        title={`${community.name}: Species - ${species.name}`}
+        title={`${community.name} - ${species.name}`}
       />
       <div
         css={{
