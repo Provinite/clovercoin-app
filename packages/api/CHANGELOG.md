@@ -1,3 +1,7 @@
+# 5.0.1
+
+- Fixes the application crashing when removing a trait from a species variant
+
 # 5.0.0
 
 - Logging in is done by email & password instead of username & password
