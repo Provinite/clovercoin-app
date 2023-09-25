@@ -81,7 +81,31 @@ export class TraitListEntryResolver {
       " delete any values for this trait from all existing" +
       " characters under the specified variant.",
   })
-  @Preauthorize(authorizeTraitListEntryById(["canEditSpecies"]))
+  @Preauthorize(
+    async ({
+      args: { id },
+      context: {
+        traitListEntryController,
+        speciesVariantController,
+        speciesController,
+      },
+    }) => {
+      const traitListEntry = await traitListEntryController.findOneByIdOrFail(
+        id
+      );
+      const speciesVariant = await speciesVariantController.findOneByIdOrFail(
+        traitListEntry.speciesVariantId
+      );
+      const species = await speciesController.findOneByIdOrFail(
+        speciesVariant.speciesId
+      );
+      return {
+        scope: AuthScope.Community,
+        communityId: species.communityId,
+        permissions: ["canEditSpecies"],
+      };
+    }
+  )
   async deleteTraitListEntry(
     @Arg("id", () => ID, { nullable: false }) id: string,
     @Ctx() { traitListEntryController }: AppGraphqlContext
