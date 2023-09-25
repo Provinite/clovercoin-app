@@ -104,19 +104,19 @@ export class LoginController {
 
   /**
    * Authenticate a user using local credentials
-   * @param username
+   * @param email
    * @param plaintextPassword
    * @returns A result object with a success boolean, and on successful authentication,
    *  the resulting account and identity.
    */
   async login(
-    username: string,
+    email: string,
     plaintextPassword: string
   ): Promise<LoggedInResult> {
     return this.#transactionProvider.runTransaction(
       async ({ accountController, identityRepository }) => {
         const result = await accountController.verifyCredentials(
-          username,
+          email,
           plaintextPassword
         );
 

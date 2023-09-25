@@ -59,10 +59,10 @@ export class LoginResolver {
     description: "Log in using local credentials and receive an auth token",
   })
   async login(
-    @Arg("input", { nullable: false }) { username, password }: LoginArgs,
+    @Arg("input", { nullable: false }) { email, password }: LoginArgs,
     @Ctx() { loginController }: AppGraphqlContext
   ): Promise<LoginSuccessResponse | LoginFailureResponse> {
-    const result = await loginController.login(username, password);
+    const result = await loginController.login(email, password);
     if (!result.success) {
       return new LoginFailureResponse();
     }

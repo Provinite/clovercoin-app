@@ -67,16 +67,18 @@ export class AccountController extends EntityController<
 
   /**
    * Constant-time verification of user credentials
-   * @param username
+   * @param email
    * @param password
    */
   async verifyCredentials(
-    username: string,
+    email: string,
     password: string
   ): Promise<VerifyResponse> {
     const account = await this.repository.findOne({
       where: {
-        username,
+        identity: {
+          email,
+        },
       },
     });
     const compareResult = await compareHash(

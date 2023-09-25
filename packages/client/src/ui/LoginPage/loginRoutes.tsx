@@ -45,15 +45,15 @@ export const loginRoutes = () => [
 const loginAction = makeAction(
   {
     allowedMethods: ["post"],
-    form: { username: true, password: true },
+    form: { email: true, password: true },
   },
-  async ({ form: { username, password } }) => {
+  async ({ form: { email, password } }) => {
     const {
       data: { login: result },
     } = await graphqlService.login({
       variables: {
         input: {
-          username,
+          email,
           password,
         },
       },

@@ -401,8 +401,8 @@ export type InviteCodeResponse =
   | NotAuthorizedError;
 
 export interface LoginArgs {
+  email?: InputMaybe<Scalars["String"]>;
   password?: InputMaybe<Scalars["String"]>;
-  username?: InputMaybe<Scalars["String"]>;
 }
 
 export interface LoginFailureResponse {

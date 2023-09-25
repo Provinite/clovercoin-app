@@ -1,5 +1,6 @@
 # 5.0.0
 
+- Logging in is done by email & password instead of username & password
 - Invite codes can now optionally be assigned a community role
   - When the code is claimed, the new identity that is created will be created with a community membership w/ the specified role
 - Added a new entity, Community Invitations
@@ -84,16 +85,6 @@
   - Species
     - Filtered to species in communities in which the user has any role
 - Makes the `stack` property on `BaseError` enumerable, resulting in stacktraces on every error logged
-
-## TODOS
-
-- Migrations to handle existing users that will need roles
-- Frontend permission-controlled visibility of elements
-- Revisit `critter.canEditOwn` permission. Concept seems iffy and execution is poor.
-- Global permission management
-- Revisit permissions on `traits` query
-- Make some roles not-invitable
-- Test permissions for global actions thoroughly (seems like new users can make global invite codes :O)
 
 # 4.0.0
 

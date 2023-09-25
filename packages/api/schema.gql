@@ -281,8 +281,8 @@ type InviteCodeList {
 union InviteCodeResponse = InviteCodeList | NotAuthenticatedError | NotAuthorizedError
 
 input LoginArgs {
+  email: String = ""
   password: String = ""
-  username: String = ""
 }
 
 type LoginFailureResponse {

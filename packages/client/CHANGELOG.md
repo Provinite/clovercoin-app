@@ -1,5 +1,6 @@
 # 4.0.0
 
+- Login page now requests email address instead of username
 - Added community settings page with:
   - Role management (setting permissions for roles)
   - User management (setting roles for users)
