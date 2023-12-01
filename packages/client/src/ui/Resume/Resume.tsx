@@ -19,6 +19,44 @@ import { stylesheet } from "../../utils/emotion";
 // ==========================================================
 const jobs: ComponentProps<typeof ExperienceItem>[] = [
   {
+    title: "Staff Software Engineer",
+    companyName: "Polco",
+    description: `Designed and built cloud infrastructure for a web application
+    offering unprecedented access to local government for millions of residents 
+    across the US and internationally. Coordinated projects across 4 engineering teams,
+    consulting on technical design and implementation strategies. Created and maintained
+    a pipeline of tech debt, performance, and security driven tasks supporting the
+    existant and upcoming needs for all of the engineering teams. Mentor and sponsor 
+    engineers to facilitate growth opportunities.
+    
+    Introduced feature flags, a solution that allowed us to fully decouple deployment
+    and release of features. Combined with improvements to our CI/CD process, doubled
+    our deployment frequency, with a roadmap in place to achieve fully automated deployments
+    and promotions.
+
+    Containerized multiple legacy PHP & Node applications to resolve reliability and scaling
+    limitations, and bring their performance in-line with SLAs.
+
+    Optimized existing AWS infrastructure, reducing costs by 30%. Proposed and architected
+    a migration of heroku infrastructure to comparable AWS solution with an expected
+    cost reduction of 60%.`,
+    startDate: new Date("2023-06-15"),
+    endDate: new Date("2023-11-28"),
+    tags: [
+      "graphql",
+      "react",
+      "hashicorp terraform",
+      "aws-ecs",
+      "heroku",
+      "postgresql",
+      "social media",
+      "node.js",
+      "docker",
+      "process engineering",
+    ],
+    icon: AbxLogo,
+  },
+  {
     title: "Principal Software Engineer",
     companyName: "AkitaBox",
     description: `Work with stakeholders across the business to plan and prioritize
@@ -32,6 +70,7 @@ const jobs: ComponentProps<typeof ExperienceItem>[] = [
     endDate: new Date("2023-05-15"),
     icon: AbxLogo,
     tags: [
+      "hashicorp terraform",
       "devops",
       "react",
       "mongodb",
