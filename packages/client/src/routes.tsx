@@ -20,6 +20,7 @@ import { AppRoutes } from "./ui/AppRoutes";
 import { communityListRoutes } from "./ui/CommunityListPage/communityListRoutes";
 import { communitySettingsRoutes } from "./ui/CommunitySettingsPage/communitySettingsRoutes";
 import { loginRoutes } from "./ui/LoginPage/loginRoutes";
+import { Resume } from "./ui/Resume/Resume";
 import { SpeciesDetailRoutes } from "./ui/SpeciesDetailPage/routes/SpeciesDetailRoutes";
 import { speciesListRoutes } from "./ui/SpeciesListPage/speciesListRoutes";
 import { userSettingsRoutes } from "./ui/UserSettingsPage/userSettingsRoutes";
@@ -68,6 +69,11 @@ export const routes = [
     children: [
       ...aboutRoutes(),
       ...loginRoutes(),
+      {
+        id: "root.resume",
+        path: "resume",
+        element: <Resume />,
+      },
       typedRouteConfig({
         id: "root.authBarrier",
         loader: async () => {

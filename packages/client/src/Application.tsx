@@ -22,7 +22,10 @@ import { SequentialSnackbarContext } from "./ui/SequentialSnackbar/SequentialSna
 import { globalSnackbarTopic } from "./utils/observables/topics/globalSnackbarTopic";
 const defaultDarkTheme = createTheme({
   palette: {
-    mode: "dark",
+    mode: "light",
+  },
+  typography: {
+    fontFamily: `-apple-system,BlinkMacSystemFont,"Segoe UI Adjusted","Segoe UI","Liberation Sans",sans-serif`,
   },
 });
 const darkTheme = defaultDarkTheme;
