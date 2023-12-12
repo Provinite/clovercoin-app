@@ -1,5 +1,7 @@
+# docker-compose for local development of the API app
 version: "3.8"
 services:
+  # Main postgres database
   db:
     container_name: clovercoin-app-postgres
     image: postgres
@@ -10,9 +12,10 @@ services:
       POSTGRES_DB: postgres
     ports:
       - "5432:5432"
+  # PGAdmin container for dev work on postgres db
   pgadmin:
     container_name: pgadmin4_container
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:latest
     restart: always
     volumes:
       - ${PWD}/servers.json:/pgadmin4/servers.json
@@ -21,6 +24,7 @@ services:
       PGADMIN_DEFAULT_PASSWORD: root
     ports:
       - "5050:80"
+  # Localstack for mock S3
   localstack:
     container_name: "${LOCALSTACK_DOCKER_NAME-localstack_main}"
     image: localstack/localstack
@@ -36,8 +40,13 @@ services:
       - AWS_SECRET_ACCESS_KEY=test
       - PROVIDER_OVERRIDE_S3=asf
       - PERSISTENCE=1
-
     volumes:
       - "${LOCALSTACK_VOLUME_DIR:-./localstack/volume}:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "./localstack/init-scripts:/etc/localstack/init/ready.d"
+  mailhog:
+    container_name: mailhog
+    image: mailhog/mailhog:v1.0.1
+    ports:
+      - "127.0.0.1:1025:1025"
+      - "127.0.0.1:8025:8025"

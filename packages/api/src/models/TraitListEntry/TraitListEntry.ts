@@ -1,9 +1,9 @@
 import { Field, ID, Int, ObjectType } from "type-graphql";
-import { Column, Entity } from "typeorm";
-import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes";
-import { IdField, ManyToOneField } from "../relationFieldDecorators";
-import { Trait } from "../Trait/Trait";
-import { TraitList } from "../TraitList/TraitList";
+import { Column, Entity, type Relation } from "typeorm";
+import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes.js";
+import { IdField, ManyToOneField } from "../relationFieldDecorators.js";
+import { Trait } from "../Trait/Trait.js";
+import { SpeciesVariant } from "../SpeciesVariant/SpeciesVariant.js";
 
 /**
  * Model representing a single entry on a variant's trait list.
@@ -28,21 +28,27 @@ export class TraitListEntry {
     columnName: "traitId",
     foreignColumnName: "id",
     inverseSide: (trait) => trait.traitListEntries,
+    joinColumnOptions: {
+      foreignKeyConstraintName: "FK_2f2b5a9ef8b2060e65a8ea8dc72",
+    },
     nullable: false,
     type: () => Trait,
   })
-  trait!: Trait;
+  trait!: Relation<Trait>;
 
   /**
    * The variant for this entry
    */
   @ManyToOneField({
     nullable: false,
-    type: () => TraitList,
-    columnName: "traitListId",
+    type: () => SpeciesVariant,
+    columnName: "speciesVariantId",
     foreignColumnName: "id",
+    joinColumnOptions: {
+      foreignKeyConstraintName: "FK_6a9e092e68655161d7934f3677f",
+    },
   })
-  traitList!: TraitList;
+  speciesVariant!: Relation<SpeciesVariant>;
 
   /**
    * The ID of the trait for this entry
@@ -56,7 +62,7 @@ export class TraitListEntry {
    */
   @Column("uuid", { nullable: false })
   @Field(() => ID)
-  traitListId!: string;
+  speciesVariantId!: string;
 
   /**
    * Order of this trait in the list
@@ -83,7 +89,7 @@ export class TraitListEntry {
     nullable: false,
   })
   @Field(() => CritterTraitValueTypes)
-  valueType!: CritterTraitValueTypes;
+  valueType!: Relation<CritterTraitValueTypes>;
 
   /**
    * Default string value for the trait

@@ -4,19 +4,27 @@ import {
   createUnionType,
   Ctx,
   Field,
+  FieldResolver,
   ID,
   InputType,
   Mutation,
   ObjectType,
   Query,
   Resolver,
+  Root,
 } from "type-graphql";
-import { FindManyOptions, ILike } from "typeorm";
-import { DuplicateError } from "../../errors/DuplicateError";
-import { InvalidArgumentError } from "../../errors/InvalidArgumentError";
-import { NotFoundError } from "../../errors/NotFoundError";
-import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { Community } from "./Community";
+import { FindManyOptions, ILike, In } from "typeorm";
+import { hasGlobalPerms } from "../../business/auth/authorizationInfoGenerators/hasGlobalPerms.js";
+import { NotAuthenticatedError } from "../../business/auth/NotAuthenticatedError.js";
+import { NotAuthorizedError } from "../../business/auth/NotAuthorizedError.js";
+import { Preauthorize } from "../../business/auth/Preauthorize.js";
+import { DuplicateError } from "../../errors/DuplicateError.js";
+import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
+import { NotFoundError } from "../../errors/NotFoundError.js";
+import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { IdentityList } from "../Identity/IdentityList.js";
+import { Community } from "./Community.js";
+import { CommunityMembersResponse } from "./CommunityMembersResponse.js";
 
 @InputType()
 export class CommunityCreateInput {
@@ -47,12 +55,24 @@ export class CommunityFilters {
  */
 const CreateCommunityResponse = createUnionType({
   name: "CreateCommunityResponse",
-  types: () => [Community, DuplicateError, InvalidArgumentError],
+  types: () => [
+    Community,
+    DuplicateError,
+    InvalidArgumentError,
+    NotAuthenticatedError,
+    NotAuthorizedError,
+  ],
 });
 
 const CommunityResponse = createUnionType({
   name: "CommunityResponse",
-  types: () => [Community, NotFoundError, InvalidArgumentError],
+  types: () => [
+    Community,
+    NotFoundError,
+    InvalidArgumentError,
+    NotAuthenticatedError,
+    NotAuthorizedError,
+  ],
 });
 
 const CommunitiesResponse = createUnionType({
@@ -71,6 +91,7 @@ class CommunityList {
 
 @Resolver(() => Community)
 export class CommunityResolver {
+  @Preauthorize(hasGlobalPerms(["canCreateCommunity"]))
   @Mutation(() => CreateCommunityResponse, {
     description: "Create a new community",
   })
@@ -87,17 +108,18 @@ export class CommunityResolver {
    * @param communityFilters filters
    * @returns
    */
+  @Preauthorize()
   @Query(() => CommunitiesResponse, {
     description: "Fetch a list of communities with filtering",
   })
   async communities(
-    @Ctx() { communityRepository }: AppGraphqlContext,
+    @Ctx() { communityRepository, principal }: AppGraphqlContext,
     @Arg("filters") communityFilters: CommunityFilters
   ): Promise<CommunityList> {
     const filters: FindManyOptions<Community> = {};
+    filters.where = {};
     if (communityFilters) {
       const { id, name } = communityFilters;
-      filters.where = {};
       if (id) {
         filters.where.id = id;
       }
@@ -105,6 +127,10 @@ export class CommunityResolver {
         filters.where.name = ILike(`%${name}%`);
       }
     }
+    filters.where.roles = {
+      id: In(principal!.communityMemberships.map((cm) => cm.roleId)),
+    };
+
     return new CommunityList(await communityRepository.find(filters));
   }
 
@@ -114,6 +140,7 @@ export class CommunityResolver {
    * @param communityFilters filters
    * @returns A single community
    */
+  @Preauthorize()
   @Query(() => CommunityResponse, {
     description: "Fetch a community by id and/or name",
   })
@@ -129,5 +156,22 @@ export class CommunityResolver {
       throw new NotFoundError();
     }
     return result[0];
+  }
+
+  @Preauthorize()
+  @FieldResolver(() => CommunityMembersResponse)
+  async members(
+    @Root() community: Community,
+    @Ctx() { identityController }: AppGraphqlContext
+  ) {
+    const results = await identityController.find({
+      communityMemberships: {
+        role: {
+          communityId: community.id,
+        },
+      },
+    });
+
+    return new IdentityList(results);
   }
 }

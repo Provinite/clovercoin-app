@@ -1,10 +1,10 @@
 import { Field, ID, ObjectType } from "type-graphql";
 import { TypeormLoader } from "type-graphql-dataloader";
 import { Column, Entity, OneToMany } from "typeorm";
-import { Community } from "../Community/Community";
-import { Critter } from "../Critter/Critter";
-import { IdField, ManyToOneField } from "../relationFieldDecorators";
-import { TraitList } from "../TraitList/TraitList";
+import { Community } from "../Community/Community.js";
+import { Critter } from "../Critter/Critter.js";
+import { IdField, ManyToOneField } from "../relationFieldDecorators.js";
+import { SpeciesVariant } from "../SpeciesVariant/SpeciesVariant.js";
 
 @Entity()
 @ObjectType({
@@ -39,10 +39,10 @@ export class Species {
   @TypeormLoader()
   critters!: Critter[];
 
-  @OneToMany(() => TraitList, (traitList) => traitList.species)
-  @Field(() => [TraitList], { nullable: false })
+  @OneToMany(() => SpeciesVariant, (speciesVariant) => speciesVariant.species)
+  @Field(() => [SpeciesVariant], { nullable: false })
   @TypeormLoader()
-  traitLists!: TraitList[];
+  variants!: SpeciesVariant[];
 
   @Field(() => String, {})
   @Column("boolean", { nullable: false, default: false })

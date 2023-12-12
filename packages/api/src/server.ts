@@ -1,30 +1,63 @@
 import "reflect-metadata";
-import Koa, { Context, Request, Response } from "koa";
+import Koa from "koa";
 import mount from "koa-mount";
 import { graphqlHTTP, OptionsResult } from "koa-graphql";
-import { buildSchema, MiddlewareFn, NonEmptyArray } from "type-graphql";
-import { GraphQLParams } from "express-graphql";
-import { v4 } from "uuid";
-import cors from "@koa/cors";
-import { AppGraphqlContext } from "./graphql/AppGraphqlContext";
+import { buildSchema, NonEmptyArray } from "type-graphql";
+import type { AppGraphqlContext } from "./graphql/AppGraphqlContext.js";
 import { asClass, asFunction, asValue } from "awilix";
-import { register } from "./awilix/register";
-import { registerRepositories } from "./models/registerRepositories";
-import { createContainer } from "./awilix/createContainer";
-import { registerControllers } from "./business/registerControllers";
-import { ResolversArray } from "./business/Resolvers";
-import { logger } from "./util/logger";
-import { createChildContainer } from "./awilix/createChildContainer";
-import { dataSource } from "./db/dbConnection";
-import { DuplicateError } from "./errors/DuplicateError";
-import { InvalidArgumentError } from "./errors/InvalidArgumentError";
-import { print } from "graphql";
-import { BaseError } from "./errors/BaseError";
-import { PresignedUrlService } from "./s3/PresignedUrlService";
-import { s3Config } from "./s3/s3Config";
-import { objectMap } from "./util/objectMap";
-export const createCloverCoinAppServer = async () => {
-  const db = await dataSource.initialize();
+import { register } from "./awilix/register.js";
+import { registerRepositories } from "./models/registerRepositories.js";
+import { createContainer } from "./awilix/createContainer.js";
+import { registerControllers } from "./business/registerControllers.js";
+import { ResolversArray } from "./business/Resolvers.js";
+import { logger } from "./util/logger.js";
+import { configureDataSource, dataSource } from "./db/dbConnection.js";
+import { PresignedUrlService } from "./s3/PresignedUrlService.js";
+import { s3Config } from "./s3/s3Config.js";
+import { handleJsonBufferBody } from "./http-middleware/handleJsonBufferBody.js";
+import { createRequestContainer } from "./http-middleware/createRequestContainer.js";
+import { build } from "./awilix/build.js";
+import { cors } from "./http-middleware/cors.js";
+import {
+  getAppEnvironment,
+  getBootstrapEnvironment,
+  getS3Environment,
+  getSesEnvironment,
+} from "./environment.js";
+import { ImageController } from "./business/ImageController.js";
+import { sesConfig } from "./ses/sesConfig.js";
+import { errorHandlerMiddleware } from "./graphql/middlewares/errorHandlerMiddleware.js";
+import { loggingMiddleware } from "./graphql/middlewares/loggingMiddleware.js";
+import { setCurrentUser } from "./http-middleware/setCurrentUser.js";
+import { AuthorizerRegistry } from "./business/auth/AuthorizerRegistry.js";
+export interface ServerOptions {
+  db: {
+    host?: string;
+    username?: string;
+    password?: string;
+    port?: number;
+    database?: string;
+    ssl?: boolean;
+  };
+  schema: {
+    emitFile: string | undefined;
+  };
+}
+export const createCloverCoinAppServer = async (options: ServerOptions) => {
+  if (options.db.host) {
+    const result = /(.*?)(?::(\d+))?$/.exec(options.db.host);
+    if (!result) {
+      throw new Error("Invalid options.db.host");
+    }
+    const [_, host, port] = result;
+    options.db.host = host;
+    if (port) {
+      options.db.port = Number(port);
+    }
+  }
+  configureDataSource({
+    ...options.db,
+  });
 
   /**
    * HTTP
@@ -38,28 +71,55 @@ export const createCloverCoinAppServer = async () => {
     resolvers: [...ResolversArray] as NonEmptyArray<
       typeof ResolversArray[number]
     >,
-    emitSchemaFile: "./schema.gql",
-    globalMiddlewares: [errorHandler, loggingMiddleware],
+    emitSchemaFile: options?.schema.emitFile,
+    globalMiddlewares: [errorHandlerMiddleware, loggingMiddleware],
   });
 
   const rootContainer = createContainer<AppGraphqlContext>("root");
+
+  const db = await dataSource.initialize();
+
+  /**
+   * General app environment
+   */
+  register(rootContainer, "appEnvironment", asValue(getAppEnvironment()));
   /**
    * Postgres
    */
   register(rootContainer, "db", asValue(db));
+
+  register(
+    rootContainer,
+    "bootstrapEnvironment",
+    asFunction(getBootstrapEnvironment)
+  );
+
   /**
    * S3
    */
-  register(rootContainer, "s3Config", asFunction(s3Config));
   register(rootContainer, "presignedUrlService", asClass(PresignedUrlService));
+  register(rootContainer, "s3Environment", asFunction(getS3Environment));
+  register(rootContainer, "s3Config", asValue(build(rootContainer, s3Config)));
+  register(rootContainer, "imageController", asClass(ImageController));
 
+  /**
+   * SES
+   */
+  register(
+    rootContainer,
+    "sesEnvironment",
+    asValue(build(rootContainer, getSesEnvironment))
+  );
+  register(rootContainer, "sesConfig", asFunction(sesConfig));
   /**
    * Logging
    */
   register(
     rootContainer,
     "logger",
-    asFunction(({ contextName }) => logger.child({ contextName })).scoped()
+    asFunction(({ contextName }: AppGraphqlContext) =>
+      logger.child({ contextName })
+    ).scoped()
   );
 
   /**
@@ -82,108 +142,59 @@ export const createCloverCoinAppServer = async () => {
    */
   registerControllers(rootContainer);
 
+  /**
+   * Authorizer registry
+   */
+  register(
+    rootContainer,
+    "authorizerRegistry",
+    asClass(AuthorizerRegistry).scoped()
+  );
   koa
-    .use(cors())
+    .use(cors)
+    .use(createRequestContainer(rootContainer))
+    .use(setCurrentUser)
+    .use(handleJsonBufferBody)
     .use(async (ctx, next) => {
-      // TODO: NO!
       await next();
-      if (ctx.status === 500) {
-        ctx.status = 200;
-      }
+      build(ctx.state.requestContainer, ({ logger }) => {
+        logger.info({
+          message: "request finished",
+          path: ctx.path,
+          method: ctx.method,
+          responseStatus: ctx.status,
+        });
+      });
     })
     .use(
       mount(
         "/",
-        graphqlHTTP(
-          (
-            _request: Request,
-            _response: Response,
-            _ctx: Context,
-            _params?: GraphQLParams
-          ): OptionsResult => {
-            const requestId = v4();
+        graphqlHTTP((_request, _response, ctx, _params?): OptionsResult => {
+          const { requestContainer } = ctx.state;
 
-            const requestContainer = createChildContainer(
-              rootContainer,
-              `request.${requestId}`
-            );
-
-            register(requestContainer, "requestId", asValue(requestId));
-            register(
-              requestContainer,
-              "_tgdContext",
-              asValue({
-                requestId,
-                typeormGetConnection: () => requestContainer.cradle.db,
-              })
-            );
-
-            register(
-              requestContainer,
-              "logger",
-              asFunction(
-                ({
-                  requestId,
-                  parentContainer,
-                  contextName,
-                }: AppGraphqlContext) =>
-                  parentContainer.build(({ logger }) =>
-                    logger.child({ requestId, contextName })
-                  )
-              ).scoped()
-            );
-
-            return {
-              schema,
-              graphiql: true,
-              context: requestContainer.cradle,
-            };
-          }
-        )
+          return {
+            schema,
+            graphiql: {
+              headerEditorEnabled: true,
+              shouldPersistHeaders: true,
+            },
+            context: requestContainer.cradle,
+          };
+        })
       )
     );
 
   return { rootContainer, koa };
 };
 
-const errorHandler: MiddlewareFn<AppGraphqlContext> = async (
-  { context: { logger } },
-  next
-) => {
-  try {
-    return await next();
-  } catch (err) {
-    logger.error(err);
-    if (err instanceof BaseError) {
-      return err;
-    }
-
-    const asDuplicate = DuplicateError.fromPostgresError(err);
-    if (asDuplicate) {
-      return asDuplicate;
-    }
-
-    const asInvalidArgError =
-      InvalidArgumentError.fromTypegraphqlValidationError(err);
-    if (asInvalidArgError) {
-      return asInvalidArgError;
-    }
-
-    throw err;
+declare module "./graphql/AppGraphqlContext.js" {
+  export interface AppGraphqlContext {
+    s3Environment: ReturnType<typeof getS3Environment>;
+    bootstrapEnvironment: ReturnType<typeof getBootstrapEnvironment>;
+    imageController: ImageController;
+    sesEnvironment: ReturnType<typeof getSesEnvironment>;
+    sesConfig: ReturnType<typeof sesConfig>;
+    appEnvironment: ReturnType<typeof getAppEnvironment>;
+    authorizerRegistry: AuthorizerRegistry;
   }
-};
-
-const loggingMiddleware: MiddlewareFn<AppGraphqlContext> = async (
-  { context: { logger }, info, root },
-  next
-) => {
-  if (!root) {
-    logger.info({
-      message: "Request started",
-      path: print(info.operation),
-      fragments: objectMap(info.fragments, print),
-      fieldName: info.fieldName,
-    });
-  }
-  return next();
-};
+}

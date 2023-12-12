@@ -3,7 +3,59 @@ import { uuidToSlug } from "../utils/uuidUtils";
 
 export const AppRouteParts = {
   admin: () => ["admin"],
+  about: () => ["about"],
+  inviteCodeList: () => [...AppRouteParts.admin(), "inviteCodes"],
+  forgotPassword: () => ["forgot-password"],
+  resetPassword: () => ["reset-password"],
+  login: () => ["login"],
+  logout: () => ["logout"],
+  register: () => ["register"],
+
+  identityDetail: (identityId: string) => [
+    "identities",
+    uuidToSlug(identityId),
+  ],
+
+  userSettings: () => ["settings"],
+  communityInvitationDetail: (communityInvitationId: string) => [
+    ...AppRouteParts.userSettings(),
+    "community-invitations",
+    uuidToSlug(communityInvitationId),
+  ],
+
   community: (communityId: string) => ["community", uuidToSlug(communityId)],
+  communitySettings: (communityId: string) => [
+    "community",
+    uuidToSlug(communityId),
+    "settings",
+  ],
+
+  roleDetail: (communityId: string, roleId: string) => [
+    ...AppRouteParts.community(communityId),
+    "roles",
+    uuidToSlug(roleId),
+  ],
+
+  communityMemberList: (communityId: string) => [
+    ...AppRouteParts.community(communityId),
+    "memberships",
+  ],
+  communityMemberDetail: (
+    communityId: string,
+    identityId: string,
+    roleId: string
+  ) => [
+    ...AppRouteParts.community(communityId),
+    "memberships",
+    uuidToSlug(identityId),
+    uuidToSlug(roleId),
+  ],
+
+  communityInvitationList: (communityId: string) => [
+    ...AppRouteParts.community(communityId),
+    "invitations",
+  ],
+
   communityList: () => ["communities"],
   addCritter: (communityId: string, speciesId: string) => [
     ...AppRouteParts.speciesDetail(communityId, speciesId),
@@ -90,6 +142,15 @@ export const AppRouteParts = {
     ...AppRouteParts.community(communityId),
     "species",
   ],
+  critterDetail: (
+    communityId: string,
+    speciesId: string,
+    critterId: string
+  ) => [
+    ...AppRouteParts.speciesDetail(communityId, speciesId),
+    "critter",
+    uuidToSlug(critterId),
+  ],
 };
 
 export const appRoute = (id: RouteId): string => {
@@ -108,7 +169,6 @@ export const appRoute = (id: RouteId): string => {
     },
     routes
   );
-  console.log(routeToFullPath);
   return routeToFullPath[id];
 };
 

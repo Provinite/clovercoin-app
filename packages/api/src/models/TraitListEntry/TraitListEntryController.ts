@@ -1,16 +1,16 @@
 import { Repository } from "typeorm";
-import { EntityController } from "../../business/EntityController";
-import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { TraitController } from "../Trait/TraitController";
-import { TraitListEntry } from "./TraitListEntry";
+import { EntityController } from "../../business/EntityController.js";
+import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { TraitController } from "../Trait/TraitController.js";
+import { TraitListEntry } from "./TraitListEntry.js";
 import { SetOptional } from "type-fest";
-import { InvalidArgumentError } from "../../errors/InvalidArgumentError";
+import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
 
 export interface TraitListEntryCreate
   extends SetOptional<
     Pick<
       TraitListEntry,
-      "traitId" | "traitListId" | "order" | "valueType" | "required"
+      "traitId" | "speciesVariantId" | "order" | "valueType" | "required"
     >,
     "valueType"
   > {}
@@ -31,8 +31,9 @@ export class TraitListEntryController extends EntityController<
   constructor({
     traitListEntryRepository,
     traitController,
+    transactionProvider,
   }: AppGraphqlContext) {
-    super(traitListEntryRepository);
+    super(traitListEntryRepository, transactionProvider);
     this.#traitController = traitController;
   }
 

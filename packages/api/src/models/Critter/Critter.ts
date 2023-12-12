@@ -1,29 +1,32 @@
-import { Field, ObjectType } from "type-graphql";
-import { Column, Entity } from "typeorm";
-import { Species } from "../Species/Species";
+import { Field, ID, ObjectType } from "type-graphql";
+import { Column, Entity, Index } from "typeorm";
+import { Species } from "../Species/Species.js";
 import {
   IdField,
   ManyToOneField,
   RelationIdField,
-} from "../relationFieldDecorators";
-import { Identity } from "../Identity/Identity";
-import { TraitList } from "../TraitList/TraitList";
+} from "../relationFieldDecorators.js";
+import { Identity } from "../Identity/Identity.js";
+import { SpeciesVariant } from "../SpeciesVariant/SpeciesVariant.js";
+import { TypeormLoader } from "type-graphql-dataloader";
 
 @Entity()
 @ObjectType()
+@Index("critter_traitvalues_gin_idx", { synchronize: false })
 export class Critter {
   @IdField
-  id: string | undefined;
+  id!: string;
 
   @Field(() => String, { nullable: false })
   @Column({ nullable: false })
   name: string = "";
 
-  @ManyToOneField({
+  @ManyToOneField<Species, typeof Species>({
     columnName: "speciesId",
     foreignColumnName: "id",
     nullable: false,
     type: () => Species,
+    inverseSide: (species) => species.critters,
   })
   species!: Species;
 
@@ -47,23 +50,34 @@ export class Critter {
   })
   ownerId!: string;
 
-  @ManyToOneField({
-    columnName: "traitListId",
+  @ManyToOneField<SpeciesVariant, typeof SpeciesVariant>({
+    columnName: "variantId",
     foreignColumnName: "id",
     nullable: false,
-    type: () => TraitList,
+    type: () => SpeciesVariant,
+    inverseSide: (speciesVariant) => speciesVariant.critters,
   })
-  traitList!: TraitList;
+  @TypeormLoader()
+  variant!: SpeciesVariant;
 
   @RelationIdField<Critter>({
     nullable: false,
-    relation: (critter) => critter.traitList,
+    relation: (critter) => critter.variant,
   })
-  traitListId!: string;
+  variantId!: string;
 
-  @Column("jsonb", { default: [], array: true, nullable: false })
-  @Field(() => [String], { nullable: false })
-  traitValues!: string[];
+  @Column("jsonb", { default: [], nullable: false })
+  @Field(() => [CritterTraitValue], { nullable: false })
+  traitValues!: CritterTraitValue[];
+}
+
+@ObjectType()
+export class CritterTraitValue {
+  @Field(() => ID, { nullable: false })
+  traitId!: string;
+
+  @Field(() => String, { nullable: true })
+  value!: string | boolean | number | null;
 }
 
 export type CritterRequiredFieldKeys = "speciesId";

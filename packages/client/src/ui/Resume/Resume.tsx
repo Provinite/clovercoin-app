@@ -1,23 +1,25 @@
 import { Box, Divider, Link, Stack, Typography } from "@mui/material";
-import { ComponentProps, FC } from "react";
+import { ComponentProps, FC, Fragment } from "react";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 
 import { Interpolation, Theme } from "@emotion/react";
 import AbxLogo from "./icons/akitabox.jpg";
+import PolcoLogo from "./icons/polco.png";
 import NdusCtsLogo from "./icons/ndus-cts.png";
 import UndLogo from "./icons/und.png";
 import StackOverflowLogo from "./icons/stackoverflow.png";
 import TotLogo from "./icons/tot.png";
 import PrideBear from "./icons/pridebear.png";
 import { stylesheet } from "../../utils/emotion";
+import { useSearchParams } from "react-router-dom";
 // ==========================================================
 // =                                                        =
 // =             Config                                     =
 // =                                                        =
 // ==========================================================
-const jobs: ComponentProps<typeof ExperienceItem>[] = [
+const jobs: ExperienceItemProps[] = [
   {
     title: "Staff Software Engineer",
     companyName: "Polco",
@@ -26,84 +28,96 @@ const jobs: ComponentProps<typeof ExperienceItem>[] = [
     across the US and internationally. Coordinated projects across 4 engineering teams,
     consulting on technical design and implementation strategies. Created and maintained
     a pipeline of tech debt, performance, and security driven tasks supporting the
-    existant and upcoming needs for all of the engineering teams. Mentor and sponsor 
-    engineers to facilitate growth opportunities.
-    
-    Introduced feature flags, a solution that allowed us to fully decouple deployment
-    and release of features. Combined with improvements to our CI/CD process, doubled
-    our deployment frequency, with a roadmap in place to achieve fully automated deployments
-    and promotions.
+    existant and upcoming needs for all of the engineering teams. Defined & prioritized
+    projects for the staff engineering team. Mentored and sponsored  engineers to
+    facilitate growth opportunities.
 
-    Containerized multiple legacy PHP & Node applications to resolve reliability and scaling
-    limitations, and bring their performance in-line with SLAs.
+    Team velocity and code safety: Introduced and drove adoption of feature flags,
+    allowing our teams to decouple deployment and release of features, halving our deployment
+    frequency and reducing risk from production changes. Post-MVP, created a 6-month
+    roadmap of CI/CD projects to reach our deployment target of 24 hours.
 
-    Optimized existing AWS infrastructure, reducing costs by 30%. Proposed and architected
-    a migration of heroku infrastructure to comparable AWS solution with an expected
-    cost reduction of 60%.`,
+    SRE & Cloud Optimization: Containerized multiple legacy PHP & Node applications to resolve
+    reliability and scaling limitations, and bring their performance in-line with SLAs.
+    Refactored existing AWS infrastructure, reducing costs by 30%. Proposed and architected
+    a migration of heroku infrastructure to comparable AWS solution with an expected cost
+    reduction of 60%, while significantly improving our capacity to scale.`,
     startDate: new Date("2023-06-15"),
     endDate: new Date("2023-11-28"),
     tags: [
       "graphql",
-      "react",
-      "hashicorp terraform",
-      "aws-ecs",
+      "aws",
+      "serverless",
+      "networking",
       "heroku",
       "postgresql",
-      "social media",
       "node.js",
       "docker",
-      "process engineering",
     ],
-    icon: AbxLogo,
+    icon: PolcoLogo,
   },
   {
-    title: "Principal Software Engineer",
+    title: "Senior → Principal Engineer",
     companyName: "AkitaBox",
-    description: `Work with stakeholders across the business to plan and prioritize
-    engineering efforts. Led the day-to-day work of a team of 5 engineers.
-    Identified and resolved technical onboarding roadblocks while integrating a 
-    large team of offshore contractors, reducing initial time to contribution from 
-    5-10 days to less than 1. Overhauled development experience, build processes,
-    and frontend framework to improve efficiency of new team members with more
-    modern experience.`,
-    startDate: new Date("2021-12-15"),
+    startDate: new Date("2018-04-15"),
     endDate: new Date("2023-05-15"),
     icon: AbxLogo,
-    tags: [
-      "hashicorp terraform",
-      "devops",
-      "react",
-      "mongodb",
-      "aws",
-      "node.js",
-      "typescript",
-      "javascript",
-      "express",
+    tags: [],
+    description: "",
+    children: [
+      {
+        title: "Principal Software Engineer",
+        companyName: "AkitaBox",
+        description: `Work with stakeholders across the business to plan and prioritize
+      engineering efforts. Led the day-to-day work of a team of 5 engineers.
+      Identified and resolved technical onboarding roadblocks while integrating a 
+      large team of offshore contractors, reducing initial time to contribution from 
+      5-10 days to less than 1. Overhauled development experience, build processes,
+      and frontend framework to improve efficiency of new team members with more
+      modern experience.`,
+        startDate: new Date("2021-12-15"),
+        endDate: new Date("2023-05-15"),
+        icon: AbxLogo,
+        tags: [
+          "hashicorp terraform",
+          "kubernetes",
+          "devops",
+          "react",
+          "mongodb",
+          "aws",
+          "node.js",
+          "typescript",
+          "javascript",
+          "express",
+        ],
+      },
+      {
+        title: "Senior Software Engineer",
+        companyName: "AkitaBox",
+        description: `Perform high-level technical design and planning. Research,
+      prototype, and present technologies for novel projects. Mentor and
+      train new employees. Full-stack engineering position.
+  
+      Led efforts to improve code quality and testing practices throughout the codebase,
+      reducing the amount of manual testing significantly and enabling a full ci/cd pipeline
+      to deploy multiple times per day. Our ability to preempt and respond to quality issues within
+      as little as 90 minutes was a key factor in maintaining the company's <1% churn rate.`,
+        startDate: new Date("2018-04-15"),
+        endDate: new Date("2021-12-15"),
+        icon: AbxLogo,
+        tags: [
+          "react",
+          "mongodb",
+          "node.js",
+          "aws",
+          "typescript",
+          "javascript",
+          "express",
+        ],
+      },
     ],
   },
-  {
-    title: "Senior Software Engineer",
-    companyName: "AkitaBox",
-    description: `Perform high-level technical design and planning. Research, prototype, and present technologies for novel projects. Mentor and
-    train new employees. Full-stack engineering position.
-    
-    Led efforts to improve code quality and testing practices throughout the codebase,
-    reducing the amount of manual testing significantly and enabling a full ci/cd pipeline
-    to deploy multiple times per day. Our ability to preempt and respond to quality issues within
-    as little as 90 minutes was a key factor in maintaining the company's <1% churn rate.`,
-    startDate: new Date("2018-04-15"),
-    endDate: new Date("2021-12-15"),
-    icon: AbxLogo,
-    tags: [
-      "react",
-      "mongodb",
-      "node.js",
-      "aws",
-      "typescript",
-      "javascript",
-      "express",
-    ],
-  },
+
   {
     title: "Lead Web Applications Developer",
     companyName: "North Dakota University System - Core Technology Services",
@@ -149,7 +163,17 @@ const jobs: ComponentProps<typeof ExperienceItem>[] = [
     Creating marketing websites for small businesses, volunteer on-site IT work for 
     charity organizations, and building custom web-based solutions for complex
     processes such as used commercial vehicle sales and inventory management.`,
-    tags: ["php", "discord", "node.js", "aws", "react", "mysql", "postgresql"],
+    tags: [
+      "php",
+      "discord",
+      "node.js",
+      "aws",
+      "react",
+      "mysql",
+      "postgresql",
+      "html",
+      "css",
+    ],
     icon: PrideBear,
   },
 ];
@@ -180,28 +204,19 @@ const preferredTechnologies = [
 
 const degrees: ComponentProps<typeof EducationItem>[] = [
   {
-    degree: "B.S. Mathematics (Unfinished)",
+    degree: "B.S. Computer Science & Mathematics (Unfinished)",
     icon: UndLogo,
     institution: "University of North Dakota",
     tags: [
+      "algorithms",
+      "data structures",
+      "database design",
+      "computer science",
       "math",
       "discrete-mathematics",
       "number-theory",
       "encryption",
       "information-theory",
-    ],
-    yearStart: "2010",
-    yearEnd: "2014",
-  },
-  {
-    degree: "B.S. Computer Science (Unfinished)",
-    icon: UndLogo,
-    institution: "University of North Dakota",
-    tags: [
-      "algorithms",
-      "data-structures",
-      "database-design",
-      "computer-science",
     ],
     yearStart: "2010",
     yearEnd: "2014",
@@ -215,6 +230,7 @@ const achievements: ComponentProps<typeof AchievementItem>[] = [
     tags: [
       "discord",
       "postgresql",
+      "serverless",
       "aws-rds",
       "aws-cdk",
       "aws-lambda",
@@ -226,8 +242,7 @@ const achievements: ComponentProps<typeof AchievementItem>[] = [
     description: `Discord bot for running free giveaway events in the CloverCoin community server. Serverless CDK construct with postgresql
     backing. Allows community members to "knock" several times per day, each time having a chance to win a prize from the pool. Safely
     and efficiently handles thousands of concurrent users. Utilizes a queueing system to ensure exactly-once non-blocking delivery of each prize
-    in the pool.
-    `,
+    in the pool.`,
   },
   {
     date: new Date("2020-08-15"),
@@ -235,14 +250,18 @@ const achievements: ComponentProps<typeof AchievementItem>[] = [
     tags: ["reactjs", "typescript", "javascript", "node.js", "mongodb"],
     title: "AkitaBox Inspections",
     url: "https://home.akitabox.com/software/akitabox-inspections/",
-    description: `Lead technical design of robust facilities inspections tracking and auditing software, as well as implementation with a team of 8 engineers.`,
+    description: `Lead technical design of robust facilities inspections tracking
+    and auditing software, as well as implementation with a team of 8 engineers. Our
+    first production-ready iteration was released only 3 weeks into the project, allowing
+    us to be responsive to rapidly changing needs during the pandemic, and
+    first-to-market with a facilities focused certified cleaning solution for covid safety.`,
   },
   {
     date: new Date("2018-10-15"),
     icon: AbxLogo,
     tags: ["paperjs", "angularjs", "d3.js", "express", "node.js", "mongodb"],
-    description:
-      "Implemented location-based asset management software at AkitaBox.",
+    description: `Implemented location-based asset management software at AkitaBox, 
+    expanding on our core differentiating feature, driving customer growth and retention.`,
     title: "AkitaBox PlanView",
     url: "https://home.akitabox.com/software/akitabox-platform/#asset-management",
   },
@@ -250,9 +269,10 @@ const achievements: ComponentProps<typeof AchievementItem>[] = [
 
 const introStatement = `I am a quality-focused and team-oriented engineer with
 16 years of experience in professional fullstack web application development. I
-enjoy building products that really help people, and improving the processes and
-tools that get those products built. An ideal day for me includes teaching something
-and learning something. Javascript expert &amp; Typescript fanatic.`;
+enjoy building products that really help people, and aligning the processes and
+tools that get those products built with the needs of the company building them. An 
+ideal day for me includes teaching something and learning something. React expert,
+typescript fanatic, node guru, and infrastructure-as-code evangelist.`;
 
 const name = "Collin Driscoll";
 const pronouns = "he/him";
@@ -278,80 +298,88 @@ const contacts: ComponentProps<typeof ContactLine>[] = [
 // =                                                        =
 // ==========================================================
 
-export const Resume: FC = () => (
-  <Box
-    css={{
-      marginTop: "2rem",
-      marginLeft: "4rem",
-      marginRight: "4rem",
-      marginBottom: "4rem",
-      width: "1000px",
-    }}
-  >
-    <Stack direction="row" justifyContent="space-between">
-      <Stack spacing={1}>
-        <Typography variant="h4">{name}</Typography>
-        <Typography variant="body1">{pronouns}</Typography>
-        <Typography variant="body1" css={{ fontSize: "1.2rem" }}>
-          {title}
-        </Typography>
-        {contacts.map((contact) => (
-          <ContactLine {...contact} />
+export const Resume: FC = () => {
+  const textOnly = useTextOnly();
+  const anon = useAnonymized();
+  return (
+    <Box
+      css={{
+        marginTop: "2rem",
+        marginLeft: "4rem",
+        marginRight: "4rem",
+        marginBottom: "4rem",
+        width: "1000px",
+      }}
+    >
+      <Stack direction="row" justifyContent="space-between">
+        <Stack spacing={1}>
+          <Typography variant="h4">{anon ? "" : name}</Typography>
+          <Typography variant="body1">{pronouns}</Typography>
+          <Typography variant="body1" css={{ fontSize: "1.2rem" }}>
+            {title}
+          </Typography>
+          {contacts.map((contact) => (
+            <ContactLine {...contact} />
+          ))}
+        </Stack>
+        {textOnly ? (
+          false
+        ) : (
+          <img
+            css={{ width: "100px", height: "100px", borderRadius: "16px" }}
+            src={PrideBear}
+          />
+        )}
+      </Stack>
+
+      <SectionHeader text="intro statement" />
+      <Typography variant="body1" css={{ fontSize: "1.2rem" }}>
+        {introStatement}
+      </Typography>
+
+      <SectionHeader text="technologies" />
+      <Stack justifyContent="space-evenly" direction="row">
+        <Stack spacing={2}>
+          <Typography variant="h5">Expert Technologies</Typography>
+          <Stack direction="row" spacing={1}>
+            {preferredTechnologies.map((technology) => (
+              <Chip label={technology} />
+            ))}
+          </Stack>
+        </Stack>
+        <Stack spacing={2}>
+          <Typography variant="h5">StackOverflow Contributions</Typography>
+          <Stack spacing={2}>
+            {stackOverflowPercentiles.map((props) => (
+              <PercentileItem {...props} />
+            ))}
+          </Stack>
+        </Stack>
+      </Stack>
+
+      <SectionHeader text="experience" />
+      <Stack spacing={4}>
+        {jobs.map((job) => (
+          <ExperienceItem {...job} />
         ))}
       </Stack>
-      <img
-        css={{ width: "100px", height: "100px", borderRadius: "16px" }}
-        src={PrideBear}
-      />
-    </Stack>
 
-    <SectionHeader text="intro statement" />
-    <Typography variant="body1" css={{ fontSize: "1.2rem" }}>
-      {introStatement}
-    </Typography>
-
-    <SectionHeader text="technologies" />
-    <Stack justifyContent="space-evenly" direction="row">
-      <Stack spacing={2}>
-        <Typography variant="h5">Preferred Technologies</Typography>
-        <Stack direction="row" spacing={1}>
-          {preferredTechnologies.map((technology) => (
-            <Chip label={technology} />
-          ))}
-        </Stack>
+      <SectionHeader text="education" />
+      <Stack spacing={4}>
+        {degrees.map((degree) => (
+          <EducationItem {...degree} />
+        ))}
       </Stack>
-      <Stack spacing={2}>
-        <Typography variant="h5">StackOverflow Contributions</Typography>
-        <Stack spacing={2}>
-          {stackOverflowPercentiles.map((props) => (
-            <PercentileItem {...props} />
-          ))}
-        </Stack>
+
+      <SectionHeader text={"Apps & Software"} />
+      <Stack spacing={4}>
+        {achievements.map((achievement) => (
+          <AchievementItem {...achievement} />
+        ))}
       </Stack>
-    </Stack>
-
-    <SectionHeader text="experience" />
-    <Stack spacing={4}>
-      {jobs.map((job) => (
-        <ExperienceItem {...job} />
-      ))}
-    </Stack>
-
-    <SectionHeader text="education" />
-    <Stack spacing={4}>
-      {degrees.map((degree) => (
-        <EducationItem {...degree} />
-      ))}
-    </Stack>
-
-    <SectionHeader text={"Apps & Software"} />
-    <Stack spacing={4}>
-      {achievements.map((achievement) => (
-        <AchievementItem {...achievement} />
-      ))}
-    </Stack>
-  </Box>
-);
+    </Box>
+  );
+};
 
 const ContactLine: FC<{
   icon: FC<{ css?: Interpolation<Theme> }>;
@@ -360,7 +388,7 @@ const ContactLine: FC<{
   <Stack direction="row" spacing={0.5}>
     <Icon css={{ color: "#858c94" }} />
     <Typography variant="body1" css={{ color: "#37373a", fontSize: "1.1rem" }}>
-      {text}
+      {useAnonymized() ? "" : text}
     </Typography>
   </Stack>
 );
@@ -385,15 +413,29 @@ const SectionHeader: FC<{ text: string; className?: string }> = ({
   </>
 );
 
-const ExperienceItem: FC<{
+interface ExperienceItemProps {
   title: string;
   companyName: string;
   tags: string[];
   startDate: Date;
   endDate: Date | "Present";
   description: string | JSX.Element;
-  icon: string;
-}> = ({ title, companyName, tags, startDate, endDate, description, icon }) => {
+  icon?: string;
+  children?: ExperienceItemProps[];
+}
+
+const ExperienceItem: FC<ExperienceItemProps> = ({
+  title,
+  companyName,
+  tags,
+  startDate,
+  endDate,
+  description,
+  icon,
+  children,
+}) => {
+  const textOnly = useTextOnly();
+
   const formatDate = (date: Date) =>
     date.toLocaleDateString("en-us", {
       month: "short",
@@ -430,7 +472,11 @@ const ExperienceItem: FC<{
 
   return (
     <Stack direction="row" spacing={4}>
-      <img src={icon} css={ss.icon} />
+      {icon && !textOnly ? (
+        <img src={icon} css={ss.icon} />
+      ) : (
+        <Typography css={[ss.iconSpacer]}>↳</Typography>
+      )}
       <Stack direction="column" spacing={1}>
         <Box>
           <Typography variant="h6">{title}</Typography>
@@ -446,7 +492,21 @@ const ExperienceItem: FC<{
             <Chip label={tag} />
           ))}
         </Stack>
-        <Typography>{description}</Typography>
+        {description && (
+          <Typography>
+            <StringWithBreaks>{description}</StringWithBreaks>
+          </Typography>
+        )}
+        {children
+          ? children.map((props) => (
+              <ExperienceItem
+                {...props}
+                companyName=""
+                key={props.title}
+                icon={undefined}
+              />
+            ))
+          : false}
       </Stack>
     </Stack>
   );
@@ -459,14 +519,41 @@ const EducationItem: FC<{
   yearEnd: string;
   tags: string[];
   icon: string;
-}> = ({ icon, degree, institution, yearStart, yearEnd, tags }) => (
-  <Stack direction="row" spacing={4}>
-    <img src={icon} css={ss.icon} />
-    <Stack direction="column" spacing={1}>
-      <Typography variant="h6">{degree}</Typography>
-      <Typography css={ss.itemSubHeading}>{institution}</Typography>
-      <Typography variant="body1">
-        {yearStart} &rarr; {yearEnd}
+}> = ({ icon, degree, institution, yearStart, yearEnd, tags }) => {
+  const textOnly = useTextOnly();
+
+  return (
+    <Stack direction="row" spacing={4}>
+      {!textOnly && <img src={icon} css={ss.icon} />}
+      <Stack direction="column" spacing={1}>
+        <Typography variant="h6">{degree}</Typography>
+        <Typography css={ss.itemSubHeading}>{institution}</Typography>
+        <Typography variant="body1">
+          {yearStart} &rarr; {yearEnd}
+        </Typography>
+        <Stack direction="row" spacing={1}>
+          {tags.map((tag) => (
+            <Chip label={tag} />
+          ))}
+        </Stack>
+      </Stack>
+    </Stack>
+  );
+};
+
+const PercentileItem: FC<{ percentile: number; tags: string[] }> = ({
+  percentile,
+  tags,
+}) => {
+  const textOnly = useTextOnly();
+
+  return (
+    <Stack direction="row" spacing={0.5}>
+      {!textOnly && (
+        <img src={StackOverflowLogo} css={{ width: "2rem", height: "2rem" }} />
+      )}{" "}
+      <Typography variant="body1" css={{ width: "72px", fontWeight: "bold" }}>
+        Top {percentile}%
       </Typography>
       <Stack direction="row" spacing={1}>
         {tags.map((tag) => (
@@ -474,25 +561,11 @@ const EducationItem: FC<{
         ))}
       </Stack>
     </Stack>
-  </Stack>
-);
+  );
+};
 
-const PercentileItem: FC<{ percentile: number; tags: string[] }> = ({
-  percentile,
-  tags,
-}) => (
-  <Stack direction="row" spacing={0.5}>
-    <img src={StackOverflowLogo} css={{ width: "2rem", height: "2rem" }} />{" "}
-    <Typography variant="body1" css={{ width: "72px", fontWeight: "bold" }}>
-      Top {percentile}%
-    </Typography>
-    <Stack direction="row" spacing={1}>
-      {tags.map((tag) => (
-        <Chip label={tag} />
-      ))}
-    </Stack>
-  </Stack>
-);
+const useTextOnly = () => useSearchParams()[0].get("textOnly") === "false";
+const useAnonymized = () => useSearchParams()[0].get("anon") === "true";
 
 const AchievementItem: FC<{
   icon: string;
@@ -501,31 +574,55 @@ const AchievementItem: FC<{
   tags: string[];
   url: string;
   description: string;
-}> = ({ icon, title, date, tags, url, description }) => (
-  <Stack direction="row" spacing={4}>
-    <img css={ss.icon} src={icon} />
-    <Stack direction="column" spacing={1}>
-      <Typography variant="h6">{title}</Typography>
-      <Typography variant="body1">
-        {date.toLocaleDateString("en-us", { month: "short", year: "numeric" })}{" "}
-        -{" "}
-        <Link
-          css={{ textDecoration: "none", fontStyle: "italic" }}
-          href={url}
-          target="_blank"
-        >
-          {url}
-        </Link>
-      </Typography>
-      <Stack direction="row" spacing={1}>
-        {tags.forEach((tag) => (
-          <Chip label={tag} />
-        ))}
+}> = ({ icon, title, date, tags, url, description }) => {
+  const textOnly = useTextOnly();
+
+  return (
+    <Stack direction="row" spacing={4}>
+      {!textOnly && <img css={ss.icon} src={icon} />}
+      <Stack direction="column" spacing={1}>
+        <Typography variant="h6">{title}</Typography>
+        <Typography variant="body1">
+          {date.toLocaleDateString("en-us", {
+            month: "short",
+            year: "numeric",
+          })}{" "}
+          -{" "}
+          <Link
+            css={{ textDecoration: "none", fontStyle: "italic" }}
+            href={url}
+            target="_blank"
+          >
+            {url}
+          </Link>
+        </Typography>
+        <Stack direction="row" spacing={1}>
+          {tags.forEach((tag) => (
+            <Chip label={tag} />
+          ))}
+        </Stack>
+        <Typography>
+          <StringWithBreaks>{description}</StringWithBreaks>
+        </Typography>
       </Stack>
-      <Typography>{description}</Typography>
     </Stack>
-  </Stack>
-);
+  );
+};
+const StringWithBreaks: FC<{ children: string | JSX.Element }> = ({
+  children,
+}) =>
+  typeof children === "string" ? (
+    <>
+      {children.split("\n\n").map((p) => (
+        <Fragment key={p}>
+          <>{p}</>
+          <br /> <br />
+        </Fragment>
+      ))}
+    </>
+  ) : (
+    <>{children}</>
+  );
 
 const Chip: FC<{ label: string }> = ({ label }) => (
   <Typography
@@ -541,6 +638,9 @@ const ss = stylesheet({
     maxWidth: "4rem",
     maxHeight: "4rem",
     objectFit: "contain",
+  },
+  iconSpacer: {
+    width: "2rem",
   },
   itemSubHeading: {
     fontSize: "1.25rem",

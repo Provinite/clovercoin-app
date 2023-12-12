@@ -1,8 +1,17 @@
-const { CC_JWT_SECRET } = process.env;
-if (!CC_JWT_SECRET) {
-  throw new Error("Missing environment variable: CC_JWT_SECRET");
+import { getJwtConfig } from "../../environment.js";
+import { fetchSecret } from "../../secrets/fetchSecret.js";
+import { logger } from "../logger.js";
+// eslint-disable-next-line prefer-const
+let { secret, secretArn } = getJwtConfig();
+
+if (secretArn) {
+  logger.info({
+    message: `Fetching secret: ${secretArn}`,
+  });
+  secret = await fetchSecret(secretArn, logger);
 }
-export const jwtSecret = Buffer.from(CC_JWT_SECRET, "base64");
+
+export const jwtSecret = Buffer.from(secret, "base64");
 
 if (jwtSecret.byteLength < 256 / 8) {
   throw new Error("JWT secret MUST be at least 32 bytes (256 bits fo HS256)");

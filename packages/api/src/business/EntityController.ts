@@ -2,10 +2,13 @@ import {
   DeepPartial,
   DeleteResult,
   FindOptionsWhere,
+  In,
   ObjectLiteral,
   Repository,
 } from "typeorm";
-import { ensureArray } from "../util/ensureArray";
+import { TransactionProvider } from "../db/TransactionProvider.js";
+import { NotFoundError } from "../errors/NotFoundError.js";
+import { ensureArray } from "../util/ensureArray.js";
 
 export class EntityController<
   Model extends ObjectLiteral,
@@ -13,21 +16,40 @@ export class EntityController<
   CreateBody,
   UpdateBody = any
 > {
-  constructor(protected repository: R) {}
+  constructor(
+    protected repository: R,
+    protected transactionProvider: TransactionProvider
+  ) {}
 
   create(createBody: CreateBody): Promise<Model>;
   create(createBody: CreateBody[]): Promise<Model[]>;
+  create(createBody: CreateBody | CreateBody[]): Promise<Model | Model[]>;
   async create(
     createBody: CreateBody | CreateBody[]
   ): Promise<Model | Model[]> {
     const unwrap = !Array.isArray(createBody);
     const createModel = this.createBodyToModel.bind(this);
     const models = await Promise.all(ensureArray(createBody).map(createModel));
-    const result = this.repository.save(models);
+    const result = this.insert(models);
     if (unwrap) {
       return (await result)[0];
     }
     return result;
+  }
+
+  /**
+   * Insert new models into the database.
+   * @param models
+   * @returns The created models
+   */
+  async insert(models: Model[]): Promise<Model[]> {
+    const result = await this.repository.insert(models);
+    const createdModelResults: Model[] = result.identifiers as any;
+    return this.repository.find({
+      where: {
+        id: In(createdModelResults.map((model) => model.id)),
+      } as any,
+    });
   }
 
   /**
@@ -41,21 +63,32 @@ export class EntityController<
   }
 
   async findOneById(id: Model["id"]) {
-    return this.repository.findOneBy({
-      id,
+    return this.repository.findOne({
+      where: await this.augmentFindWhere({ id }),
     });
   }
 
+  async findOneByIdOrFail(id: Model["id"]) {
+    const result = await this.findOneById(id);
+    if (!result) {
+      throw new NotFoundError();
+    }
+    return result;
+  }
+
   async delete(where: FindOptionsWhere<Model>): Promise<DeleteResult> {
-    return this.repository.delete(where);
+    return this.repository.delete(await this.augmentFindWhere(where));
   }
 
   async deleteOneById(id: Model["id"]) {
-    return this.repository.delete({ id });
+    return this.repository.delete(await this.augmentFindWhere({ id }));
   }
 
   async updateOneById(id: Model["id"], updateBody: UpdateBody): Promise<Model> {
-    await this.repository.save({ id, ...(updateBody as DeepPartial<Model>) });
+    await this.repository.update(
+      { id },
+      { ...(updateBody as DeepPartial<Model>) }
+    );
     return this.repository.findOneOrFail({
       where: {
         id,
@@ -63,7 +96,25 @@ export class EntityController<
     });
   }
 
-  async find(where: FindOptionsWhere<Model>): Promise<Model[]> {
+  async find(where: FindOptionsWhere<Model> = {}): Promise<Model[]> {
+    where = await this.augmentFindWhere(where);
     return this.repository.findBy(where);
+  }
+
+  async advancedFind(...args: Parameters<typeof this.repository.find>) {
+    return this.repository.find(...args);
+  }
+
+  /**
+   * Add filters to `findWhere` conditions here to have them added to every find*
+   * query. This is useful for adding authorization-based limits such as filtering
+   * for communities a user is a member of.
+   * @param findWhere
+   * @returns
+   */
+  async augmentFindWhere(
+    findWhere: FindOptionsWhere<Model>
+  ): Promise<FindOptionsWhere<Model>> {
+    return findWhere;
   }
 }

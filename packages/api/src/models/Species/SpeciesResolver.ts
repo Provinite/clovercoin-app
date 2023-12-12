@@ -13,13 +13,19 @@ import {
   Resolver,
   Root,
 } from "type-graphql";
-import { FindManyOptions, ILike } from "typeorm";
-import { DuplicateError } from "../../errors/DuplicateError";
-import { InvalidArgumentError } from "../../errors/InvalidArgumentError";
-import { NotFoundError } from "../../errors/NotFoundError";
-import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { ImageContentType } from "../ImageContentType";
-import { Species } from "./Species";
+import { FindOptionsWhere, ILike } from "typeorm";
+import { Authenticated } from "../../business/auth/Authenticated.js";
+import { hasCommunityPerms } from "../../business/auth/authorizationInfoGenerators/hasCommunityPerms.js";
+import { NotAuthenticatedError } from "../../business/auth/NotAuthenticatedError.js";
+import { NotAuthorizedError } from "../../business/auth/NotAuthorizedError.js";
+import { Preauthorize } from "../../business/auth/Preauthorize.js";
+import { ImageTarget } from "../../business/ImageController.js";
+import { DuplicateError } from "../../errors/DuplicateError.js";
+import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
+import { NotFoundError } from "../../errors/NotFoundError.js";
+import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { ImageContentType } from "../ImageContentType.js";
+import { Species } from "./Species.js";
 
 @InputType()
 export class SpeciesCreateInput {
@@ -68,7 +74,14 @@ export class SpeciesFilters {
 
 const SpeciesCreateResponse = createUnionType({
   name: "SpeciesCreateResponse",
-  types: () => [Species, InvalidArgumentError, DuplicateError],
+  types: () => [
+    Species,
+    InvalidArgumentError,
+    DuplicateError,
+    NotAuthenticatedError,
+    NotAuthorizedError,
+    NotFoundError,
+  ],
 });
 
 @ObjectType()
@@ -89,33 +102,44 @@ class UrlResponse {
   }
 }
 
+export const CreateSpeciesImageUploadUrlResponse = createUnionType({
+  name: "CreateSpeciesImageUploadUrlResponse",
+  types: () => [
+    UrlResponse,
+    NotAuthenticatedError,
+    NotAuthorizedError,
+    NotFoundError,
+  ],
+});
+
 const SpeciesResponse = createUnionType({
   name: "SpeciesResponse",
-  types: () => [SpeciesList, InvalidArgumentError],
+  types: () => [SpeciesList, InvalidArgumentError, NotAuthenticatedError],
 });
 
 @Resolver(() => Species)
 export class SpeciesResolver {
+  @Authenticated()
   @Query(() => SpeciesResponse)
   async species(
     @Arg("filters", () => SpeciesFilters, { nullable: true })
     speciesFilters: SpeciesFilters | null = null,
-    @Ctx() { speciesRepository }: AppGraphqlContext
+    @Ctx() { speciesController }: AppGraphqlContext
   ): Promise<SpeciesList> {
-    const filters: FindManyOptions<Species> = {};
+    const filters: FindOptionsWhere<Species> = {};
 
     if (speciesFilters) {
       const { id, name, communityId } = speciesFilters;
-      filters.where = {};
       if (id) {
-        filters.where.id = id;
+        filters.id = id;
       }
       if (name) {
-        filters.where.name = ILike(`%${name}%`);
+        filters.name = ILike(`%${name}%`);
       }
-      filters.where.communityId = communityId;
+      filters.communityId = communityId;
     }
-    return new SpeciesList(await speciesRepository.find(filters));
+    const result = new SpeciesList(await speciesController.find(filters));
+    return result;
   }
 
   @FieldResolver(() => String, {
@@ -124,19 +148,15 @@ export class SpeciesResolver {
   })
   async iconUrl(
     @Root() species: Species,
-    @Ctx() { presignedUrlService }: AppGraphqlContext
+    @Ctx() { imageController }: AppGraphqlContext
   ): Promise<string | null> {
     if (species.hasImage) {
-      return presignedUrlService.getPresignedUrl({
-        object: {
-          Bucket: "images",
-          Key: `species-${species.id}`,
-        },
-      });
+      return imageController.getGetUrl(ImageTarget.Species, species.id);
     }
     return null;
   }
 
+  @Preauthorize(hasCommunityPerms(["canCreateSpecies"]))
   @Mutation(() => SpeciesCreateResponse)
   async createSpecies(
     @Arg("input") input: SpeciesCreateInput,
@@ -147,30 +167,23 @@ export class SpeciesResolver {
     });
   }
 
-  @Mutation(() => UrlResponse)
+  @Preauthorize(hasCommunityPerms(["canEditSpecies"]))
+  @Mutation(() => CreateSpeciesImageUploadUrlResponse)
   async createSpeciesImageUploadUrl(
     @Arg("input") input: SpeciesImageUrlCreateInput,
     @Ctx() { transactionProvider }: AppGraphqlContext
   ): Promise<UrlResponse> {
     return transactionProvider.runTransaction(
-      async ({ presignedUrlService, speciesController }) => {
+      async ({ speciesController, imageController }) => {
         const species = await speciesController.findOneById(input.speciesId);
         if (!species) {
           throw new NotFoundError();
-        }
-        if (!species.hasImage) {
-          await speciesController.updateOneById(species.id, { hasImage: true });
         }
         await speciesController.updateOneById(input.speciesId, {
           hasImage: true,
         });
         return new UrlResponse(
-          await presignedUrlService.putPresignedUrl({
-            object: {
-              Bucket: "images",
-              Key: `species-${input.speciesId}`,
-            },
-          })
+          await imageController.getPutUrl(ImageTarget.Species, input.speciesId)
         );
       }
     );

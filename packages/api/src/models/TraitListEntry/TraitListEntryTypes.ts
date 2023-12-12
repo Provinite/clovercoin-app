@@ -8,11 +8,14 @@ import {
   ValidateIf,
 } from "class-validator";
 import { createUnionType, Field, ID, InputType, Int } from "type-graphql";
-import { DeleteResponse } from "../../business/DeleteResponse";
-import { DuplicateError } from "../../errors/DuplicateError";
-import { InvalidArgumentError } from "../../errors/InvalidArgumentError";
-import { isNullish } from "../../util/isNullish";
-import { TraitListEntry } from "./TraitListEntry";
+import { NotAuthenticatedError } from "../../business/auth/NotAuthenticatedError.js";
+import { NotAuthorizedError } from "../../business/auth/NotAuthorizedError.js";
+import { DeleteResponse } from "../../business/DeleteResponse.js";
+import { DuplicateError } from "../../errors/DuplicateError.js";
+import { InvalidArgumentError } from "../../errors/InvalidArgumentError.js";
+import { NotFoundError } from "../../errors/NotFoundError.js";
+import { isNullish } from "../../util/isNullish.js";
+import { TraitListEntry } from "./TraitListEntry.js";
 
 /**
  * Input type for createTraitListEntry mutations.
@@ -23,7 +26,7 @@ import { TraitListEntry } from "./TraitListEntry";
 export class TraitListEntryCreateInput {
   @Field(() => ID)
   @IsUUID(4)
-  traitListId!: string;
+  speciesVariantId!: string;
 
   @Field(() => ID)
   @IsUUID(4)
@@ -72,7 +75,14 @@ export class TraitListEntryModifyInput {
  */
 export const TraitListEntryCreateResponse = createUnionType({
   name: "TraitListEntryCreateResponse",
-  types: () => [TraitListEntry, DuplicateError, InvalidArgumentError],
+  types: () => [
+    TraitListEntry,
+    DuplicateError,
+    InvalidArgumentError,
+    NotAuthenticatedError,
+    NotAuthorizedError,
+    NotFoundError,
+  ],
 });
 
 /**
@@ -80,10 +90,22 @@ export const TraitListEntryCreateResponse = createUnionType({
  */
 export const TraitListEntryModifyResponse = createUnionType({
   name: "TraitListEntryModifyResponse",
-  types: () => [TraitListEntry, InvalidArgumentError],
+  types: () => [
+    TraitListEntry,
+    InvalidArgumentError,
+    NotAuthenticatedError,
+    NotAuthorizedError,
+    NotFoundError,
+  ],
 });
 
 export const TraitListEntryDeleteResponse = createUnionType({
   name: "TraitListEntryDeleteResponse",
-  types: () => [DeleteResponse, InvalidArgumentError],
+  types: () => [
+    DeleteResponse,
+    InvalidArgumentError,
+    NotAuthenticatedError,
+    NotAuthorizedError,
+    NotFoundError,
+  ],
 });

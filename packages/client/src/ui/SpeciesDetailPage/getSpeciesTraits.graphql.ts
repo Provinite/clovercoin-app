@@ -1,15 +1,29 @@
 import gql from "graphql-tag";
+import BaseErrorFragmentGraphql from "../../utils/error-fragments/BaseErrorFragment.graphql";
+import NotAuthenticatedErrorFragmentGraphql from "../../utils/error-fragments/NotAuthenticatedErrorFragment.graphql";
 
 export const getSpeciesTraitsQuery = gql`
   query getSpeciesTraits($filters: TraitFilters!) {
     traits(filters: $filters) {
-      id
-      name
-      enumValues {
-        id
-        name
+      ... on TraitList {
+        list {
+          id
+          name
+          enumValues {
+            id
+            name
+          }
+          valueType
+        }
       }
-      valueType
+      ... on BaseError {
+        ...BaseErrorFragment
+      }
+      ... on NotAuthenticatedError {
+        ...NotAuthenticatedErrorFragment
+      }
     }
   }
+  ${BaseErrorFragmentGraphql}
+  ${NotAuthenticatedErrorFragmentGraphql}
 `;

@@ -1,5 +1,5 @@
-import { BCRYPT_MAX_STR_BYTES } from "./BcryptMaxStringSizeExceededError";
-import { compareHash } from "./compareHash";
+import { BCRYPT_MAX_STR_BYTES } from "./BcryptMaxStringSizeExceededError.js";
+import { compareHash } from "./compareHash.js";
 
 describe("compareHash", () => {
   describe("error handling", () => {

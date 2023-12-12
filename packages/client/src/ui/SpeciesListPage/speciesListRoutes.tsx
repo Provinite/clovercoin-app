@@ -1,7 +1,12 @@
-import { isSpeciesList, isBaseError } from "@clovercoin/api-client";
-import { LoaderFunctionArgs, ActionFunctionArgs } from "react-router-dom";
-import { graphqlService } from "../../client";
+import {
+  isSpeciesList,
+  isBaseError,
+  isNotAuthenticatedError,
+} from "@clovercoin/api-client";
+import { ActionFunctionArgs } from "react-router-dom";
+import { graphqlService } from "../../graphql/client";
 import { typedRouteConfig } from "../../routes";
+import { makeLoader } from "../../utils/loaderUtils";
 import { slugToUuid } from "../../utils/uuidUtils";
 import { SpeciesListProvider } from "./SpeciesListProvider";
 
@@ -9,23 +14,26 @@ export const speciesListRoutes = typedRouteConfig({
   id: "root.community.species-list",
   path: "species",
   element: <SpeciesListProvider />,
-  loader: async ({ params: { communityId } }: LoaderFunctionArgs) => {
-    if (!communityId) {
-      throw new Error("Missing community id in route");
-    }
-    communityId = slugToUuid(communityId);
-    const result = await graphqlService.getSpeciesListView({
-      variables: {
-        communityId,
-      },
-    });
+  loader: makeLoader(
+    { slugs: { communityId: true } },
+    async ({ ids: { communityId } }) => {
+      const result = await graphqlService.getSpeciesListView({
+        variables: {
+          communityId,
+        },
+      });
 
-    if (!isSpeciesList(result.data.species)) {
-      throw new Error("404");
-    }
+      if (isNotAuthenticatedError(result.data.species)) {
+        return result.data.species;
+      }
 
-    return result.data.species;
-  },
+      if (!isSpeciesList(result.data.species)) {
+        throw new Error("404");
+      }
+
+      return result.data.species;
+    }
+  ),
   action: async ({
     params: { communityId: communitySlug },
     request,

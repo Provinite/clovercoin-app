@@ -2,7 +2,7 @@ import { FC } from "react";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import { AppRoutes } from "../AppRoutes";
 import { useHeaderBarProps } from "../HeaderBar/HeaderBarContext";
-import { useRouteCommunity } from "../../useRouteCommunity";
+import { useRouteCommunityOrFail } from "../../useRouteCommunity";
 import { SpeciesListPage, SpeciesListPageProps } from "./SpeciesListPage";
 import { LoaderData, RouteType } from "../../routes";
 
@@ -17,7 +17,7 @@ export const SpeciesListProvider: FC<SpeciesListProviderProps> = (args) => {
   const speciesList = useLoaderData() as LoaderData<
     RouteType<"root.community.species-list">
   >;
-  const community = useRouteCommunity();
+  const community = useRouteCommunityOrFail();
   return (
     <SpeciesListPage
       {...args}

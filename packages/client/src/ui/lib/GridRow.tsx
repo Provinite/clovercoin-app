@@ -1,5 +1,5 @@
 import { Box, Grid, Divider } from "@mui/material";
-import { FC, ReactNode } from "react";
+import { forwardRef, ReactNode } from "react";
 import { stylesheet } from "../../utils/emotion";
 
 const ss = stylesheet({
@@ -16,60 +16,83 @@ const ss = stylesheet({
       backgroundColor: theme.palette.action.selected,
     },
   }),
+  item: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "flex-end",
+    overflowX: "hidden",
+  },
+  divider: {
+    display: "block",
+  },
 });
 
-export const GridRow: FC<{
-  children?: ReactNode[];
-  xs?: number[];
-  sm?: number[];
-  selected?: boolean;
-  md?: number[];
-  lg?: number[];
-  xl?: number[];
-  className?: string;
-  divider?: boolean;
-}> = ({
-  children,
-  xs = [],
-  sm = [],
-  md = [],
-  lg = [],
-  xl = [],
-  selected = false,
-  className,
-  divider = true,
-}) => {
-  return (
-    <Box
-      className={className}
-      css={[ss.gridRow, selected ? ss.gridRowActive : null]}
-    >
-      {children?.map((c, i) => {
-        const gridProps = {
-          xs: xs[i],
-          sm: sm[i],
-          md: md[i],
-          lg: lg[i],
-          xl: xl[i],
-        };
+export const GridRow = forwardRef<
+  HTMLDivElement,
+  {
+    children?: ReactNode[];
+    xs?: number[];
+    sm?: number[];
+    selected?: boolean;
+    md?: number[];
+    lg?: number[];
+    xl?: number[];
+    className?: string;
+    divider?: boolean;
+  }
+>(
+  (
+    {
+      children,
+      xs = [],
+      sm = [],
+      md = [],
+      lg = [],
+      xl = [],
+      selected = false,
+      className,
+      divider = true,
+    },
+    ref
+  ) => {
+    return (
+      <Box
+        className={className}
+        css={[ss.gridRow, selected ? ss.gridRowActive : null]}
+      >
+        {(() => {
+          let settingIndex = 0;
+          return children?.map((c) => {
+            if (!c) {
+              return;
+            }
+            const gridProps = {
+              xs: xs[settingIndex],
+              sm: sm[settingIndex],
+              md: md[settingIndex],
+              lg: lg[settingIndex],
+              xl: xl[settingIndex],
+            };
 
-        return (
-          <Grid
-            item
-            key={i}
-            css={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "flex-end",
-              overflowX: "hidden",
-            }}
-            {...gridProps}
-          >
-            {c}
-            {divider && <Divider css={{ display: "block" }} />}
-          </Grid>
-        );
-      })}
-    </Box>
-  );
-};
+            settingIndex++;
+
+            return (
+              <Grid
+                ref={ref}
+                item
+                key={settingIndex}
+                css={ss.item}
+                {...gridProps}
+              >
+                {c}
+                {divider && <Divider css={ss.divider} />}
+              </Grid>
+            );
+          });
+        })()}
+      </Box>
+    );
+  }
+);
+
+GridRow.displayName = "GridRow";

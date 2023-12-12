@@ -20,6 +20,12 @@
     {
       "type": "node-terminal",
       "request": "launch",
+      "name": "API (seed create)",
+      "command": "yarn workspace @clovercoin/api seed:create foo bar"
+    },
+    {
+      "type": "node-terminal",
+      "request": "launch",
       "name": "Integration Tests",
       "command": "yarn workspace @clovercoin/api test-integration"
     },

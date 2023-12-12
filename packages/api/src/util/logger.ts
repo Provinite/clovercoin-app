@@ -6,7 +6,7 @@ export const logger = createLogger({
       format: format.combine(
         format.timestamp(),
         format.prettyPrint({
-          colorize: true,
+          colorize: false,
         })
       ),
     }),

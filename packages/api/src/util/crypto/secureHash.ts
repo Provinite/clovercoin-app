@@ -1,9 +1,9 @@
 import { hash, hashSync } from "bcrypt";
-import { getBytesInString } from "../stringUtils";
+import { getBytesInString } from "../stringUtils.js";
 import {
   BcryptMaxStringSizeExceededError,
   BCRYPT_MAX_STR_BYTES,
-} from "./BcryptMaxStringSizeExceededError";
+} from "./BcryptMaxStringSizeExceededError.js";
 const SALT_ROUNDS = 10;
 
 /**

@@ -1,4 +1,14 @@
-import { ActionFunctionArgs, LoaderFunctionArgs } from "react-router-dom";
+import {
+  isNotAuthenticatedError,
+  isNotAuthorizedError,
+  NotAuthenticatedError,
+} from "@clovercoin/api-client";
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  redirect,
+} from "react-router-dom";
+import { AppRoutes } from "../ui/AppRoutes";
 import { isNullish } from "../ui/util/isNullish";
 import {
   getAllStrings,
@@ -7,6 +17,7 @@ import {
   getString,
   getStringOrFail,
 } from "./formDataUtils";
+import { globalSnackbarTopic } from "./observables/topics/globalSnackbarTopic";
 import { slugToUuid } from "./uuidUtils";
 
 type SlugConfig = boolean;
@@ -157,14 +168,19 @@ export async function getLoaderData<T extends GetDataArgs>({
  * @returns
  */
 export function makeLoader<
-  T extends Omit<GetDataArgs, "data"> & { allowedMethods?: string[] },
+  T extends Omit<GetDataArgs, "data"> & {
+    allowedMethods?: string[];
+    name?: string;
+  },
   R
 >(
   options: T,
   loader: (
     data: GetDataResult<T & { data: LoaderFunctionArgs | ActionFunctionArgs }>
   ) => Promise<R>
-): (opts: LoaderFunctionArgs | ActionFunctionArgs) => Promise<R> {
+): (
+  opts: LoaderFunctionArgs | ActionFunctionArgs
+) => Promise<Exclude<R, Response | NotAuthenticatedError>> {
   return async (data) => {
     if (
       options.allowedMethods &&
@@ -175,9 +191,21 @@ export function makeLoader<
       throw new Error("405");
     }
     if (data.request.method.toLowerCase() === "delete") {
-      return loader(await getLoaderData({ data, ...options, form: undefined }));
+      const result = loader(
+        await getLoaderData({ data, ...options, form: undefined })
+      );
+      return result;
     }
-    return loader(await getLoaderData({ data, ...options }));
+    const result = await loader(await getLoaderData({ data, ...options }));
+    if (isNotAuthenticatedError(result)) {
+      globalSnackbarTopic.simpleError.publish(
+        "You are not logged in. Redirecting to the login page."
+      );
+      return redirect(AppRoutes.login());
+    } else if (isNotAuthorizedError(result)) {
+      globalSnackbarTopic.simpleError.publish("Permission denied.");
+    }
+    return result as any;
   };
 }
 

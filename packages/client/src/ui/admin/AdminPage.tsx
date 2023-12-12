@@ -9,44 +9,44 @@ import {
   IconButton,
   Stack,
   TextField,
-  Toolbar,
 } from "@mui/material";
 import { FunctionComponent, useEffect, useState } from "react";
 import { AppRoutes } from "../AppRoutes";
-import { HeaderBar } from "../HeaderBar/HeaderBar";
+import { HeaderBar, HeaderBarSpacer } from "../HeaderBar/HeaderBar";
 import { useHeaderBarProps } from "../HeaderBar/HeaderBarContext";
 import { SideNav } from "../SideNav/SideNav";
 import SpaIcon from "@mui/icons-material/Spa";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import { useFetcher } from "react-router-dom";
-import {
-  SequentialSnackbar,
-  useSnackbarQueue,
-} from "../SequentialSnackbar/SequentialSnackbar";
 import { ActionData, RouteType } from "../../routes";
 import CloseIcon from "@mui/icons-material/Close";
 import { Link } from "../Link/Link";
-import { isBaseError } from "@clovercoin/api-client";
+import { isBaseError, isNotAuthorizedError } from "@clovercoin/api-client";
+import { UserList } from "./UserList";
+import { InviteCodeList } from "../InviteCodeList/InviteCodeList";
+import { useSnackbar } from "../SequentialSnackbar/SequentialSnackbarContext";
+import { usePageTitle } from "../../hooks/usePageTitle";
 
 export interface AdminPageProps {}
 export const AdminPage: FunctionComponent<AdminPageProps> = () => {
   const [name, setName] = useState("");
   const headerBarProps = useHeaderBarProps();
   const fetcher = useFetcher<ActionData<RouteType<"root.community-list">>>();
-  const snackbarQueue = useSnackbarQueue();
+  const snackbarQueue = useSnackbar();
+  usePageTitle("CloverCoin Species - Site Administration");
   useEffect(() => {
-    if (fetcher.state === "idle" && fetcher.data) {
-      if (isBaseError(fetcher.data)) {
-        snackbarQueue.append({
-          children: (
-            <Alert onClose={snackbarQueue.close} severity="error">
-              Error creating community: {fetcher.data.message}
-            </Alert>
-          ),
-        });
+    const { data, state } = fetcher;
+    if (state === "idle" && data) {
+      if (isNotAuthorizedError(data)) {
         return;
       }
-      const { name, id } = fetcher.data;
+      if (isBaseError(data)) {
+        snackbarQueue.appendSimpleError(
+          `Error creating community: ${data.message || data.__typename}`
+        );
+        return;
+      }
+      const { name, id } = data;
       snackbarQueue.append({
         children: (
           <Alert
@@ -75,10 +75,8 @@ export const AdminPage: FunctionComponent<AdminPageProps> = () => {
       });
     }
   }, [fetcher.state]);
-
   return (
     <>
-      <SequentialSnackbar queue={snackbarQueue} />
       <HeaderBar {...headerBarProps} title="Site Administration" />
       <Stack direction="row">
         <SideNav
@@ -96,7 +94,7 @@ export const AdminPage: FunctionComponent<AdminPageProps> = () => {
           ]}
         />
         <Stack flexGrow={1}>
-          <Toolbar />
+          <HeaderBarSpacer />
           <Grid container rowSpacing={2} padding={2}>
             <Grid item xs={12}>
               <Card elevation={1}>
@@ -129,6 +127,22 @@ export const AdminPage: FunctionComponent<AdminPageProps> = () => {
                   </CardActions>
                 </Card>
               </fetcher.Form>
+            </Grid>
+            <Grid item xs={12}>
+              <Card>
+                <CardHeader title="Users" subheader="Just a list of users" />
+                <CardContent>
+                  <UserList />
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12}>
+              <Card>
+                <CardHeader title="Invite Codes" />
+                <CardContent>
+                  <InviteCodeList />
+                </CardContent>
+              </Card>
             </Grid>
           </Grid>
         </Stack>

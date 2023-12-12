@@ -5,15 +5,21 @@
 import { ApolloProvider } from "@apollo/client";
 import { ThemeProvider as EmotionThemeProvider } from "@emotion/react";
 import { createTheme, CssBaseline, Paper, ThemeProvider } from "@mui/material";
-import { FunctionComponent, useState } from "react";
+import { FunctionComponent, useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
-import { client } from "./client";
+import { graphqlService } from "./graphql/client";
 import {
   HeaderBarContextType,
   HeaderBarContext,
 } from "./ui/HeaderBar/HeaderBarContext";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import {
+  SequentialSnackbar,
+  useSnackbarQueue,
+} from "./ui/SequentialSnackbar/SequentialSnackbar";
+import { SequentialSnackbarContext } from "./ui/SequentialSnackbar/SequentialSnackbarContext";
+import { globalSnackbarTopic } from "./utils/observables/topics/globalSnackbarTopic";
 const defaultDarkTheme = createTheme({
   palette: {
     mode: "light",
@@ -28,13 +34,54 @@ const darkTheme = defaultDarkTheme;
  * Application root component.
  */
 export const Application: FunctionComponent = () => {
-  const [headerBarContext] = useState<HeaderBarContextType>(() => ({
-    props: {
-      title: "",
-      userIconUrl: "http://placekitten.com/100/100",
-      userName: "Prov",
-    },
-  }));
+  const [headerBarContext, setHeaderBarContext] =
+    useState<HeaderBarContextType>(() => ({
+      props: {
+        title: "",
+        userIconUrl: "",
+        userName: "",
+      },
+    }));
+
+  const snackbar = useSnackbarQueue();
+
+  /**
+   * Connects the global snackbar topics to the snackbar
+   */
+  useEffect(
+    () =>
+      globalSnackbarTopic.simpleError.subscribe((msg) => {
+        snackbar.appendSimpleError(msg);
+      }),
+    []
+  );
+
+  useEffect(
+    () =>
+      graphqlService.addAuthenticationListener(() => {
+        setHeaderBarContext((headerBarContext) => {
+          if (graphqlService.isClientAuthenticated()) {
+            return {
+              ...headerBarContext,
+              props: {
+                ...headerBarContext.props,
+                userName: graphqlService.getTokenPayload().identity.displayName,
+              },
+            };
+          } else {
+            return {
+              ...headerBarContext,
+              props: {
+                ...headerBarContext.props,
+                userIconUrl: "",
+                userName: "",
+              },
+            };
+          }
+        });
+      }),
+    []
+  );
   return (
     /**
      * Drag and drop context provider. This may not need to be
@@ -48,7 +95,7 @@ export const Application: FunctionComponent = () => {
           {/** Baseline styles for mui */}
           <CssBaseline />
           {/** Apollo client provider for `useQuery`/`useMutation` hooks */}
-          <ApolloProvider client={client}>
+          <ApolloProvider client={graphqlService.getApolloClient()}>
             {/**
              * @todo Get rid of this stupid thing or actually use it.
              */}
@@ -62,7 +109,10 @@ export const Application: FunctionComponent = () => {
                 }}
                 elevation={0}
               >
-                <Outlet />
+                <SequentialSnackbarContext.Provider value={snackbar}>
+                  <Outlet />
+                </SequentialSnackbarContext.Provider>
+                <SequentialSnackbar queue={snackbar} />
               </Paper>
             </HeaderBarContext.Provider>
           </ApolloProvider>

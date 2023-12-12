@@ -1,10 +1,11 @@
 import { Repository } from "typeorm";
-import { EntityController } from "../../business/EntityController";
-import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { canHashPassword } from "../../util/crypto/canHashPassword";
-import { compareHash } from "../../util/crypto/compareHash";
-import { secureHash, secureHashSync } from "../../util/crypto/secureHash";
-import { Account } from "./Account";
+import { EntityController } from "../../business/EntityController.js";
+import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { canHashPassword } from "../../util/crypto/canHashPassword.js";
+import { compareHash } from "../../util/crypto/compareHash.js";
+import { secureHash, secureHashSync } from "../../util/crypto/secureHash.js";
+import { ResetToken } from "../ResetToken/ResetToken.js";
+import { Account } from "./Account.js";
 
 const mockHashedPassword = secureHashSync("password");
 const wrongMockPassword = "p";
@@ -28,8 +29,8 @@ export class AccountController extends EntityController<
   Repository<Account>,
   AccountCreate
 > {
-  constructor({ accountRepository }: AppGraphqlContext) {
-    super(accountRepository);
+  constructor({ accountRepository, transactionProvider }: AppGraphqlContext) {
+    super(accountRepository, transactionProvider);
   }
 
   /**
@@ -50,18 +51,34 @@ export class AccountController extends EntityController<
     });
   }
 
+  async resetPassword(resetToken: ResetToken, plainTextPassword: string) {
+    if (!resetToken.claimedAt) {
+      throw new ResetTokenNotRedeemedError(
+        "Reset token must be redeemed before resetting a password."
+      );
+    }
+    await this.repository.update(
+      { id: resetToken.accountId },
+      {
+        password: await secureHash(plainTextPassword),
+      }
+    );
+  }
+
   /**
    * Constant-time verification of user credentials
-   * @param username
+   * @param email
    * @param password
    */
   async verifyCredentials(
-    username: string,
+    email: string,
     password: string
   ): Promise<VerifyResponse> {
     const account = await this.repository.findOne({
       where: {
-        username,
+        identity: {
+          email,
+        },
       },
     });
     const compareResult = await compareHash(
@@ -84,5 +101,11 @@ export class AccountController extends EntityController<
         success: false,
       };
     }
+  }
+}
+
+export class ResetTokenNotRedeemedError extends Error {
+  constructor(message = "Invalid reset token") {
+    super(message);
   }
 }

@@ -1,8 +1,7 @@
 import { DeleteResult, Repository } from "typeorm";
-import { EntityController } from "../../business/EntityController";
-import { TransactionProvider } from "../../db/TransactionProvider";
-import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { Trait } from "./Trait";
+import { EntityController } from "../../business/EntityController.js";
+import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { Trait } from "./Trait.js";
 
 export type TraitCreate = Pick<Trait, "name" | "valueType" | "speciesId">;
 export type TraitModify = Pick<Partial<Trait>, "name" | "valueType">;
@@ -13,10 +12,8 @@ export class TraitController extends EntityController<
   TraitCreate,
   TraitModify
 > {
-  #transactionProvider: TransactionProvider;
   constructor({ traitRepository, transactionProvider }: AppGraphqlContext) {
-    super(traitRepository);
-    this.#transactionProvider = transactionProvider;
+    super(traitRepository, transactionProvider);
   }
 
   /**
@@ -25,7 +22,7 @@ export class TraitController extends EntityController<
    * @param id
    */
   async deleteOneById(id: string): Promise<DeleteResult> {
-    return this.#transactionProvider.runTransaction(
+    return this.transactionProvider.runTransaction(
       async ({
         enumValueRepository,
         traitController,

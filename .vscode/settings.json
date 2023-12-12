@@ -11,5 +11,10 @@
     { "color": "#00FF0050", "column": 65 },
     /* Max width (2 panes) */
     { "color": "#FFFF0050", "column": 84 }
-  ]
+  ],
+  "[terraform]": {
+    "editor.formatOnSave": false
+  },
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "typescript.updateImportsOnFileMove.enabled": "always"
 }

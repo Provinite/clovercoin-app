@@ -100,3 +100,41 @@ type B<T> = PrefixChildObjectKeys<T, ".">;
  */
 export type Flatten<P extends { [key: string | symbol]: any }> = Omit<P, A<P>> &
   PickAndFlatten<B<P>, A<B<P>>>;
+
+// type Car<T extends string> = T extends `${infer U}.${string}` ? U : T;
+// type Cdr<T extends string> = T extends `${string}.${infer U}` ? U : T;
+
+// export type DeepPick<T, K extends string> = K extends keyof T
+//   ? { [x in K]: T[x] }
+//   : Car<K> extends keyof T
+//   ? {
+//       [x in Car<K>]: T[x] extends any[]
+//         ? DeepPick<T[x][number], Cdr<K>>[]
+//         : DeepPick<T[x], Cdr<K>>;
+//     }
+//   : never;
+
+type Head<T extends string> = T extends `${infer First}.${string}` ? First : T;
+// type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
+//   k: infer I
+// ) => void
+//   ? I
+//   : never;
+type Tail<T extends string> = T extends `${string}.${infer Rest}`
+  ? Rest
+  : never;
+
+export type DeepPick<TObject, TKey extends string> = UnionToIntersection<
+  TObject extends object
+    ? TKey extends `${string}.${string}`
+      ? {
+          [P in Head<TKey> & keyof TObject]: DeepPick<
+            TObject[P],
+            Tail<Extract<TKey, `${P}.${string}`>>
+          >;
+        }
+      : TKey extends keyof TObject
+      ? Pick<TObject, TKey>
+      : never
+    : TObject
+>;

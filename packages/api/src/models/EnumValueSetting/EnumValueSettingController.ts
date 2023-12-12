@@ -1,11 +1,11 @@
 import { Repository } from "typeorm";
-import { EntityController } from "../../business/EntityController";
-import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { EnumValueSetting } from "./EnumValueSetting";
+import { EntityController } from "../../business/EntityController.js";
+import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { EnumValueSetting } from "./EnumValueSetting.js";
 
 export type EnumValueSettingCreate = Pick<
   EnumValueSetting,
-  "enumValueId" | "traitListId"
+  "enumValueId" | "speciesVariantId"
 >;
 
 export class EnumValueSettingController extends EntityController<
@@ -13,7 +13,10 @@ export class EnumValueSettingController extends EntityController<
   Repository<EnumValueSetting>,
   EnumValueSettingCreate
 > {
-  constructor({ enumValueSettingRepository }: AppGraphqlContext) {
-    super(enumValueSettingRepository);
+  constructor({
+    enumValueSettingRepository,
+    transactionProvider,
+  }: AppGraphqlContext) {
+    super(enumValueSettingRepository, transactionProvider);
   }
 }

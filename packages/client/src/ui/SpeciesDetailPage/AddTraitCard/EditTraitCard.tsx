@@ -1,19 +1,23 @@
-import { FunctionComponent, useCallback, useEffect, useMemo } from "react";
+import {
+  FunctionComponent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useFetcher, useParams } from "react-router-dom";
 import { Alert, Card, CardContent, CardHeader, Grid } from "@mui/material";
 import { slugToUuid } from "../../../utils/uuidUtils";
 import { AppRoutes } from "../../AppRoutes";
-import { useRouteCommunity } from "../../../useRouteCommunity";
-import { useRouteSpecies } from "../useRouteSpecies";
-import {
-  SequentialSnackbar,
-  useSnackbarQueue,
-} from "../../SequentialSnackbar/SequentialSnackbar";
+import { useRouteCommunityOrFail } from "../../../useRouteCommunity";
+import { useRouteSpeciesOrFail } from "../useRouteSpecies";
 import { TraitForm } from "./TraitForm/TraitForm";
 import { useTraitForm } from "./TraitForm/useTraitForm";
 import { TraitPreviewCard } from "./TraitPreviewCard";
 import { TraitActionAlert } from "./TraitActionAlert";
-import { useRouteTraits } from "../useRouteTraits";
+import { useRouteTraitsOrFail } from "../useRouteTraits";
+import { useSnackbar } from "../../SequentialSnackbar/SequentialSnackbarContext";
+import { usePageTitle } from "../../../hooks/usePageTitle";
 
 /**
  * Card component that allows adding and editing traits. Add/edit
@@ -21,14 +25,21 @@ import { useRouteTraits } from "../useRouteTraits";
  * @returns
  */
 export const EditTraitCard: FunctionComponent = () => {
-  const community = useRouteCommunity();
-  const species = useRouteSpecies();
+  const community = useRouteCommunityOrFail();
+  const species = useRouteSpeciesOrFail();
 
   const [form, setForm] = useTraitForm();
   const fetcher = useFetcher();
 
-  const { traits } = useRouteTraits();
+  const traits = useRouteTraitsOrFail();
   const { traitId: traitSlug } = useParams();
+
+  const snackbarQueue = useSnackbar();
+
+  const [pageTitle, setPageTitle] = useState(
+    `${community.name} - Edit ${species.name} Trait`
+  );
+  usePageTitle(pageTitle);
 
   /**
    * Current editing trait uuid
@@ -43,10 +54,14 @@ export const EditTraitCard: FunctionComponent = () => {
    */
   useEffect(() => {
     if (traitId) {
-      const existingTrait = traits.find((t) => t.id === traitId);
+      const existingTrait = traits.list.find((t) => t.id === traitId);
       if (!existingTrait) {
-        throw new Error("404");
+        snackbarQueue.appendSimpleError("Trait not found");
+        return;
       }
+      setPageTitle(
+        `${community.name} - ${species.name} - Modify ${existingTrait.name}`
+      );
       setForm({
         id: traitId,
         enumValues: [...existingTrait.enumValues],
@@ -69,7 +84,6 @@ export const EditTraitCard: FunctionComponent = () => {
     });
   }, []);
 
-  const snackbarQueue = useSnackbarQueue();
   const gridSizes = {
     xs: 6,
     lg: 4,
@@ -78,7 +92,6 @@ export const EditTraitCard: FunctionComponent = () => {
 
   return (
     <>
-      <SequentialSnackbar queue={snackbarQueue} />
       <CardHeader title="Edit" subheader="Tweak trait settings here" />
       <CardContent>
         <Grid container spacing={2}>

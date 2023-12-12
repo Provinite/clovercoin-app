@@ -1,14 +1,21 @@
-import { Repository } from "typeorm";
-import { EntityController } from "../../business/EntityController";
-import { AppGraphqlContext } from "../../graphql/AppGraphqlContext";
-import { CommunityMember } from "./CommunityMember";
+import { Repository } from "typeorm/repository/Repository.js";
+import { EntityController } from "../../business/EntityController.js";
+import type { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
+import { CommunityMember } from "./CommunityMember.js";
 
+export type CommunityMemberCreate = Pick<
+  CommunityMember,
+  "identityId" | "roleId"
+>;
 export class CommunityMemberController extends EntityController<
   CommunityMember,
   Repository<CommunityMember>,
-  any
+  CommunityMemberCreate
 > {
-  constructor({ communityMemberRepository }: AppGraphqlContext) {
-    super(communityMemberRepository);
+  constructor({
+    communityMemberRepository,
+    transactionProvider,
+  }: AppGraphqlContext) {
+    super(communityMemberRepository, transactionProvider);
   }
 }

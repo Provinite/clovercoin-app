@@ -3,10 +3,9 @@ import {
   GetSpeciesDetailQuery,
   NarrowToSpeciesList,
 } from "@clovercoin/api-client";
-import { HeaderBar } from "../HeaderBar/HeaderBar";
+import { HeaderBar, HeaderBarSpacer } from "../HeaderBar/HeaderBar";
 import { HeaderBarProps } from "../HeaderBar/HeaderBarProps";
-import { useRouteCommunity } from "../../useRouteCommunity";
-import { Toolbar } from "@mui/material";
+import { useRouteCommunityOrFail } from "../../useRouteCommunity";
 import { NavItem, SideNav } from "../SideNav/SideNav";
 import { AppRoutes } from "../AppRoutes";
 import InterestsIcon from "@mui/icons-material/Interests";
@@ -15,7 +14,9 @@ import NatureIcon from "@mui/icons-material/Nature";
 import SchemaIcon from "@mui/icons-material/Schema";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import SpaIcon from "@mui/icons-material/Spa";
-import { useRouteVariant } from "./useRouteTraitList";
+import { useRouteVariant } from "./useRouteVariant";
+import SettingsIcon from "@mui/icons-material/Settings";
+import { usePageTitle } from "../../hooks/usePageTitle";
 
 export interface SpeciesDetailPageProps {
   headerBarProps: HeaderBarProps;
@@ -30,7 +31,8 @@ export const SpeciesDetailPage: FC<SpeciesDetailPageProps> = ({
   species,
   children,
 }) => {
-  const community = useRouteCommunity();
+  const community = useRouteCommunityOrFail();
+  usePageTitle(`${community.name} - ${species.name}`);
   const variant = useRouteVariant();
   const navGroups = useMemo<NavItem[]>(() => {
     const communityId = community.id;
@@ -77,6 +79,11 @@ export const SpeciesDetailPage: FC<SpeciesDetailPageProps> = ({
               },
             ],
           },
+          {
+            to: AppRoutes.communitySettings(community.id),
+            children: "Community Settings",
+            icon: <SettingsIcon />,
+          },
         ],
       },
       {
@@ -91,7 +98,7 @@ export const SpeciesDetailPage: FC<SpeciesDetailPageProps> = ({
     <>
       <HeaderBar
         {...headerBarProps}
-        title={`${community.name}: Species - ${species.name}`}
+        title={`${community.name} - ${species.name}`}
       />
       <div
         css={{
@@ -102,7 +109,7 @@ export const SpeciesDetailPage: FC<SpeciesDetailPageProps> = ({
       >
         <SideNav navItems={navGroups} />
         <div css={{ flexGrow: 1 }}>
-          <Toolbar />
+          <HeaderBarSpacer />
           <div css={(theme) => ({ padding: theme.spacing(2) })}>{children}</div>
         </div>
       </div>
