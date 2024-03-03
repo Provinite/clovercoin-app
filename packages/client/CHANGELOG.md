@@ -1,3 +1,7 @@
+# 4.1.0
+
+- Added confirmation to community creation [#51](https://github.com/Provinite/clovercoin-app/issues/51)
+
 # 4.0.0
 
 - Login page now requests email address instead of username

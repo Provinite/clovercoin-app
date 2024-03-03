@@ -21,6 +21,10 @@ export const communityListLoader = async (_args: LoaderFunctionArgs) => {
   throw new Error("404");
 };
 
+/**
+ * POST /communities
+ * Create a community
+ */
 export const communityListAction = makeAction(
   {
     form: {
