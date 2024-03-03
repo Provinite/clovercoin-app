@@ -5,7 +5,8 @@ import {
   TraitListEntry,
 } from "@clovercoin/api-client";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-import ExpandLess from "@mui/icons-material/ExpandLess";
+import ChevronRight from "@mui/icons-material/ChevronRight";
+
 import {
   Typography,
   Switch,
@@ -13,11 +14,15 @@ import {
   Collapse,
   IconButton,
   Box,
+  Divider,
+  Stack,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { stylesheet } from "../../../utils/emotion";
 import { GridRow } from "../../lib/GridRow";
 import { TextStack } from "./TextStack";
+import { useRouteSpeciesOrFail } from "../useRouteSpecies";
+import { useRouteVariant } from "../useRouteVariant";
 
 type MinTrait = Pick<Trait, "id" | "name" | "valueType"> & {
   enumValues: Array<Pick<Trait["enumValues"][number], "id" | "name">>;
@@ -68,6 +73,9 @@ export const VariantTraitListEntryListItem = <
   EnumValueSettingPartial
 >) => {
   const [expanded, setExpanded] = useState(false);
+  const [renderCollapse, setRenderCollapse] = useState(false);
+  const species = useRouteSpeciesOrFail();
+  const variant = useRouteVariant();
   useEffect(() => {
     if (!traitListEntry || trait.valueType !== CritterTraitValueType.Enum) {
       setExpanded(false);
@@ -76,13 +84,26 @@ export const VariantTraitListEntryListItem = <
   return (
     <>
       <Grid container item xs={12} padding={0} margin={0}>
-        <GridRow xs={[3, 2, 2, 2, 3]} divider>
+        <GridRow xs={[3, 2, 2, 2, 3]} divider={!expanded}>
           {/* Name & Type */}
-          <TextStack
-            css={ss.gridItem}
-            primary={trait.name}
-            secondary={trait.valueType}
-          />
+          <div css={ss.nameCell}>
+            {(trait.valueType === CritterTraitValueType.Enum && (
+              <IconButton
+                disabled={!traitListEntry}
+                onClick={() => {
+                  setRenderCollapse(true);
+                  setExpanded((e) => !e);
+                }}
+              >
+                {expanded ? <ExpandMore /> : <ChevronRight />}
+              </IconButton>
+            )) || <div css={{ width: 40, height: 40 }}> </div>}
+            <TextStack
+              css={(theme) => ({ paddingLeft: theme.spacing(1) })}
+              primary={trait.name}
+              secondary={trait.valueType}
+            />
+          </div>
           {/* Order */}
           <div css={ss.gridItem}>
             <Typography variant="body1">
@@ -112,75 +133,72 @@ export const VariantTraitListEntryListItem = <
               }}
             />
           </div>
-          {/* Expand  */}
-          <div css={ss.gridItem}>
-            <Box>
-              {trait.valueType === CritterTraitValueType.Enum && (
-                <IconButton
-                  disabled={!traitListEntry}
-                  onClick={() => setExpanded((e) => !e)}
-                >
-                  {expanded ? <ExpandLess /> : <ExpandMore />}
-                </IconButton>
-              )}
-            </Box>
-          </div>
+          <></>
         </GridRow>
       </Grid>
       {trait.valueType === CritterTraitValueType.Enum && (
-        <Grid item xs={12} css={(theme) => ({ marginLeft: theme.spacing(4) })}>
-          <Collapse in={expanded}>
-            <Grid container>
-              <GridRow xs={[2, 10]} divider={false}>
-                <Typography padding={1} variant="body1" color="text.secondary">
-                  Allowed
-                </Typography>
-                <Typography padding={1} variant="body1" color="text.secondary">
-                  Option
-                </Typography>
-              </GridRow>
-              {trait.enumValues.map((enumValue, i) => {
-                const enumValueSetting = enumValueSettings?.find(
-                  ({ enumValueId }) => enumValue.id === enumValueId
-                );
-                const valueEnabled = Boolean(enumValueSetting);
+        <Grid item xs={12}>
+          <Collapse in={expanded} onExited={() => setRenderCollapse(false)}>
+            {renderCollapse && (
+              <>
+                <Box css={ss.collapse}>
+                  <TextStack
+                    css={ss.helperText}
+                    primary="Allowed Trait Values"
+                    secondary={`Control what values a ${variant?.name ?? ""} ${
+                      species.name
+                    } can use here.`}
+                  />
+                  <Grid container spacing={4}>
+                    {trait.enumValues.map((enumValue) => {
+                      const enumValueSetting = enumValueSettings?.find(
+                        ({ enumValueId }) => enumValue.id === enumValueId
+                      );
+                      const valueEnabled = Boolean(enumValueSetting);
 
-                return (
-                  <GridRow
-                    xs={[2, 10]}
-                    divider={i === trait.enumValues.length - 1}
-                    key={enumValue.id}
-                  >
-                    <Box css={(theme) => ({ paddingLeft: theme.spacing(2) })}>
-                      <Switch
-                        disabled={!traitListEntry}
-                        checked={valueEnabled}
-                        onChange={() => {
-                          onEnumValueEnabledChange(
-                            trait,
-                            enumValue,
-                            !valueEnabled,
-                            enumValueSetting
-                          );
-                        }}
-                      />
-                    </Box>
-                    <Box
-                      css={[
-                        ss.gridItem,
-                        (theme) => ({ paddingLeft: theme.spacing(2) }),
-                      ]}
-                    >
-                      <Typography
-                        color={valueEnabled ? "inherit" : "text.secondary"}
-                      >
-                        {enumValue.name}
-                      </Typography>
-                    </Box>
-                  </GridRow>
-                );
-              })}
-            </Grid>
+                      return (
+                        <Grid item xs={"auto"}>
+                          <Stack direction="row" alignItems="center">
+                            <Box
+                              css={(theme) => ({
+                                paddingLeft: theme.spacing(1),
+                              })}
+                            >
+                              <Switch
+                                disabled={!traitListEntry}
+                                checked={valueEnabled}
+                                onChange={() => {
+                                  onEnumValueEnabledChange(
+                                    trait,
+                                    enumValue,
+                                    !valueEnabled,
+                                    enumValueSetting
+                                  );
+                                }}
+                              />
+                            </Box>
+                            <Box
+                              css={[
+                                (theme) => ({ paddingLeft: theme.spacing(1) }),
+                              ]}
+                            >
+                              <Typography
+                                color={
+                                  valueEnabled ? "inherit" : "text.secondary"
+                                }
+                              >
+                                {enumValue.name}
+                              </Typography>
+                            </Box>
+                          </Stack>
+                        </Grid>
+                      );
+                    })}
+                  </Grid>
+                </Box>
+                <Divider />
+              </>
+            )}
           </Collapse>
         </Grid>
       )}
@@ -193,11 +211,20 @@ const ss = stylesheet({
     padding: theme.spacing(1),
     color: theme.palette.text.secondary,
   }),
+  collapse: (theme) => ({
+    padding: theme.spacing(2),
+    paddingLeft: theme.spacing(8),
+  }),
   gridItem: (theme) => ({
-    flexGrow: 1,
-    padding: theme.spacing(1),
+    padding: theme.spacing(2),
+  }),
+  nameCell: (theme) => ({
     display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
+    flexDirection: "row",
+    alignItems: "flex-start",
+    padding: theme.spacing(2),
+  }),
+  helperText: (theme) => ({
+    paddingBottom: theme.spacing(2),
   }),
 });

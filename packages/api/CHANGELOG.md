@@ -1,3 +1,7 @@
+# 6.0.1
+
+- Version bump to fix build issue
+
 # 6.0.0
 
 - Makes the `username` and `password` fields required on `RegisterArgs`

@@ -1,3 +1,7 @@
+# 4.2.0
+
+- Improved UI/UX around lists with collapsable rows. [#49](https://github.com/Provinite/clovercoin-app/issues/49)
+
 # 4.1.1
 
 - Improved performance of global users list [[#50](https://github.com/Provinite/clovercoin-app/issues/50)]

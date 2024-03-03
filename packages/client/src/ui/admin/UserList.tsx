@@ -6,11 +6,12 @@ import {
   isIdentityList,
   isNotAuthenticatedError,
 } from "@clovercoin/api-client";
-import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
+import ChevronRight from "@mui/icons-material/ChevronRight";
 import {
   Box,
   Collapse,
+  Divider,
   FormControl,
   FormControlLabel,
   FormHelperText,
@@ -19,7 +20,7 @@ import {
   Switch,
   Typography,
 } from "@mui/material";
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { useFetcher } from "react-router-dom";
 import { useBounceToLogin } from "../../hooks/useBounceToLogin";
 import { ActionData, RouteType } from "../../routes";
@@ -93,73 +94,82 @@ const permissions: Record<
 const permKeys = Object.keys(permissions) as Array<keyof typeof permissions>;
 const UserListItem: FC<UserListItemProps> = ({ identity }) => {
   const [expanded, setExpanded] = useState(false);
+  const [renderCollapse, setRenderCollapse] = useState(false);
   const { submit, state } =
     useFetcher<ActionData<RouteType<"root.identity">>>();
   return (
     <>
-      <GridRow key={identity.id} xs={[3, 3, 1, 5]}>
+      <GridRow key={identity.id} xs={[3, 3, 6]} divider={!expanded}>
         <Typography p={2} variant="body1">
+          <IconButton
+            onClick={() => {
+              setRenderCollapse(true);
+              setExpanded((e) => !e);
+            }}
+          >
+            {expanded ? <ExpandMore /> : <ChevronRight />}
+          </IconButton>
           {identity.displayName}
         </Typography>
         <Typography p={2} variant="body1">
           {identity.email}
         </Typography>
-        <Box css={[ss.cell, ss.expandCell]}>
-          <IconButton onClick={() => setExpanded((e) => !e)}>
-            {expanded ? <ExpandLess /> : <ExpandMore />}
-          </IconButton>
-        </Box>
         <></>
       </GridRow>
       <Grid item xs={12}>
-        {expanded && (
-          <Collapse in={expanded}>
-            <Box css={ss.collapse}>
-              <TextStack
-                css={ss.permissionsText}
-                primary="Global Admin Permission Settings"
-                secondary={
-                  `Control what ${identity.displayName} can do here. ` +
-                  `Each checkbox below controls a set of related actions ` +
-                  `in the system.`
-                }
-              />
-              <Grid container rowGap={2}>
-                {permKeys.map((perm) => {
-                  const hasPermission = identity[perm] === true;
-                  const { label, helpText } = permissions[perm];
-                  return (
-                    <Grid item xs={6} key={perm}>
-                      <FormControl>
-                        <FormControlLabel
-                          control={
-                            <Switch
-                              disabled={state !== "idle"}
-                              checked={hasPermission}
-                              onChange={() => {
-                                const data = new FormData();
-                                data.set(
-                                  perm,
-                                  hasPermission ? "false" : "true"
-                                );
-                                submit(data, {
-                                  action: AppRoutes.identityDetail(identity.id),
-                                  method: "patch",
-                                });
-                              }}
-                            />
-                          }
-                          label={label}
-                        />
-                        <FormHelperText>{helpText}</FormHelperText>
-                      </FormControl>
-                    </Grid>
-                  );
-                })}
-              </Grid>
-            </Box>
-          </Collapse>
-        )}
+        <Collapse onExited={() => setRenderCollapse(false)} in={expanded}>
+          {renderCollapse && (
+            <>
+              <Box css={ss.collapse}>
+                <TextStack
+                  css={ss.permissionsText}
+                  primary="Global Admin Permission Settings"
+                  secondary={
+                    `Control what ${identity.displayName} can do here. ` +
+                    `Each checkbox below controls a set of related actions ` +
+                    `in the system.`
+                  }
+                />
+                <Grid container rowGap={2}>
+                  {permKeys.map((perm) => {
+                    const hasPermission = identity[perm] === true;
+                    const { label, helpText } = permissions[perm];
+                    return (
+                      <Grid item xs={6} key={perm}>
+                        <FormControl>
+                          <FormControlLabel
+                            control={
+                              <Switch
+                                disabled={state !== "idle"}
+                                checked={hasPermission}
+                                onChange={() => {
+                                  const data = new FormData();
+                                  data.set(
+                                    perm,
+                                    hasPermission ? "false" : "true"
+                                  );
+                                  submit(data, {
+                                    action: AppRoutes.identityDetail(
+                                      identity.id
+                                    ),
+                                    method: "patch",
+                                  });
+                                }}
+                              />
+                            }
+                            label={label}
+                          />
+                          <FormHelperText>{helpText}</FormHelperText>
+                        </FormControl>
+                      </Grid>
+                    );
+                  })}
+                </Grid>
+              </Box>
+              <Divider />
+            </>
+          )}
+        </Collapse>
       </Grid>
     </>
   );
@@ -177,8 +187,8 @@ const ss = stylesheet({
     paddingLeft: theme.spacing(2),
   }),
   collapse: (theme) => ({
-    paddingTop: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
+    padding: theme.spacing(2),
+    paddingLeft: theme.spacing(8),
   }),
   permissionsText: (theme) => ({
     marginBottom: theme.spacing(2),
