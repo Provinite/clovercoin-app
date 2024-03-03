@@ -5,13 +5,13 @@ import { IsValidPassword } from "../../validation/IsValidPassword.js";
 
 @InputType()
 export class RegisterArgs {
-  @Field(() => String)
+  @Field(() => String, { nullable: false })
   @MinLength(1)
-  username: string = "";
+  username!: string;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: false })
   @IsValidPassword()
-  password: string = "";
+  password!: string;
 
   @Field(() => String, { nullable: false })
   @IsEmail({

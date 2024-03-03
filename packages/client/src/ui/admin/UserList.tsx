@@ -19,7 +19,7 @@ import {
   Switch,
   Typography,
 } from "@mui/material";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import { useFetcher } from "react-router-dom";
 import { useBounceToLogin } from "../../hooks/useBounceToLogin";
 import { ActionData, RouteType } from "../../routes";
@@ -40,13 +40,14 @@ export const UserList: FC<UserListProps> = () => {
   if (data && isIdentityList(data.identities)) {
     return (
       <Grid container component={Box}>
-        <GridRow xs={[6, 6]}>
+        <GridRow xs={[3, 3, 6]}>
           <Typography p={1} variant="body1" color="text.secondary">
             Username
           </Typography>
           <Typography p={1} variant="body1" color="text.secondary">
             Email
           </Typography>
+          <></>
         </GridRow>
         {data.identities.list.map((identity) => (
           <UserListItem identity={identity} key={identity.id} />
@@ -110,49 +111,56 @@ const UserListItem: FC<UserListItemProps> = ({ identity }) => {
         </Box>
         <></>
       </GridRow>
-      <Collapse in={expanded}>
-        <Box css={ss.collapse}>
-          <TextStack
-            css={ss.permissionsText}
-            primary="Global Admin Permission Settings"
-            secondary={
-              `Control what ${identity.displayName} can do here. ` +
-              `Each checkbox below controls a set of related actions ` +
-              `in the system.`
-            }
-          />
-          <Grid container rowGap={2}>
-            {permKeys.map((perm) => {
-              const hasPermission = identity[perm] === true;
-              const { label, helpText } = permissions[perm];
-              return (
-                <Grid item xs={6} key={perm}>
-                  <FormControl>
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          disabled={state !== "idle"}
-                          checked={hasPermission}
-                          onChange={() => {
-                            const data = new FormData();
-                            data.set(perm, hasPermission ? "false" : "true");
-                            submit(data, {
-                              action: AppRoutes.identityDetail(identity.id),
-                              method: "patch",
-                            });
-                          }}
+      <Grid item xs={12}>
+        {expanded && (
+          <Collapse in={expanded}>
+            <Box css={ss.collapse}>
+              <TextStack
+                css={ss.permissionsText}
+                primary="Global Admin Permission Settings"
+                secondary={
+                  `Control what ${identity.displayName} can do here. ` +
+                  `Each checkbox below controls a set of related actions ` +
+                  `in the system.`
+                }
+              />
+              <Grid container rowGap={2}>
+                {permKeys.map((perm) => {
+                  const hasPermission = identity[perm] === true;
+                  const { label, helpText } = permissions[perm];
+                  return (
+                    <Grid item xs={6} key={perm}>
+                      <FormControl>
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              disabled={state !== "idle"}
+                              checked={hasPermission}
+                              onChange={() => {
+                                const data = new FormData();
+                                data.set(
+                                  perm,
+                                  hasPermission ? "false" : "true"
+                                );
+                                submit(data, {
+                                  action: AppRoutes.identityDetail(identity.id),
+                                  method: "patch",
+                                });
+                              }}
+                            />
+                          }
+                          label={label}
                         />
-                      }
-                      label={label}
-                    />
-                    <FormHelperText>{helpText}</FormHelperText>
-                  </FormControl>
-                </Grid>
-              );
-            })}
-          </Grid>
-        </Box>
-      </Collapse>
+                        <FormHelperText>{helpText}</FormHelperText>
+                      </FormControl>
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            </Box>
+          </Collapse>
+        )}
+      </Grid>
     </>
   );
 };

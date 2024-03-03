@@ -626,8 +626,8 @@ export interface QueryTraitsArgs {
 export interface RegisterArgs {
   email: Scalars["String"];
   inviteCodeId: Scalars["String"];
-  password?: InputMaybe<Scalars["String"]>;
-  username?: InputMaybe<Scalars["String"]>;
+  password: Scalars["String"];
+  username: Scalars["String"];
 }
 
 export type RegisterResponse =

@@ -1,6 +1,6 @@
 {
   "name": "@clovercoin/client",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "scripts": {
     "start": "parcel --no-autoinstall src/index.html",
     "storybook": "start-storybook -p 6006",

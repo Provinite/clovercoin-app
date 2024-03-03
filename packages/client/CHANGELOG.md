@@ -1,3 +1,7 @@
+# 4.1.1
+
+- Improved performance of global users list [[#50](https://github.com/Provinite/clovercoin-app/issues/50)]
+
 # 4.1.0
 
 - Added confirmation to community creation [#51](https://github.com/Provinite/clovercoin-app/issues/51)

@@ -383,8 +383,8 @@ type Query {
 input RegisterArgs {
   email: String!
   inviteCodeId: String!
-  password: String = ""
-  username: String = ""
+  password: String!
+  username: String!
 }
 
 union RegisterResponse = DuplicateError | InvalidArgumentError | LoginSuccessResponse

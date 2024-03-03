@@ -1,3 +1,8 @@
+# 6.0.0
+
+- Makes the `username` and `password` fields required on `RegisterArgs`
+- Adds seeds to create additional test users
+
 # 5.0.1
 
 - Fixes the application crashing when removing a trait from a species variant

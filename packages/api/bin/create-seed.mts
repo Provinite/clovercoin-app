@@ -95,7 +95,7 @@ function transformTemplate(
 }
 
 function getTemplate() {
-  return readFileSync(join(sourcePath, "seed-template.mts")).toString();
+  return readFileSync(join(sourcePath, "seed-template.ts")).toString();
 }
 
 function rewriteRelativePath(

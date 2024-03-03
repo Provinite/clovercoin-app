@@ -2,7 +2,7 @@
   "name": "@clovercoin/api-client",
   "private": true,
   "main": "dist/index.js",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "scripts": {
     "clean": "rm -rf ./dist/ ./src/generated/",
     "build": "tsc && graphql-codegen --config codegen.yml && node ./dist/generate-services.js && eslint --fix ./src/generated && tsc"
