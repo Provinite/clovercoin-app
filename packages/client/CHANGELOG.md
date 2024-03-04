@@ -1,3 +1,7 @@
+# 4.2.1
+
+- Improved visibility of alerts, consolidated alerts to a shared component. [#39](https://github.com/Provinite/clovercoin-app/issues/39)
+
 # 4.2.0
 
 - Improved UI/UX around lists with collapsable rows. [#49](https://github.com/Provinite/clovercoin-app/issues/49)

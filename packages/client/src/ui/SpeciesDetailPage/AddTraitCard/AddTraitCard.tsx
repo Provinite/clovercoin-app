@@ -9,9 +9,9 @@ import { useRouteSpeciesOrFail } from "../useRouteSpecies";
 import { TraitForm, TraitFormProps } from "./TraitForm/TraitForm";
 import { useTraitForm } from "./TraitForm/useTraitForm";
 import { TraitPreviewCard } from "./TraitPreviewCard";
-import { TraitActionAlert } from "./TraitActionAlert";
 import { useSnackbar } from "../../SequentialSnackbar/SequentialSnackbarContext";
 import { usePageTitle } from "../../../hooks/usePageTitle";
+import { AppAlert } from "../../SequentialSnackbar/AppAlert";
 /**
  * Card component that allows adding and editing traits. Add/edit
  * mode are controlled by the current route.
@@ -47,9 +47,14 @@ export const AddTraitCard: FunctionComponent = () => {
 
     snackbarQueue.append({
       children: (
-        <TraitActionAlert
-          linkTo={AppRoutes.speciesTraitList(community.id, species.id)}
-          onClose={snackbarQueue.close}
+        <AppAlert
+          severity="success"
+          text="Trait Saved"
+          snackbarQueue={snackbarQueue}
+          actionLink={{
+            to: AppRoutes.speciesTraitList(community.id, species.id),
+            text: "Return to list",
+          }}
         />
       ),
     });

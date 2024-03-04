@@ -6,7 +6,7 @@ import {
   useState,
 } from "react";
 import { useFetcher, useParams } from "react-router-dom";
-import { Alert, Card, CardContent, CardHeader, Grid } from "@mui/material";
+import { Card, CardContent, CardHeader, Grid } from "@mui/material";
 import { slugToUuid } from "../../../utils/uuidUtils";
 import { AppRoutes } from "../../AppRoutes";
 import { useRouteCommunityOrFail } from "../../../useRouteCommunity";
@@ -14,10 +14,10 @@ import { useRouteSpeciesOrFail } from "../useRouteSpecies";
 import { TraitForm } from "./TraitForm/TraitForm";
 import { useTraitForm } from "./TraitForm/useTraitForm";
 import { TraitPreviewCard } from "./TraitPreviewCard";
-import { TraitActionAlert } from "./TraitActionAlert";
 import { useRouteTraitsOrFail } from "../useRouteTraits";
 import { useSnackbar } from "../../SequentialSnackbar/SequentialSnackbarContext";
 import { usePageTitle } from "../../../hooks/usePageTitle";
+import { AppAlert } from "../../SequentialSnackbar/AppAlert";
 
 /**
  * Card component that allows adding and editing traits. Add/edit
@@ -76,9 +76,14 @@ export const EditTraitCard: FunctionComponent = () => {
   const onSuccess = useCallback(() => {
     snackbarQueue.append({
       children: (
-        <TraitActionAlert
-          linkTo={AppRoutes.speciesTraitList(community.id, species.id)}
-          onClose={snackbarQueue.close}
+        <AppAlert
+          severity="success"
+          text="Trait Saved"
+          snackbarQueue={snackbarQueue}
+          actionLink={{
+            to: AppRoutes.speciesTraitList(community.id, species.id),
+            text: "Return to list",
+          }}
         />
       ),
     });
@@ -111,9 +116,11 @@ export const EditTraitCard: FunctionComponent = () => {
                   onError={(err) => {
                     snackbarQueue.append({
                       children: (
-                        <Alert onClose={snackbarQueue.close} severity="error">
-                          {err.__typename}: {err.message}
-                        </Alert>
+                        <AppAlert
+                          snackbarQueue={snackbarQueue}
+                          severity="error"
+                          text={`${err.__typename}: ${err.message}`}
+                        />
                       ),
                     });
                   }}

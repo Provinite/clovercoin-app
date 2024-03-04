@@ -1,11 +1,7 @@
-import {
-  Alert,
-  Snackbar,
-  SnackbarCloseReason,
-  SnackbarProps,
-} from "@mui/material";
+import { Snackbar, SnackbarCloseReason, SnackbarProps } from "@mui/material";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useInterval } from "../../utils/useInterval";
+import { AppAlert } from "./AppAlert";
 import { SnackbarQueue } from "./SnackbarQueue";
 
 /**
@@ -77,7 +73,7 @@ export const SequentialSnackbar: FC<SequentialSnackbarProps> = ({ queue }) => {
       return;
     }
     const msOpened = Date.now() - lastOpenedAtRef.current;
-    if (msOpened >= 6000) {
+    if (msOpened >= Infinity) {
       queue.shift();
       queue.close();
     }
@@ -86,6 +82,7 @@ export const SequentialSnackbar: FC<SequentialSnackbarProps> = ({ queue }) => {
   return (
     <Snackbar
       {...curSnackbarProps}
+      anchorOrigin={{ horizontal: "center", vertical: "top" }}
       open={queue.isOpen}
       onClose={queue.close}
       TransitionProps={{
@@ -134,9 +131,7 @@ export function useSnackbarQueue(): SnackbarQueue {
     () => (msg) =>
       append({
         children: (
-          <Alert severity="error" onClose={close}>
-            {msg}
-          </Alert>
+          <AppAlert severity="error" snackbarQueue={{ close }} text={msg} />
         ),
       }),
     [append, close]
@@ -145,9 +140,7 @@ export function useSnackbarQueue(): SnackbarQueue {
     () => (msg) =>
       append({
         children: (
-          <Alert severity="success" onClose={close}>
-            {msg}
-          </Alert>
+          <AppAlert severity="success" snackbarQueue={{ close }} text={msg} />
         ),
       }),
     [append, close]

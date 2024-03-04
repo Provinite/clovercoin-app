@@ -26,6 +26,7 @@ import { GridRow } from "../../lib/GridRow";
 import { Link } from "../../Link/Link";
 import { useSnackbar } from "../../SequentialSnackbar/SequentialSnackbarContext";
 import { usePageTitle } from "../../../hooks/usePageTitle";
+import { AppAlert } from "../../SequentialSnackbar/AppAlert";
 
 export const TraitListCard: FunctionComponent = () => {
   const data = useRouteTraitsOrFail();
@@ -47,13 +48,11 @@ export const TraitListCard: FunctionComponent = () => {
       setLoading(false);
       snackbarQueue.append({
         children: (
-          <Alert
-            css={{ width: "100%" }}
+          <AppAlert
             severity="success"
-            onClose={snackbarQueue.close}
-          >
-            Trait Deleted
-          </Alert>
+            snackbarQueue={snackbarQueue}
+            text="Trait Deleted"
+          />
         ),
       });
     }

@@ -16,6 +16,7 @@ import { useSnackbar } from "../SequentialSnackbar/SequentialSnackbarContext";
 import { useBounceToLogin } from "../../hooks/useBounceToLogin";
 import { InviteCodeCreateForm } from "../InviteCodeCreateForm/InviteCodeCreateForm";
 import { useRouteCommunity } from "../../useRouteCommunity";
+import { AppAlert } from "../SequentialSnackbar/AppAlert";
 
 export interface InviteCodeListProps {}
 export const InviteCodeList: FC<InviteCodeListProps> = () => {
@@ -78,13 +79,11 @@ export const InviteCodeList: FC<InviteCodeListProps> = () => {
                   );
                   snackbarQueue.append({
                     children: (
-                      <Alert
-                        variant="filled"
+                      <AppAlert
+                        snackbarQueue={snackbarQueue}
                         severity="success"
-                        onClose={snackbarQueue.close}
-                      >
-                        Link copied: {inviteCode.id}
-                      </Alert>
+                        text={`Link copied: ${inviteCode.id}`}
+                      />
                     ),
                   });
                 }}

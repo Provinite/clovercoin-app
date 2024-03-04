@@ -31,6 +31,7 @@ import { UserList } from "./UserList";
 import { InviteCodeList } from "../InviteCodeList/InviteCodeList";
 import { useSnackbar } from "../SequentialSnackbar/SequentialSnackbarContext";
 import { usePageTitle } from "../../hooks/usePageTitle";
+import { AppAlert } from "../SequentialSnackbar/AppAlert";
 
 export interface AdminPageProps {}
 export const AdminPage: FunctionComponent<AdminPageProps> = () => {
@@ -60,28 +61,15 @@ export const AdminPage: FunctionComponent<AdminPageProps> = () => {
       setName("");
       snackbarQueue.append({
         children: (
-          <Alert
-            variant="filled"
-            onClose={snackbarQueue.close}
+          <AppAlert
+            snackbarQueue={snackbarQueue}
+            text={`Created community ${name}`}
             severity="success"
-            css={{ width: "100%" }}
-            action={
-              <Link to={AppRoutes.speciesList(id)}>
-                <Button
-                  variant="text"
-                  size="small"
-                  css={(theme) => ({ marginRight: theme.spacing(1) })}
-                >
-                  View
-                </Button>
-                <IconButton size="small" onClick={snackbarQueue.close}>
-                  <CloseIcon fontSize="small" />
-                </IconButton>
-              </Link>
-            }
-          >
-            Created community {name}
-          </Alert>
+            actionLink={{
+              text: "View",
+              to: AppRoutes.speciesList(id),
+            }}
+          />
         ),
       });
     }

@@ -20,7 +20,7 @@ import {
   Switch,
   Typography,
 } from "@mui/material";
-import { FC, useEffect, useState } from "react";
+import { FC, memo, useCallback, useEffect, useState } from "react";
 import { useFetcher } from "react-router-dom";
 import { useBounceToLogin } from "../../hooks/useBounceToLogin";
 import { ActionData, RouteType } from "../../routes";
@@ -29,8 +29,10 @@ import { AppRoutes } from "../AppRoutes";
 import { GridRow } from "../lib/GridRow";
 import { TextStack } from "../SpeciesDetailPage/TraitListDetailCard/TextStack";
 
+const gridSize = [3, 3, 6];
+
 export interface UserListProps {}
-export const UserList: FC<UserListProps> = () => {
+export const UserListComponent: FC<UserListProps> = () => {
   const { data } = useQuery<GetIdentityListQuery>(GetIdentityListDocument);
   const bounce = useBounceToLogin();
   useEffect(() => {
@@ -41,7 +43,7 @@ export const UserList: FC<UserListProps> = () => {
   if (data && isIdentityList(data.identities)) {
     return (
       <Grid container component={Box}>
-        <GridRow xs={[3, 3, 6]}>
+        <GridRow xs={gridSize}>
           <Typography p={1} variant="body1" color="text.secondary">
             Username
           </Typography>
@@ -58,6 +60,11 @@ export const UserList: FC<UserListProps> = () => {
   }
   return <></>;
 };
+
+/**
+ * Memoized to resolve some nasty performance issues on the admin page.
+ */
+export const UserList = memo(UserListComponent);
 
 export interface UserListItemProps {
   identity: Pick<
@@ -99,25 +106,32 @@ const UserListItem: FC<UserListItemProps> = ({ identity }) => {
     useFetcher<ActionData<RouteType<"root.identity">>>();
   return (
     <>
-      <GridRow key={identity.id} xs={[3, 3, 6]} divider={!expanded}>
+      <Grid item xs={3}>
         <Typography p={2} variant="body1">
           <IconButton
-            onClick={() => {
+            onClick={useCallback(() => {
               setRenderCollapse(true);
               setExpanded((e) => !e);
-            }}
+            }, [])}
           >
             {expanded ? <ExpandMore /> : <ChevronRight />}
           </IconButton>
           {identity.displayName}
         </Typography>
+      </Grid>
+      <Grid item xs={3}>
         <Typography p={2} variant="body1">
           {identity.email}
         </Typography>
-        <></>
-      </GridRow>
+      </Grid>
       <Grid item xs={12}>
-        <Collapse onExited={() => setRenderCollapse(false)} in={expanded}>
+        <Divider />
+      </Grid>
+      <Grid item xs={12}>
+        <Collapse
+          onExited={useCallback(() => setRenderCollapse(false), [])}
+          in={expanded}
+        >
           {renderCollapse && (
             <>
               <Box css={ss.collapse}>
