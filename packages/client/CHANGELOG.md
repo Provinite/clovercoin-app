@@ -1,3 +1,7 @@
+# 4.2.2
+
+- Improved error page to avoid melting users' eyeballs. [#47](https://github.com/Provinite/clovercoin-app/issues/47)
+
 # 4.2.1
 
 - Improved visibility of alerts, consolidated alerts to a shared component. [#39](https://github.com/Provinite/clovercoin-app/issues/39)

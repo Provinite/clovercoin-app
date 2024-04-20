@@ -44,7 +44,7 @@ export const CommunityListPage: FC = () => {
           <HeaderBarSpacer />
           <div css={(theme) => ({ padding: theme.spacing(2) })}>
             <Card elevation={1}>
-              <CardHeader title={`Communities`} />
+              <CardHeader title="Communities" />
               <CardContent>
                 <Grid container component={Box}>
                   {communities.map((community) => (

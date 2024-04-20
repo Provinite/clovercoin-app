@@ -5,8 +5,12 @@ export interface HeaderBarContextType {
   props: HeaderBarProps;
 }
 
-export const HeaderBarContext = createContext<HeaderBarContextType>(
-  null as any
-);
+export const HeaderBarContext = createContext<HeaderBarContextType>({
+  props: {
+    title: "",
+    userIconUrl: "",
+    userName: "",
+  },
+});
 
 export const useHeaderBarProps = () => useContext(HeaderBarContext).props;
