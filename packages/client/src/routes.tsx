@@ -5,7 +5,6 @@
  */
 import { isCommunity, isNotAuthenticatedError } from "@clovercoin/api-client";
 import {
-  useRouteError,
   NonIndexRouteObject,
   IndexRouteObject,
   Navigate,
@@ -19,19 +18,13 @@ import { adminRoutes } from "./ui/admin/routes/adminRoutes";
 import { AppRoutes } from "./ui/AppRoutes";
 import { communityListRoutes } from "./ui/CommunityListPage/communityListRoutes";
 import { communitySettingsRoutes } from "./ui/CommunitySettingsPage/communitySettingsRoutes";
+import { ErrorPage } from "./ui/ErrorPage/ErrorPage";
 import { loginRoutes } from "./ui/LoginPage/loginRoutes";
 import { SpeciesDetailRoutes } from "./ui/SpeciesDetailPage/routes/SpeciesDetailRoutes";
 import { speciesListRoutes } from "./ui/SpeciesListPage/speciesListRoutes";
 import { userSettingsRoutes } from "./ui/UserSettingsPage/userSettingsRoutes";
-import { PrettyPrintJson } from "./ui/util/PrettyPrintJson";
 import { makeLoader } from "./utils/loaderUtils";
 import { globalSnackbarTopic } from "./utils/observables/topics/globalSnackbarTopic";
-
-const PrintError = () => {
-  const error = useRouteError();
-  console.log(error);
-  return <PrettyPrintJson value={error} />;
-};
 
 const communityDetailLoader = makeLoader(
   {
@@ -64,7 +57,7 @@ export const routes = [
   typedRouteConfig({
     id: "root",
     element: <Application />,
-    errorElement: <PrintError />,
+    errorElement: <ErrorPage />,
     children: [
       ...aboutRoutes(),
       ...loginRoutes(),

@@ -6,7 +6,7 @@ import {
   isInviteCodeList,
   isNotAuthenticatedError,
 } from "@clovercoin/api-client";
-import { Alert, Grid, IconButton, Stack, Typography } from "@mui/material";
+import { Grid, IconButton, Stack, Typography } from "@mui/material";
 import { FC, useEffect } from "react";
 import { AppRoutes } from "../AppRoutes";
 import { GridRow } from "../lib/GridRow";
