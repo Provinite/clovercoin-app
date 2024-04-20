@@ -42,6 +42,7 @@ export interface CritterFormProps {
   dispatch: CritterFormStateDispatch;
   method: "post" | "put";
   action: string;
+  submitButtonText: string;
 }
 export const CritterForm: FC<CritterFormProps> = ({
   species,
@@ -50,6 +51,7 @@ export const CritterForm: FC<CritterFormProps> = ({
   method,
   action,
   dispatch,
+  submitButtonText,
 }) => {
   const makeHandler =
     <K extends keyof CritterFormState>(key: K) =>
@@ -89,7 +91,12 @@ export const CritterForm: FC<CritterFormProps> = ({
           onChange={(e) => {
             setVariantId(e.target.value || null);
           }}
-          helperText="The critter's variant determines what traits and values are available."
+          error={species.variants.length === 0}
+          helperText={`${
+            species.variants.length
+              ? "The critter's variant determines what traits and values are available."
+              : "This species does not have any variants configured. Contact species owner."
+          }`}
         >
           <MenuItem value={""}>Choose a variant</MenuItem>
           {species.variants.map(({ id, name }) => (
@@ -162,7 +169,7 @@ export const CritterForm: FC<CritterFormProps> = ({
           type="submit"
           loading={fetcher.state !== "idle"}
         >
-          Create
+          {submitButtonText}
         </LoadingButton>
       </CardActions>
     </fetcher.Form>

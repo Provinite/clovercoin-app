@@ -1,3 +1,10 @@
+# 4.2.3
+
+- Creating a critter now shows a notification [#40](https://github.com/Provinite/clovercoin-app/issues/40)
+- Editing a critter now shows a notification [#40](https://github.com/Provinite/clovercoin-app/issues/40)
+- The save button on the Edit Critter page now says Save instead of Create [#42](https://github.com/Provinite/clovercoin-app/issues/42)
+- The critter create page now shows a helpful error message when there are no variants defined for the species. [#38](https://github.com/Provinite/clovercoin-app/issues/38) thanks @Owlscape
+
 # 4.2.2
 
 - Improved error page to avoid melting users' eyeballs. [#47](https://github.com/Provinite/clovercoin-app/issues/47)
