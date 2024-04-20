@@ -91,7 +91,12 @@ export const CritterForm: FC<CritterFormProps> = ({
           onChange={(e) => {
             setVariantId(e.target.value || null);
           }}
-          helperText="The critter's variant determines what traits and values are available."
+          error={species.variants.length === 0}
+          helperText={`${
+            species.variants.length
+              ? "The critter's variant determines what traits and values are available."
+              : "This species does not have any variants configured. Contact species owner."
+          }`}
         >
           <MenuItem value={""}>Choose a variant</MenuItem>
           {species.variants.map(({ id, name }) => (
