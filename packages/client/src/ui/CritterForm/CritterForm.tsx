@@ -42,6 +42,7 @@ export interface CritterFormProps {
   dispatch: CritterFormStateDispatch;
   method: "post" | "put";
   action: string;
+  submitButtonText: string;
 }
 export const CritterForm: FC<CritterFormProps> = ({
   species,
@@ -50,6 +51,7 @@ export const CritterForm: FC<CritterFormProps> = ({
   method,
   action,
   dispatch,
+  submitButtonText,
 }) => {
   const makeHandler =
     <K extends keyof CritterFormState>(key: K) =>
@@ -162,7 +164,7 @@ export const CritterForm: FC<CritterFormProps> = ({
           type="submit"
           loading={fetcher.state !== "idle"}
         >
-          Create
+          {submitButtonText}
         </LoadingButton>
       </CardActions>
     </fetcher.Form>

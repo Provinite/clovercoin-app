@@ -401,7 +401,7 @@ const critterCreateAction = makeAction(
       traitId,
       value: values[i],
     }));
-    await graphqlService.createCritter({
+    const result = await graphqlService.createCritter({
       variables: {
         input: {
           name,
@@ -438,6 +438,8 @@ const critterCreateAction = makeAction(
         });
       },
     });
+
+    return result.data.createCritter;
   }
 );
 

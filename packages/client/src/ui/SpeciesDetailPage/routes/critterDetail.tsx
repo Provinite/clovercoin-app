@@ -33,7 +33,7 @@ export const critterDetailAction = makeAction(
       traitId,
       value: traitValues[i],
     }));
-    await graphqlService.modifyCritter({
+    const result = await graphqlService.modifyCritter({
       variables: {
         input: {
           id: critterId,
@@ -70,6 +70,8 @@ export const critterDetailAction = makeAction(
         );
       },
     });
+
+    return result.data.modifyCritter;
   }
 );
 export const critterDetailLoader = makeLoader(
