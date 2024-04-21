@@ -55,7 +55,7 @@
     "winston": "^3.8.2"
   },
   "devDependencies": {
-    "@apollo/client": "3.7.1",
+    "@apollo/client": "3.9.11",
     "@aws-sdk/types": "^3.272.0",
     "@clovercoin/api-client": "workspace:packages/api-client",
     "@graphql-typed-document-node/core": "^3.2.0",
