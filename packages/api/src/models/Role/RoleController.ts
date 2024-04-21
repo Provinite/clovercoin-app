@@ -1,4 +1,4 @@
-import { FindOptionsWhere, In, Repository } from "typeorm";
+import { And, Equal, FindOptionsWhere, In, Repository } from "typeorm";
 import { EntityController } from "../../business/EntityController.js";
 import { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
 import { Identity } from "../Identity/Identity.js";
@@ -32,9 +32,18 @@ export class RoleController extends EntityController<
     }
     return {
       ...findWhere,
-      communityId: In(
-        this.principal.communityMemberships.map((cm) => cm.role.communityId)
+      communityId: And<string>(
+        In(
+          this.principal.communityMemberships.map((cm) => cm.role.communityId)
+        ),
+        ...[
+          findWhere.communityId ? Equal(findWhere.communityId) : undefined,
+        ].filter(isDefined)
       ),
     };
   }
+}
+
+function isDefined<T>(t: T | undefined | null): t is T {
+  return t !== undefined && t !== null;
 }
