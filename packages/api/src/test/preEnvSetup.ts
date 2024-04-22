@@ -36,19 +36,13 @@ logger.info({
 });
 
 export const shutdown = async () => {
-  const port = global.ccPostgresContainer?.getPort();
   // shutdown app server
   await new Promise<void>((res, rej) =>
     server.close((err) => (err ? rej(err) : res()))
   );
   await dataSource.destroy();
   await dropTestDb();
-  logger.info({
-    message: "Stopped postgres container",
-    port,
-  });
 
   global.ccAppAddress = undefined;
-  global.ccPostgresContainer = undefined;
   global.ccAppContainer = undefined;
 };
