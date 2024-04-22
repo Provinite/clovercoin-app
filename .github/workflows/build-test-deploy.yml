@@ -2,6 +2,8 @@
 # https://github.com/github/docs/blob/main/content/actions/learn-github-actions/expressions.md
 name: Build, Test, Deploy Everything
 on: push
+env:
+  CC_JWT_SECRET: SomeNonSenseSecretThatDoesntMatter
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
