@@ -1,30 +1,8 @@
-import { ApolloClient, InMemoryCache } from "@apollo/client/core";
-import { GraphqlService } from "@clovercoin/api-client";
 import { GraphQLClient } from "graphql-request";
 
-export let testApolloClient: ApolloClient<any>;
-export let testClient: GraphqlService;
-export let newTestClient: GraphQLClient;
+export let testClient: GraphQLClient;
 
 export const setupTestClient = () => {
   const { port } = global.ccAppAddress!;
-  const client = new ApolloClient({
-    cache: new InMemoryCache(),
-    uri: `http://localhost:${port}/`,
-    defaultOptions: {
-      watchQuery: {
-        fetchPolicy: "no-cache",
-        errorPolicy: "ignore",
-      },
-      query: {
-        fetchPolicy: "no-cache",
-        errorPolicy: "all",
-      },
-    },
-  });
-
-  testApolloClient = client;
-
-  testClient = new GraphqlService(testApolloClient);
-  newTestClient = new GraphQLClient(`http://localhost:${port}/`);
+  testClient = new GraphQLClient(`http://localhost:${port}/`);
 };

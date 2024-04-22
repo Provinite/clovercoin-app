@@ -6,30 +6,27 @@ import { loginTestClient, logoutTestClient } from "./integration/login.js";
 import { dataSource } from "../db/dbConnection.js";
 import { createCloverCoinAppServer } from "../server.js";
 import { logger } from "../util/logger.js";
-import { createTestDb, dbName, dropTestDb } from "./integration/db.js";
+import {
+  connectAppToTestDb,
+  createTestDb,
+  dropTestDb,
+} from "./integration/db.js";
 import { Server } from "http";
 
 let server: Server;
 beforeAll(async () => {
-  if (dataSource.isInitialized) {
-    throw new Error(
-      "Cannot configure CloverCoin application database since it is already initialized."
-    );
-  }
-
   await createTestDb();
-
-  dataSource.setOptions({
-    database: dbName,
-  });
+  connectAppToTestDb();
 
   const { koa, rootContainer } = await createCloverCoinAppServer({
     db: {},
     schema: { emitFile: undefined },
   });
 
+  // migrate the db
   await dataSource.runMigrations();
 
+  // start the gql server listening
   server = koa.listen(0);
   const address = server.address();
   if (!address || typeof address === "string") {
@@ -42,6 +39,7 @@ beforeAll(async () => {
     port: address.port,
   });
 
+  // setup gql client
   setupTestClient();
   const adminUser = await registerAdminUser();
 

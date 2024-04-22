@@ -1,6 +1,6 @@
 import { graphql } from "../gql/gql.js";
 import { LoginArgs } from "../gql/graphql.js";
-import { newTestClient } from "../testClient.js";
+import { testClient } from "../testClient.js";
 
 export const loginMutation = graphql(`
   mutation login($input: LoginArgs!) {
@@ -17,7 +17,7 @@ export const loginMutation = graphql(`
 `);
 
 export const loginToApi = async (input: LoginArgs) => {
-  const result = await newTestClient.request(loginMutation, { input });
+  const result = await testClient.request(loginMutation, { input });
   if (result.login.__typename !== "LoginSuccessResponse") {
     throw new Error(`Failed to login to API as ${input.email}`);
   }
@@ -25,11 +25,10 @@ export const loginToApi = async (input: LoginArgs) => {
 };
 
 export const loginTestClient = (token: string) => {
-  newTestClient.setHeader("Authorization", `Bearer ${token}`);
+  testClient.setHeader("Authorization", `Bearer ${token}`);
 };
 
-export const logoutTestClient = () =>
-  newTestClient.setHeader("Authorization", "");
+export const logoutTestClient = () => testClient.setHeader("Authorization", "");
 
 export const login = async (input: LoginArgs) => {
   const successResponse = await loginToApi(input);

@@ -1,7 +1,7 @@
 import { v4 } from "uuid";
 import { graphql } from "../../test/gql/gql.js";
 import { getAdminUser } from "../../test/integration/integrationCache.js";
-import { newTestClient } from "../../test/testClient.js";
+import { testClient } from "../../test/testClient.js";
 describe("query:me", () => {
   const meQuery = graphql(`
     query meIntegrationQuery($roleFilters: IdentityRolesFilters!) {
@@ -34,7 +34,7 @@ describe("query:me", () => {
   it("returns the logged in user", async () => {
     const community = await createCommunity();
 
-    const result = await newTestClient.request(meQuery, {
+    const result = await testClient.request(meQuery, {
       roleFilters: { communityId: community.id },
     });
 
@@ -48,7 +48,7 @@ describe("query:me", () => {
         Array.from({ length: 3 }, () => createCommunity())
       );
 
-      const result = await newTestClient.request(meQuery, {
+      const result = await testClient.request(meQuery, {
         roleFilters: { communityId: community.id },
       });
 
@@ -62,7 +62,7 @@ describe("query:me", () => {
   });
 
   const createCommunity = async (name = v4()) => {
-    const community = await newTestClient.request(createCommunityQuery, {
+    const community = await testClient.request(createCommunityQuery, {
       input: {
         name,
       },

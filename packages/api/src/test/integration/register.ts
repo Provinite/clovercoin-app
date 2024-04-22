@@ -1,6 +1,6 @@
 import { v4 } from "uuid";
 import { graphql } from "../gql/gql.js";
-import { newTestClient } from "../testClient.js";
+import { testClient } from "../testClient.js";
 import { _createInviteCode } from "./_createInviteCode.js";
 
 export const registerMutation = graphql(`
@@ -30,7 +30,7 @@ export const register = async ({
     });
     inviteCodeId = inviteCode.id;
   }
-  return newTestClient.request(registerMutation, {
+  return testClient.request(registerMutation, {
     input: { email, password, inviteCodeId, username },
   });
 };
@@ -42,7 +42,7 @@ export const registerAdminUser = async () => {
       `Cannot register default admin user. Missing CC_ADMIN_EMAIL env var`
     );
   }
-  return newTestClient.request(registerMutation, {
+  return testClient.request(registerMutation, {
     input: {
       email: adminEmail,
       inviteCodeId: "JustSomeLegitIshValue",
