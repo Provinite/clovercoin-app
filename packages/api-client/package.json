@@ -8,7 +8,7 @@
     "build": "tsc && graphql-codegen --config codegen.yml && node ./dist/generate-services.js && eslint --fix ./src/generated && tsc"
   },
   "devDependencies": {
-    "@apollo/client": "3.7.1",
+    "@apollo/client": "3.9.11",
     "@graphql-codegen/cli": "^2.6.2",
     "@graphql-codegen/introspection": "2.1.1",
     "@graphql-codegen/typescript": "^2.4.8",

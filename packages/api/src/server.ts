@@ -177,6 +177,10 @@ export const createCloverCoinAppServer = async (options: ServerOptions) => {
             graphiql: {
               headerEditorEnabled: true,
               shouldPersistHeaders: true,
+              editorTheme: {
+                name: "dracula",
+                url: "https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/theme/dracula.min.css",
+              },
             },
             context: requestContainer.cradle,
           };

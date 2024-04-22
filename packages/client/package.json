@@ -13,7 +13,7 @@
     "refresh-api-client": "./tools/refresh-api-client.sh"
   },
   "dependencies": {
-    "@apollo/client": "3.7.1",
+    "@apollo/client": "3.9.11",
     "@clovercoin/api-client": "workspace:packages/api-client",
     "@emotion/babel-plugin": "^11.10.5",
     "@emotion/react": "^11.10.5",

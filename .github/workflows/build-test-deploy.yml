@@ -2,6 +2,17 @@
 # https://github.com/github/docs/blob/main/content/actions/learn-github-actions/expressions.md
 name: Build, Test, Deploy Everything
 on: push
+env:
+  CC_JWT_SECRET: UgLPhhAhX5ngmlNNlaXGc76HPuHpb3/Z5AdG3bqW05E=
+  CC_IMG_BUCKET: images
+  CC_WEB_CLIENT_ORIGIN: http://localhost:1234
+  CC_ADMIN_EMAIL: dev-no-reply@clovercoin.com
+  CC_AWS_SES_USE_SMTP: true
+  CC_AWS_S3_ENDPOINT: http://s3.localhost.localstack.cloud:4566
+  CC_AWS_SES_FROM_ADDRESS: dev-no-reply@clovercoin.com
+  CC_AWS_SES_SMTP_HOST: localhost
+  CC_AWS_SES_SMTP_PORT: 1025
+  CC_AWS_SES_ENDPOINT: http://ses.localhost.localstack.cloud:4566
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -10,6 +21,13 @@ jobs:
     environment:
       name: ${{ github.ref_name == vars.beta_branch && 'beta' || ''}}
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15.4
+        env:
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
     steps:
       # Git checkout
       - name: Checkout 🛎️
@@ -19,7 +37,7 @@ jobs:
           fetch-depth: 0
 
       # Configure node version and yarn cache
-      - name: Setup
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
           # Version Spec of the version to use in SemVer notation.
@@ -78,6 +96,7 @@ jobs:
           # Set always-auth option in npmrc file.
           # Default: ''
           always-auth: ""
+
       # Find the last push, or pr base to determine where to look for file changes
       - name: Determine commit range
         uses: nrwl/nx-set-shas@v3
@@ -87,6 +106,8 @@ jobs:
           #
           # Default: main
           main-branch-name: ${{ github.ref_name }}
+
+      # Determine what files changed since then
       - name: Determine changed files
         id: changed-files
         run: |
