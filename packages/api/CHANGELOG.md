@@ -1,3 +1,9 @@
+# 6.0.2
+
+- Fixes a bug that prevented role filtering on identities from working. [#55](https://github.com/Provinite/clovercoin-app/issues/55)
+- Reinvigorated integration tests, improving reliability going forward
+- Enables unit testing in CI
+
 # 6.0.1
 
 - Version bump to fix build issue

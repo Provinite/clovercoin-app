@@ -1,6 +1,6 @@
 {
   "name": "@clovercoin/api",
-  "version": "6.0.1",
+  "version": "6.0.2",
   "main": "dist/app.js",
   "license": "MIT",
   "source": "src/app.ts",
@@ -9,6 +9,7 @@
     "clean": "rm -rf ./dist/* && rm -rf ./build/*",
     "build": "tsc && ts-node build.mts",
     "start": "nodemon src/app.ts -e ts,mts,cts --watch src --ignore \"src/seeds/**/*.*\" --ignore \"src/migrations/**/*.*\"",
+    "test": "yarn test-unit",
     "test-unit": "jest --config jest.unit.config.ts",
     "test-integration": "node --experimental-vm-modules $(yarn bin jest) -i --config jest.integration.config.ts",
     "codegen:integration": "graphql-codegen --config src/test/integration.codegen.ts && eslint . --fix",
