@@ -21,6 +21,13 @@ jobs:
     environment:
       name: ${{ github.ref_name == vars.beta_branch && 'beta' || ''}}
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15.4
+        env:
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
     steps:
       # Git checkout
       - name: Checkout 🛎️
@@ -127,15 +134,6 @@ jobs:
       # Lint
       - name: Lint
         run: yarn workspaces foreach run lint
-
-      # Run postgres
-      - name: Setup Postgres
-        uses: ikalnytskyi/action-setup-postgres@v5
-        with:
-          password: password
-          database: postgres
-          port: 5432
-          username: postgres
 
       # Run tests
       - name: Test
