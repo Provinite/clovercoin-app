@@ -1,3 +1,7 @@
+# 6.0.3
+
+- Try to resolve a race condition when deploying migrate [#61](https://github.com/Provinite/clovercoin-app/issues/61) [#13](https://github.com/Provinite/clovercoin-app/issues/13)
+
 # 6.0.2
 
 - This is primarily a round of confidence-improvements as we get closer to opening the system up. Lots of focus on testing today.

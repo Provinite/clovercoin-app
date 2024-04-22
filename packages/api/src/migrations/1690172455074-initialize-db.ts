@@ -1,6 +1,6 @@
 /**
- * @file This migration creates the original schema for the database, including
- * all database elements defined by typeorm.
+ * @file This migration creates the original schema for the database, including most
+ * of the original models/entities for typeorm.
  */
 import type { MigrationInterface, QueryRunner } from "typeorm";
 export class initializeDb1690172455074 implements MigrationInterface {

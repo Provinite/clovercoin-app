@@ -170,7 +170,7 @@ jobs:
       # Deploy API image to lambda
       - name: Deploy API
         id: deploy-api
-        if: steps.push-api-image.outcome != 'skipped'
+        if: steps.push-api-image.outcome == 'success'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
@@ -182,7 +182,8 @@ jobs:
 
       # Deploy API migrate image to lambda
       - name: Deploy API Migrate
-        if: steps.push-api-image.outcome != 'skipped' && contains(steps.changed-files.outputs.files, '"packages/api/src/migrations/')
+        id: deploy-api-migrate
+        if: steps.push-api-image.outcome == 'success' && contains(steps.changed-files.outputs.files, '"packages/api/src/migrations/')
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
@@ -191,6 +192,14 @@ jobs:
           aws lambda update-function-code \
             --function-name "${{ vars.ENV_NAME }}-cc-api-migrate-fn" \
             --image-uri "${{ secrets.ECR_DOMAIN }}/${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}"
+      - name: Wait for migrate
+        if: steps.deploy-api-migrate.outcome == 'success'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
+          AWS_DEFAULT_REGION: us-east-1
+        run: |
+          aws lambda wait function-updated --function-name "${{ vars.ENV_NAME }}-cc-api-migrate-fn"
 
       # Execute migration lambda
       - name: Execute Migrate
