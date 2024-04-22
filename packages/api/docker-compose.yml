@@ -4,7 +4,7 @@ services:
   # Main postgres database
   db:
     container_name: clovercoin-app-postgres
-    image: postgres
+    image: postgres:15.4
     restart: always
     environment:
       POSTGRES_USER: postgres
