@@ -1,3 +1,8 @@
+# 6.0.4
+
+- Hotfix: Add lambda:GetConfiguration permission to deployer role
+- Hotfix: Upgrade to postgres 15.5
+
 # 6.0.3
 
 - Try to resolve a race condition when deploying migrate [#61](https://github.com/Provinite/clovercoin-app/issues/61) [#13](https://github.com/Provinite/clovercoin-app/issues/13)

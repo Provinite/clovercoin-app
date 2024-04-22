@@ -5,7 +5,7 @@ resource "aws_db_instance" "db" {
   identifier                          = "${var.prefix}-cc-api-postgres"
   db_subnet_group_name                = var.subnet_group_name
   allocated_storage                   = 20
-  engine_version                      = "15.3"
+  engine_version                      = "15.5"
   instance_class                      = "db.t3.micro"
   manage_master_user_password         = true
   username                            = "postgres"
