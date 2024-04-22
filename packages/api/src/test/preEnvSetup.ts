@@ -1,43 +1,34 @@
-// 1. Setup postgres
-// 2. Start app (supertest?)
 import "cross-fetch/polyfill";
-import { PostgreSqlContainer } from "testcontainers";
 import { dataSource } from "../db/dbConnection.js";
 import { createCloverCoinAppServer } from "../server.js";
 import { logger } from "../util/logger.js";
+import { createTestDb, dbName, dropTestDb } from "./integration/db.js";
 
-// TODO: Pin postgres, also pin postgres in the docker compose
-global.ccPostgresContainer = await new PostgreSqlContainer().start();
-logger.info({
-  message: "Started test postgres container",
-  port: global.ccPostgresContainer.getPort(),
-  database: global.ccPostgresContainer.getDatabase(),
-  username: global.ccPostgresContainer.getUsername(),
-  password: global.ccPostgresContainer.getPassword(),
-  host: global.ccPostgresContainer.getHost(),
-});
 if (dataSource.isInitialized) {
   throw new Error(
     "Cannot configure CloverCoin application database since it is already initialized."
   );
 }
+
+await createTestDb();
+
 dataSource.setOptions({
-  port: global.ccPostgresContainer.getPort(),
-  database: global.ccPostgresContainer.getDatabase(),
-  username: global.ccPostgresContainer.getUsername(),
-  password: global.ccPostgresContainer.getPassword(),
-  host: global.ccPostgresContainer.getHost(),
+  database: dbName,
 });
 
-const { koa } = await createCloverCoinAppServer({
+const { koa, rootContainer } = await createCloverCoinAppServer({
   db: {},
   schema: { emitFile: undefined },
 });
+
+await dataSource.runMigrations();
+
 const server = koa.listen(0);
 const address = server.address();
 if (!address || typeof address === "string") {
   throw new Error("Unable to resolve koa port");
 }
+global.ccAppContainer = rootContainer;
 global.ccAppAddress = address;
 logger.info({
   message: "Started application",
@@ -50,7 +41,8 @@ export const shutdown = async () => {
   await new Promise<void>((res, rej) =>
     server.close((err) => (err ? rej(err) : res()))
   );
-  await global.ccPostgresContainer?.stop();
+  await dataSource.destroy();
+  await dropTestDb();
   logger.info({
     message: "Stopped postgres container",
     port,
@@ -58,4 +50,5 @@ export const shutdown = async () => {
 
   global.ccAppAddress = undefined;
   global.ccPostgresContainer = undefined;
+  global.ccAppContainer = undefined;
 };
