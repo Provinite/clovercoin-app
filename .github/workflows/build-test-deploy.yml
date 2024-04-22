@@ -194,6 +194,10 @@ jobs:
             --image-uri "${{ secrets.ECR_DOMAIN }}/${{ steps.api-image.outputs.image }}:${{ steps.api-image.outputs.tag }}"
       - name: Wait for migrate
         if: steps.deploy-api-migrate.outcome == 'success'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
+          AWS_DEFAULT_REGION: us-east-1
         run: |
           aws lambda wait function-updated --function-name "${{ vars.ENV_NAME }}-cc-api-migrate-fn"
 
