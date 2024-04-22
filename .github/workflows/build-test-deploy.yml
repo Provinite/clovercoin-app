@@ -122,6 +122,11 @@ jobs:
       # Run postgres
       - name: Setup Postgres
         uses: ikalnytskyi/action-setup-postgres@v5
+        with:
+          password: password
+          database: postgres
+          port: 5432
+          username: postgres
 
       # Run tests
       - name: Test
