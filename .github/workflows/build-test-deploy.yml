@@ -170,7 +170,7 @@ jobs:
       # Deploy API image to lambda
       - name: Deploy API
         id: deploy-api
-        if: steps.push-api-image.outcome != 'skipped'
+        if: steps.push-api-image.outcome == 'success'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
@@ -183,7 +183,7 @@ jobs:
       # Deploy API migrate image to lambda
       - name: Deploy API Migrate
         id: deploy-api-migrate
-        if: steps.push-api-image.outcome != 'skipped' && contains(steps.changed-files.outputs.files, '"packages/api/src/migrations/')
+        if: steps.push-api-image.outcome == 'success' && contains(steps.changed-files.outputs.files, '"packages/api/src/migrations/')
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
