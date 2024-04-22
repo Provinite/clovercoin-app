@@ -9,7 +9,7 @@
     "clean": "rm -rf ./dist/* && rm -rf ./build/*",
     "build": "tsc && ts-node build.mts",
     "start": "nodemon src/app.ts -e ts,mts,cts --watch src --ignore \"src/seeds/**/*.*\" --ignore \"src/migrations/**/*.*\"",
-    "test": "yarn test-unit",
+    "test": "yarn test-unit && yarn test-integration",
     "test-unit": "jest --config jest.unit.config.ts",
     "test-integration": "node --experimental-vm-modules $(yarn bin jest) -i --config jest.integration.config.ts",
     "codegen:integration": "graphql-codegen --config src/test/integration.codegen.ts && eslint . --fix",

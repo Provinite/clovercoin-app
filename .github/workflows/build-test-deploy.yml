@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
 
       # Configure node version and yarn cache
-      - name: Setup
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
           # Version Spec of the version to use in SemVer notation.
@@ -78,6 +78,7 @@ jobs:
           # Set always-auth option in npmrc file.
           # Default: ''
           always-auth: ""
+
       # Find the last push, or pr base to determine where to look for file changes
       - name: Determine commit range
         uses: nrwl/nx-set-shas@v3
@@ -87,6 +88,8 @@ jobs:
           #
           # Default: main
           main-branch-name: ${{ github.ref_name }}
+
+      # Determine what files changed since then
       - name: Determine changed files
         id: changed-files
         run: |
@@ -113,6 +116,10 @@ jobs:
       # Lint
       - name: Lint
         run: yarn workspaces foreach run lint
+
+      # Run postgres
+      - name: Setup Postgres
+        uses: ikalnytskyi/action-setup-postgres@v5
 
       # Run tests
       - name: Test
