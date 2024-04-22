@@ -3,7 +3,7 @@
 name: Build, Test, Deploy Everything
 on: push
 env:
-  CC_JWT_SECRET: SomeNonSenseSecretThatDoesntMatter
+  CC_JWT_SECRET: UgLPhhAhX5ngmlNNlaXGc76HPuHpb3/Z5AdG3bqW05E=
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
