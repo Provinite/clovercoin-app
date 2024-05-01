@@ -42,10 +42,10 @@ export class InviteCode {
   @Field(() => Int, { nullable: false })
   @Column({ nullable: false })
   @IsInt({
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   @Min(0, {
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   @IsNumber(
     {
@@ -53,7 +53,7 @@ export class InviteCode {
       allowNaN: false,
     },
     {
-      always: true,
+      groups: [...ValidationGroupAll],
     }
   )
   maxClaims!: number;
@@ -63,7 +63,7 @@ export class InviteCode {
     nullable: false,
   })
   @IsUUID(4, {
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   creatorId!: string;
 

@@ -75,7 +75,7 @@ export class TraitListEntry {
   @Column("uuid", { nullable: false })
   @Field(() => ID)
   @IsUUID(4, {
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   traitId!: string;
 
@@ -85,7 +85,7 @@ export class TraitListEntry {
   @Column("uuid", { nullable: false })
   @Field(() => ID)
   @IsUUID(4, {
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   speciesVariantId!: string;
 
@@ -142,7 +142,7 @@ export class TraitListEntry {
    */
   @Column({ type: "varchar", nullable: true })
   @IsString({
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   @ValidateIf(isNotNull, {
     groups: [...ValidationGroupAll],

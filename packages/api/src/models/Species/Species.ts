@@ -6,7 +6,7 @@ import { Community } from "../Community/Community.js";
 import { Critter } from "../Critter/Critter.js";
 import { IdField, ManyToOneField } from "../relationFieldDecorators.js";
 import { SpeciesVariant } from "../SpeciesVariant/SpeciesVariant.js";
-import { ValidationGroup } from "../ValidationGroup.js";
+import { ValidationGroup, ValidationGroupAll } from "../ValidationGroup.js";
 
 @Entity()
 @ObjectType({
@@ -26,7 +26,7 @@ export class Species {
   @Field(() => String, { description: "Name of the species" })
   @Column({ nullable: false, unique: true })
   @IsString({
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   name: string = "";
 
@@ -44,7 +44,7 @@ export class Species {
     description: "ID of the community that owns this species",
   })
   @IsUUID(4, {
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   communityId!: string;
 
@@ -61,7 +61,7 @@ export class Species {
   @Field(() => String, {})
   @Column("boolean", { nullable: false, default: false })
   @IsBoolean({
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   hasImage: boolean = false;
 }

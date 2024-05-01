@@ -7,7 +7,7 @@ import { EnumValue } from "../EnumValue/EnumValue.js";
 import { IdField, ManyToOneField } from "../relationFieldDecorators.js";
 import { Species } from "../Species/Species.js";
 import { TraitListEntry } from "../TraitListEntry/TraitListEntry.js";
-import { ValidationGroup } from "../ValidationGroup.js";
+import { ValidationGroup, ValidationGroupAll } from "../ValidationGroup.js";
 
 @Entity()
 @ObjectType()
@@ -24,10 +24,10 @@ export class Trait {
   @Field(() => String)
   @Column({ nullable: false })
   @IsString({
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   @MinLength(1, {
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   name!: string;
 
@@ -38,7 +38,7 @@ export class Trait {
     nullable: false,
   })
   @IsEnum(CritterTraitValueTypes, {
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   valueType!: CritterTraitValueTypes;
 
@@ -52,7 +52,7 @@ export class Trait {
 
   @Column("uuid", { nullable: false })
   @IsUUID(4, {
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   speciesId!: string;
 

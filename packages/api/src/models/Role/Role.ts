@@ -17,7 +17,7 @@ import {
   IsUUID,
   MinLength,
 } from "class-validator";
-import { ValidationGroup } from "../ValidationGroup.js";
+import { ValidationGroup, ValidationGroupAll } from "../ValidationGroup.js";
 
 export type RolePermissionKeys = keyof Role & `can${string}`;
 
@@ -37,10 +37,10 @@ export class Role {
   @Column("text")
   @Field(() => String)
   @IsString({
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   @MinLength(1, {
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   name!: string;
 
@@ -49,7 +49,7 @@ export class Role {
     relation: (role) => role.community,
   })
   @IsUUID(4, {
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   communityId!: string;
 
@@ -74,56 +74,56 @@ export class Role {
   @Column("boolean", { nullable: false, default: false })
   @Field(() => Boolean)
   @IsBoolean({
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   canCreateSpecies!: boolean;
 
   @Column("boolean", { nullable: false, default: false })
   @Field(() => Boolean)
   @IsBoolean({
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   canCreateCritter!: boolean;
 
   @Column("boolean", { nullable: false, default: false })
   @Field(() => Boolean)
   @IsBoolean({
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   canEditCritter!: boolean;
 
   @Column("boolean", { nullable: false, default: false })
   @Field(() => Boolean)
   @IsBoolean({
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   canEditSpecies!: boolean;
 
   @Column("boolean", { nullable: false, default: false })
   @Field(() => Boolean)
   @IsBoolean({
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   canCreateInviteCode!: boolean;
 
   @Column("boolean", { nullable: false, default: false })
   @Field(() => Boolean)
   @IsBoolean({
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   canListInviteCodes!: boolean;
 
   @Column("boolean", { nullable: false, default: false })
   @Field(() => Boolean)
   @IsBoolean({
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   canCreateRole!: boolean;
 
   @Column("boolean", { nullable: false, default: false })
   @Field(() => Boolean)
   @IsBoolean({
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   canEditRole!: boolean;
 

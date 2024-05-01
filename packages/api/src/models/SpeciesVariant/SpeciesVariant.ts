@@ -7,7 +7,7 @@ import { EnumValueSetting } from "../EnumValueSetting/EnumValueSetting.js";
 import { IdField, ManyToOneField } from "../relationFieldDecorators.js";
 import { Species } from "../Species/Species.js";
 import { TraitListEntry } from "../TraitListEntry/TraitListEntry.js";
-import { ValidationGroup } from "../ValidationGroup.js";
+import { ValidationGroup, ValidationGroupAll } from "../ValidationGroup.js";
 
 /**
  * Model representing a specific configuration, selection, and order
@@ -42,17 +42,17 @@ export class SpeciesVariant {
   })
   @Field(() => String)
   @IsString({
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   @MinLength(1, {
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   name!: string;
 
   @Column("uuid", { nullable: false })
   @Field(() => ID)
   @IsUUID(4, {
-    always: true,
+    groups: [...ValidationGroupAll],
   })
   speciesId!: string;
 
