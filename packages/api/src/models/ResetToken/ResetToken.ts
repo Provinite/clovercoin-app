@@ -10,6 +10,8 @@ import {
 } from "typeorm";
 import type { Relation } from "typeorm";
 import { Account } from "../Account/Account.js";
+import { IsEmpty, IsUUID } from "class-validator";
+import { ValidationGroup, ValidationGroupAll } from "../ValidationGroup.js";
 
 @Entity()
 /**
@@ -20,10 +22,17 @@ import { Account } from "../Account/Account.js";
 @Index("unique_reset_token_valid_per_account", { synchronize: false })
 export class ResetToken {
   @PrimaryColumn("uuid")
+  @IsEmpty({
+    groups: [ValidationGroup.Insert],
+  })
+  @IsUUID(4, {
+    groups: [ValidationGroup.Update],
+  })
   id!: string;
 
   @Column("uuid")
   @RelationId<ResetToken>((resetToken) => resetToken.account)
+  @IsUUID(4, { groups: [...ValidationGroupAll] })
   accountId!: string;
 
   @ManyToOne(() => Account, { nullable: false })

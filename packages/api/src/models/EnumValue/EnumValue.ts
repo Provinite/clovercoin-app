@@ -1,3 +1,12 @@
+import {
+  IsEmpty,
+  IsInt,
+  IsNumber,
+  IsString,
+  IsUUID,
+  Min,
+  MinLength,
+} from "class-validator";
 import { Field, Int, ObjectType } from "type-graphql";
 import { TypeormLoader } from "type-graphql-dataloader";
 import { Column, Entity, OneToMany } from "typeorm";
@@ -8,11 +17,18 @@ import {
   RelationIdField,
 } from "../relationFieldDecorators.js";
 import { Trait } from "../Trait/Trait.js";
+import { ValidationGroup, ValidationGroupAll } from "../ValidationGroup.js";
 
 @Entity()
 @ObjectType()
 export class EnumValue {
   @IdField
+  @IsEmpty({
+    groups: [ValidationGroup.Insert],
+  })
+  @IsUUID(4, {
+    groups: [ValidationGroup.Update],
+  })
   id!: string;
 
   @ManyToOneField<Trait>({
@@ -29,6 +45,7 @@ export class EnumValue {
     relation: (ev) => ev.trait,
   })
   @Column()
+  @IsUUID(4, { groups: [...ValidationGroupAll] })
   traitId!: string;
 
   @Field(() => [EnumValueSetting])
@@ -41,6 +58,8 @@ export class EnumValue {
 
   @Column({ type: "varchar", nullable: false })
   @Field(() => String)
+  @IsString({ groups: [...ValidationGroupAll] })
+  @MinLength(1, { groups: [...ValidationGroupAll] })
   name!: string;
 
   @Column({
@@ -48,5 +67,11 @@ export class EnumValue {
     nullable: false,
   })
   @Field(() => Int)
+  @IsInt({ groups: [...ValidationGroupAll] })
+  @Min(0, { groups: [...ValidationGroupAll] })
+  @IsNumber(
+    { allowNaN: false, allowInfinity: false },
+    { groups: [...ValidationGroupAll] }
+  )
   order!: number;
 }

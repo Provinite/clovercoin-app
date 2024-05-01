@@ -1,3 +1,4 @@
+import { IsEmpty, IsUUID } from "class-validator";
 import { Field, ID, ObjectType } from "type-graphql";
 import { TypeormLoader } from "type-graphql-dataloader";
 import {
@@ -11,12 +12,19 @@ import {
 import { EnumValue } from "../EnumValue/EnumValue.js";
 import { IdField, ManyToOneField } from "../relationFieldDecorators.js";
 import { SpeciesVariant } from "../SpeciesVariant/SpeciesVariant.js";
+import { ValidationGroup, ValidationGroupAll } from "../ValidationGroup.js";
 
 @Entity()
 @ObjectType()
 @Unique("UQ_3560cef16c43083407f0b7a4cd4", ["speciesVariantId", "enumValueId"])
 export class EnumValueSetting {
   @IdField
+  @IsEmpty({
+    groups: [ValidationGroup.Insert],
+  })
+  @IsUUID(4, {
+    groups: [ValidationGroup.Update],
+  })
   id!: string;
 
   @Field(() => [SpeciesVariant])
@@ -48,9 +56,11 @@ export class EnumValueSetting {
 
   @Column("uuid", { nullable: false })
   @Field(() => ID)
+  @IsUUID(4, { groups: [...ValidationGroupAll] })
   enumValueId!: string;
 
   @Column("uuid", { nullable: false })
   @Field(() => ID)
+  @IsUUID(4, { groups: [...ValidationGroupAll] })
   speciesVariantId!: string;
 }

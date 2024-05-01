@@ -1,8 +1,18 @@
+import {
+  IsInt,
+  IsNumber,
+  IsString,
+  IsUUID,
+  Matches,
+  Min,
+  ValidateIf,
+} from "class-validator";
 import { Field, ID, Int, ObjectType } from "type-graphql";
 import { Check, Column, Entity, PrimaryColumn } from "typeorm";
 import { Identity } from "../Identity/Identity.js";
 import { ManyToOneField, RelationIdField } from "../relationFieldDecorators.js";
 import { Role } from "../Role/Role.js";
+import { ValidationGroupAll } from "../ValidationGroup.js";
 
 /**
  * Model representing an invite code bucket.
@@ -12,20 +22,48 @@ import { Role } from "../Role/Role.js";
 export class InviteCode {
   @PrimaryColumn("text")
   @Field(() => ID, { nullable: false })
+  @IsString()
+  @Matches(/^[a-zA-Z0-9-]+$/, {
+    message: "Invite code ID can only contain letters, numbers, and hyphens",
+  })
   id!: string;
 
   @Field(() => Int, { nullable: false })
   @Column("integer", { nullable: false })
   @Check("chk_invite_code_not_over_used", '"claimCount" <= "maxClaims"')
+  @IsInt()
+  @Min(0)
+  @IsNumber({
+    allowInfinity: false,
+    allowNaN: false,
+  })
   claimCount!: number;
 
   @Field(() => Int, { nullable: false })
   @Column({ nullable: false })
+  @IsInt({
+    always: true,
+  })
+  @Min(0, {
+    always: true,
+  })
+  @IsNumber(
+    {
+      allowInfinity: false,
+      allowNaN: false,
+    },
+    {
+      always: true,
+    }
+  )
   maxClaims!: number;
 
   @RelationIdField<InviteCode>({
     relation: (inviteCode) => inviteCode.creator,
     nullable: false,
+  })
+  @IsUUID(4, {
+    always: true,
   })
   creatorId!: string;
 
@@ -56,6 +94,12 @@ export class InviteCode {
     columnOptions: {
       default: null,
     },
+  })
+  @IsUUID(4, {
+    groups: [...ValidationGroupAll],
+  })
+  @ValidateIf((_, roleId) => roleId !== null, {
+    groups: [...ValidationGroupAll],
   })
   roleId: string | null = null;
 }

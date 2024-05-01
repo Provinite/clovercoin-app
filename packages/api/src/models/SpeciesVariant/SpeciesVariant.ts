@@ -1,3 +1,4 @@
+import { IsEmpty, IsString, IsUUID, MinLength } from "class-validator";
 import { Field, ID, ObjectType } from "type-graphql";
 import { TypeormLoader } from "type-graphql-dataloader";
 import { Column, Entity, OneToMany, type Relation } from "typeorm";
@@ -6,6 +7,7 @@ import { EnumValueSetting } from "../EnumValueSetting/EnumValueSetting.js";
 import { IdField, ManyToOneField } from "../relationFieldDecorators.js";
 import { Species } from "../Species/Species.js";
 import { TraitListEntry } from "../TraitListEntry/TraitListEntry.js";
+import { ValidationGroup } from "../ValidationGroup.js";
 
 /**
  * Model representing a specific configuration, selection, and order
@@ -15,6 +17,12 @@ import { TraitListEntry } from "../TraitListEntry/TraitListEntry.js";
 @ObjectType()
 export class SpeciesVariant {
   @IdField
+  @IsEmpty({
+    groups: [ValidationGroup.Insert],
+  })
+  @IsUUID(4, {
+    groups: [ValidationGroup.Update],
+  })
   id!: string;
 
   @ManyToOneField({
@@ -33,10 +41,19 @@ export class SpeciesVariant {
     nullable: false,
   })
   @Field(() => String)
+  @IsString({
+    always: true,
+  })
+  @MinLength(1, {
+    always: true,
+  })
   name!: string;
 
   @Column("uuid", { nullable: false })
   @Field(() => ID)
+  @IsUUID(4, {
+    always: true,
+  })
   speciesId!: string;
 
   @OneToMany(

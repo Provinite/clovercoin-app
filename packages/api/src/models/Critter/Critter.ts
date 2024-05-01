@@ -9,16 +9,25 @@ import {
 import { Identity } from "../Identity/Identity.js";
 import { SpeciesVariant } from "../SpeciesVariant/SpeciesVariant.js";
 import { TypeormLoader } from "type-graphql-dataloader";
+import { IsEmpty, IsString, IsUUID } from "class-validator";
+import { ValidationGroup, ValidationGroupAll } from "../ValidationGroup.js";
 
 @Entity()
 @ObjectType()
 @Index("critter_traitvalues_gin_idx", { synchronize: false })
 export class Critter {
   @IdField
+  @IsEmpty({
+    groups: [ValidationGroup.Insert],
+  })
+  @IsUUID(4, {
+    groups: [ValidationGroup.Update],
+  })
   id!: string;
 
   @Field(() => String, { nullable: false })
   @Column({ nullable: false })
+  @IsString({ groups: [...ValidationGroupAll] })
   name: string = "";
 
   @ManyToOneField<Species, typeof Species>({
@@ -34,6 +43,7 @@ export class Critter {
     nullable: false,
     relation: (critter) => critter.species,
   })
+  @IsUUID(4, { groups: [...ValidationGroupAll] })
   speciesId!: string;
 
   @ManyToOneField({
@@ -48,6 +58,7 @@ export class Critter {
     nullable: false,
     relation: (critter) => critter.owner,
   })
+  @IsUUID(4, { groups: [...ValidationGroupAll] })
   ownerId!: string;
 
   @ManyToOneField<SpeciesVariant, typeof SpeciesVariant>({
@@ -64,6 +75,7 @@ export class Critter {
     nullable: false,
     relation: (critter) => critter.variant,
   })
+  @IsUUID(4, { groups: [...ValidationGroupAll] })
   variantId!: string;
 
   @Column("jsonb", { default: [], nullable: false })
