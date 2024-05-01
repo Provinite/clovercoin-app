@@ -1,3 +1,8 @@
+# 7.0.0
+
+- Internal: Added robust field-level validation for all database entities. [#20](https://github.com/Provinite/clovercoin-app/issues/20)
+- Remove incorrect MIT license from repo
+
 # 6.0.4
 
 - Hotfix: Add lambda:GetConfiguration permission to deployer role
