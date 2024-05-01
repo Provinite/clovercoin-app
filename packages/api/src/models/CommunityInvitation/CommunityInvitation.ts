@@ -8,6 +8,8 @@ import {
   ManyToOneField,
   RelationIdField,
 } from "../relationFieldDecorators.js";
+import { IsEmpty, IsUUID } from "class-validator";
+import { ValidationGroup, ValidationGroupAll } from "../ValidationGroup.js";
 
 @Entity()
 @Check(
@@ -21,6 +23,12 @@ import {
 @ObjectType()
 export class CommunityInvitation {
   @IdField
+  @IsEmpty({
+    groups: [ValidationGroup.Insert],
+  })
+  @IsUUID(4, {
+    groups: [ValidationGroup.Update],
+  })
   id!: string;
 
   @ManyToOneField({
@@ -40,6 +48,7 @@ export class CommunityInvitation {
     nullable: false,
     relation: (communityInvitation) => communityInvitation.role,
   })
+  @IsUUID(4, { groups: [...ValidationGroupAll] })
   roleId!: string;
 
   @ManyToOneField({
@@ -60,6 +69,7 @@ export class CommunityInvitation {
     nullable: false,
     relation: (communityInvitation) => communityInvitation.invitee,
   })
+  @IsUUID(4, { groups: [...ValidationGroupAll] })
   inviteeId!: string;
 
   @ManyToOneField({
@@ -81,6 +91,7 @@ export class CommunityInvitation {
     relation: (communityInvitation) => communityInvitation.inviter,
   })
   @Column("uuid", { nullable: false })
+  @IsUUID(4, { groups: [...ValidationGroupAll] })
   inviterId!: string;
 
   @Column("timestamptz", { nullable: true, default: null })

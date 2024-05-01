@@ -1,3 +1,4 @@
+import { IsEmpty, IsUUID } from "class-validator";
 import { ObjectType } from "type-graphql";
 import type { Relation } from "typeorm";
 import { Entity, Unique } from "typeorm";
@@ -8,12 +9,19 @@ import {
   RelationIdField,
 } from "../relationFieldDecorators.js";
 import { Role } from "../Role/Role.js";
+import { ValidationGroup, ValidationGroupAll } from "../ValidationGroup.js";
 
 @Entity()
 @ObjectType()
 @Unique("UQ_COMMUNITY_MEMBER_ROLE_ID_IDENTITY_ID", ["roleId", "identityId"])
 export class CommunityMember {
   @IdField
+  @IsEmpty({
+    groups: [ValidationGroup.Insert],
+  })
+  @IsUUID(4, {
+    groups: [ValidationGroup.Update],
+  })
   id!: string;
 
   @ManyToOneField<Role>({
@@ -32,6 +40,7 @@ export class CommunityMember {
     relation: (cm) => cm.role,
     nullable: false,
   })
+  @IsUUID(4, { groups: [...ValidationGroupAll] })
   roleId!: string;
 
   @ManyToOneField<Identity>({
@@ -50,5 +59,6 @@ export class CommunityMember {
     relation: (cm) => cm.identity,
     nullable: false,
   })
+  @IsUUID(4, { groups: [...ValidationGroupAll] })
   identityId!: string;
 }

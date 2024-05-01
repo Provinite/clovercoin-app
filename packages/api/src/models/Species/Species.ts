@@ -1,3 +1,4 @@
+import { IsBoolean, IsEmpty, IsString, IsUUID } from "class-validator";
 import { Field, ID, ObjectType } from "type-graphql";
 import { TypeormLoader } from "type-graphql-dataloader";
 import { Column, Entity, OneToMany } from "typeorm";
@@ -5,6 +6,7 @@ import { Community } from "../Community/Community.js";
 import { Critter } from "../Critter/Critter.js";
 import { IdField, ManyToOneField } from "../relationFieldDecorators.js";
 import { SpeciesVariant } from "../SpeciesVariant/SpeciesVariant.js";
+import { ValidationGroup, ValidationGroupAll } from "../ValidationGroup.js";
 
 @Entity()
 @ObjectType({
@@ -13,10 +15,19 @@ import { SpeciesVariant } from "../SpeciesVariant/SpeciesVariant.js";
 })
 export class Species {
   @IdField
+  @IsEmpty({
+    groups: [ValidationGroup.Insert],
+  })
+  @IsUUID(4, {
+    groups: [ValidationGroup.Update],
+  })
   id!: string;
 
   @Field(() => String, { description: "Name of the species" })
   @Column({ nullable: false, unique: true })
+  @IsString({
+    groups: [...ValidationGroupAll],
+  })
   name: string = "";
 
   @ManyToOneField({
@@ -32,6 +43,9 @@ export class Species {
   @Field(() => ID, {
     description: "ID of the community that owns this species",
   })
+  @IsUUID(4, {
+    groups: [...ValidationGroupAll],
+  })
   communityId!: string;
 
   @OneToMany(() => Critter, (critter) => critter.species)
@@ -46,5 +60,8 @@ export class Species {
 
   @Field(() => String, {})
   @Column("boolean", { nullable: false, default: false })
+  @IsBoolean({
+    groups: [...ValidationGroupAll],
+  })
   hasImage: boolean = false;
 }

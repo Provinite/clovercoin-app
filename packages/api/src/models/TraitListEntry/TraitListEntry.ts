@@ -4,6 +4,19 @@ import { CritterTraitValueTypes } from "../CritterTrait/CritterTraitValueTypes.j
 import { IdField, ManyToOneField } from "../relationFieldDecorators.js";
 import { Trait } from "../Trait/Trait.js";
 import { SpeciesVariant } from "../SpeciesVariant/SpeciesVariant.js";
+import {
+  IsBoolean,
+  IsDate,
+  IsEmpty,
+  IsEnum,
+  IsInt,
+  IsNumber,
+  IsString,
+  IsUUID,
+  Min,
+  ValidateIf,
+} from "class-validator";
+import { ValidationGroup, ValidationGroupAll } from "../ValidationGroup.js";
 
 /**
  * Model representing a single entry on a variant's trait list.
@@ -12,6 +25,12 @@ import { SpeciesVariant } from "../SpeciesVariant/SpeciesVariant.js";
 @ObjectType()
 export class TraitListEntry {
   @IdField
+  @IsEmpty({
+    groups: [ValidationGroup.Insert],
+  })
+  @IsUUID(4, {
+    groups: [ValidationGroup.Update],
+  })
   id!: string;
 
   /**
@@ -55,6 +74,9 @@ export class TraitListEntry {
    */
   @Column("uuid", { nullable: false })
   @Field(() => ID)
+  @IsUUID(4, {
+    groups: [...ValidationGroupAll],
+  })
   traitId!: string;
 
   /**
@@ -62,6 +84,9 @@ export class TraitListEntry {
    */
   @Column("uuid", { nullable: false })
   @Field(() => ID)
+  @IsUUID(4, {
+    groups: [...ValidationGroupAll],
+  })
   speciesVariantId!: string;
 
   /**
@@ -71,6 +96,21 @@ export class TraitListEntry {
     type: "smallint",
   })
   @Field(() => Int)
+  @IsInt({
+    groups: [...ValidationGroupAll],
+  })
+  @Min(0, {
+    groups: [...ValidationGroupAll],
+  })
+  @IsNumber(
+    {
+      allowInfinity: false,
+      allowNaN: false,
+    },
+    {
+      groups: [...ValidationGroupAll],
+    }
+  )
   order!: number;
 
   /**
@@ -78,6 +118,9 @@ export class TraitListEntry {
    */
   @Column()
   @Field(() => Boolean)
+  @IsBoolean({
+    groups: [...ValidationGroupAll],
+  })
   required!: boolean;
 
   /**
@@ -89,24 +132,54 @@ export class TraitListEntry {
     nullable: false,
   })
   @Field(() => CritterTraitValueTypes)
+  @IsEnum(CritterTraitValueTypes, {
+    groups: [...ValidationGroupAll],
+  })
   valueType!: Relation<CritterTraitValueTypes>;
 
   /**
    * Default string value for the trait
    */
   @Column({ type: "varchar", nullable: true })
+  @IsString({
+    groups: [...ValidationGroupAll],
+  })
+  @ValidateIf(isNotNull, {
+    groups: [...ValidationGroupAll],
+  })
   defaultValueString: string | null = null;
 
   /**
    * Default int value for the trait
    */
   @Column("integer", { nullable: true })
+  @IsInt({
+    groups: [...ValidationGroupAll],
+  })
+  @IsNumber(
+    {
+      allowInfinity: false,
+      allowNaN: false,
+    },
+    {
+      groups: [...ValidationGroupAll],
+    }
+  )
+  @ValidateIf(isNotNull, {
+    groups: [...ValidationGroupAll],
+  })
   defaultValueInt: number | null = null;
 
   /**
    * Default timestamp value for the trait
    */
   @Column("timestamptz", { nullable: true })
+  @IsDate({
+    groups: [...ValidationGroupAll],
+  })
+  @ValidateIf(isNotNull, {
+    groups: [...ValidationGroupAll],
+  })
   defaultValueTimestamp: Date | null = null;
 
   /**
@@ -126,4 +199,8 @@ export class TraitListEntry {
       return "";
     }
   }
+}
+
+function isNotNull(_obj: unknown, value: any) {
+  return value !== null;
 }
