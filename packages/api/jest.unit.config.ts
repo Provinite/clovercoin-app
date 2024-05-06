@@ -3,7 +3,7 @@ import { defaultsESM } from "ts-jest/presets";
 
 const config: JestConfigWithTsJest = {
   ...defaultsESM,
-
+  setupFiles: ["./src/test/preEnvSetup.ts"],
   coverageReporters: [
     "html",
     [
