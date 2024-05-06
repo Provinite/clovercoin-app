@@ -1,7 +1,7 @@
 # This job builds, tests, and deploys the packages in the monorepo
 # https://github.com/github/docs/blob/main/content/actions/learn-github-actions/expressions.md
 name: Build, Test, Deploy Everything
-on: push
+on: pull_request
 env:
   CC_JWT_SECRET: UgLPhhAhX5ngmlNNlaXGc76HPuHpb3/Z5AdG3bqW05E=
   CC_IMG_BUCKET: images
