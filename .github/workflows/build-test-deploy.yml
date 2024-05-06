@@ -166,7 +166,7 @@ jobs:
 
             <details>
               <summary>
-                Test Coverage Report (API - Unit)
+                Test Coverage Report
               </summary>
 
               ${{ steps.coverage-api-unit.outputs.markdownReport }}
@@ -183,7 +183,7 @@ jobs:
 
             <details>
               <summary>
-                Reveal
+                Test Coverage Report
               </summary>
 
               ${{ steps.coverage-api-integration.outputs.markdownReport }}
