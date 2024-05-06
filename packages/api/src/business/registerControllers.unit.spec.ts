@@ -26,4 +26,24 @@ describe("registerControllers", () => {
       AnotherMockController
     );
   });
+
+  it("registers controllers scoped to the container", () => {
+    class MockController {}
+    ControllersMapAsAny.MockController = MockController;
+
+    const parentContainer = createContainer();
+    registerControllers(parentContainer);
+    const childContainer = parentContainer.createScope();
+
+    const p1 = parentContainer.resolve("mockController");
+    const p2 = parentContainer.resolve("mockController");
+
+    const c1 = childContainer.resolve("mockController");
+    const c2 = childContainer.resolve("mockController");
+
+    expect(p1).toBe(p2);
+    expect(c1).toBe(c2);
+    expect(p1).not.toBe(c1);
+    registerControllers(parentContainer);
+  });
 });
