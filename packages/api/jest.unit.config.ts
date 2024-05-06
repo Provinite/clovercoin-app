@@ -21,6 +21,9 @@ const config: JestConfigWithTsJest = {
   },
   testEnvironment: "node",
   testMatch: ["**/*.unit.spec.ts"],
+  resetMocks: true,
+  restoreMocks: true,
+  clearMocks: true,
 };
 
 export default config;
