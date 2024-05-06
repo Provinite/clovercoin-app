@@ -26,8 +26,14 @@
     {
       "type": "node-terminal",
       "request": "launch",
-      "name": "Integration Tests",
+      "name": "API Integration Tests",
       "command": "yarn workspace @clovercoin/api test-integration"
+    },
+    {
+      "type": "node-terminal",
+      "request": "launch",
+      "name": "API Unit Tests",
+      "command": "yarn workspace @clovercoin/api test-unit ${fileBasenameNoExtension}"
     },
     {
       "type": "node-terminal",
