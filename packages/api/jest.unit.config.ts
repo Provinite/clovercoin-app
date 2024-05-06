@@ -4,7 +4,15 @@ import { defaultsESM } from "ts-jest/presets";
 const config: JestConfigWithTsJest = {
   ...defaultsESM,
 
-  coverageReporters: ["json", "html"],
+  coverageReporters: [
+    "html",
+    [
+      "text",
+      {
+        file: "coverage.txt",
+      },
+    ],
+  ],
   coverageDirectory: "./coverage/unit/",
   collectCoverageFrom: ["src/**/!(*.spec).ts", "!src/seeds/**", "!src/test/**"],
 

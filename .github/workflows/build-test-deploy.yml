@@ -18,6 +18,8 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build-and-deploy:
+    permissions:
+      pull-requests: write
     environment:
       name: ${{ github.ref_name == vars.beta_branch && 'beta' || ''}}
     runs-on: ubuntu-latest
@@ -138,6 +140,31 @@ jobs:
       # Run tests
       - name: Test
         run: yarn workspaces foreach run test
+
+      # Post test coverage
+      - name: Get current date
+        run: |
+          echo "DATE=$(date '+%Y-%m-%d %H:%M:%S')" >> ${GITHUB_ENV}
+      - name: Prepare coverage report in markdown
+        uses: fingerprintjs/action-coverage-report-md@v1
+        id: coverage-api-unit
+        with:
+          textReportPath: "./coverage/unit/coverage.txt"
+      - name: Prepare coverage report in markdown
+        uses: fingerprintjs/action-coverage-report-md@v1
+        id: coverage-api-integration
+        with:
+          textReportPath: "./coverage/integration/coverage.txt"
+      - name: Add coverage comment to the PR
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          message: |
+            # Test Coverage Report
+            ${{ env.DATE }}
+            ## API - Unit
+            ${{ steps.coverage-api-unit.outputs.markdownReport }}
+            ## API - Integration
+            ${{ steps.coverage-api-integration.outputs.markdownReport }}
 
       # Build packages
       - name: Build
