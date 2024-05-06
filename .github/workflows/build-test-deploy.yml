@@ -149,12 +149,12 @@ jobs:
         uses: fingerprintjs/action-coverage-report-md@v1
         id: coverage-api-unit
         with:
-          textReportPath: "./coverage/unit/coverage.txt"
+          textReportPath: "./packages/api/coverage/unit/coverage.txt"
       - name: Prepare coverage report in markdown
         uses: fingerprintjs/action-coverage-report-md@v1
         id: coverage-api-integration
         with:
-          textReportPath: "./coverage/integration/coverage.txt"
+          textReportPath: "./packages/api/coverage/integration/coverage.txt"
       - name: Add coverage comment to the PR
         uses: marocchino/sticky-pull-request-comment@v2
         with:
