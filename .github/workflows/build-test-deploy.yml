@@ -160,17 +160,25 @@ jobs:
         with:
           header: coverage-api-int
           message: |
-            # Test Coverage Report (API - Unit)
-            ${{ env.DATE }}
-            ${{ steps.coverage-api-unit.outputs.markdownReport }}
+            <details>
+              <summary>
+                # Test Coverage Report (API - Unit)
+              </summary>
+              ${{ env.DATE }}
+              ${{ steps.coverage-api-unit.outputs.markdownReport }}  
+            </details>
       - name: Comment Coverage (API - Integration)
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: coverage-api-int
           message: |
-            # Test Coverage Report (API - Integration)
-            ${{ env.DATE }}
-            ${{ steps.coverage-api-integration.outputs.markdownReport }}
+            <details>
+              <summary>
+                # Test Coverage Report (API - Integration)
+              </summary>
+              ${{ env.DATE }}
+              ${{ steps.coverage-api-integration.outputs.markdownReport }}
+            </details>
 
       # Build packages
       - name: Build
