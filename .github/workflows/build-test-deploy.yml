@@ -160,12 +160,15 @@ jobs:
         with:
           header: coverage-api-unit
           message: |
+            # Test Coverage (API, Unit)
+
+            Last updated: ${{ env.DATE }}
+
             <details>
               <summary>
                 Test Coverage Report (API - Unit)
               </summary>
 
-              ${{ env.DATE }}
               ${{ steps.coverage-api-unit.outputs.markdownReport }}
 
             </details>
@@ -174,12 +177,15 @@ jobs:
         with:
           header: coverage-api-int
           message: |
+            # Test Coverage (API, Integration)
+
+            Last updated: ${{ env.DATE }}
+
             <details>
               <summary>
-                Test Coverage Report (API - Integration)
+                Reveal
               </summary>
 
-              ${{ env.DATE }}
               ${{ steps.coverage-api-integration.outputs.markdownReport }}
 
             </details>
