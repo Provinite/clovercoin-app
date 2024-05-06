@@ -12,6 +12,7 @@ describe("awilix:build", () => {
   });
   it("offers enhanced type safety", () => {
     const container = createContainer<{ foo: string }>();
+    container.register("foo", asValue("bar"));
 
     expect(() =>
       // @ts-expect-error bar isn't on the container type
