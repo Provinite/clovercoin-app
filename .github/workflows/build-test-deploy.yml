@@ -163,8 +163,6 @@ jobs:
             ${{ env.DATE }}
             ## API - Unit
             ${{ steps.coverage-api-unit.outputs.markdownReport }}
-            ## API - Integration
-            ${{ steps.coverage-api-integration.outputs.markdownReport }}
 
       # Build packages
       - name: Build
