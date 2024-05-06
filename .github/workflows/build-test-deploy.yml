@@ -155,14 +155,20 @@ jobs:
         id: coverage-api-integration
         with:
           textReportPath: "./packages/api/coverage/integration/coverage.txt"
-      - name: Add coverage comment to the PR
+      - name: Comment Coverage (API - Unit)
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           message: |
-            # Test Coverage Report
+            # Test Coverage Report (API - Unit)
             ${{ env.DATE }}
-            ## API - Unit
             ${{ steps.coverage-api-unit.outputs.markdownReport }}
+      - name: Comment Coverage (API - Integration)
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          message: |
+            # Test Coverage Report (API - Integration)
+            ${{ env.DATE }}
+            ${{ steps.coverage-api-integration.outputs.markdownReport }}
 
       # Build packages
       - name: Build
