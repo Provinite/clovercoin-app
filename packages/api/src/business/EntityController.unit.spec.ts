@@ -1,4 +1,4 @@
-import { In, Repository } from "typeorm";
+import { FindManyOptions, FindOptionsWhere, In, Repository } from "typeorm";
 import { v4 } from "uuid";
 import { TransactionProvider } from "../db/TransactionProvider.js";
 import { EntityController } from "./EntityController.js";
@@ -17,14 +17,15 @@ describe("EntityController", () => {
     },
     any
   >;
-  let mockRepository: Repository<MockEntity>;
+  let mockRepository: jest.Mocked<Repository<MockEntity>>;
   let mockTransactionProvider: TransactionProvider;
   beforeEach(() => {
     mockRepository = {
       create() {},
       insert() {},
       find() {},
-    } as unknown as typeof mockRepository;
+      findBy() {},
+    } as any;
     mockTransactionProvider = {} as typeof mockTransactionProvider;
     subject = new EntityController(
       mockRepository as any,
@@ -98,6 +99,63 @@ describe("EntityController", () => {
       expect(result).toEqual(expectedEntities);
       expect(result[0]).toBeInstanceOf(MockEntity);
       expect(result[1]).toBeInstanceOf(MockEntity);
+    });
+  });
+  describe("method:find", () => {
+    beforeEach(() => {
+      jest
+        .spyOn(subject, "augmentFindWhere")
+        .mockImplementation(async (where) => ({
+          ...where,
+          augmented: true,
+        }));
+
+      jest.spyOn(mockRepository, "findBy").mockResolvedValue([]);
+    });
+    it("augments the where clause", async () => {
+      await subject.find({
+        id: "123",
+      });
+
+      expect(subject.augmentFindWhere).toHaveBeenCalledWith({ id: "123" });
+      expect(mockRepository.findBy).toHaveBeenCalledWith({
+        id: "123",
+        augmented: true,
+      });
+    });
+    it("returns the results of findBy", async () => {
+      const mockResult = [] as MockEntity[];
+      mockRepository.findBy.mockResolvedValue(mockResult);
+      await expect(
+        subject.find({
+          id: "123",
+        })
+      ).resolves.toBe(mockResult);
+    });
+  });
+  describe("method:advancedFind", () => {
+    beforeEach(() => {
+      jest.spyOn(mockRepository, "find").mockResolvedValue([]);
+    });
+    it("is a passthrough for repository.find", async () => {
+      const mockResult = [] as MockEntity[];
+      mockRepository.find.mockResolvedValue(mockResult);
+      const options: FindManyOptions<MockEntity> = {
+        where: {
+          id: "100",
+        },
+        comment: "heueheue",
+      };
+      await expect(subject.advancedFind(options)).resolves.toBe(mockResult);
+      expect(mockRepository.find).toHaveBeenCalledWith(options);
+    });
+  });
+  describe("method:augmentFindWhere", () => {
+    it("is a stub implementation that returns incoming options", async () => {
+      const options: FindOptionsWhere<MockEntity> = {
+        id: In([1, 2, 3]),
+      };
+      await expect(subject.augmentFindWhere(options)).resolves.toBe(options);
     });
   });
 });
