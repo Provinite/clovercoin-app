@@ -1,7 +1,7 @@
 import { AppGraphqlContext } from "../graphql/AppGraphqlContext.js";
 
 export enum ImageTarget {
-  Species,
+  Species = "species",
 }
 
 export class ImageController {
@@ -16,7 +16,7 @@ export class ImageController {
     targetType: ImageTarget,
     targetId: string
   ): Promise<string> {
-    return this.presignedUrlService.getPresignedUrl({
+    return this.presignedUrlService.putPresignedUrl({
       object: {
         Bucket: this.s3Environment.bucket,
         Key: `${targetType}/${targetId}`,
