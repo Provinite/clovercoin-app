@@ -1,4 +1,4 @@
-import { asClass, asValue, AwilixContainer, Lifetime } from "awilix";
+import { asClass, asValue, AwilixContainer } from "awilix";
 import { v4 } from "uuid";
 import { createContainer } from "../awilix/createContainer.js";
 import { register } from "../awilix/register.js";
