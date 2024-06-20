@@ -1,9 +1,8 @@
-import { asClass, asValue, AwilixContainer } from "awilix";
+import { AwilixContainer } from "awilix";
 import { v4 } from "uuid";
-import { createContainer } from "../awilix/createContainer.js";
-import { register } from "../awilix/register.js";
 import { AppGraphqlContext } from "../graphql/AppGraphqlContext.js";
 import { PresignedUrlService } from "../s3/PresignedUrlService.js";
+import { createTestContainer } from "../test/createTestContainer.js";
 import { ImageController, ImageTarget } from "./ImageController.js";
 
 describe("controller:ImageController", () => {
@@ -16,23 +15,14 @@ describe("controller:ImageController", () => {
   let imageController: ImageController;
   let presignedUrlService: PresignedUrlService;
   beforeEach(() => {
-    container = createContainer<AppGraphqlContext>("test");
-    register(
-      container,
-      "presignedUrlService",
-      asClass(
-        MockPresignedUrlService as any as typeof PresignedUrlService
-      ).singleton()
-    );
-    register(
-      container,
-      "s3Environment",
-      asValue({
+    container = createTestContainer({
+      presignedUrlService: MockPresignedUrlService,
+      s3Environment: {
         bucket: "CLOVERCOIN-MOCK-TEST-BUCKET",
-        endpoint: "http://localhost",
-      })
-    );
-    register(container, "imageController", asClass(ImageController));
+        endpoint: "",
+      },
+      imageController: ImageController,
+    });
 
     presignedUrlService = container.resolve("presignedUrlService");
     imageController = container.resolve("imageController");
