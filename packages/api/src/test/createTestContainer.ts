@@ -14,7 +14,7 @@ export const createTestContainer = (
       register(
         container,
         key as keyof AppGraphqlContext,
-        asClass(value as any).singleton()
+        asClass(value as any).scoped()
       );
     } else {
       register(container, key as keyof AppGraphqlContext, asValue(value));
