@@ -1,4 +1,5 @@
-import { asClass, asValue, Constructor } from "awilix";
+const { asClass, asValue } = jest.requireActual("awilix");
+import type { Constructor } from "awilix";
 import { createContainer } from "../awilix/createContainer.js";
 import { register } from "../awilix/register.js";
 import { AppGraphqlContext } from "../graphql/AppGraphqlContext.js";
