@@ -15,7 +15,6 @@ const config: JestConfigWithTsJest = {
   ],
   coverageDirectory: "./coverage/unit/",
   collectCoverageFrom: ["src/**/!(*.spec).ts", "!src/seeds/**", "!src/test/**"],
-
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.m?js$": "$1",
   },

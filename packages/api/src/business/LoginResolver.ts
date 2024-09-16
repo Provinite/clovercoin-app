@@ -1,4 +1,3 @@
-import { SendEmailCommand, SESClient } from "@aws-sdk/client-ses";
 import { Arg, Ctx, Mutation, Resolver } from "type-graphql";
 import { InvalidArgumentError } from "../errors/InvalidArgumentError.js";
 import { NotFoundError } from "../errors/NotFoundError.js";
@@ -17,14 +16,11 @@ import { RegisterResponse } from "./auth/objects/RegisterResponse.js";
 import { ResetPasswordResponse } from "./auth/objects/ResetPasswordResponse.js";
 import { ResetPasswordSuccessResponse } from "./auth/objects/ResetPasswordSuccessResponse.js";
 import { ResetTokenNotRedeemedError } from "../models/Account/AccountController.js";
-import { createTransport } from "nodemailer";
-import { fetchSecret } from "../secrets/fetchSecret.js";
-import SMTPTransport from "nodemailer/lib/smtp-transport/index.js";
 
 @Resolver()
 export class LoginResolver {
   /**
-   *
+   * Register a new user account
    * @param input Register graphql args
    * @param context Graphql context
    * @returns On success, a {@link LoginSuccessResponse}
@@ -86,14 +82,12 @@ export class LoginResolver {
         identityController,
         accountController,
         resetTokenController,
-        sesConfig,
-        sesEnvironment,
-        appEnvironment,
-        logger,
+        emailService,
       }: AppGraphqlContext) => {
         const identities = await identityController.find({
           email,
         });
+        // TODO: This is vulnerable to timing attacks
         if (identities.length === 1) {
           const [identity] = identities;
           const [account] = await accountController.find({
@@ -114,73 +108,8 @@ export class LoginResolver {
             accountId: account.id,
           });
 
-          // send the token to the user
-          logger.info({
-            message: "Sending password reset email",
-            from: sesEnvironment.fromAddress,
-            to: email,
-          });
-
-          const url = `${appEnvironment.webAppOrigin}/reset-password?code=${resetToken.id}`;
-          if (sesEnvironment.useSmtp) {
-            const options: SMTPTransport.Options = {
-              host: sesEnvironment.smtpHost,
-              port: sesEnvironment.smtpPort,
-              secure: sesEnvironment.smtpSecure,
-            };
-            if (sesEnvironment.smtpCredentialsSecretArn) {
-              const smtpCredentials = JSON.parse(
-                await fetchSecret(
-                  sesEnvironment.smtpCredentialsSecretArn,
-                  logger
-                )
-              );
-
-              options.auth = {
-                user: smtpCredentials.username,
-                pass: smtpCredentials.password,
-              };
-            }
-            const transport = createTransport(options);
-            await transport.sendMail({
-              from: sesEnvironment.fromAddress,
-              to: [email],
-              subject: "Password reset request",
-              html:
-                `A a password reset was requested for the ${appEnvironment.envName} ${appEnvironment.appName} account tied to this email address.<br /><br />` +
-                `If you requested this, visit the following URL to create a new password: ` +
-                `<a href="${url}">${url}</a><br /><br />` +
-                `<hr />` +
-                `This message was automatically generated, and this mailbox is not monitored. Do not reply to this email.`,
-            });
-            transport.close();
-          } else {
-            const sesClient = new SESClient(sesConfig);
-            await sesClient.send(
-              new SendEmailCommand({
-                Destination: {
-                  ToAddresses: [email],
-                },
-                Source: sesEnvironment.fromAddress,
-                Message: {
-                  Subject: {
-                    Data: "Password reset request",
-                  },
-                  Body: {
-                    Html: {
-                      Data:
-                        `A a password reset was requested for the ${appEnvironment.envName} ${appEnvironment.appName} account tied to this email address.<br /><br />` +
-                        `If you requested this, visit the following URL to create a new password: ` +
-                        `<a href="${url}">${url}</a><br /><br />` +
-                        `<hr />` +
-                        `This message was automatically generated, and this mailbox is not monitored. Do not reply to this email.`,
-                    },
-                  },
-                },
-              })
-            );
-            sesClient.destroy();
-          }
+          // send the link to the user's registered email
+          await emailService.sendPasswordResetEmail(email, resetToken.id);
         }
         return new RequestPasswordResetReceivedResponse();
       }
