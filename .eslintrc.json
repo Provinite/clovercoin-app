@@ -26,7 +26,7 @@
   },
   "overrides": [
     {
-      "files": ["*.spec.ts"],
+      "files": ["*.spec.ts", "**/__mocks__/*.ts"],
       "rules": {
         "@typescript-eslint/no-empty-function": "off"
       }
