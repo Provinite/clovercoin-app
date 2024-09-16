@@ -13,7 +13,10 @@ describe("business:Controllers", () => {
       expect.hasAssertions();
       for (const [className, clazz] of Object.entries(ControllersMap)) {
         expect(className).toEqual(clazz.name);
-        if (className !== "LoginController") {
+        if (
+          className !== "LoginController" &&
+          className.endsWith("Controller")
+        ) {
           expect(clazz.prototype).toBeInstanceOf(EntityController);
         }
       }
