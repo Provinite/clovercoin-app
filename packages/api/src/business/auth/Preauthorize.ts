@@ -1,26 +1,28 @@
-import { createMethodDecorator } from "type-graphql";
+import { createMethodMiddlewareDecorator } from "type-graphql";
 import type { AuthInfoSpecifier, CompoundAuthInfo } from "./AuthInfo.js";
 import { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
 import { NotAuthenticatedError } from "./NotAuthenticatedError.js";
 import { runAuthorizationOrThrow } from "./runAuthorization.js";
 
 export const Preauthorize = (specifier?: AuthInfoSpecifier) =>
-  createMethodDecorator<AppGraphqlContext>(async (resolverData, next) => {
-    const { principal } = resolverData.context;
-    if (!principal) {
-      throw new NotAuthenticatedError();
-    }
-    if (!specifier) {
+  createMethodMiddlewareDecorator<AppGraphqlContext>(
+    async (resolverData, next) => {
+      const { principal } = resolverData.context;
+      if (!principal) {
+        throw new NotAuthenticatedError();
+      }
+      if (!specifier) {
+        return next();
+      }
+
+      await runAuthorizationOrThrow(specifier, resolverData);
+
+      /**
+       * Authorization passed, resolver approved to run.
+       */
       return next();
     }
-
-    await runAuthorizationOrThrow(specifier, resolverData);
-
-    /**
-     * Authorization passed, resolver approved to run.
-     */
-    return next();
-  });
+  );
 
 /**
  * Compound auth type. The operation will be authorized if any

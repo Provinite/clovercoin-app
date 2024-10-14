@@ -281,8 +281,8 @@ type InviteCodeList {
 union InviteCodeResponse = InviteCodeList | NotAuthenticatedError | NotAuthorizedError
 
 input LoginArgs {
-  email: String = ""
-  password: String = ""
+  email: String! = ""
+  password: String! = ""
 }
 
 type LoginFailureResponse {
@@ -387,7 +387,7 @@ input RegisterArgs {
   username: String!
 }
 
-union RegisterResponse = DuplicateError | InvalidArgumentError | LoginSuccessResponse
+union RegisterResponse = DuplicateError | InvalidArgumentError | LoginFailureResponse | LoginSuccessResponse
 
 input RequestPasswordResetInput {
   email: String!
@@ -571,7 +571,7 @@ type TraitListEntry {
 """Input object for creating a new TraitListEntry"""
 input TraitListEntryCreateInput {
   order: Int!
-  required: Boolean = false
+  required: Boolean! = false
   speciesVariantId: ID!
   traitId: ID!
 }
