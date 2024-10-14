@@ -2836,6 +2836,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/helper-plugin-utils@npm:^7.25.7":
+  version: 7.25.7
+  resolution: "@babel/helper-plugin-utils@npm:7.25.7"
+  checksum: eef4450361e597f11247d252e69207324dfe0431df9b8bcecc8bef1204358e93fa7776a659c3c4f439e9ee71cd967aeca6c4d6034ebc17a7ae48143bbb580f2f
+  languageName: node
+  linkType: hard
+
 "@babel/helper-remap-async-to-generator@npm:^7.16.8":
   version: 7.16.8
   resolution: "@babel/helper-remap-async-to-generator@npm:7.16.8"
@@ -3511,6 +3518,17 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.0.0-0
   checksum: 745a3553c8ad4d2ea4805eaf50634cf0cb3036f1259fbfa1cd3cb04d685cec68b6f2f0b3ca1856091730e5aca630975283f9f910d87694141e81754fbc074a7a
+  languageName: node
+  linkType: hard
+
+"@babel/plugin-syntax-decorators@npm:^7.25.7":
+  version: 7.25.7
+  resolution: "@babel/plugin-syntax-decorators@npm:7.25.7"
+  dependencies:
+    "@babel/helper-plugin-utils": ^7.25.7
+  peerDependencies:
+    "@babel/core": ^7.0.0-0
+  checksum: 003d8902f2db52c1c215416280bcd5c8436a891b23e6a2dadcb3b6cd94c09a1a43bdccfcf5890165a5d6ce6961b5c8567670a9252d37d700e544f1a1e3a67226
   languageName: node
   linkType: hard
 
@@ -4676,6 +4694,7 @@ __metadata:
     "@aws-sdk/node-http-handler": ^3.360.0
     "@aws-sdk/s3-request-presigner": ^3.282.0
     "@aws-sdk/types": ^3.272.0
+    "@babel/plugin-syntax-decorators": ^7.25.7
     "@clovercoin/api-client": "workspace:packages/api-client"
     "@graphql-codegen/cli": ^5.0.2
     "@graphql-typed-document-node/core": ^3.2.0

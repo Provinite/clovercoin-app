@@ -1,5 +1,5 @@
 import { createMethodDecorator } from "type-graphql";
-import { AuthInfoSpecifier, CompoundAuthInfo } from "./AuthInfo.js";
+import type { AuthInfoSpecifier, CompoundAuthInfo } from "./AuthInfo.js";
 import { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
 import { NotAuthenticatedError } from "./NotAuthenticatedError.js";
 import { runAuthorizationOrThrow } from "./runAuthorization.js";

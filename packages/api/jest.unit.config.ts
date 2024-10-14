@@ -3,6 +3,16 @@ import { defaultsESM } from "ts-jest/presets";
 
 const config: JestConfigWithTsJest = {
   ...defaultsESM,
+  transform: {
+    "^.+\\.tsx?$": [
+      "ts-jest",
+      {
+        useESM: true,
+        compiler: "typescript",
+        tsconfig: "./tsconfig.json",
+      },
+    ],
+  },
   setupFiles: ["./src/test/preEnvSetup.ts"],
   coverageReporters: [
     "html",
