@@ -48,6 +48,9 @@ describe("business:auth:Preauthorize", () => {
         it("doesn't invoke runAuthorization", async () => {});
       });
       describe("unauthenticated", () => {
+        beforeEach(() => {
+          register(container, "principal", asValue(null));
+        });
         it("rejects", async () => {
           register(container, "principal", asValue(null));
           const result = await execute({
