@@ -13,7 +13,7 @@ import type { Identity } from "../../models/Identity/Identity.js";
 import { asMock } from "../../test/asMock.js";
 import { AuthScope, CritterAuthInfo, GlobalAuthInfo } from "./AuthInfo.js";
 const runAuthorizationOrThrow = asMock(_runAuthorizationOrThrow);
-jest.mock("./runAuthorization.ts");
+jest.mock("./runAuthorization.js");
 
 describe("business:auth:Preauthorize", () => {
   const canCreatecommunity: GlobalAuthInfo = {
