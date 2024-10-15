@@ -4,17 +4,45 @@ import { gql as _gql } from "graphql-tag";
 import { buildSchema, Field, ObjectType, Query, Resolver } from "type-graphql";
 import { register } from "../../awilix/register.js";
 import { createTestContainer } from "../../test/createTestContainer.js";
-import { Preauthorize } from "./Preauthorize.js";
+import { allAuth, anyAuth, Preauthorize } from "./Preauthorize.js";
 import { NotAuthenticatedError } from "./NotAuthenticatedError.js";
 import { createMockIdentity } from "../../models/Identity/Identity.mock.js";
 import { hasGlobalPerms } from "./authorizationInfoGenerators/hasGlobalPerms.js";
 import { runAuthorizationOrThrow as _runAuthorizationOrThrow } from "./runAuthorization.js";
 import type { Identity } from "../../models/Identity/Identity.js";
 import { asMock } from "../../test/asMock.js";
+import { AuthScope, CritterAuthInfo, GlobalAuthInfo } from "./AuthInfo.js";
 const runAuthorizationOrThrow = asMock(_runAuthorizationOrThrow);
 jest.mock("./runAuthorization.ts");
 
 describe("business:auth:Preauthorize", () => {
+  const canCreatecommunity: GlobalAuthInfo = {
+    scope: AuthScope.Global,
+    permissions: ["canCreateCommunity"],
+  };
+  const canEditOwnCritter = (): CritterAuthInfo => ({
+    scope: AuthScope.Critter,
+    critterId: "123",
+    permissions: ["canEditOwn"],
+  });
+  describe("anyAuth", () => {
+    it("returns a compound auth info with kind 'anyOf'", () => {
+      const result = anyAuth(canCreatecommunity, canEditOwnCritter);
+      expect(result).toEqual({
+        kind: "anyOf",
+        authInfos: [canCreatecommunity, canEditOwnCritter],
+      });
+    });
+  });
+  describe("allAuth", () => {
+    it("returns a compound auth info with kind 'allOf'", () => {
+      const result = allAuth(canCreatecommunity, canEditOwnCritter);
+      expect(result).toEqual({
+        kind: "allOf",
+        authInfos: [canCreatecommunity, canEditOwnCritter],
+      });
+    });
+  });
   describe("decorator", () => {
     let schema: GraphQLSchema;
     let container: ReturnType<typeof createTestContainer>;
