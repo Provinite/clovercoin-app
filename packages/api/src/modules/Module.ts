@@ -3,6 +3,7 @@ import {
   asFunction,
   AwilixContainer,
   BuildResolver,
+  Lifetime,
   LifetimeType,
 } from "awilix";
 import { Class } from "type-fest";
@@ -184,7 +185,7 @@ export class Module<
         );
       }
 
-      resolver = resolver.setLifetime(entry.lifetime);
+      resolver = resolver.setLifetime(entry.lifetime ?? Lifetime.SINGLETON);
       register(container, key as keyof ContextType, resolver);
     }
   }
@@ -194,7 +195,7 @@ export class Module<
  * Common options for all types of module entries
  */
 interface ModuleEntryBase {
-  lifetime: LifetimeType;
+  lifetime?: LifetimeType;
 }
 
 /**
