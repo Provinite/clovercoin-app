@@ -10,7 +10,6 @@
  * @returns The environment variable
  * @throws if the env var is not set, or is empty ""
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function required(varName: string): string {
   const val = process.env[varName];
   if (!val) {

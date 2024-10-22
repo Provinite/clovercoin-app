@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EmailService method:sendPasswordResetEmail should send a password reset email 2`] = `"A a password reset was requested for the test/unit cc-api-unit-test account tied to this email address.<br /><br />If you requested this, visit the following URL to create a new password: <a href="http://localhost:3000/reset-password?code=reset-token">http://localhost:3000/reset-password?code=reset-token</a><br /><br /><hr />This message was automatically generated, and this mailbox is not monitored. Do not reply to this email."`;

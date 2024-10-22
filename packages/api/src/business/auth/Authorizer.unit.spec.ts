@@ -1,3 +1,4 @@
+import { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
 import { createTestContainer } from "../../test/createTestContainer.js";
 import { AuthInfo, AuthScope } from "./AuthInfo.js";
 import { Authorizer } from "./Authorizer.js";
@@ -8,7 +9,7 @@ jest.mock("./Authorizers.js", () => ({ Authorizers: {} }));
 describe("class:Authorizer", () => {
   describe("method:register", () => {
     it("registers itself", () => {
-      const container = createTestContainer({
+      const container = createTestContainer<AppGraphqlContext>({
         authorizerRegistry: AuthorizerRegistry,
       });
       const registry = container.resolve("authorizerRegistry");

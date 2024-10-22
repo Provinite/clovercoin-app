@@ -1,3 +1,4 @@
+import { AwilixContainer } from "awilix";
 import { ResolverData } from "type-graphql";
 import { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
 import { createTestContainer } from "../../test/createTestContainer.js";
@@ -15,13 +16,13 @@ import { runAuthorizationOrThrow } from "./runAuthorization.js";
 jest.mock("./Authorizers.js", () => ({ Authorizers: {} }));
 
 describe("runAuthorization", () => {
-  let container: ReturnType<typeof createTestContainer>;
+  let container: AwilixContainer<AppGraphqlContext>;
   let registry: AuthorizerRegistry;
   let mockGlobalAuthorizer: Authorizer<AuthScope.Global>;
   let mockCommunityAuthorizer: Authorizer<AuthScope.Community>;
   let mockResolverData: ResolverData<AppGraphqlContext>;
   beforeEach(() => {
-    container = createTestContainer({
+    container = createTestContainer<AppGraphqlContext>({
       authorizerRegistry: AuthorizerRegistry,
     });
     registry = container.resolve("authorizerRegistry");

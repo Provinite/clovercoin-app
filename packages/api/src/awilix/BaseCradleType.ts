@@ -6,11 +6,13 @@ import { AwilixContainer } from "awilix";
  *
  * @template T - The cradle type for the container.
  */
-export type BaseCradleType<T extends Record<string, unknown>> = {
+export type BaseCradleType<T> = {
   /**
    * Self-reference to this conmtainer
    */
-  container: AwilixContainer<T>;
+  container: AwilixContainer<
+    T & Pick<BaseCradleType<T>, "parentContainer" | "contextName">
+  >;
   /**
    * Reference to this container's parent.
    */

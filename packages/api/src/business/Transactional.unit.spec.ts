@@ -21,7 +21,7 @@ class Controller {
 
 describe("decorator:Transactional", () => {
   it("runs in a tx and binds to the transactional instance of this controller", async () => {
-    const container = await createTestContainer({
+    const container = await createTestContainer<AppGraphqlContext>({
       controller: Controller,
       transactionProvider: MockTransactionProvider,
     });

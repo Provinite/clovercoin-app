@@ -15,7 +15,7 @@ describe("controller:ImageController", () => {
   let imageController: ImageController;
   let presignedUrlService: PresignedUrlService;
   beforeEach(() => {
-    container = createTestContainer({
+    container = createTestContainer<AppGraphqlContext>({
       presignedUrlService: MockPresignedUrlService,
       s3Environment: {
         bucket: "CLOVERCOIN-MOCK-TEST-BUCKET",

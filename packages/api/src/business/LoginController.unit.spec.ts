@@ -27,7 +27,7 @@ describe("controller:LoginController", () => {
   const adminEmail = "admin@example.com";
 
   beforeEach(() => {
-    const container = createTestContainer({
+    const container = createTestContainer<AppGraphqlContext>({
       transactionProvider: MockTransactionProvider,
       identityController: MockIdentityController,
       accountController: MockAccountController,

@@ -1,28 +1,29 @@
-import {
-  SendEmailCommand,
-  SESClient,
-  SESClientConfig,
-} from "@aws-sdk/client-ses";
-import { createTransport } from "nodemailer";
-import SMTPTransport from "nodemailer/lib/smtp-transport/index.js";
 import { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
-import { fetchSecret } from "../../secrets/fetchSecret.js";
+import { EmailTransport, EmailTransportSendArgs } from "./EmailTransport.js";
 
+/**
+ * Service for sending emails. Contains business-level logic for
+ * sending specific types of emails. Relies on an {@link EmailTransport}
+ * to actually send the email.
+ *
+ * @note New bespoke methods should be added to this class for each
+ * email the system needs to send.
+ */
 export class EmailService {
-  private sesClientConfig: SESClientConfig;
   private logger: AppGraphqlContext["logger"];
   private sesEnvironment: AppGraphqlContext["sesEnvironment"];
   private appEnvironment: AppGraphqlContext["appEnvironment"];
+  private emailTransport: EmailTransport;
   constructor({
-    sesConfig,
     sesEnvironment,
     logger,
     appEnvironment,
+    emailTransport,
   }: AppGraphqlContext) {
-    this.sesClientConfig = sesConfig;
     this.sesEnvironment = sesEnvironment;
     this.logger = logger;
     this.appEnvironment = appEnvironment;
+    this.emailTransport = emailTransport;
   }
   async sendPasswordResetEmail(email: string, resetToken: string) {
     this.logger.info({
@@ -53,81 +54,7 @@ export class EmailService {
    * @param args The email details
    * @returns A promise that resolves when the email is sent
    */
-  private send(args: SendArgs) {
-    if (this.sesEnvironment.useSmtp) {
-      return this.sendWithSmtp(args);
-    } else {
-      return this.sendWithSes(args);
-    }
+  private send(args: EmailTransportSendArgs) {
+    return this.emailTransport.send(args);
   }
-
-  /**
-   * Send an email with AWS SES.
-   * You probably want {@link send} instead. Don't call this
-   * directly.
-   * @param args Email details
-   */
-  private async sendWithSes({ to, subject, html }: SendArgs) {
-    const sesClient = new SESClient(this.sesClientConfig);
-    await sesClient.send(
-      new SendEmailCommand({
-        Destination: {
-          ToAddresses: [to],
-        },
-        Source: this.sesEnvironment.fromAddress,
-        Message: {
-          Subject: {
-            Data: subject,
-          },
-          Body: {
-            Html: {
-              Data: html,
-            },
-          },
-        },
-      })
-    );
-    sesClient.destroy();
-  }
-
-  /**
-   * Send an email with SMTP.
-   * You probably want {@link send} instead. Don't call this
-   * directly.
-   * @param args Email details
-   */
-  private async sendWithSmtp({ to, subject, html }: SendArgs) {
-    const options: SMTPTransport.Options = {
-      host: this.sesEnvironment.smtpHost,
-      port: this.sesEnvironment.smtpPort,
-      secure: this.sesEnvironment.smtpSecure,
-    };
-    if (this.sesEnvironment.smtpCredentialsSecretArn) {
-      const smtpCredentials = JSON.parse(
-        await fetchSecret(
-          this.sesEnvironment.smtpCredentialsSecretArn,
-          this.logger
-        )
-      );
-
-      options.auth = {
-        user: smtpCredentials.username,
-        pass: smtpCredentials.password,
-      };
-    }
-    const transport = createTransport(options);
-    await transport.sendMail({
-      from: this.sesEnvironment.fromAddress,
-      to: [to],
-      subject: subject,
-      html,
-    });
-    transport.close();
-  }
-}
-
-interface SendArgs {
-  to: string;
-  subject: string;
-  html: string;
 }

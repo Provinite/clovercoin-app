@@ -68,7 +68,7 @@ describe("class:GlobalAuthorizer", () => {
 function setupAuthorizer(
   principal: Partial<AppGraphqlContext["principal"]>
 ): GlobalAuthorizer {
-  return createTestContainer({
+  return createTestContainer<AppGraphqlContext>({
     principal: principal as any,
   }).build(asClass(GlobalAuthorizer));
 }

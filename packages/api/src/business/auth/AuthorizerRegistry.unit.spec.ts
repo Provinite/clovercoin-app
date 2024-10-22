@@ -1,4 +1,5 @@
 import type { AwilixContainer } from "awilix";
+import { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
 import { CommunityAuthorizer } from "../../models/Community/CommunityAuthorizer.js";
 import { CritterAuthorizer } from "../../models/Critter/CritterAuthorizer.js";
 import { createTestContainer } from "../../test/createTestContainer.js";
@@ -88,7 +89,7 @@ describe("class:AuthorizerRegistry", () => {
 });
 
 function setupRegistry() {
-  const testCtx = createTestContainer({
+  const testCtx = createTestContainer<AppGraphqlContext>({
     authorizerRegistry: AuthorizerRegistry,
     container: mockContainer,
   });

@@ -15,7 +15,6 @@ import { InviteCodeController } from "../models/InviteCode/InviteCodeController.
 import { ResetTokenController } from "../models/ResetToken/ResetTokenController.js";
 import { RoleController } from "../models/Role/RoleController.js";
 import { CommunityInvitationController } from "../models/CommunityInvitation/CommunityInvitationController.js";
-import { EmailService } from "./email/EmailService.js";
 /**
  * Add controllers here when they are created to make them available
  * via graphql context etc. Handles typing as well.
@@ -46,8 +45,6 @@ export const ControllersMap = {
   RoleController,
 
   CommunityInvitationController,
-
-  EmailService,
 } as const;
 
 export type ControllersMap = typeof ControllersMap;

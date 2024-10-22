@@ -18,6 +18,7 @@ import { Identity } from "../models/Identity/Identity.js";
 import { ResetToken } from "../models/ResetToken/ResetToken.js";
 import { Account } from "../models/Account/Account.js";
 import { executeOrDie } from "../test/gql/executeOrDie.js";
+import { AppGraphqlContext } from "../graphql/AppGraphqlContext.js";
 
 jest.mock("../models/Account/AccountController.js");
 jest.mock("../models/Identity/IdentityController.js");
@@ -50,7 +51,7 @@ describe("resolver:LoginResolver", () => {
   let email: string;
 
   beforeEach(async () => {
-    container = createTestContainer({
+    container = createTestContainer<AppGraphqlContext>({
       loginController: new LoginController(null!),
       transactionProvider: TransactionProvider,
       identityController: IdentityController,

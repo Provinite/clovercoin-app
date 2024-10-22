@@ -1,4 +1,4 @@
-import { asValue } from "awilix";
+import { asValue, AwilixContainer } from "awilix";
 import { DocumentNode, execute, GraphQLError, GraphQLSchema } from "graphql";
 import { gql as _gql } from "graphql-tag";
 import { buildSchema, Field, ObjectType, Query, Resolver } from "type-graphql";
@@ -12,6 +12,7 @@ import { runAuthorizationOrThrow as _runAuthorizationOrThrow } from "./runAuthor
 import type { Identity } from "../../models/Identity/Identity.js";
 import { asMock } from "../../test/asMock.js";
 import { AuthScope, CritterAuthInfo, GlobalAuthInfo } from "./AuthInfo.js";
+import { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
 const runAuthorizationOrThrow = asMock(_runAuthorizationOrThrow);
 jest.mock("./runAuthorization.js");
 
@@ -45,13 +46,13 @@ describe("business:auth:Preauthorize", () => {
   });
   describe("decorator", () => {
     let schema: GraphQLSchema;
-    let container: ReturnType<typeof createTestContainer>;
+    let container: AwilixContainer<AppGraphqlContext>;
     let principal: Identity | null;
     beforeEach(async () => {
       schema = await buildSchema({
         resolvers: [MockResolver],
       });
-      container = createTestContainer({
+      container = createTestContainer<AppGraphqlContext>({
         logger: { error: jest.fn() } as any,
       });
       principal = null;
