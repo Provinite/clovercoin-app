@@ -1,0 +1,24 @@
+{
+  "folders": [
+    {
+      "path": "."
+    },
+    {
+      "name": "api",
+      "path": "packages/api"
+    },
+    {
+      "name": "client",
+      "path": "packages/client"
+    },
+    {
+      "name": "api-client",
+      "path": "packages/api-client"
+    }
+  ],
+  "settings": {
+    "typescript.tsserver.maxTsServerMemory": 4096,
+    "typescript.tsdk": "api/node_modules/typescript/lib",
+    "jest.disabledWorkspaceFolders": ["clovercoin-app", "api-client"]
+  }
+}

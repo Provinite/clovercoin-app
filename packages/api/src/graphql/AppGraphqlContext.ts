@@ -5,7 +5,6 @@ import type { TransactionProvider } from "../db/TransactionProvider.js";
 import type { RepositoryContext } from "../models/registerRepositories.js";
 import { PresignedUrlService } from "../s3/PresignedUrlService.js";
 import { S3ClientConfig } from "@aws-sdk/client-s3";
-import { Logger } from "winston";
 export interface AppGraphqlContext
   extends RepositoryContext,
     ControllerContext {
@@ -16,6 +15,5 @@ export interface AppGraphqlContext
   container: AwilixContainer<AppGraphqlContext>;
   parentContainer: AwilixContainer<AppGraphqlContext>;
   transactionProvider: TransactionProvider;
-  logger: Logger;
   contextName: string;
 }

@@ -1,7 +1,7 @@
 # This job builds, tests, and deploys the packages in the monorepo
 # https://github.com/github/docs/blob/main/content/actions/learn-github-actions/expressions.md
 name: Build, Test, Deploy Everything
-on: push
+on: pull_request
 env:
   CC_JWT_SECRET: UgLPhhAhX5ngmlNNlaXGc76HPuHpb3/Z5AdG3bqW05E=
   CC_IMG_BUCKET: images
@@ -18,6 +18,8 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build-and-deploy:
+    permissions:
+      pull-requests: write
     environment:
       name: ${{ github.ref_name == vars.beta_branch && 'beta' || ''}}
     runs-on: ubuntu-latest
@@ -139,6 +141,56 @@ jobs:
       - name: Test
         run: yarn workspaces foreach run test
 
+      # Post test coverage
+      - name: Get current date
+        run: |
+          echo "DATE=$(date '+%Y-%m-%d %H:%M:%S')" >> ${GITHUB_ENV}
+      - name: Prepare coverage report in markdown
+        uses: fingerprintjs/action-coverage-report-md@v1
+        id: coverage-api-unit
+        with:
+          textReportPath: "./packages/api/coverage/unit/coverage.txt"
+          srcBasePath: "./packages/api/"
+      - name: Prepare coverage report in markdown
+        uses: fingerprintjs/action-coverage-report-md@v1
+        id: coverage-api-integration
+        with:
+          textReportPath: "./packages/api/coverage/integration/coverage.txt"
+          srcBasePath: "./packages/api/"
+      - name: Comment Coverage (API - Unit)
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: coverage-api-unit
+          message: |
+            # Test Coverage (API, Unit)
+
+            Last updated: ${{ env.DATE }}
+
+            <details>
+              <summary>
+                Test Coverage Report
+              </summary>
+
+              ${{ steps.coverage-api-unit.outputs.markdownReport }}
+
+            </details>
+      - name: Comment Coverage (API - Integration)
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: coverage-api-int
+          message: |
+            # Test Coverage (API, Integration)
+
+            Last updated: ${{ env.DATE }}
+
+            <details>
+              <summary>
+                Test Coverage Report
+              </summary>
+
+              ${{ steps.coverage-api-integration.outputs.markdownReport }}
+
+            </details>
       # Build packages
       - name: Build
         run: yarn workspaces foreach --topological-dev run build

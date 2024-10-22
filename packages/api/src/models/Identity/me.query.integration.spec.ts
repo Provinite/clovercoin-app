@@ -55,6 +55,7 @@ describe("query:me", () => {
       if (result.me.roles.__typename !== "RoleList") {
         throw new Error(`Failed to fetch roles`);
       }
+      expect(result.me.roles.list.length).not.toBe(0);
       for (const role of result.me.roles.list) {
         expect(role.communityId).toBe(community.id);
       }

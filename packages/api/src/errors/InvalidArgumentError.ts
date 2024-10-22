@@ -23,7 +23,7 @@ export class InvalidArgumentError extends BaseError {
   static fromTypegraphqlValidationError(err: unknown) {
     if (err instanceof ArgumentValidationError) {
       const result = new InvalidArgumentError(err.message);
-      result.validationErrors = err.validationErrors.map(
+      result.validationErrors = err.extensions.validationErrors.map(
         (ve) => new ValidationErrorObject(ve)
       );
 

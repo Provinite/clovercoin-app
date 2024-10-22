@@ -1,10 +1,9 @@
 import { Field, InterfaceType } from "type-graphql";
 
-@InterfaceType({
-  isAbstract: false,
-})
-export abstract class BaseError {
+@InterfaceType()
+export abstract class BaseError extends Error {
   constructor(message = "Unknown error.") {
+    super(message);
     this.message = message;
 
     Object.defineProperty(this, "stack", {

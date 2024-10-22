@@ -2,6 +2,19 @@ import type { JestConfigWithTsJest } from "ts-jest";
 
 const config: JestConfigWithTsJest = {
   preset: "ts-jest/presets/default-esm",
+
+  coverageReporters: [
+    "html",
+    [
+      "text",
+      {
+        file: "coverage.txt",
+      },
+    ],
+  ],
+  coverageDirectory: "./coverage/integration/",
+  collectCoverageFrom: ["src/**/!(*.spec).ts", "!src/seeds/**", "!src/test/**"],
+
   transformIgnorePatterns: ["node_modules/(?!axios)"],
   testMatch: ["**/*.integration.spec.ts"],
   extensionsToTreatAsEsm: [".mts", ".ts"],
@@ -10,6 +23,7 @@ const config: JestConfigWithTsJest = {
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.m?js$": "$1",
   },
+
   transform: {
     // '^.+\\.[tj]sx?$' to process js/ts with `ts-jest`
     // '^.+\\.m?[tj]sx?$' to process js/ts/mjs/mts with `ts-jest`

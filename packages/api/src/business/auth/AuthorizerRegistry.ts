@@ -1,17 +1,16 @@
-import { asClass, Constructor } from "awilix";
+import { asClass } from "awilix";
 import { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
 import { AuthScope } from "./AuthInfo.js";
 import { Authorizer } from "./Authorizer.js";
-import { Authorizers } from "./Authorizers.js";
+import { Authorizers, InstanceOfAnyAuthorizer } from "./Authorizers.js";
 
 export class AuthorizerRegistry {
   protected authorizerMap = new Map<AuthScope, Authorizer<AuthScope>>();
 
   constructor({ container }: AppGraphqlContext) {
     for (const clazz of Object.values(Authorizers)) {
-      const instance = container.build(
-        asClass(clazz as Constructor<InstanceType<typeof clazz>>)
-      );
+      const resolver = asClass<InstanceOfAnyAuthorizer>(clazz);
+      const instance = container.build(resolver);
       instance.register(this);
     }
   }

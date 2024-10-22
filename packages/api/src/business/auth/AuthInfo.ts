@@ -42,9 +42,12 @@ export type AuthInfo =
 export type AuthInfoSpecifier = AuthInfo | CompoundAuthInfo | AuthInfoFn | null;
 type MaybePromise<T> = T | Promise<T>;
 
-export type AuthInfoFn = (
-  data: ResolverData<AppGraphqlContext>
-) => MaybePromise<AuthInfo | CompoundAuthInfo | null>;
+export type AuthInfoFn<
+  T extends AuthInfo | CompoundAuthInfo | null =
+    | AuthInfo
+    | CompoundAuthInfo
+    | null
+> = (data: ResolverData<AppGraphqlContext>) => MaybePromise<T>;
 
 export type CompoundAuthInfo = {
   kind: "anyOf" | "allOf";

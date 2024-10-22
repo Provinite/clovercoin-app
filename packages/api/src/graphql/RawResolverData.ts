@@ -1,5 +1,5 @@
-import { createParamDecorator } from "type-graphql";
+import { createParameterDecorator } from "type-graphql";
 
-export const RawResolverData = createParamDecorator(
+export const RawResolverData = createParameterDecorator(
   (resolverData) => resolverData
 );

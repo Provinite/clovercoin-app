@@ -6,7 +6,6 @@ import { Account } from "../models/Account/Account.js";
 import { Identity } from "../models/Identity/Identity.js";
 import { InviteCodeExhaustedError } from "../models/InviteCode/InviteCodeConsumedError.js";
 import { createJwt } from "../util/jwt/createJwt.js";
-
 export type LoggedInResult =
   | { success: false }
   | { success: true; account: Account; identity: Identity; token: string };

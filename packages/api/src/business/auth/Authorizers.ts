@@ -9,3 +9,6 @@ export const Authorizers = {
   GlobalAuthorizer,
   IdentityAuthorizer,
 } as const;
+
+export type AnyAuthorizer = typeof Authorizers[keyof typeof Authorizers];
+export type InstanceOfAnyAuthorizer = InstanceType<AnyAuthorizer>;
