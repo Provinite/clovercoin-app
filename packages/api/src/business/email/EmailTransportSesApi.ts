@@ -6,8 +6,8 @@ import { EmailTransport, EmailTransportSendArgs } from "./EmailTransport.js";
  * Mailer service that sends emails via the AWS SES API.
  */
 export class EmailTransportSesApi implements EmailTransport {
-  client: SESClient;
-  sesEnvironment: AppGraphqlContext["sesEnvironment"];
+  private client: SESClient;
+  private sesEnvironment: AppGraphqlContext["sesEnvironment"];
   constructor({ sesConfig, sesEnvironment }: AppGraphqlContext) {
     this.client = new SESClient(sesConfig);
     this.sesEnvironment = sesEnvironment;
