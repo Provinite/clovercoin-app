@@ -1,5 +1,5 @@
 import { createTransport } from "nodemailer";
-import SMTPTransport from "nodemailer/lib/smtp-transport/index.js";
+import type SMTPTransport from "nodemailer/lib/smtp-transport/index.js";
 import { Logger } from "winston";
 import { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
 import { fetchSecret } from "../../secrets/fetchSecret.js";

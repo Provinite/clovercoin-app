@@ -1,6 +1,7 @@
 import { Lifetime } from "awilix";
 import { AppGraphqlContext } from "../../graphql/AppGraphqlContext.js";
 import { Module } from "../../modules/Module.js";
+import { createMockSesEnvironment } from "../../test/mocks/createMockSesEnvironment.js";
 import { LoggerModule } from "../../util/Logger.module.js";
 import { EmailService } from "./EmailService.js";
 import { EmailTransport } from "./EmailTransport.js";
@@ -20,6 +21,8 @@ describe("EmailService", () => {
       envName: "test/unit",
       webAppOrigin: "http://localhost:3000",
     };
+
+    mockSesEnv = createMockSesEnvironment();
 
     mockSesEnv = {
       fromAddress: "unit-tests@local.host",
